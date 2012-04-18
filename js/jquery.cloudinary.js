@@ -1,3 +1,8 @@
+/*
+ * Copyright Cloudinary
+ * see https://github.com/cloudinary/cloudinary_js
+ */
+
 (function( $ ) {
   var SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
   function option_consume(options, option_name, default_value) {
