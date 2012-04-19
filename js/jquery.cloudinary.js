@@ -220,6 +220,9 @@ function crc32 (str) {
 }
 
 (function( $ ) {
+  if (!$.fn.fileupload) {
+    return;
+  }
   $.fn.cloudinary_fileupload = function(options) {
     options = $.extend({
       maxFileSize: 10000000,
