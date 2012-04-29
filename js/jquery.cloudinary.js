@@ -12,6 +12,9 @@
   }
   function build_array(arg) {
     return $.isArray(arg) ? arg : [arg];
+  }
+  function present(value) {
+    return typeof value != 'undefined' && ("" + value).length > 0;
   } 
   function generate_transformation_string(options) {
     var width = options['width'];
@@ -19,23 +22,38 @@
     var size = option_consume(options, 'size');
     if (size) {
       var split_size = size.split("x");
-      width = split_size[0];
-      height = split_size[1];  
+      options['width'] = width = split_size[0];
+      options['height'] = height = split_size[1];  
     }       
     if (width && parseFloat(width) < 1) delete options['width'];
     if (height && parseFloat(height) < 1) delete options['height'];
      
     var crop = option_consume(options, 'crop'); 
     if (!crop) width = height = undefined;
-    var named_transformation = build_array(option_consume(options, 'transformation', [])).join(".");
-    var params = [['c', crop], ['t', named_transformation], ['w', width], ['h', height]];
+
+    var background = option_consume(options, 'background');
+    background = background && background.replace(/^#/, 'rgb:');
+
+    var base_transformations = build_array(option_consume(options, 'transformation', []));
+    var named_transformation = [];
+    if ($.grep(base_transformations, function(bs) {return typeof(bs) == 'object';}).length > 0) {
+      base_transformations = $.map(base_transformations, function(base_transformation) {
+        return typeof(base_transformation) == 'object' ? generate_transformation_string($.extend({}, base_transformation)) : generate_transformation_string({transformation: base_transformation});
+      });
+    } else {
+      named_transformation = base_transformations.join(".");
+      base_transformations = [];
+    }
+
+    var params = [['c', crop], ['t', named_transformation], ['w', width], ['h', height], ['b', background]];
     var simple_params = {
       x: 'x',
       y: 'y',
       radius: 'r',
       gravity: 'g',
       quality: 'q',
-      prefix: 'p'
+      prefix: 'p',
+      default_image: 'd'
     };
     for (var param in simple_params) {
       params.push([simple_params[param], option_consume(options, param)]);
@@ -44,13 +62,23 @@
     params.push([option_consume(options, 'raw_transformation')]);
     var transformation = $.map($.grep(params, function(param) {
       var value = param[param.length-1];
-      return typeof value != 'undefined' && ("" + value).length > 0; 
+      return present(value);
     }), function(param) {
       return param.join("_");
     }).join(",");
-    return transformation;          
+    base_transformations.push(transformation);
+    return $.grep(base_transformations, present).join("/");
+  }
+  var dummyImg = undefined;
+  function absolutize(url) {
+    if (!dummyImg) dummyImg = document.createElement("img");
+    dummyImg.src = url;
+    url = dummyImg.src;
+    dummyImg.src = null;
+    return url;
   }
   function cloudinary_url(public_id, options) { 
+    options = options || {};
     var transformation = generate_transformation_string(options);
     var type = option_consume(options, 'type', 'upload');
     var resource_type = option_consume(options, 'resource_type', "image");
@@ -68,7 +96,13 @@
         secure_distribution = SHARED_CDN; 
       }
     }
-    if (format && type != 'fetch') public_id += "." + format;
+    if (type == 'fetch') {
+      public_id = absolutize(public_id); 
+    } else if (public_id.match(/^https?:/)) {
+      return public_id;
+    } else if (format) {
+      public_id += "." + format;
+    }
     if (type == 'fetch' || type == 'asset') public_id = encodeURIComponent(public_id).replace(/%3A/g, ':').replace(/%2F/g, '/'); 
 
     prefix = window.location.protocol + "//";
@@ -90,14 +124,19 @@
   }
   var cloudinary_config = undefined;
   $.cloudinary = {
-    config: function(new_config) {
-      if (new_config) {
-        cloudinary_config = new_config;
-      } else if (!cloudinary_config) {
+    config: function(new_config, new_value) {
+      if (!cloudinary_config) {
         cloudinary_config = {};
         $('meta[name^="cloudinary_"]').each(function() {
           cloudinary_config[$(this).attr('name').replace("cloudinary_", '')] = $(this).attr('content');
         });
+      }
+      if (typeof(new_value) != 'undefined') {
+        cloudinary_config[new_config] = new_value;
+      } else if (typeof(new_config) == 'string') {
+        return cloudinary_config[new_config];
+      } else if (new_config) {
+        cloudinary_config = new_config;
       }
       return cloudinary_config;
     },
@@ -105,6 +144,7 @@
       options = $.extend({}, options);
       return cloudinary_url(public_id, options);    
     },    
+    url_internal: cloudinary_url,
     image: function(public_id, options) {
       options = $.extend({}, options);
       var url = cloudinary_url(public_id, options);
@@ -129,7 +169,7 @@
       options = $.extend({width: $(this).attr('width'), height: $(this).attr('height'),
                           src: $(this).attr('src')},
                          $.extend($(this).data(), options));
-      var public_id = option_consume(options, 'src');
+      var public_id = option_consume(options, 'source', option_consume(options, 'src')); 
       var url = cloudinary_url(public_id, options);
       html_only_attributes(options);
       $(this).attr({src: url, width: options['width'], height: options['height']});
