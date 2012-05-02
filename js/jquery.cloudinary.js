@@ -166,13 +166,13 @@
   };
   $.fn.cloudinary = function(options) {
     this.filter('img').each(function() {
-      options = $.extend({width: $(this).attr('width'), height: $(this).attr('height'),
+      var img_options = $.extend({width: $(this).attr('width'), height: $(this).attr('height'),
                           src: $(this).attr('src')},
                          $.extend($(this).data(), options));
-      var public_id = option_consume(options, 'source', option_consume(options, 'src')); 
-      var url = cloudinary_url(public_id, options);
-      html_only_attributes(options);
-      $(this).attr({src: url, width: options['width'], height: options['height']});
+      var public_id = option_consume(img_options, 'source', option_consume(img_options, 'src')); 
+      var url = cloudinary_url(public_id, img_options);
+      html_only_attributes(img_options);
+      $(this).attr({src: url, width: img_options['width'], height: img_options['height']});
     });
     return this;
   };
