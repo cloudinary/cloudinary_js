@@ -176,6 +176,9 @@
     });
     return this;
   };
+  $.fn.fetchify = function(options) {
+    return this.cloudinary($.extend(options, {'type': 'fetch'}));
+  };
 })( jQuery );
 
 
