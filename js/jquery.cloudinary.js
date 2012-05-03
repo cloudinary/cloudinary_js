@@ -1,4 +1,5 @@
 /*
+ * Cloudinary's jQuery library - v1.0.0 
  * Copyright Cloudinary
  * see https://github.com/cloudinary/cloudinary_js
  */
