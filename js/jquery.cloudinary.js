@@ -1,5 +1,5 @@
 /*
- * Cloudinary's jQuery library - v1.0.0 
+ * Cloudinary's jQuery library - v1.0.1 
  * Copyright Cloudinary
  * see https://github.com/cloudinary/cloudinary_js
  */
@@ -54,7 +54,9 @@
       gravity: 'g',
       quality: 'q',
       prefix: 'p',
-      default_image: 'd'
+      default_image: 'd',
+      angle: 'a',
+      overlay: 'l'
     };
     for (var param in simple_params) {
       params.push([simple_params[param], option_consume(options, param)]);

@@ -138,4 +138,18 @@ describe("cloudinary", function() {
     expect(options).toEqual({});
     expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/d_default/test") 
   });
+  
+  it("should support angle", function() {
+    options = {"angle": 12}
+    result = $.cloudinary.url_internal("test", options)
+    expect(options).toEqual({});
+    expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/a_12/test") 
+  });
+  
+  it("should support overlay", function() {
+    options = {"overlay": "text:hello"}
+    result = $.cloudinary.url_internal("test", options)
+    expect(options).toEqual({});
+    expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/l_text:hello/test") 
+  });
 });
