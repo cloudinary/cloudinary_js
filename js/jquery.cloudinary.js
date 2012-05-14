@@ -56,7 +56,9 @@
       prefix: 'p',
       default_image: 'd',
       angle: 'a',
-      overlay: 'l'
+      overlay: 'l',
+      fetch_format: 'f',
+      effects: 'e'
     };
     for (var param in simple_params) {
       params.push([simple_params[param], option_consume(options, param)]);
@@ -82,8 +84,11 @@
   }
   function cloudinary_url(public_id, options) { 
     options = options || {};
-    var transformation = generate_transformation_string(options);
     var type = option_consume(options, 'type', 'upload');
+    if (type == 'fetch') {
+      options.fetch_format = options.fetch_format || option_consume(options, 'format');
+    }
+    var transformation = generate_transformation_string(options);
     var resource_type = option_consume(options, 'resource_type', "image");
     var version = option_consume(options, 'version');
     var format = option_consume(options, 'format');

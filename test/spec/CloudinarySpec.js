@@ -152,4 +152,19 @@ describe("cloudinary", function() {
     expect(options).toEqual({});
     expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/l_text:hello/test") 
   });
+
+  it("should support format for fetch urls", function() {
+    options = {"format": "jpg", "type": "fetch"}
+    result = $.cloudinary.url_internal("http://cloudinary.com/images/logo.png", options)
+    expect(options).toEqual({});
+    expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/fetch/f_jpg/http://cloudinary.com/images/logo.png") 
+  });
+  
+  it("should support effects", function() {
+    options = {"effects": "sepia"}
+    result = $.cloudinary.url_internal("test", options)
+    expect(options).toEqual({});
+    expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/e_sepia/test") 
+  });
+  
 });
