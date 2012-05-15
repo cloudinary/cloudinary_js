@@ -160,11 +160,18 @@ describe("cloudinary", function() {
     expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/fetch/f_jpg/http://cloudinary.com/images/logo.png") 
   });
   
-  it("should support effects", function() {
-    options = {"effects": "sepia"}
+  it("should support effect", function() {
+    options = {"effect": "sepia"}
     result = $.cloudinary.url_internal("test", options)
     expect(options).toEqual({});
     expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/e_sepia/test") 
+  });
+  
+  it("should support effect with param", function() {
+    options = {"effect": ["sepia", 10]}
+    result = $.cloudinary.url_internal("test", options)
+    expect(options).toEqual({});
+    expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/e_sepia:10/test") 
   });
   
 });

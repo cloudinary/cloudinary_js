@@ -45,8 +45,10 @@
       named_transformation = base_transformations.join(".");
       base_transformations = [];
     }
+    var effect = option_consume(options, "effect");
+    if ($.isArray(effect)) effect = effect.join(":");
 
-    var params = [['c', crop], ['t', named_transformation], ['w', width], ['h', height], ['b', background]];
+    var params = [['c', crop], ['t', named_transformation], ['w', width], ['h', height], ['b', background], ['e', effect]];
     var simple_params = {
       x: 'x',
       y: 'y',
@@ -57,8 +59,7 @@
       default_image: 'd',
       angle: 'a',
       overlay: 'l',
-      fetch_format: 'f',
-      effects: 'e'
+      fetch_format: 'f'
     };
     for (var param in simple_params) {
       params.push([simple_params[param], option_consume(options, param)]);
