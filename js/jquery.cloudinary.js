@@ -170,7 +170,7 @@
       return $.cloudinary.image(public_id, $.extend({type: 'twitter_name'}, options));
     },
     fetch_image: function(public_id, options) {
-      return $.cloudinary.image(public_id, $.extend({type: 'fetch_image'}, options));
+      return $.cloudinary.image(public_id, $.extend({type: 'fetch'}, options));
     },
   };
   $.fn.cloudinary = function(options) {

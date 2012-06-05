@@ -174,4 +174,8 @@ describe("cloudinary", function() {
     expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/e_sepia:10/test") 
   });
   
+  it("should support fetch_image", function() {
+    result = $.cloudinary.fetch_image("http://example.com/hello.jpg?a=b").attr("src");
+    expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/fetch/http://example.com/hello.jpg%3Fa%3Db") 
+  });
 });
