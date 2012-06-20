@@ -146,13 +146,6 @@ describe("cloudinary", function() {
     expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/a_12/test") 
   });
   
-  it("should support overlay", function() {
-    options = {"overlay": "text:hello"}
-    result = $.cloudinary.url_internal("test", options)
-    expect(options).toEqual({});
-    expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/l_text:hello/test") 
-  });
-
   it("should support format for fetch urls", function() {
     options = {"format": "jpg", "type": "fetch"}
     result = $.cloudinary.url_internal("http://cloudinary.com/images/logo.png", options)
@@ -178,4 +171,20 @@ describe("cloudinary", function() {
     result = $.cloudinary.fetch_image("http://example.com/hello.jpg?a=b").attr("src");
     expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/fetch/http://example.com/hello.jpg%3Fa%3Db") 
   });
+  
+  layers = {overlay: "l", underlay: "u"};
+  for (var layer in layers) {
+    it("should support " + layer, function() {
+      options = {}; options[layer] = "text:hello";
+      result = $.cloudinary.url_internal("test", options)
+      expect(options).toEqual({});
+      expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/" + layers[layer] + "_text:hello/test") 
+    });
+    it("should not pass width/height to html for " + layer, function() {
+      options = {height: 100, width: 100}; options[layer] = "text:hello";
+      result = $.cloudinary.url_internal("test", options)
+      expect(options).toEqual({});
+      expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/h_100," + layers[layer] + "_text:hello,w_100/test") 
+    });
+  }
 });

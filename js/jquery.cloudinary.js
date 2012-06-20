@@ -26,11 +26,12 @@
       options['width'] = width = split_size[0];
       options['height'] = height = split_size[1];  
     }       
-    if (width && parseFloat(width) < 1) delete options['width'];
-    if (height && parseFloat(height) < 1) delete options['height'];
+    var has_layer = options.overlay || options.underlay;
+    if (width && (has_layer || parseFloat(width) < 1)) delete options['width'];
+    if (height && (has_layer || parseFloat(height) < 1)) delete options['height'];
      
     var crop = option_consume(options, 'crop'); 
-    if (!crop) width = height = undefined;
+    if (!crop && !has_layer) width = height = undefined;
 
     var background = option_consume(options, 'background');
     background = background && background.replace(/^#/, 'rgb:');
@@ -58,6 +59,7 @@
       prefix: 'p',
       default_image: 'd',
       angle: 'a',
+      underlay: 'u',
       overlay: 'l',
       fetch_format: 'f'
     };
