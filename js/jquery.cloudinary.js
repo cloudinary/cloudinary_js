@@ -61,7 +61,9 @@
       angle: 'a',
       underlay: 'u',
       overlay: 'l',
-      fetch_format: 'f'
+      fetch_format: 'f',
+      density: 'dn',
+      page: 'pg'
     };
     for (var param in simple_params) {
       params.push([simple_params[param], option_consume(options, param)]);
@@ -107,14 +109,17 @@
         secure_distribution = SHARED_CDN; 
       }
     }
+
     if (type == 'fetch') {
       public_id = absolutize(public_id); 
-    } else if (public_id.match(/^https?:/)) {
-      return public_id;
+    }
+    
+    if (public_id.match(/^https?:/)) {
+      if (type == "upload" || type == "asset") return public_id;
+      public_id = encodeURIComponent(public_id).replace(/%3A/g, ":").replace(/%2F/g, "/"); 
     } else if (format) {
       public_id += "." + format;
     }
-    if (type == 'fetch' || type == 'asset') public_id = encodeURIComponent(public_id).replace(/%3A/g, ':').replace(/%2F/g, '/'); 
 
     prefix = window.location.protocol + "//";
     var subdomain = $.cloudinary.config().cdn_subdomain ? "a" + ((crc32(public_id) % 5) + 1) + "." : "";

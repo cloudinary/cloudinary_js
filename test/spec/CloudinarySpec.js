@@ -100,7 +100,7 @@ describe("cloudinary", function() {
   });
 
   it("should ignore http links only if type is not given or is asset", function() {
-    options = {"type": null};
+    options = {"type": undefined};
     result = $.cloudinary.url_internal("http://example.com/", options);
     expect(options).toEqual({});
     expect(result).toEqual("http://example.com/") ;
@@ -121,6 +121,13 @@ describe("cloudinary", function() {
     expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/fetch/http://blah.com/hello%3Fa%3Db") 
   }); 
 
+  it("should escape http urls", function() {
+    options = {"type": "youtube"};
+    result = $.cloudinary.url_internal("http://www.youtube.com/watch?v=d9NF2edxy-M", options)
+    expect(options).toEqual({});
+    expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/youtube/http://www.youtube.com/watch%3Fv%3Dd9NF2edxy-M") 
+  });
+  
   it("should support background", function() {
     options = {"background": "red"}
     result = $.cloudinary.url_internal("test", options)
@@ -187,4 +194,18 @@ describe("cloudinary", function() {
       expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/h_100," + layers[layer] + "_text:hello,w_100/test") 
     });
   }
+
+  it("should support density", function() {
+    options = {density: 150};
+    result = $.cloudinary.url_internal("test", options);
+    expect(options).toEqual({});
+    expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/dn_150/test");
+  });
+
+  it("should support page", function() {
+    options = {page: 5};
+    result = $.cloudinary.url_internal("test", options);
+    expect(options).toEqual({});
+    expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/pg_5/test");
+  });
 });
