@@ -178,7 +178,7 @@
     },
     fetch_image: function(public_id, options) {
       return $.cloudinary.image(public_id, $.extend({type: 'fetch'}, options));
-    },
+    }
   };
   $.fn.cloudinary = function(options) {
     this.filter('img').each(function() {
@@ -287,7 +287,7 @@ function crc32 (str) {
       maxFileSize: 10000000,
       dataType: 'json',
       acceptFileTypes: /(\.|\/)(gif|jpe?g|png|bmp|ico)$/i,
-      headers: {"X-Requested-With": "XMLHttpRequest"},      
+      headers: {"X-Requested-With": "XMLHttpRequest"}
     }, options);
     this.fileupload(options).bind("fileuploaddone", function(e, data) {
       if (data.result.error) return;      
