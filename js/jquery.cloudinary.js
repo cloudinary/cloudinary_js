@@ -27,10 +27,14 @@
       options['height'] = height = split_size[1];  
     }       
     var has_layer = options.overlay || options.underlay;
-    if (width && (has_layer || parseFloat(width) < 1)) delete options['width'];
-    if (height && (has_layer || parseFloat(height) < 1)) delete options['height'];
      
-    var crop = option_consume(options, 'crop'); 
+    var crop = option_consume(options, 'crop');
+    var angle = build_array(option_consume(options, 'angle')).join(".");
+
+    var no_html_sizes = has_layer || present(angle) || crop == "fit" || crop == "limit";
+     
+    if (width && (no_html_sizes || parseFloat(width) < 1)) delete options['width'];
+    if (height && (no_html_sizes || parseFloat(height) < 1)) delete options['height'];
     if (!crop && !has_layer) width = height = undefined;
 
     var background = option_consume(options, 'background');
@@ -49,7 +53,7 @@
     var effect = option_consume(options, "effect");
     if ($.isArray(effect)) effect = effect.join(":");
 
-    var params = [['c', crop], ['t', named_transformation], ['w', width], ['h', height], ['b', background], ['e', effect]];
+    var params = [['c', crop], ['t', named_transformation], ['w', width], ['h', height], ['b', background], ['e', effect], ['a', angle]];
     var simple_params = {
       x: 'x',
       y: 'y',
@@ -58,7 +62,6 @@
       quality: 'q',
       prefix: 'p',
       default_image: 'd',
-      angle: 'a',
       underlay: 'u',
       overlay: 'l',
       fetch_format: 'f',
