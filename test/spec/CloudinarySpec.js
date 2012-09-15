@@ -177,7 +177,21 @@ describe("cloudinary", function() {
     expect(options).toEqual({});
     expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/fetch/f_jpg/http://cloudinary.com/images/logo.png") 
   });
-  
+
+  it("should support extenal cname", function() {
+    options = {"cname": "hello.com"}
+    result = $.cloudinary.url_internal("test", options)
+    expect(options).toEqual({});
+    expect(result).toEqual(window.location.protocol+"//hello.com/test123/image/upload/test") 
+  });
+
+  it("should support extenal cname with cdn_subdomain on", function() {
+    options = {"cname": "hello.com", "cdn_subdomain": true}
+    result = $.cloudinary.url_internal("test", options)
+    expect(options).toEqual({});
+    expect(result).toEqual(window.location.protocol+"//a2.hello.com/test123/image/upload/test") 
+  });
+
   it("should support effect", function() {
     options = {"effect": "sepia"}
     result = $.cloudinary.url_internal("test", options)

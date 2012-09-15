@@ -104,6 +104,8 @@
     if (!cloud_name) throw "Unknown cloud_name";
     var private_cdn = option_consume(options, 'private_cdn', $.cloudinary.config().private_cdn);    
     var secure_distribution = option_consume(options, 'secure_distribution', $.cloudinary.config().secure_distribution);    
+    var cname = option_consume(options, 'cname', $.cloudinary.config().cname);
+    var cdn_subdomain = option_consume(options, 'cdn_subdomain', $.cloudinary.config().cdn_subdomain);
     var secure = window.location.protocol == 'https:'; 
     if (secure && !secure_distribution) {
       if (private_cdn) {
@@ -125,12 +127,15 @@
     }
 
     prefix = window.location.protocol + "//";
-    var subdomain = $.cloudinary.config().cdn_subdomain ? "a" + ((crc32(public_id) % 5) + 1) + "." : "";
-    if (private_cdn) {
-      prefix += secure ? secure_distribution : subdomain + cloud_name + "-res.cloudinary.com";
+    var subdomain = cdn_subdomain ? "a" + ((crc32(public_id) % 5) + 1) + "." : "";
+    
+    if (secure) {
+      prefix += secure_distribution;
     } else {
-      prefix += (secure ? secure_distribution : subdomain + "res.cloudinary.com") + "/" + cloud_name;
+      host = cname || (private_cdn ? cloud_name + "-res.cloudinary.com" : "res.cloudinary.com" );
+      prefix += subdomain + host;
     }
+    if (!private_cdn) prefix += "/" + cloud_name;
     var url = [prefix, resource_type, type, transformation, version ? "v" + version : "",
                public_id].join("/").replace(/([^:])\/+/g, '$1/');
     return url;
