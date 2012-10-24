@@ -240,4 +240,30 @@ describe("cloudinary", function() {
     expect(options).toEqual({});
     expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/pg_5/test");
   });
+
+  it("should support border", function() {
+    options = {border: {width: 5}};
+    result = $.cloudinary.url_internal("test", options);
+    expect(options).toEqual({});
+    expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/bo_5px_solid_black/test");
+    options = {border: {width: 5, color: "#ffaabbdd"}};
+    result = $.cloudinary.url_internal("test", options);
+    expect(options).toEqual({});
+    expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/bo_5px_solid_rgb:ffaabbdd/test");
+    options = {border: "1px_solid_blue"};
+    result = $.cloudinary.url_internal("test", options);
+    expect(options).toEqual({});
+    expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/bo_1px_solid_blue/test");
+  });
+
+  it("should support flags", function() {
+    options = {flags: "abc"};
+    result = $.cloudinary.url_internal("test", options);
+    expect(options).toEqual({});
+    expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/fl_abc/test");
+    options = {flags: ["abc", "def"]};
+    result = $.cloudinary.url_internal("test", options);
+    expect(options).toEqual({});
+    expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/fl_abc.def/test");
+  });
 });

@@ -52,8 +52,17 @@
     }
     var effect = option_consume(options, "effect");
     if ($.isArray(effect)) effect = effect.join(":");
+    
+    var border = option_consume(options, "border")
+    if ($.isPlainObject(border)) { 
+      var border_width = "" + (border.width || 2);
+      var border_color = (border.color || "black").replace(/^#/, 'rgb:');
+      border = border_width + "px_solid_" + border_color;
+    }
+    
+    var flags = build_array(option_consume(options, 'flags')).join(".");
 
-    var params = [['c', crop], ['t', named_transformation], ['w', width], ['h', height], ['b', background], ['e', effect], ['a', angle]];
+    var params = [['c', crop], ['t', named_transformation], ['w', width], ['h', height], ['b', background], ['e', effect], ['a', angle], ['bo', border], ['fl', flags]];
     var simple_params = {
       x: 'x',
       y: 'y',
@@ -66,7 +75,9 @@
       overlay: 'l',
       fetch_format: 'f',
       density: 'dn',
-      page: 'pg'
+      page: 'pg',
+      color_space: 'cl',
+      delay: 'dl'
     };
     for (var param in simple_params) {
       params.push([simple_params[param], option_consume(options, param)]);
