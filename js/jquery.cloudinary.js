@@ -195,6 +195,9 @@
     twitter_name_profile_image: function(public_id, options) {
       return $.cloudinary.image(public_id, $.extend({type: 'twitter_name'}, options));
     },
+    gravatar_image: function(public_id, options) {
+      return $.cloudinary.image(public_id, $.extend({type: 'gravatar'}, options));
+    },
     fetch_image: function(public_id, options) {
       return $.cloudinary.image(public_id, $.extend({type: 'fetch'}, options));
     }
