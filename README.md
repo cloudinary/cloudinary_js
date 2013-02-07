@@ -31,6 +31,15 @@ All `options` parameters are similar across all cloudinary frameworks. Please re
 
 For more information, refer to [Cloudinary Documentation](http://cloudinary.com/documentation)
 
+### Direct file upload with backend support ###################################
+
+The javascript library implements helpers to be used in conjunction with the backend cloudinary frameworks (Rails, PHP, django). These framework can be used to embed a file upload field in the HTML (`cl_image_upload_tag`). When used, the script finds those fields and extend them:
+
+Upon a successful image upload, the script will trigger a jQuery event (`cloudinarydone`) on the input field and provide fileupload data object (along with the `result` key containing received data from cloudinary upload API) as the only argument.
+
+If a `cloudinary-field-name` has been provided with the upload field, the script will find an input field in the form with the given name and updates it post-upload with the image metadata: `<image-path>#<public-id>`. 
+If no such field exists a new hidden field will be creates.
+
 ## License #######################################################################
 
 Released under the MIT license. 
