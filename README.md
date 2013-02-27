@@ -35,7 +35,7 @@ http://cloudinary.com/documentation
 
 * `$(jquery_selector).cloudinary(options)` - Goes over the elements specified by jQuery selector and changes all images to be fetched using Cloudinary's CDN. Using options, you can also specify transformations to the images.
 
-All `options` parameters are similar across all cloudinary frameworks. Please refer to [Rail's integration and using `cl_image_tag`](http://cloudinary.com/documentation/rails_integration#display_and_transform) for more complete reference regarding the options.
+All `options` parameters are similar across all cloudinary frameworks. Please refer to [Rail's integration and using cl_image_tag](http://cloudinary.com/documentation/rails_integration#display_and_transform) for more complete reference regarding the options.
 
 For more information, refer to [Cloudinary Documentation](http://cloudinary.com/documentation)
 
