@@ -1,5 +1,5 @@
 /*
- * Cloudinary's jQuery library - v1.0.2 
+ * Cloudinary's jQuery library - v1.0.3 
  * Copyright Cloudinary
  * see https://github.com/cloudinary/cloudinary_js
  */
@@ -47,7 +47,7 @@
         return typeof(base_transformation) == 'object' ? generate_transformation_string($.extend({}, base_transformation)) : generate_transformation_string({transformation: base_transformation});
       });
     } else {
-      named_transformation = base_transformations.join(".");
+      named_transformation = $.grep(base_transformations, function() { return this != null && this != ""}).join(".");
       base_transformations = [];
     }
     var effect = option_consume(options, "effect");
@@ -77,7 +77,8 @@
       density: 'dn',
       page: 'pg',
       color_space: 'cl',
-      delay: 'dl'
+      delay: 'dl',
+      opacity: 'o'
     };
     for (var param in simple_params) {
       params.push([simple_params[param], option_consume(options, param)]);
@@ -117,7 +118,7 @@
     var secure_distribution = option_consume(options, 'secure_distribution', $.cloudinary.config().secure_distribution);    
     var cname = option_consume(options, 'cname', $.cloudinary.config().cname);
     var cdn_subdomain = option_consume(options, 'cdn_subdomain', $.cloudinary.config().cdn_subdomain);
-    var secure = window.location.protocol == 'https:'; 
+    var secure = option_consume(options, 'secure', window.location.protocol == 'https:'); 
     if (secure && !secure_distribution) {
       if (private_cdn) {
         throw "secure_distribution not defined";
@@ -137,16 +138,19 @@
       public_id += "." + format;
     }
 
-    prefix = window.location.protocol + "//";
-    var subdomain = cdn_subdomain ? "a" + ((crc32(public_id) % 5) + 1) + "." : "";
-    
-    if (secure) {
-      prefix += secure_distribution;
+    var prefix = window.location.protocol == 'file:' ? "file://" : (secure ? 'https://' : 'http://');
+    if (cloud_name.match(/^\//) && !secure) {    
+      prefix = "/res" + cloud_name;
     } else {
-      host = cname || (private_cdn ? cloud_name + "-res.cloudinary.com" : "res.cloudinary.com" );
-      prefix += subdomain + host;
+	    var subdomain = cdn_subdomain ? "a" + ((crc32(public_id) % 5) + 1) + "." : "";
+	    if (secure) {
+	      prefix += secure_distribution;
+	    } else {
+	      host = cname || (private_cdn ? cloud_name + "-res.cloudinary.com" : "res.cloudinary.com" );
+	      prefix += subdomain + host;
+	    }
+    	if (!private_cdn) prefix += "/" + cloud_name;
     }
-    if (!private_cdn) prefix += "/" + cloud_name;
     var url = [prefix, resource_type, type, transformation, version ? "v" + version : "",
                public_id].join("/").replace(/([^:])\/+/g, '$1/');
     return url;
@@ -180,6 +184,7 @@
       return cloudinary_url(public_id, options);    
     },    
     url_internal: cloudinary_url,
+    transformation_string: generate_transformation_string,
     image: function(public_id, options) {
       options = $.extend({}, options);
       var url = cloudinary_url(public_id, options);

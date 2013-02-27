@@ -266,4 +266,12 @@ describe("cloudinary", function() {
     expect(options).toEqual({});
     expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/fl_abc.def/test");
   });
+
+  it("should support opacity", function() {
+    options = {opacity: 30};
+    result = $.cloudinary.url_internal("test", options);
+    expect(options).toEqual({});
+    expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/o_30/test");
+  });
+
 });
