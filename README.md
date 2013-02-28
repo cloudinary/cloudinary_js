@@ -52,13 +52,13 @@ If no such field exists a new hidden field will be creates.
 See File Processing Options in https://github.com/blueimp/jQuery-File-Upload/wiki/Options
 Add the following javascript includes after the standard fileupload includes:
   
-  js/load-image.min.js
-  js/canvas-to-blob.min.js
-  js/jquery.fileupload-fp.js
+    js/load-image.min.js
+    js/canvas-to-blob.min.js
+    js/jquery.fileupload-fp.js
 
 Also, add the following javascript:
 
-  $('.cloudinary-fileupload').fileupload('option', 'process', [
+    $('.cloudinary-fileupload').fileupload('option', 'process', [
       {
           action: 'load',
           fileTypes: /(\.|\/)(gif|jpe?g|png|bmp|ico)$/i,
@@ -74,7 +74,7 @@ Also, add the following javascript:
       {
           action: 'save'
       }
-  ]);
+    ]);
 
 ## License #######################################################################
 
