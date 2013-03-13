@@ -17,6 +17,29 @@ describe("cloudinary", function() {
     expect(options).toEqual({});
     expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test321/image/upload/test") ;
   });
+
+  it("should default to akamai if secure is given with private_cdn and no secure_distribution", function() {
+    options = {secure: true, private_cdn: true};
+    result = $.cloudinary.url_internal("test", options);
+    expect(options).toEqual({});
+    var prefix = window.location.protocol == 'file:' ? 'file:' : 'https:';
+    expect(result).toEqual(prefix + "//cloudinary-a.akamaihd.net/test123/image/upload/test") ;
+  });
+
+  it("should not add cloud_name if secure private_cdn and secure non akamai secure_distribution", function() {
+    options = {secure: true, private_cdn: true, secure_distribution: "something.cloudfront.net"};
+    result = $.cloudinary.url_internal("test", options);
+    expect(options).toEqual({});
+    var prefix = window.location.protocol == 'file:' ? 'file:' : 'https:';
+    expect(result).toEqual(prefix + "//something.cloudfront.net/image/upload/test") ;
+  });
+
+  it("should not add cloud_name if private_cdn and not secure", function() {
+    options = {private_cdn: true};
+    result = $.cloudinary.url_internal("test", options);
+    expect(options).toEqual({});
+    expect(result).toEqual(window.location.protocol+"//test123-res.cloudinary.com/image/upload/test") ;
+  });
   
   it("should use format from options", function() {    
     options = {"format": "jpg"};

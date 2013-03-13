@@ -5,7 +5,10 @@
  */
 
 (function( $ ) {
-  var SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
+  var CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
+  var AKAMAI_SHARED_CDN = "cloudinary-a.akamaihd.net";
+  var SHARED_CDN = AKAMAI_SHARED_CDN;
+  
   function option_consume(options, option_name, default_value) {
     var result = options[option_name];
     delete options[option_name];
@@ -119,13 +122,7 @@
     var cname = option_consume(options, 'cname', $.cloudinary.config().cname);
     var cdn_subdomain = option_consume(options, 'cdn_subdomain', $.cloudinary.config().cdn_subdomain);
     var secure = option_consume(options, 'secure', window.location.protocol == 'https:'); 
-    if (secure && !secure_distribution) {
-      if (private_cdn) {
-        throw "secure_distribution not defined";
-      } else {
-        secure_distribution = SHARED_CDN; 
-      }
-    }
+    secure_distribution = secure_distribution || SHARED_CDN; 
 
     if (type == 'fetch') {
       public_id = absolutize(public_id); 
@@ -149,7 +146,7 @@
 	      host = cname || (private_cdn ? cloud_name + "-res.cloudinary.com" : "res.cloudinary.com" );
 	      prefix += subdomain + host;
 	    }
-    	if (!private_cdn) prefix += "/" + cloud_name;
+    	if (!private_cdn || (secure && secure_distribution == AKAMAI_SHARED_CDN)) prefix += "/" + cloud_name;
     }
     var url = [prefix, resource_type, type, transformation, version ? "v" + version : "",
                public_id].join("/").replace(/([^:])\/+/g, '$1/');
@@ -163,6 +160,9 @@
   }
   var cloudinary_config = undefined;
   $.cloudinary = {
+    CF_SHARED_CDN: CF_SHARED_CDN,  
+    AKAMAI_SHARED_CDN: AKAMAI_SHARED_CDN,
+    SHARED_CDN: SHARED_CDN,    
     config: function(new_config, new_value) {
       if (!cloudinary_config) {
         cloudinary_config = {};
