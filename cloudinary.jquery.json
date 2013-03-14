@@ -1,0 +1,57 @@
+{
+    "name": "cloudinary",
+    "version": "1.0.4",
+    "title": "Cloudinary jQuery Plugin",
+    "description": "Cloudinary streamlines your web application’s image manipulation needs. Cloudinary's cloud-based servers automate image uploading, resizing, cropping, optimizing, sprite generation and more. Cloudinary's jQuery plugin allows direct uploading from the browser to the cloud and dynamic cloud-based image transformations and effects.", 
+    "keywords": [
+    	"cloudinary",
+        "jquery",
+        "file",
+        "upload",
+        "widget",
+        "image",
+        "transformations",
+        "manipulation",
+        "effects",
+        "thumbnail",
+        "multiple",
+        "drag",
+        "drop",
+        "progress",
+        "preview",
+        "cross-domain",
+        "cross-site",
+        "picture",
+        "pictures",
+        "thumbnails",
+        "CDN"
+    ],
+    "homepage": "https://github.com/cloudinary/cloudinary_js",
+    "demo": "http://cloudinary.com/features",
+    "docs": "http://cloudinary.com/blog/tag/jQuery",    
+    "author": {
+        "name": "Cloudinary",
+        "url": "http://cloudinary.com"
+    },
+    "maintainers": [
+        {
+            "name": "Cloudinary",
+            "url": "http://cloudinary.com"
+        }
+    ],
+    "repository": {
+        "type": "git",        
+        "url": "git://github.com/cloudinary/cloudinary_js.git"
+    },
+    "bugs": "https://github.com/cloudinary/cloudinary_js/issues",
+    "licenses": [
+        {
+            "type": "MIT",
+            "url": "http://www.opensource.org/licenses/MIT"
+        }
+    ],
+    "dependencies": {
+        "jquery": ">=1.6",
+        "blueimp-file-upload": ">=7.2.1"
+    }
+}
