@@ -339,6 +339,12 @@ function crc32 (str) {
     return this;
   };
   
+  $.fn.cloudinary_upload_url = function(remote_url) {
+    this.fileupload('option', 'formData').file = remote_url; 
+    this.fileupload('add', { files: [ remote_url ] }); 
+    delete(this.fileupload('option', 'formData').file);    
+  }
+  
   $(function() {
     $("input.cloudinary-fileupload[type=file]").cloudinary_fileupload();
   });
