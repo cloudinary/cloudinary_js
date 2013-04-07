@@ -308,4 +308,9 @@ describe("cloudinary", function() {
     result = $.cloudinary.url_internal("v1234/test");
     expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/v1234/test"); 
   });
+
+  it("should allow to shorted image/upload urls", function() {
+    result = $.cloudinary.url_internal("test", {shorten: true});
+    expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/iu/test"); 
+  });
 });

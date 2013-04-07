@@ -121,6 +121,7 @@
     var secure_distribution = option_consume(options, 'secure_distribution', $.cloudinary.config().secure_distribution);    
     var cname = option_consume(options, 'cname', $.cloudinary.config().cname);
     var cdn_subdomain = option_consume(options, 'cdn_subdomain', $.cloudinary.config().cdn_subdomain);
+    var shorten = option_consume(options, 'shorten', $.cloudinary.config().shorten);
     var secure = option_consume(options, 'secure', window.location.protocol == 'https:'); 
     secure_distribution = secure_distribution || SHARED_CDN; 
 
@@ -147,6 +148,10 @@
 	      prefix += subdomain + host;
 	    }
     	if (!private_cdn || (secure && secure_distribution == AKAMAI_SHARED_CDN)) prefix += "/" + cloud_name;
+    }
+    if (shorten && resource_type == "image" && type == "upload") {
+      resource_type = "iu";
+      type = undefined;
     }
     if (public_id.search("/") >= 0 && !public_id.match(/^v[0-9]+/) && !public_id.match(/^https?:\//) && !present(version)) {
       version = 1;
