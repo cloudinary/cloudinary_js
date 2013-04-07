@@ -148,6 +148,10 @@
 	    }
     	if (!private_cdn || (secure && secure_distribution == AKAMAI_SHARED_CDN)) prefix += "/" + cloud_name;
     }
+    if (public_id.search("/") >= 0 && !public_id.match(/^v[0-9]+/) && !public_id.match(/^https?:\//) && !present(version)) {
+      version = 1;
+    }
+
     var url = [prefix, resource_type, type, transformation, version ? "v" + version : "",
                public_id].join("/").replace(/([^:])\/+/g, '$1/');
     return url;

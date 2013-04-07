@@ -297,4 +297,15 @@ describe("cloudinary", function() {
     expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/o_30/test");
   });
 
+  it("should add version if public_id contains /", function() {
+    result = $.cloudinary.url_internal("folder/test");
+    expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/v1/folder/test"); 
+    result = $.cloudinary.url_internal("folder/test", {version: 123});
+    expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/v123/folder/test"); 
+  });
+
+  it("should not add version if public_id contains version already", function() {
+    result = $.cloudinary.url_internal("v1234/test");
+    expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/v1234/test"); 
+  });
 });
