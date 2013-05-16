@@ -120,7 +120,7 @@
     var crop = option_consume(options, 'crop');
     var angle = build_array(option_consume(options, 'angle')).join(".");
 
-    var no_html_sizes = has_layer || present(angle) || crop == "fit" || crop == "limit";
+    var no_html_sizes = has_layer || present(angle) || crop == "fit" || crop == "limit" || crop == "lfill";
      
     if (width && (no_html_sizes || parseFloat(width) < 1)) delete options['width'];
     if (height && (no_html_sizes || parseFloat(height) < 1)) delete options['height'];

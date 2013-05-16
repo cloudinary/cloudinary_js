@@ -59,10 +59,14 @@ describe("cloudinary", function() {
     expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_crop,h_100,w_100/test") ;
   });
 
-  it("should not pass width and height to html in case of fit or limit crop", function() {
+  it("should not pass width and height to html in case of fit, lfill or limit crop", function() {
     options = {"width": 100, "height": 100, "crop": "limit"};
     result = $.cloudinary.url_internal("test", options);
     expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_limit,h_100,w_100/test") ;
+    expect(options).toEqual({});
+    options = {"width": 100, "height": 100, "crop": "lfill"};
+    result = $.cloudinary.url_internal("test", options);
+    expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_lfill,h_100,w_100/test") ;
     expect(options).toEqual({});
     options = {"width": 100, "height": 100, "crop": "fit"};
     result = $.cloudinary.url_internal("test", options);
