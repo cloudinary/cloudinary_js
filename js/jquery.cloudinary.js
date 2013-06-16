@@ -331,7 +331,6 @@
     options = $.extend({
       maxFileSize: 10000000,
       dataType: 'json',
-      acceptFileTypes: /(\.|\/)(gif|jpe?g|png|bmp|ico)$/i,
       headers: {"X-Requested-With": "XMLHttpRequest"}
     }, options);
     this.fileupload(options);

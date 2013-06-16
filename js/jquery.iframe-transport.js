@@ -1,5 +1,5 @@
 /*
- * jQuery Iframe Transport Plugin 1.6.1
+ * jQuery Iframe Transport Plugin 1.7
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2011, Sebastian Tschan
@@ -61,9 +61,10 @@
                     // IE versions below IE8 cannot set the name property of
                     // elements that have already been added to the DOM,
                     // so we set the name along with the iframe HTML markup:
+                    counter += 1;
                     iframe = $(
                         '<iframe src="javascript:false;" name="iframe-transport-' +
-                            (counter += 1) + '"></iframe>'
+                            counter + '"></iframe>'
                     ).bind('load', function () {
                         var fileInputClones,
                             paramNames = $.isArray(options.paramName) ?
@@ -96,7 +97,12 @@
                                 // (happens on form submits to iframe targets):
                                 $('<iframe src="javascript:false;"></iframe>')
                                     .appendTo(form);
-                                form.remove();
+                                window.setTimeout(function () {
+                                    // Removing the form in a setTimeout call
+                                    // allows Chrome's developer tools to display
+                                    // the response result
+                                    form.remove();
+                                }, 0);
                             });
                         form
                             .prop('target', iframe.prop('name'))
@@ -164,7 +170,15 @@
     });
 
     // The iframe transport returns the iframe content document as response.
-    // The following adds converters from iframe to text, json, html, and script:
+    // The following adds converters from iframe to text, json, html, xml
+    // and script.
+    // Please note that the Content-Type for JSON responses has to be text/plain
+    // or text/html, if the browser doesn't include application/json in the
+    // Accept header, else IE will show a download dialog.
+    // The Content-Type for XML responses on the other hand has to be always
+    // application/xml or text/xml, so IE properly parses the XML response.
+    // See also
+    // https://github.com/blueimp/jQuery-File-Upload/wiki/Setup#content-type-negotiation
     $.ajaxSetup({
         converters: {
             'iframe text': function (iframe) {
@@ -175,6 +189,12 @@
             },
             'iframe html': function (iframe) {
                 return iframe && $(iframe[0].body).html();
+            },
+            'iframe xml': function (iframe) {
+                var xmlDoc = iframe && iframe[0];
+                return xmlDoc && $.isXMLDoc(xmlDoc) ? xmlDoc :
+                        $.parseXML((xmlDoc.XMLDocument && xmlDoc.XMLDocument.xml) ||
+                            $(xmlDoc.body).html());
             },
             'iframe script': function (iframe) {
                 return iframe && $.globalEval($(iframe[0].body).text());
