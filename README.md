@@ -54,8 +54,10 @@ Add the following javascript includes after the standard fileupload includes:
   
     js/load-image.min.js
     js/canvas-to-blob.min.js
-    js/jquery.fileupload-fp.js
-
+    js/jquery.fileupload-process.js
+    js/jquery.fileupload-image.js
+    js/jquery.fileupload-validate.js
+    
 Also, add the following javascript:
 
     $(document).ready(function() {
