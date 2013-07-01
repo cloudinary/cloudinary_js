@@ -1,5 +1,5 @@
 /*
- * Cloudinary's jQuery library - v1.0.5
+ * Cloudinary's jQuery library - v1.0.6
  * Copyright Cloudinary
  * see https://github.com/cloudinary/cloudinary_js
  */
@@ -329,7 +329,7 @@
   $.fn.cloudinary_fileupload = function(options) {
     var initializing = !this.data('blueimpFileupload');
     options = $.extend({
-      maxFileSize: 10000000,
+      maxFileSize: 20000000,
       dataType: 'json',
       headers: {"X-Requested-With": "XMLHttpRequest"}
     }, options);
