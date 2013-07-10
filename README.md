@@ -1,10 +1,21 @@
 Cloudinary
 ==========
 
-Cloudinary allows web applications to manage web resources in the cloud leveraging cloud-solutions. 
-Cloudinary offers a solution to the entire asset management workflow, from upload to transformations, optimizations, storage and delivery.
+Cloudinary is a cloud service that offers a solution to a web application's entire image management pipeline. 
+
+Easily upload images to the cloud. Automatically perform smart image resizing, cropping and conversion without installing any complex software. Integrate Facebook or Twitter profile image extraction in a snap, in any dimension and style to match your website’s graphics requirements. Images are seamlessly delivered through a fast CDN, and much much more. 
+
+Cloudinary offers comprehensive APIs and administration capabilities and is easy to integrate with any web application, existing or new.
+
+Cloudinary provides URL and HTTP based APIs that can be easily integrated with any Web development framework. 
+
+For Javascript, Cloudinary provides a jQuery plugin for simplifying the integration even further.
 
 The direct image upload feature of the plugin is based on https://github.com/blueimp/jQuery-File-Upload 
+
+## Getting started guide
+![](http://res.cloudinary.com/cloudinary/image/upload/see_more_bullet.png)  **Take a look at our [Getting started guide for jQuery](http://cloudinary.com/documentation/jquery_integration#getting_started_guide)**.
+
 
 ## Setup ######################################################################
 
@@ -37,7 +48,7 @@ http://cloudinary.com/documentation
 
 All `options` parameters are similar across all cloudinary frameworks. Please refer to [Rail's integration and using cl_image_tag](http://cloudinary.com/documentation/rails_integration#display_and_transform) for more complete reference regarding the options.
 
-For more information, refer to [Cloudinary Documentation](http://cloudinary.com/documentation)
+![](http://res.cloudinary.com/cloudinary/image/upload/see_more_bullet.png) **See [our documentation](http://cloudinary.com/documentation/jquery_image_manipulation) for more information about displaying and transforming images using jQuery**.                                         
 
 ### Direct file upload with backend support ###################################
 
@@ -47,6 +58,8 @@ Upon a successful image upload, the script will trigger a jQuery event (`cloudin
 
 If a `cloudinary-field-name` has been provided with the upload field, the script will find an input field in the form with the given name and updates it post-upload with the image metadata: `<image-path>#<public-id>`. 
 If no such field exists a new hidden field will be creates.
+
+![](http://res.cloudinary.com/cloudinary/image/upload/see_more_bullet.png) **See [our documentation](http://cloudinary.com/documentation/jquery_image_upload) for plenty more options of uploading to the cloud directly from the browser**.
 
 ## Client side image resizing before upload ###################################
 See File Processing Options in https://github.com/blueimp/jQuery-File-Upload/wiki/Options
@@ -79,6 +92,27 @@ Also, add the following javascript:
         }
       ]);
     });
+
+## Additional resources
+
+Additional resources are available at:
+
+* [Website](http://cloudinary.com)
+* [Documentation](http://cloudinary.com/documentation)
+* [Knowledge Base](http://support.cloudinary.com/forums) 
+* [Documentation for jQuery integration](http://cloudinary.com/documentation/jquery_integration)
+* [jQuery image upload documentation](http://cloudinary.com/documentation/jquery_image_upload)
+* [jQuery image manipulation documentation](http://cloudinary.com/documentation/jquery_image_manipulation)
+* [Image transformations documentation](http://cloudinary.com/documentation/image_transformations)
+
+## Support
+
+You can [open an issue through GitHub](https://github.com/cloudinary/cloudinary_js/issues).
+
+Contact us [http://cloudinary.com/contact](http://cloudinary.com/contact)
+
+Stay tuned for updates, tips and tutorials: [Blog](http://cloudinary.com/blog), [Twitter](https://twitter.com/cloudinary), [Facebook](http://www.facebook.com/Cloudinary).
+
 
 ## License #######################################################################
 
