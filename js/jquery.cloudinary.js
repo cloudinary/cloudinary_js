@@ -219,7 +219,7 @@
       if (type == "upload" || type == "asset") return public_id;
       public_id = encodeURIComponent(public_id).replace(/%3A/g, ":").replace(/%2F/g, "/"); 
     } else if (format) {
-      public_id += "." + format;
+      public_id = public_id.replace(/\.(jpg|png|gif|webp)$/, '') + "." + format;
     }
 
     var prefix = window.location.protocol == 'file:' ? "file://" : (secure ? 'https://' : 'http://');
@@ -308,7 +308,7 @@
       options = $.extend({type: 'sprite'}, options);
       if (!public_id.match(/.css$/)) options.format = 'css';
       return $.cloudinary.url(public_id, options);
-    }  
+    }
   };
   $.fn.cloudinary = function(options) {
     this.filter('img').each(function() {
@@ -322,6 +322,25 @@
     });
     return this;
   };
+  var webp = null;
+  $.fn.webpify = function(options, webp_options) {
+    options = options || {};
+    webp_options = web_options || options;
+    if (!webp) { 
+      var webp = $.Deferred();
+      var webp_canary = new Image();
+      webp_canary.onerror = webp.reject;
+      webp_canary.onload = webp.resolve;
+      webp_canary.src = 'data:image/webp;base64,UklGRjIAAABXRUJQVlA4ICYAAACyAgCdASoBAAEALmk0mk0iIiIiIgBoSygABc6zbAAA/v56QAAAAA==';
+    }
+    $(function() {
+      webp.done(function() {
+        $(this).cloudinary($.extend({}, $.extend(webp_options, {format: 'webp'})));
+      }).fail(function() {
+        $(this).cloudinary(options);
+      });
+    });
+  }
   $.fn.fetchify = function(options) {
     return this.cloudinary($.extend(options, {'type': 'fetch'}));
   };
