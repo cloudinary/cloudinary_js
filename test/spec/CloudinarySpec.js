@@ -317,4 +317,12 @@ describe("cloudinary", function() {
     result = $.cloudinary.url_internal("test", {shorten: true});
     expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/iu/test"); 
   });
+  
+  it("should generate sprite css urls", function() {
+    result = $.cloudinary.sprite_css("test");
+    expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/sprite/test.css"); 
+    result = $.cloudinary.sprite_css("test.css");
+    expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/sprite/test.css"); 
+  });
+  
 });

@@ -303,7 +303,12 @@
     },
     fetch_image: function(public_id, options) {
       return $.cloudinary.image(public_id, $.extend({type: 'fetch'}, options));
-    }
+    },
+    sprite_css: function(public_id, options) {
+      options = $.extend({type: 'sprite'}, options);
+      if (!public_id.match(/.css$/)) options.format = 'css';
+      return $.cloudinary.url(public_id, options);
+    }  
   };
   $.fn.cloudinary = function(options) {
     this.filter('img').each(function() {
