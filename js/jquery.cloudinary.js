@@ -324,8 +324,9 @@
   };
   var webp = null;
   $.fn.webpify = function(options, webp_options) {
+    var that = this;
     options = options || {};
-    webp_options = web_options || options;
+    webp_options = webp_options || options;
     if (!webp) { 
       var webp = $.Deferred();
       var webp_canary = new Image();
@@ -335,9 +336,9 @@
     }
     $(function() {
       webp.done(function() {
-        $(this).cloudinary($.extend({}, $.extend(webp_options, {format: 'webp'})));
+        $(that).cloudinary($.extend({}, $.extend(webp_options, {format: 'webp'})));
       }).fail(function() {
-        $(this).cloudinary(options);
+        $(that).cloudinary(options);
       });
     });
   }
