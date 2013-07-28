@@ -6,7 +6,8 @@
 
 (function( $ ) {
   var CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
-  var AKAMAI_SHARED_CDN = "cloudinary-a.akamaihd.net";
+  var OLD_AKAMAI_SHARED_CDN = "cloudinary-a.akamaihd.net";
+  var AKAMAI_SHARED_CDN = "res.cloudinary.com";
   var SHARED_CDN = AKAMAI_SHARED_CDN;
   
   function utf8_encode (argString) {
@@ -209,7 +210,6 @@
     var cdn_subdomain = option_consume(options, 'cdn_subdomain', $.cloudinary.config().cdn_subdomain);
     var shorten = option_consume(options, 'shorten', $.cloudinary.config().shorten);
     var secure = option_consume(options, 'secure', window.location.protocol == 'https:'); 
-    secure_distribution = secure_distribution || SHARED_CDN; 
 
     if (type == 'fetch') {
       public_id = absolutize(public_id); 
@@ -226,14 +226,19 @@
     if (cloud_name.match(/^\//) && !secure) {    
       prefix = "/res" + cloud_name;
     } else {
-	    var subdomain = cdn_subdomain ? "a" + ((crc32(public_id) % 5) + 1) + "." : "";
-	    if (secure) {
-	      prefix += secure_distribution;
-	    } else {
-	      host = cname || (private_cdn ? cloud_name + "-res.cloudinary.com" : "res.cloudinary.com" );
-	      prefix += subdomain + host;
-	    }
-    	if (!private_cdn || (secure && secure_distribution == AKAMAI_SHARED_CDN)) prefix += "/" + cloud_name;
+      var shared_domain = !private_cdn;
+      if (secure) {        
+        if (!secure_distribution || secure_distribution == OLD_AKAMAI_SHARED_CDN) {
+          secure_distribution = private_cdn ? cloud_name + "-res.cloudinary.com" : SHARED_CDN;
+        }
+        shared_domain = shared_domain || secure_distribution == SHARED_CDN;
+        prefix += secure_distribution;
+      } else {
+        var subdomain = cdn_subdomain ? "a" + ((crc32(public_id) % 5) + 1) + "." : "";
+        host = cname || (private_cdn ? cloud_name + "-res.cloudinary.com" : "res.cloudinary.com" );
+        prefix += subdomain + host;
+      }
+      if (shared_domain) prefix += "/" + cloud_name;
     }
     if (shorten && resource_type == "image" && type == "upload") {
       resource_type = "iu";
@@ -256,6 +261,7 @@
   var cloudinary_config = undefined;
   $.cloudinary = {
     CF_SHARED_CDN: CF_SHARED_CDN,  
+    OLD_AKAMAI_SHARED_CDN: OLD_AKAMAI_SHARED_CDN,
     AKAMAI_SHARED_CDN: AKAMAI_SHARED_CDN,
     SHARED_CDN: SHARED_CDN,    
     config: function(new_config, new_value) {
