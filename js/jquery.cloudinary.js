@@ -218,8 +218,12 @@
     if (public_id.match(/^https?:/)) {
       if (type == "upload" || type == "asset") return public_id;
       public_id = encodeURIComponent(public_id).replace(/%3A/g, ":").replace(/%2F/g, "/"); 
-    } else if (format) {
-      public_id = public_id.replace(/\.(jpg|png|gif|webp)$/, '') + "." + format;
+    } else {
+      // Make sure public_id is URI encoded.
+      public_id = encodeURIComponent(decodeURIComponent(public_id)).replace(/%3A/g, ":").replace(/%2F/g, "/");      
+      if (format) {
+        public_id = public_id.replace(/\.(jpg|png|gif|webp)$/, '') + "." + format;
+      }
     }
 
     var prefix = window.location.protocol == 'file:' ? "file://" : (secure ? 'https://' : 'http://');

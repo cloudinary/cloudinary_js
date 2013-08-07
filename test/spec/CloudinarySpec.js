@@ -332,5 +332,18 @@ describe("cloudinary", function() {
     result = $.cloudinary.sprite_css("test.css");
     expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/sprite/test.css"); 
   });
-  
+
+  it("should escape public_ids", function() {
+    var tests = {
+        "a b": "a%20b",
+        "a+b": "a%2Bb",
+        "a%20b": "a%20b",
+        "a-b": "a-b",
+        "a??b": "a%3F%3Fb"};
+    for (var source in tests) {
+      var target = tests[source]; 
+      var result = $.cloudinary.url(source);
+      expect(result).toEqual(window.location.protocol + "//res.cloudinary.com/test123/image/upload/" + target);
+    }
+  });
 });
