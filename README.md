@@ -93,6 +93,15 @@ Also, add the following javascript:
       ]);
     });
 
+## Angular Directives
+
+Joshua Chaitin-Pollak contributed AngularJS directives for Cloudinary: 
+displaying & manipulating images and performing uploads from your Angular application.
+
+The Angular module is currently maintained as a separate GitHub project:
+
+https://github.com/jbcpollak/cloudinary_angular
+
 ## Additional resources
 
 Additional resources are available at:
