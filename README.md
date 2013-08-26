@@ -74,23 +74,13 @@ Add the following javascript includes after the standard fileupload includes:
 Also, add the following javascript:
 
     $(document).ready(function() {
-      $('.cloudinary-fileupload').fileupload('option', 'process', [
-        {
-          action: 'load',
-          fileTypes: /(\.|\/)(gif|jpe?g|png|bmp|ico)$/i,
-          maxFileSize: 20000000 // 20MB
-        },
-        {
-          action: 'resize',
-          maxWidth: 1920,
-          maxHeight: 1200,
-          minWidth: 800,
-          minHeight: 600
-        },
-        {
-          action: 'save'
-        }
-      ]);
+      $('.cloudinary-fileupload').fileupload({
+        disableImageResize: false,
+        imageMaxWidth: 800,
+        imageMaxHeight: 600,
+        acceptFileTypes: /(\.|\/)(gif|jpe?g|png|bmp|ico)$/i,
+        maxFileSize: 20000000 // 20MB
+      });
     });
 
 ## Angular Directives
