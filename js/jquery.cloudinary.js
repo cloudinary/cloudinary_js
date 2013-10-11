@@ -387,6 +387,26 @@
         }
         $(e.target).trigger('cloudinarydone', data);
       });
+      
+      this.bind("fileuploadstart", function(e){
+        $(e.target).trigger('cloudinarystart');
+      });
+      this.bind("fileuploadstop", function(e){
+        $(e.target).trigger('cloudinarystop');
+      });
+      this.bind("fileuploadprogress", function(e,data){
+        $(e.target).trigger('cloudinaryprogress',data);
+      });
+      this.bind("fileuploadprogressall", function(e,data){
+        $(e.target).trigger('cloudinaryprogressall',data);
+      });
+      this.bind("fileuploadfail", function(e,data){
+        $(e.target).trigger('cloudinaryfail',data);
+      });
+      this.bind("fileuploadalways", function(e,data){
+        $(e.target).trigger('cloudinaryalways',data);
+      });
+
       if (!this.fileupload('option').url) {
         var upload_url = "https://api.cloudinary.com/v1_1/" + $.cloudinary.config().cloud_name + "/upload";
         this.fileupload('option', 'url', upload_url);
