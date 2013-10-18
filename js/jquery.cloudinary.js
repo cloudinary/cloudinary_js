@@ -129,6 +129,8 @@
 
     var background = option_consume(options, 'background');
     background = background && background.replace(/^#/, 'rgb:');
+    var color = option_consume(options, 'color');
+    color = color && color.replace(/^#/, 'rgb:');
 
     var base_transformations = build_array(option_consume(options, 'transformation', []));
     var named_transformation = [];
@@ -152,7 +154,7 @@
     
     var flags = build_array(option_consume(options, 'flags')).join(".");
 
-    var params = [['c', crop], ['t', named_transformation], ['w', width], ['h', height], ['b', background], ['e', effect], ['a', angle], ['bo', border], ['fl', flags]];
+    var params = [['c', crop], ['t', named_transformation], ['w', width], ['h', height], ['b', background], ['co', color], ['e', effect], ['a', angle], ['bo', border], ['fl', flags]];
     var simple_params = {
       x: 'x',
       y: 'y',
