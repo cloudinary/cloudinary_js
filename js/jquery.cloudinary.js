@@ -228,7 +228,7 @@
       }
     }
 
-    var prefix = window.location.protocol == 'file:' ? "file://" : (secure ? 'https://' : 'http://');
+    var prefix = secure ? 'https://' : window.location.protocol + '//';
     if (cloud_name.match(/^\//) && !secure) {    
       prefix = "/res" + cloud_name;
     } else {
