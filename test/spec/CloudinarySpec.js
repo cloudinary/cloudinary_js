@@ -22,24 +22,21 @@ describe("cloudinary", function() {
     options = {secure: true};
     result = $.cloudinary.url_internal("test", options);
     expect(options).toEqual({});
-    var prefix = window.location.protocol == 'file:' ? 'file:' : 'https:';
-    expect(result).toEqual(prefix + "//res.cloudinary.com/test123/image/upload/test") ;
+    expect(result).toEqual("https://res.cloudinary.com/test123/image/upload/test") ;
   });
 
   it("should default to akamai if secure is given with private_cdn and no secure_distribution", function() {
     options = {secure: true, private_cdn: true};
     result = $.cloudinary.url_internal("test", options);
     expect(options).toEqual({});
-    var prefix = window.location.protocol == 'file:' ? 'file:' : 'https:';
-    expect(result).toEqual(prefix + "//test123-res.cloudinary.com/image/upload/test") ;
+    expect(result).toEqual("https://test123-res.cloudinary.com/image/upload/test") ;
   });
 
   it("should not add cloud_name if secure private_cdn and secure non akamai secure_distribution", function() {
     options = {secure: true, private_cdn: true, secure_distribution: "something.cloudfront.net"};
     result = $.cloudinary.url_internal("test", options);
     expect(options).toEqual({});
-    var prefix = window.location.protocol == 'file:' ? 'file:' : 'https:';
-    expect(result).toEqual(prefix + "//something.cloudfront.net/image/upload/test") ;
+    expect(result).toEqual("https://something.cloudfront.net/image/upload/test") ;
   });
 
   it("should not add cloud_name if private_cdn and not secure", function() {
