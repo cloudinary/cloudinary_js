@@ -343,4 +343,11 @@ describe("cloudinary", function() {
       expect(result).toEqual(window.location.protocol + "//res.cloudinary.com/test123/image/upload/" + target);
     }
   });
+
+  it("should allow to override protocol", function() {
+    options = {"protocol": "custom:"};
+    result = $.cloudinary.url_internal("test", options);
+    expect(options).toEqual({});
+    expect(result).toEqual("custom://res.cloudinary.com/test123/image/upload/test") ;
+  });
 });

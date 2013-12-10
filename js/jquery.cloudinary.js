@@ -211,7 +211,8 @@
     var cname = option_consume(options, 'cname', $.cloudinary.config().cname);
     var cdn_subdomain = option_consume(options, 'cdn_subdomain', $.cloudinary.config().cdn_subdomain);
     var shorten = option_consume(options, 'shorten', $.cloudinary.config().shorten);
-    var secure = option_consume(options, 'secure', window.location.protocol == 'https:'); 
+    var secure = option_consume(options, 'secure', window.location.protocol == 'https:');
+    var protocol = option_consume(options, 'protocol');
 
     if (type == 'fetch') {
       public_id = absolutize(public_id); 
@@ -229,7 +230,8 @@
     }
 
     var prefix = secure ? 'https://' : window.location.protocol + '//';
-    if (cloud_name.match(/^\//) && !secure) {    
+    prefix = protocol ? protocol + '//' : prefix;
+    if (cloud_name.match(/^\//) && !secure) {
       prefix = "/res" + cloud_name;
     } else {
       var shared_domain = !private_cdn;
