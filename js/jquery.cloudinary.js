@@ -212,7 +212,7 @@
     var cdn_subdomain = option_consume(options, 'cdn_subdomain', $.cloudinary.config().cdn_subdomain);
     var shorten = option_consume(options, 'shorten', $.cloudinary.config().shorten);
     var secure = option_consume(options, 'secure', window.location.protocol == 'https:');
-    var protocol = option_consume(options, 'protocol');
+    var protocol = option_consume(options, 'protocol', $.cloudinary.config().protocol);
 
     if (type == 'fetch') {
       public_id = absolutize(public_id); 
