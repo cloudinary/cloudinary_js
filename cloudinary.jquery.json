@@ -26,9 +26,9 @@
         "thumbnails",
         "CDN"
     ],
-    "homepage": "https://github.com/cloudinary/cloudinary_js",
-    "demo": "http://cloudinary.com/features",
-    "docs": "http://cloudinary.com/blog/tag/jQuery",    
+    "homepage": "http://cloudinary.com/documentation/jquery_integration",
+    "demo": "http://edgedemo.cloudinary.com/",
+    "docs": "http://cloudinary.com/documentation/jquery_integration",    
     "author": {
         "name": "Cloudinary",
         "url": "http://cloudinary.com"
