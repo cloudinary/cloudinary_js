@@ -4,7 +4,26 @@
  * see https://github.com/cloudinary/cloudinary_js
  */
 
-(function( $ ) {
+(function (factory) {
+  'use strict';
+  if (typeof define === 'function' && define.amd) {
+    // Register as an anonymous AMD module:
+    define([
+       'jquery',
+       'jquery.ui.widget',
+       'jquery.iframe-transport',
+       'jquery.fileupload',
+    ], factory);
+  } else {
+    // Browser globals:
+    var $ = window.jQuery;
+    factory($);
+    $(function() {
+      $("input.cloudinary-fileupload[type=file]").cloudinary_fileupload();
+    });
+  }
+}(function ($) {
+  'use strict';
   var CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
   var OLD_AKAMAI_SHARED_CDN = "cloudinary-a.akamaihd.net";
   var AKAMAI_SHARED_CDN = "res.cloudinary.com";
@@ -243,7 +262,7 @@
         prefix += secure_distribution;
       } else {
         var subdomain = cdn_subdomain ? "a" + ((crc32(public_id) % 5) + 1) + "." : "";
-        host = cname || (private_cdn ? cloud_name + "-res.cloudinary.com" : "res.cloudinary.com" );
+        var host = cname || (private_cdn ? cloud_name + "-res.cloudinary.com" : "res.cloudinary.com" );
         prefix += subdomain + host;
       }
       if (shared_domain) prefix += "/" + cloud_name;
@@ -355,13 +374,10 @@
         $(that).cloudinary(options);
       });
     });
-  }
+  };
   $.fn.fetchify = function(options) {
     return this.cloudinary($.extend(options, {'type': 'fetch'}));
   };
-})( jQuery );
-
-(function( $ ) {
   if (!$.fn.fileupload) {
     return;
   }
@@ -423,9 +439,5 @@
     this.fileupload('option', 'formData').file = remote_url; 
     this.fileupload('add', { files: [ remote_url ] }); 
     delete(this.fileupload('option', 'formData').file);    
-  }
-  
-  $(function() {
-    $("input.cloudinary-fileupload[type=file]").cloudinary_fileupload();
-  });
-})( jQuery );
+  }  
+}));

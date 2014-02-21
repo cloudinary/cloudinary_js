@@ -31,6 +31,10 @@ Optional:
 
 To set these configuration parameters use the `$.cloudinary.config` function (see below)
 
+Note:
+
+If jquery.cloudinary is loaded as an AMD, you need to initialize the Cloudinary fileupload fields e.g., by calling `$("input.cloudinary-fileupload[type=file]").cloudinary_fileupload();`
+
 ## Usage ######################################################################
 
 The following blog post details the process of setting up jQuery based file upload.
