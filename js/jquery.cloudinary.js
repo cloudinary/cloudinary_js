@@ -232,6 +232,7 @@
     var shorten = option_consume(options, 'shorten', $.cloudinary.config().shorten);
     var secure = option_consume(options, 'secure', window.location.protocol == 'https:');
     var protocol = option_consume(options, 'protocol', $.cloudinary.config().protocol);
+    var trust_public_id = option_consume(options, 'trust_public_id'); 
 
     if (type == 'fetch') {
       public_id = absolutize(public_id); 
@@ -244,7 +245,8 @@
       // Make sure public_id is URI encoded.
       public_id = encodeURIComponent(decodeURIComponent(public_id)).replace(/%3A/g, ":").replace(/%2F/g, "/");      
       if (format) {
-        public_id = public_id.replace(/\.(jpg|png|gif|webp)$/, '') + "." + format;
+        if (!trust_public_id) public_id = public_id.replace(/\.(jpg|png|gif|webp)$/, '');
+        public_id = public_id + "." + format;
       }
     }
 
