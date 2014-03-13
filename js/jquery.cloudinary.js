@@ -367,7 +367,7 @@
       var webp_canary = new Image();
       webp_canary.onerror = webp.reject;
       webp_canary.onload = webp.resolve;
-      webp_canary.src = 'data:image/webp;base64,UklGRjIAAABXRUJQVlA4ICYAAACyAgCdASoBAAEALmk0mk0iIiIiIgBoSygABc6zbAAA/v56QAAAAA==';
+      webp_canary.src = 'data:image/webp;base64,UklGRi4AAABXRUJQVlA4TCEAAAAvAUAAEB8wAiMwAgSSNtse/cXjxyCCmrYNWPwmHRH9jwMA';
     }
     $(function() {
       webp.done(function() {
