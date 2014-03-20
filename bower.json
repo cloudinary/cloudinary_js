@@ -2,6 +2,7 @@
     "name": "cloudinary",
     "version": "1.0.12",
     "title": "Cloudinary jQuery Plugin",
+    "authors": [{ "name": "Cloudinary", "email": "info@cloudinary.com", "homepage": "http://cloudinary.com" }],
     "description": "Cloudinary streamlines your web application’s image manipulation needs. Cloudinary's cloud-based servers automate image uploading, resizing, cropping, optimizing, sprite generation and more. Cloudinary's jQuery plugin allows direct uploading from the browser to the cloud and dynamic cloud-based image transformations and effects.",
     "keywords": [
         "cloudinary",
@@ -27,5 +28,24 @@
         "CDN"
     ],
     "homepage": "http://cloudinary.com/documentation/jquery_integration",
-    "demo": "http://edgedemo.cloudinary.com/"
+    "demo": "http://edgedemo.cloudinary.com/",
+    "license": "http://www.opensource.org/licenses/MIT",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/cloudinary/cloudinary_js.git"
+    },
+    "main": [
+      "js/jquery.cloudinary.js"
+    ],
+    "dependencies" {
+        "jquery": ">=1.6",
+        "blueimp-file-upload": ">=7.2.1"
+    },
+    "ignore": [
+      "/*.*",
+      "test",
+      "js/jquery.fileupload*.js",
+      "js/jquery.iframe-transport.js",
+      "js/jquery.ui.widget.js"
+    ]
 }
