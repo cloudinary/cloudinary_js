@@ -1,6 +1,6 @@
 {
     "name": "cloudinary",
-    "version": "1.0.12",
+    "version": "1.0.13",
     "title": "Cloudinary jQuery Plugin",
     "authors": [{ "name": "Cloudinary", "email": "info@cloudinary.com", "homepage": "http://cloudinary.com" }],
     "description": "Cloudinary streamlines your web application’s image manipulation needs. Cloudinary's cloud-based servers automate image uploading, resizing, cropping, optimizing, sprite generation and more. Cloudinary's jQuery plugin allows direct uploading from the browser to the cloud and dynamic cloud-based image transformations and effects.",
