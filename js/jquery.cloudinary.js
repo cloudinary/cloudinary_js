@@ -205,12 +205,16 @@
     base_transformations.push(transformation);
     return $.grep(base_transformations, present).join("/");
   }
-  var dummyImg = null;
   function absolutize(url) {
-    if (!dummyImg) dummyImg = document.createElement("img");
-    dummyImg.src = url;
-    url = dummyImg.src;
-    dummyImg.src = null;
+    if (!url.match(/^https?:\//)) {
+      var prefix = document.location.protocol + "//" + document.location.host;
+      if (url[0] == '?') {
+        prefix += document.location.pathname;
+      } else if (url[0] != '/') {
+        prefix += document.location.pathname.replace(/\/[^\/]*$/, '/');;
+      }        
+      url = prefix + url;
+    }
     return url;
   }
   function cloudinary_url(public_id, options) { 
@@ -385,11 +389,13 @@
   }
   $.fn.cloudinary_fileupload = function(options) {
     var initializing = !this.data('blueimpFileupload');
-    options = $.extend({
-      maxFileSize: 20000000,
-      dataType: 'json',
-      headers: {"X-Requested-With": "XMLHttpRequest"}
-    }, options);
+    if (initializing) {
+      options = $.extend({
+        maxFileSize: 20000000,
+        dataType: 'json',
+        headers: {"X-Requested-With": "XMLHttpRequest"}
+      }, options);
+    }
     this.fileupload(options);
     
     if (initializing) {
@@ -450,5 +456,40 @@
     this.fileupload('option', 'formData').file = remote_url; 
     this.fileupload('add', { files: [ remote_url ] }); 
     delete(this.fileupload('option', 'formData').file);    
+  };
+    
+  $.cloudinary.unsigned_upload = function(upload_preset, upload_params, options) {
+    options = options || {};
+    upload_params = $.extend({}, upload_params) || {};
+
+    // Serialize upload_params
+    for (var key in upload_params) {
+      var value = upload_params[key];
+      if ($.isPlainObject(value)) {
+        upload_params[key] = $.map(value, function(){return arguments.join("=");}).join("|");      
+      } else if ($.isArray(value)) {
+        if (value.length > 0 && $.isArray(value[0])) {
+          upload_params[key] = $.map(value, function(array_value){return array_value.join(",");}).join("|");                
+        } else {
+          upload_params[key] = value.join(",");  
+        }
+      }
+    }
+    if (!upload_params.callback) {
+      upload_params.callback = "/cloudinary_cors.html";
+    }
+    upload_params.upload_preset = upload_preset;
+
+    options.formData = upload_params;
+
+    if (options.cloudinary_field) {
+      options.cloudinaryField = options.cloudinary_field;
+      delete options.cloudinary_field;
+    }
+        
+    var html_options = options.html || {};
+    html_options["class"] = "cloudinary_fileupload " + (html_options["class"] || "");
+    var widget = $('<input/>').attr({type: "file", name: "file"}).attr(html_options).cloudinary_fileupload(options);
+    return widget;
   };
 }));
