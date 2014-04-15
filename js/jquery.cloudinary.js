@@ -1,5 +1,5 @@
 /*
- * Cloudinary's jQuery library - v1.0.13
+ * Cloudinary's jQuery library - v1.0.14
  * Copyright Cloudinary
  * see https://github.com/cloudinary/cloudinary_js
  */
@@ -211,7 +211,7 @@
       if (url[0] == '?') {
         prefix += document.location.pathname;
       } else if (url[0] != '/') {
-        prefix += document.location.pathname.replace(/\/[^\/]*$/, '/');;
+        prefix += document.location.pathname.replace(/\/[^\/]*$/, '/');
       }        
       url = prefix + url;
     }

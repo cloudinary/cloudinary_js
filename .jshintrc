@@ -1,5 +1,6 @@
 {
   "es3": true,
   "indent": 2,
-  "eqnull": true
+  "eqnull": true,
+  "loopfunc": true
 }
