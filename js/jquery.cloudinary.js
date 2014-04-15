@@ -458,7 +458,7 @@
     delete(this.fileupload('option', 'formData').file);    
   };
     
-  $.cloudinary.unsigned_upload = function(upload_preset, upload_params, options) {
+  $.cloudinary.unsigned_upload_tag = function(upload_preset, upload_params, options) {
     options = options || {};
     upload_params = $.extend({}, upload_params) || {};
 
