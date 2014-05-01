@@ -19,7 +19,9 @@
     var $ = window.jQuery;
     factory($);
     $(function() {
-      $("input.cloudinary-fileupload[type=file]").cloudinary_fileupload();
+      if($.fn.cloudinary_fileupload !== undefined) {
+        $("input.cloudinary-fileupload[type=file]").cloudinary_fileupload();
+      }
     });
   }
 }(function ($) {
