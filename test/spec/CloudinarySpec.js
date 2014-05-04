@@ -350,4 +350,19 @@ describe("cloudinary", function() {
     expect(options).toEqual({});
     expect(result).toEqual("custom://res.cloudinary.com/test123/image/upload/test") ;
   });
+  
+  it("should create an unsigned upload tag", function(){
+    var options = null;
+    $.cloudinary.config().cloud_name = 'test';
+    var old = $.fn.fileupload;
+    $.fn.fileupload = function(opts){
+      options = options || opts;
+      return old.call(this, arguments);
+    };
+    var result = $.cloudinary.unsigned_upload_tag("test", {context: {alt: "alternative", caption: "cap"}, tags: ['a','b']}, {width: 100});
+    expect(options.formData.context).toEqual('alt=alternative|caption=cap');
+    expect(options.formData.tags).toEqual('a,b');
+    expect(options.formData.upload_preset).toEqual('test');
+    expect(options.width).toEqual(100);
+  });
 });
