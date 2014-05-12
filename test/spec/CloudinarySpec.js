@@ -38,6 +38,59 @@ describe("cloudinary", function() {
     expect(options).toEqual({});
     expect(result).toEqual("https://something.cloudfront.net/image/upload/test") ;
   });
+  
+  it("should use protocol based on secure if given", function(){
+    if (window.location.protocol === "http:") {
+      options = {secure: true};
+      result = $.cloudinary.url_internal("test", options);
+      expect(options).toEqual({});
+      expect(result).toEqual("https://res.cloudinary.com/test123/image/upload/test") ;
+    
+      options = {secure: false};
+      result = $.cloudinary.url_internal("test", options);
+      expect(options).toEqual({});
+      expect(result).toEqual("http://res.cloudinary.com/test123/image/upload/test") ;
+    
+      options = {};
+      result = $.cloudinary.url_internal("test", options);
+      expect(options).toEqual({});
+      expect(result).toEqual("http://res.cloudinary.com/test123/image/upload/test") ;
+    }
+    
+    if (window.location.protocol === "https:") {
+      options = {secure: true};
+      result = $.cloudinary.url_internal("test", options);
+      expect(options).toEqual({});
+      expect(result).toEqual("https://res.cloudinary.com/test123/image/upload/test") ;
+      
+      options = {secure: false};
+      result = $.cloudinary.url_internal("test", options);
+      expect(options).toEqual({});
+      expect(result).toEqual("http://res.cloudinary.com/test123/image/upload/test") ;
+      
+      options = {};
+      result = $.cloudinary.url_internal("test", options);
+      expect(options).toEqual({});
+      expect(result).toEqual("https://res.cloudinary.com/test123/image/upload/test") ;
+    }
+    
+    if (window.location.protocol === "file:") {
+      options = {secure: true};
+      result = $.cloudinary.url_internal("test", options);
+      expect(options).toEqual({});
+      expect(result).toEqual("https://res.cloudinary.com/test123/image/upload/test") ;
+      
+      options = {secure: false};
+      result = $.cloudinary.url_internal("test", options);
+      expect(options).toEqual({});
+      expect(result).toEqual("file://res.cloudinary.com/test123/image/upload/test") ;
+      
+      options = {};
+      result = $.cloudinary.url_internal("test", options);
+      expect(options).toEqual({});
+      expect(result).toEqual("file://res.cloudinary.com/test123/image/upload/test") ;
+    }
+  });
 
   it("should not add cloud_name if private_cdn and not secure", function() {
     options = {private_cdn: true};

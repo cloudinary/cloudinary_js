@@ -256,7 +256,7 @@
       }
     }
 
-    var prefix = secure ? 'https://' : window.location.protocol + '//';
+    var prefix = secure ? 'https://' : (window.location.protocol === 'file:' ? "file://" : 'http://');
     prefix = protocol ? protocol + '//' : prefix;
     if (cloud_name.match(/^\//) && !secure) {
       prefix = "/res" + cloud_name;
