@@ -460,7 +460,7 @@
     delete(this.fileupload('option', 'formData').file);    
   };
     
-  $.cloudinary.unsigned_upload_tag = function(upload_preset, upload_params, options) {
+  $.fn.unsigned_cloudinary_upload = function(upload_preset, upload_params, options) {
     options = options || {};
     upload_params = $.extend({}, upload_params) || {};
 
@@ -491,7 +491,11 @@
         
     var html_options = options.html || {};
     html_options["class"] = "cloudinary_fileupload " + (html_options["class"] || "");
-    var widget = $('<input/>').attr({type: "file", name: "file"}).attr(html_options).cloudinary_fileupload(options);
-    return widget;
+    this.attr(html_options).cloudinary_fileupload(options);
+    return this;
+  };
+  
+  $.cloudinary.unsigned_upload_tag = function(upload_preset, upload_params, options) {
+    return $('<input/>').attr({type: "file", name: "file"}).unsigned_cloudinary_upload(upload_preset, upload_params, options);
   };
 }));
