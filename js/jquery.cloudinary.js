@@ -447,7 +447,8 @@
       });
 
       if (!this.fileupload('option').url) {
-        var upload_url = "https://api.cloudinary.com/v1_1/" + $.cloudinary.config().cloud_name + "/upload";
+        var cloud_name = options.cloud_name || $.cloudinary.config().cloud_name;
+        var upload_url = "https://api.cloudinary.com/v1_1/" + cloud_name + "/upload";
         this.fileupload('option', 'url', upload_url);
       }
     }
@@ -491,6 +492,7 @@
         
     var html_options = options.html || {};
     html_options["class"] = "cloudinary_fileupload " + (html_options["class"] || "");
+    if (options.multiple) html_options.multiple = true;
     this.attr(html_options).cloudinary_fileupload(options);
     return this;
   };

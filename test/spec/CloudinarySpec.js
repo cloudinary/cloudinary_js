@@ -405,17 +405,14 @@ describe("cloudinary", function() {
   });
   
   it("should create an unsigned upload tag", function(){
-    var options = null;
     $.cloudinary.config().cloud_name = 'test';
-    var old = $.fn.fileupload;
-    $.fn.fileupload = function(opts){
-      options = options || opts;
-      return old.call(this, arguments);
-    };
-    var result = $.cloudinary.unsigned_upload_tag("test", {context: {alt: "alternative", caption: "cap"}, tags: ['a','b']}, {width: 100});
+    var result = $.cloudinary.unsigned_upload_tag("test", {context: {alt: "alternative", caption: "cap"}, tags: ['a','b']}, {width: 100, cloud_name: "test1", multiple: true});
+    var options = result.fileupload('option');
     expect(options.formData.context).toEqual('alt=alternative|caption=cap');
     expect(options.formData.tags).toEqual('a,b');
     expect(options.formData.upload_preset).toEqual('test');
     expect(options.width).toEqual(100);
+    expect(options.url).toEqual("https://api.cloudinary.com/v1_1/test1/upload");
+    expect(result.prop("multiple")).toEqual(true);
   });
 });
