@@ -116,6 +116,7 @@
     delete options[option_name];
     return typeof(result) == 'undefined' ? default_value : result;
   }
+
   function build_array(arg) {
     if (!arg) {
       return [];
@@ -125,88 +126,137 @@
       return [arg];
     }
   }
+
   function present(value) {
     return typeof value != 'undefined' && ("" + value).length > 0;
-  } 
-  function generate_transformation_string(options) {
-    var width = options.width;
-    var height = options.height;
+  }
+
+  function process_base_transformations(options) {
+    var transformations = build_array(options.transformation);
+    var all_named = true;
+    for (var i = 0; i < transformations.length; i++) {
+      all_named = all_named && typeof(transformations[i]) == 'string';
+    }
+    if (all_named) {
+      return [];
+    }
+    delete options.transformation;
+    var base_transformations = []; 
+    for (var i = 0; i < transformations.length; i++) {
+      var transformation = transformations[i];
+      if (typeof(transformation) == 'string') {
+        base_transformations.push("t_" + transformation);
+      } else {
+        base_transformations.push(generate_transformation_string($.extend({}, transformation)));
+      }
+    }
+    return base_transformations;
+  }
+
+  function process_size(options) {
     var size = option_consume(options, 'size');
     if (size) {
       var split_size = size.split("x");
-      options.width = width = split_size[0];
-      options.height = height = split_size[1];
-    }       
-    var has_layer = options.overlay || options.underlay;
-     
-    var crop = option_consume(options, 'crop');
-    var angle = build_array(option_consume(options, 'angle')).join(".");
-
-    var no_html_sizes = has_layer || present(angle) || crop == "fit" || crop == "limit" || crop == "lfill";
-     
-    if (width && (no_html_sizes || parseFloat(width) < 1)) delete options.width;
-    if (height && (no_html_sizes || parseFloat(height) < 1)) delete options.height;
-    if (!crop && !has_layer) width = height = undefined;
-
-    var background = option_consume(options, 'background');
-    background = background && background.replace(/^#/, 'rgb:');
-    var color = option_consume(options, 'color');
-    color = color && color.replace(/^#/, 'rgb:');
-
-    var base_transformations = build_array(option_consume(options, 'transformation', []));
-    var named_transformation = [];
-    if ($.grep(base_transformations, function(bs) {return typeof(bs) == 'object';}).length > 0) {
-      base_transformations = $.map(base_transformations, function(base_transformation) {
-        return typeof(base_transformation) == 'object' ? generate_transformation_string($.extend({}, base_transformation)) : generate_transformation_string({transformation: base_transformation});
-      });
-    } else {
-      named_transformation = $.grep(base_transformations, function(t) { return t;}).join(".");
-      base_transformations = [];
-    }
-    var effect = option_consume(options, "effect");
-    if ($.isArray(effect)) effect = effect.join(":");
-    
-    var border = option_consume(options, "border");
-    if ($.isPlainObject(border)) { 
-      var border_width = "" + (border.width || 2);
-      var border_color = (border.color || "black").replace(/^#/, 'rgb:');
-      border = border_width + "px_solid_" + border_color;
-    }
-    
-    var flags = build_array(option_consume(options, 'flags')).join(".");
-
-    var params = [['c', crop], ['t', named_transformation], ['w', width], ['h', height], ['b', background], ['co', color], ['e', effect], ['a', angle], ['bo', border], ['fl', flags]];
-    var simple_params = {
-      x: 'x',
-      y: 'y',
-      radius: 'r',
-      gravity: 'g',
-      quality: 'q',
-      prefix: 'p',
-      default_image: 'd',
-      underlay: 'u',
-      overlay: 'l',
-      fetch_format: 'f',
-      density: 'dn',
-      page: 'pg',
-      color_space: 'cl',
-      delay: 'dl',
-      opacity: 'o'
-    };
-    for (var param in simple_params) {
-      params.push([simple_params[param], option_consume(options, param)]);
-    }
-    params.sort(function(a, b){return a[0]<b[0] ? -1  : (a[0]>b[0] ? 1 : 0);});
-    params.push([option_consume(options, 'raw_transformation')]);
-    var transformation = $.map($.grep(params, function(param) {
-      var value = param[param.length-1];
-      return present(value);
-    }), function(param) {
-      return param.join("_");
-    }).join(",");
-    base_transformations.push(transformation);
-    return $.grep(base_transformations, present).join("/");
+      options.width = split_size[0];
+      options.height = split_size[1];
+    }    
   }
+
+  function process_html_dimensions(options) {
+    var width = options.width, height = options.height;
+    var has_layer = options.overlay || options.underlay;     
+    var crop = options.crop;
+    var use_as_html_dimensions = !has_layer && !options.angle && crop != "fit" && crop != "limit" && crop != "lfill";
+    if (use_as_html_dimensions) {
+      if (width && !options.html_width && parseFloat(width) >= 1) options.html_width = width;
+      if (height && !options.html_height && parseFloat(height) >= 1) options.html_height = height;
+    }
+    if (!crop && !has_layer) {
+      delete options.width;
+      delete options.height;
+    }    
+  }
+
+  var TRANSFORMATION_PARAM_NAME_MAPPING = {
+    angle: 'a',
+    background: 'b',
+    border: 'bo',
+    color: 'co',
+    color_space: 'cs',
+    crop: 'c',
+    default_image: 'd',
+    delay: 'dl',
+    density: 'dn',
+    dpr: 'dpr',
+    effect: 'e',
+    fetch_format: 'f',
+    flags: 'fl',
+    gravity: 'g',
+    height: 'h',
+    opacity: 'o',
+    overlay: 'l',
+    page: 'pg',
+    prefix: 'p',
+    quality: 'q',
+    radius: 'r',
+    transformation: 't',
+    underlay: 'u',
+    width: 'w',
+    x: 'x',
+    y: 'y'
+  };
+
+  var TRANSFORMATION_PARAM_VALUE_MAPPING = {
+    angle: function(angle){ return build_array(angle).join("."); },
+    background: function(background) { return background.replace(/^#/, 'rgb:');},
+    border: function(border) {
+      if ($.isPlainObject(border)) { 
+        var border_width = "" + (border.width || 2);
+        var border_color = (border.color || "black").replace(/^#/, 'rgb:');
+        border = border_width + "px_solid_" + border_color;
+      }
+      return border;        
+    },
+    color: function(color) { return color.replace(/^#/, 'rgb:');},
+    dpr: function(dpr) {
+      dpr = dpr.toString();
+      if (dpr === "auto") {
+        return "1.0";
+      } else if (dpr.match(/^\d+$/)) {
+        return dpr + ".0";
+      } else {
+        return dpr;
+      }
+    },
+    effect: function(effect) { return build_array(effect).join(":");},
+    flags: function(flags) { return build_array(flags).join(".")},
+    transformation: function(transformation) { return build_array(transformation).join(".")}
+  };
+
+  function generate_transformation_string(options) {
+    var base_transformations = process_base_transformations(options);
+    process_size(options);
+    process_html_dimensions(options);
+    
+    var params = [];
+    for (var param in TRANSFORMATION_PARAM_NAME_MAPPING) {
+      var value = option_consume(options, param);
+      if (!present(value)) continue;
+      if (TRANSFORMATION_PARAM_VALUE_MAPPING[param]) {        
+        value = TRANSFORMATION_PARAM_VALUE_MAPPING[param](value);
+      }
+      if (!present(value)) continue;
+      params.push(TRANSFORMATION_PARAM_NAME_MAPPING[param] + "_" + value);
+    }
+    params.sort();
+
+    var raw_transformation = option_consume(options, 'raw_transformation');
+    if (present(raw_transformation)) params.push(raw_transformation);
+    var transformation = params.join(",");
+    if (present(transformation)) base_transformations.push(transformation);
+    return base_transformations.join("/");
+  }
+
   function absolutize(url) {
     if (!url.match(/^https?:\//)) {
       var prefix = document.location.protocol + "//" + document.location.host;
@@ -219,6 +269,7 @@
     }
     return url;
   }
+
   function cloudinary_url(public_id, options) { 
     options = options || {};
     var type = option_consume(options, 'type', 'upload');
@@ -287,12 +338,14 @@
                public_id].join("/").replace(/([^:])\/+/g, '$1/');
     return url;
   }
+
   function html_only_attributes(options) {
     var width = option_consume(options, 'html_width');
     var height = option_consume(options, 'html_height');
     if (width) options.width = width;
     if (height) options.height = height;    
   }
+
   var cloudinary_config = null;
   $.cloudinary = {
     CF_SHARED_CDN: CF_SHARED_CDN,  

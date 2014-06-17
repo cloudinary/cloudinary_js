@@ -110,10 +110,10 @@ describe("cloudinary", function() {
     options = {"width": 100, "height": 100};
     result = $.cloudinary.url_internal("test", options);
     expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/test") ;
-    expect(options).toEqual({"width": 100, "height": 100});
+    expect(options).toEqual({"html_width": 100, "html_height": 100});
     options = {"width": 100, "height": 100, "crop": "crop"};
     result = $.cloudinary.url_internal("test", options);
-    expect(options).toEqual({"width": 100, "height": 100});
+    expect(options).toEqual({"html_width": 100, "html_height": 100});
     expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_crop,h_100,w_100/test") ;
   });
 
@@ -163,14 +163,14 @@ describe("cloudinary", function() {
   it("should support base tranformation", function() {    
     options = {"transformation": {"x": 100, "y": 100, "crop": "fill"}, "crop": "crop", "width": 100};
     result = $.cloudinary.url_internal("test", options);
-    expect(options).toEqual({"width": 100});
+    expect(options).toEqual({"html_width": 100});
     expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_fill,x_100,y_100/c_crop,w_100/test") ;
   });
 
   it("should support array of base tranformations", function() {    
     options = {"transformation": [{"x": 100, "y": 100, "width": 200, "crop": "fill"}, {"radius": 10}], "crop": "crop", "width": 100};
     result = $.cloudinary.url_internal("test", options);
-    expect(options).toEqual({"width": 100});
+    expect(options).toEqual({"html_width": 100});
     expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_fill,w_200,x_100,y_100/r_10/c_crop,w_100/test") ;
   });
 
@@ -184,7 +184,7 @@ describe("cloudinary", function() {
   it("should support size", function() {    
     options = {"size": "10x10", "crop": "crop"};
     result = $.cloudinary.url_internal("test", options);
-    expect(options).toEqual({"width": "10", "height": "10"});
+    expect(options).toEqual({"html_width": "10", "html_height": "10"});
     expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_crop,h_10,w_10/test") ;
   });
 
@@ -357,6 +357,21 @@ describe("cloudinary", function() {
     result = $.cloudinary.url_internal("test", options);
     expect(options).toEqual({});
     expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/o_30/test");
+  });
+
+  it("should support dpr", function() {
+    options = {dpr: 1};
+    result = $.cloudinary.url_internal("test", options);
+    expect(options).toEqual({});
+    expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/dpr_1.0/test");
+    options = {dpr: "auto"};
+    result = $.cloudinary.url_internal("test", options);
+    expect(options).toEqual({});
+    expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/dpr_1.0/test");
+    options = {dpr: 1.5};
+    result = $.cloudinary.url_internal("test", options);
+    expect(options).toEqual({});
+    expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/dpr_1.5/test");
   });
 
   it("should add version if public_id contains /", function() {
