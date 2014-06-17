@@ -339,11 +339,22 @@
     return url;
   }
 
-  function html_only_attributes(options) {
+  function finalize_html_url(url) {
+    var device_pixel_ratio = (window.devicePixelRatio || 1).toString();
+    if (device_pixel_ratio.match(/^\d+$/)) device_pixel_ratio += ".0";
+    return url.replace(/([,\/])dpr_(1\.0|auto)([,\/])/g, "$1dpr_" + device_pixel_ratio + "$3");
+  }
+
+  function prepare_html_url(public_id, options) {
+    if ($.cloudinary.config.dpr && !options.dpr) {
+      options.dpr = $.cloudinary.config.dpr;
+    }
+    var url = cloudinary_url(public_id, options);
     var width = option_consume(options, 'html_width');
     var height = option_consume(options, 'html_height');
     if (width) options.width = width;
     if (height) options.height = height;    
+    return url;
   }
 
   var cloudinary_config = null;
@@ -379,9 +390,9 @@
     },
     image: function(public_id, options) {
       options = $.extend({}, options);
-      var url = cloudinary_url(public_id, options);
-      html_only_attributes(options);
-      return $('<img/>').attr(options).attr('src', url);      
+      var url = prepare_html_url(public_id, options);
+      var final_url = finalize_html_url(url);
+      return $('<img/>').data('src-cache', url).attr(options).attr('src', final_url);
     },
     facebook_profile_image: function(public_id, options) {
       return $.cloudinary.image(public_id, $.extend({type: 'facebook'}, options));
@@ -404,18 +415,28 @@
       return $.cloudinary.url(public_id, options);
     }
   };
+
   $.fn.cloudinary = function(options) {
     this.filter('img').each(function() {
       var img_options = $.extend({width: $(this).attr('width'), height: $(this).attr('height'),
-                          src: $(this).attr('src')},
-                         $.extend($(this).data(), options));
+                                  src: $(this).attr('src')}, $(this).data(), options);
       var public_id = option_consume(img_options, 'source', option_consume(img_options, 'src')); 
-      var url = cloudinary_url(public_id, img_options);
-      html_only_attributes(img_options);
-      $(this).attr({src: url, width: img_options.width, height: img_options.height});
+      var url = prepare_html_url(public_id, img_options);
+      var final_url = finalize_html_url(url);
+      $(this).data('src-cache', url).attr({src: final_url, width: img_options.width, height: img_options.height});
     });
     return this;
   };
+
+  $.fn.cloudinary_auto = function() {
+    this.filter('img').each(function() {
+      var url = $(this).data('src-cache') || $(this).data('src');
+      if (url) {
+        $(this).attr('src', finalize_html_url(url));
+      }
+    });
+  };
+
   var webp = null;
   $.fn.webpify = function(options, webp_options) {
     var that = this;
@@ -430,7 +451,7 @@
     }
     $(function() {
       webp.done(function() {
-        $(that).cloudinary($.extend({}, $.extend(webp_options, {format: 'webp'})));
+        $(that).cloudinary($.extend({}, webp_options, {format: 'webp'}));
       }).fail(function() {
         $(that).cloudinary(options);
       });

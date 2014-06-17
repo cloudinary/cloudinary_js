@@ -374,6 +374,16 @@ describe("cloudinary", function() {
     expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/dpr_1.5/test");
   });
 
+  it("should support updating dpr according to devicePixelRatio", function() {
+    window.devicePixelRatio = 2;
+    options = {dpr: "auto"};
+    result = $.cloudinary.image("test", options);
+    expect($(result).attr('src')).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/dpr_2.0/test");
+
+    result = $('<img/>').attr('data-src', 'test').cloudinary(options);
+    expect($(result).attr('src')).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/dpr_2.0/test");
+  });
+
   it("should add version if public_id contains /", function() {
     result = $.cloudinary.url_internal("folder/test");
     expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/v1/folder/test"); 
