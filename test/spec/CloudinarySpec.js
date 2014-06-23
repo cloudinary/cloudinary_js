@@ -439,5 +439,52 @@ describe("cloudinary", function() {
     expect(options.width).toEqual(100);
     expect(options.url).toEqual("https://api.cloudinary.com/v1_1/test1/upload");
     expect(result.prop("multiple")).toEqual(true);
+
+    result = $.cloudinary.unsigned_upload_tag("test", {context: {alt: "alternative", caption: "cap"}, tags: ['a','b'], cloud_name: "test2"}, {width: 100, multiple: true});
+    options = result.fileupload('option');
+    expect(options.url).toEqual("https://api.cloudinary.com/v1_1/test2/upload");
+
+  });
+
+  it("should compute stoppoints correctly", function() {
+    var el = $('<img/>');
+    expect($.cloudinary.calc_stoppoint(el, 1)).toEqual(10);
+    expect($.cloudinary.calc_stoppoint(el, 10)).toEqual(10);
+    expect($.cloudinary.calc_stoppoint(el, 11)).toEqual(20);
+    $.cloudinary.config().stoppoints = [50, 150];
+    expect($.cloudinary.calc_stoppoint(el, 1)).toEqual(50);
+    expect($.cloudinary.calc_stoppoint(el, 100)).toEqual(150);
+    expect($.cloudinary.calc_stoppoint(el, 180)).toEqual(150);
+    $.cloudinary.config().stoppoints = function(width) {
+      return width / 2;
+    };
+    expect($.cloudinary.calc_stoppoint(el, 100)).toEqual(50);
+    $(el).data("stoppoints", '70,140');
+    expect($.cloudinary.calc_stoppoint(el, 1)).toEqual(70);
+    expect($.cloudinary.calc_stoppoint(el, 100)).toEqual(140);
+  });
+
+  it("should correctly resize responsive images", function() {
+    var container, img;
+    var dpr = $.cloudinary.device_pixel_ratio();
+    container = $('<div></div>').css({width: 101}).appendTo('body');
+    runs(function() {
+      img = $.cloudinary.image("sample.jpg", {width: "auto", dpr: "auto", crop: "scale", responsive: true}).appendTo(container);
+      expect(img.attr('src')).toEqual(null);
+      $.cloudinary.responsive();
+      expect(img.attr('src')).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_scale,dpr_"+dpr+",w_101/sample.jpg"); 
+      container.css('width', 111);
+      expect(img.attr('src')).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_scale,dpr_"+dpr+",w_101/sample.jpg"); 
+      $(window).resize();
+    });
+    waits(200);
+    runs(function() {
+      expect(img.attr('src')).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_scale,dpr_"+dpr+",w_120/sample.jpg"); 
+      container.css('width', 101);
+    });
+    waits(200);
+    runs(function() {
+      expect(img.attr('src')).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_scale,dpr_"+dpr+",w_120/sample.jpg"); 
+    });
   });
 });

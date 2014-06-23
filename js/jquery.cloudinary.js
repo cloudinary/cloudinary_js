@@ -168,7 +168,7 @@
     var crop = options.crop;
     var use_as_html_dimensions = !has_layer && !options.angle && crop != "fit" && crop != "limit" && crop != "lfill";
     if (use_as_html_dimensions) {
-      if (width && !options.html_width && parseFloat(width) >= 1) options.html_width = width;
+      if (width && !options.html_width && width !== "auto" && parseFloat(width) >= 1) options.html_width = width;
       if (height && !options.html_height && parseFloat(height) >= 1) options.html_height = height;
     }
     if (!crop && !has_layer) {
@@ -339,15 +339,13 @@
     return url;
   }
 
-  function finalize_html_url(url) {
-    var device_pixel_ratio = (window.devicePixelRatio || 1).toString();
-    if (device_pixel_ratio.match(/^\d+$/)) device_pixel_ratio += ".0";
-    return url.replace(/([,\/])dpr_(1\.0|auto)([,\/])/g, "$1dpr_" + device_pixel_ratio + "$3");
+  function default_stoppoints(width) {
+    return 10 * Math.ceil(width / 10);
   }
 
   function prepare_html_url(public_id, options) {
-    if ($.cloudinary.config.dpr && !options.dpr) {
-      options.dpr = $.cloudinary.config.dpr;
+    if ($.cloudinary.config('dpr') && !options.dpr) {
+      options.dpr = $.cloudinary.config('dpr');
     }
     var url = cloudinary_url(public_id, options);
     var width = option_consume(options, 'html_width');
@@ -357,7 +355,17 @@
     return url;
   }
 
+  function get_config(name, options, default_value) {
+    var value = options[name] || $.cloudinary.config(name);
+    if (typeof(value) == 'undefined') value = default_value;
+    return value;
+  }
+
   var cloudinary_config = null;
+  var responsive_config = null;
+  var responsive_resize_initialized = false;
+  var device_pixel_ratio_cache = {};
+
   $.cloudinary = {
     CF_SHARED_CDN: CF_SHARED_CDN,  
     OLD_AKAMAI_SHARED_CDN: OLD_AKAMAI_SHARED_CDN,
@@ -391,8 +399,8 @@
     image: function(public_id, options) {
       options = $.extend({}, options);
       var url = prepare_html_url(public_id, options);
-      var final_url = finalize_html_url(url);
-      return $('<img/>').data('src-cache', url).attr(options).attr('src', final_url);
+      var img = $('<img/>').data('src-cache', url).attr(options).cloudinary_update(options);
+      return img;
     },
     facebook_profile_image: function(public_id, options) {
       return $.cloudinary.image(public_id, $.extend({type: 'facebook'}, options));
@@ -413,6 +421,84 @@
       options = $.extend({type: 'sprite'}, options);
       if (!public_id.match(/.css$/)) options.format = 'css';
       return $.cloudinary.url(public_id, options);
+    },
+    /** 
+     * Turn on hidpi (dpr_auto) and responsive (w_auto) processing according to the current container size and the device pixel ratio.
+     * Use the following classes:
+     * - cld-hidpi - only set dpr_auto
+     * - cld-responsive - update both dpr_auto and w_auto
+     * @param: options
+     * - responsive_resize - should responsive images be updated on resize (default: true).
+     * - responsive_debounce - if set, how many milliseconds after resize is done before the image is replaces (default: 100). Set to 0 to disable.
+     * - responsive_use_stoppoints: 
+     *   - true - always use stoppoints for width
+     *   - "resize" - use exact width on first render and stoppoints on resize (default)
+     *   - false - always use exact width
+     * Stoppoints - to prevent creating a transformation for every pixel, stop-points can be configured. The smallest stop-point that is larger than
+     *    the wanted width will be used. The default stoppoints are all the multiples of 10. See calc_stoppoint for ways to override this.
+     */
+    responsive: function(options) {
+      responsive_config = $.extend(responsive_config || {}, options);
+      $('img.cld-responsive, img.cld-hidpi').cloudinary_update(responsive_config);
+      var responsive_resize = get_config('responsive_resize', responsive_config, true);
+      if (responsive_resize && !responsive_resize_initialized) {
+        responsive_config.resizing = responsive_resize_initialized = true;
+        var timeout = null;
+        $(window).on('resize', function() {
+          var debounce = get_config('responsive_debounce', responsive_config, 100);
+          function reset() {
+            if (timeout) {
+              clearTimeout(timeout); 
+              timeout = null;
+            }
+          }
+          function run() {
+            $('img.cld-responsive').cloudinary_update(responsive_config);  
+          }
+          function wait() {
+            reset();
+            setTimeout(function() { reset(); run(); }, debounce);
+          }
+          if (debounce) {
+            wait();
+          } else {
+            run();
+          }
+        });
+      }
+    },    
+    /**
+     * Compute the stoppoint for the given element and width.
+     * By default the stoppoint will be the smallest multiple of 10 larger than the width.
+     * These can be overridden by either setting the data-stoppoints attribute of an image or using $.cloudinary.config('stoppoints', stoppoints).
+     * The value can be either:
+     * - an ordered list of the wanted stoppoints
+     * - a comma separated ordered list of stoppoints
+     * - a function that returns the stoppoint given the wanted width.
+     */
+    calc_stoppoint: function (element, width) {
+      var stoppoints = $(element).data('stoppoints') || $.cloudinary.config().stoppoints || default_stoppoints;
+      if (typeof(stoppoints) === 'function') {
+        return stoppoints(width);
+      }
+      if (typeof(stoppoints) === 'string') {
+        stoppoints = $.map(stoppoints.split(","), function(val){ return parseInt(val); });
+      }
+      var i = stoppoints.length - 2;
+      while (i >= 0 && stoppoints[i] >= width) {
+        i--;
+      }
+      return stoppoints[i+1];
+    },
+    device_pixel_ratio: function() {    
+      var dpr = window.devicePixelRatio || 1;
+      var dpr_string = device_pixel_ratio_cache[dpr];      
+      if (!dpr_string) {
+        dpr_string = dpr.toString();
+        if (dpr_string.match(/^\d+$/)) dpr_string += ".0";
+        device_pixel_ratio_cache[dpr] = dpr_string;
+      }
+      return dpr_string;
     }
   };
 
@@ -422,20 +508,65 @@
                                   src: $(this).attr('src')}, $(this).data(), options);
       var public_id = option_consume(img_options, 'source', option_consume(img_options, 'src')); 
       var url = prepare_html_url(public_id, img_options);
-      var final_url = finalize_html_url(url);
-      $(this).data('src-cache', url).attr({src: final_url, width: img_options.width, height: img_options.height});
+      $(this).data('src-cache', url).attr({width: img_options.width, height: img_options.height});
+    }).cloudinary_update(options);
+    return this;
+  };
+
+  /** 
+   * Update hidpi (dpr_auto) and responsive (w_auto) fields according to the current container size and the device pixel ratio.
+   * Only images marked with the cld-responsive class have w_auto updated.
+   * options: 
+   * - responsive_use_stoppoints: 
+   *   - true - always use stoppoints for width
+   *   - "resize" - use exact width on first render and stoppoints on resize (default)
+   *   - false - always use exact width
+   * - responsive:
+   *   - true - enable responsive on this element. Can be done by adding cld-responsive.
+   *            Note that $.cloudinary.responsive() should be called once on the page. 
+   */
+  $.fn.cloudinary_update = function(options) {
+    options = options || {};
+    var responsive_use_stoppoints = get_config('responsive_use_stoppoints', options, "resize");
+    var exact = responsive_use_stoppoints === false || (responsive_use_stoppoints == "resize" && !options.resizing);
+
+    this.filter('img').each(function() {
+      if (options.responsive) {
+        $(this).addClass('cld-responsive');
+      }
+      var attrs = {};
+      var src = $(this).data('src-cache') || $(this).data('src');
+
+      if (!src) return;
+      var responsive = $(this).hasClass('cld-responsive') && src.match(/\bw_auto\b/);
+      if (responsive) {
+        var container = $(this).parent()[0];
+        var containerWidth = container ? container.clientWidth : 0;
+        if (containerWidth == 0) {
+          // container doesn't know the size yet. Usually because the image is hidden or outside the DOM.
+          return; 
+        }
+        
+        var requestedWidth = exact ? containerWidth : $.cloudinary.calc_stoppoint(this, containerWidth);          
+        var currentWidth = $(this).data('width') || 0; 
+        if (requestedWidth > currentWidth) {
+          // requested width is larger, fetch new image
+          $(this).data('width', requestedWidth);
+        } else {
+          // requested width is not larger - keep previous
+          requestedWidth = currentWidth;
+        }
+        src = src.replace(/\bw_auto\b/g, "w_" + requestedWidth);
+        attrs.width = null;
+        attrs.height = null;
+      }
+      // Update dpr according to the device's devicePixelRatio
+      attrs.src = src.replace(/\bdpr_(1\.0|auto)\b/g, "dpr_" + $.cloudinary.device_pixel_ratio());
+      $(this).attr(attrs);
     });
     return this;
   };
 
-  $.fn.cloudinary_auto = function() {
-    this.filter('img').each(function() {
-      var url = $(this).data('src-cache') || $(this).data('src');
-      if (url) {
-        $(this).attr('src', finalize_html_url(url));
-      }
-    });
-  };
 
   var webp = null;
   $.fn.webpify = function(options, webp_options) {
@@ -456,6 +587,7 @@
         $(that).cloudinary(options);
       });
     });
+    return this;
   };
   $.fn.fetchify = function(options) {
     return this.cloudinary($.extend(options, {'type': 'fetch'}));
@@ -538,6 +670,11 @@
   $.fn.unsigned_cloudinary_upload = function(upload_preset, upload_params, options) {
     options = options || {};
     upload_params = $.extend({}, upload_params) || {};
+
+    if (upload_params.cloud_name) {
+      options.cloud_name = upload_params.cloud_name;
+      delete upload_params.cloud_name;
+    }
 
     // Serialize upload_params
     for (var key in upload_params) {
