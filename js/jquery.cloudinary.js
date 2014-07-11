@@ -595,6 +595,23 @@
   if (!$.fn.fileupload) {
     return;
   }
+  $.cloudinary.delete_by_token = function(delete_token, options) {
+    options = options || {};
+    var url = options.url;
+    if (!url) {
+      var cloud_name = options.cloud_name || $.cloudinary.config().cloud_name;
+      url = "https://api.cloudinary.com/v1_1/" + cloud_name + "/delete_by_token";
+    }
+    var dataType = $.support.xhrFileUpload ? "json" : "iframe json";
+    return $.ajax({
+      url: url,
+      method: "POST",
+      data: {token: delete_token},
+      headers: {"X-Requested-With": "XMLHttpRequest"},
+      dataType: dataType
+    });
+  };
+
   $.fn.cloudinary_fileupload = function(options) {
     var initializing = !this.data('blueimpFileupload');
     if (initializing) {
