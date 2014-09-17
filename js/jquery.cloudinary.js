@@ -361,6 +361,14 @@
     return value;
   }
 
+  function closest_above(list, value) {
+    var i = list.length - 2;
+    while (i >= 0 && list[i] >= value) {
+      i--;
+    }
+    return list[i+1];
+  }
+
   var cloudinary_config = null;
   var responsive_config = null;
   var responsive_resize_initialized = false;
@@ -466,7 +474,7 @@
           }
         });
       }
-    },    
+    },
     /**
      * Compute the stoppoint for the given element and width.
      * By default the stoppoint will be the smallest multiple of 10 larger than the width.
@@ -484,22 +492,21 @@
       if (typeof(stoppoints) === 'string') {
         stoppoints = $.map(stoppoints.split(","), function(val){ return parseInt(val); });
       }
-      var i = stoppoints.length - 2;
-      while (i >= 0 && stoppoints[i] >= width) {
-        i--;
-      }
-      return stoppoints[i+1];
+      return closest_above(stoppoints, width);
     },
     device_pixel_ratio: function() {    
       var dpr = window.devicePixelRatio || 1;
       var dpr_string = device_pixel_ratio_cache[dpr];      
       if (!dpr_string) {
+        // Find closest supported DPR (to work correctly with device zoom)
+        dpr = closest_above($.cloudinary.supported_dpr_values, dpr);
         dpr_string = dpr.toString();
         if (dpr_string.match(/^\d+$/)) dpr_string += ".0";
         device_pixel_ratio_cache[dpr] = dpr_string;
       }
       return dpr_string;
-    }
+    },
+    supported_dpr_values: [0.75, 1.0, 1.3, 1.5, 2.0, 3.0]
   };
 
   $.fn.cloudinary = function(options) {
