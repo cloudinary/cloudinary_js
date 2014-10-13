@@ -499,8 +499,8 @@
       var dpr_string = device_pixel_ratio_cache[dpr];      
       if (!dpr_string) {
         // Find closest supported DPR (to work correctly with device zoom)
-        dpr = closest_above($.cloudinary.supported_dpr_values, dpr);
-        dpr_string = dpr.toString();
+        dpr_used = closest_above($.cloudinary.supported_dpr_values, dpr);
+        dpr_string = dpr_used.toString();
         if (dpr_string.match(/^\d+$/)) dpr_string += ".0";
         device_pixel_ratio_cache[dpr] = dpr_string;
       }
