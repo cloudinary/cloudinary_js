@@ -157,6 +157,18 @@ describe("cloudinary", function() {
     test_cloudinary_url("test", {cname: "hello.com", cdn_subdomain: true}, window.location.protocol+"//a2.hello.com/test123/image/upload/test", {});
   });
 
+  it("should support new cdn_subdomain format", function() {
+    test_cloudinary_url("test", {cdn_subdomain: true}, window.location.protocol+"//res-2.cloudinary.com/test123/image/upload/test", {});
+  });
+
+  it("should support secure_cdn_subdomain false override with secure", function() {
+    test_cloudinary_url("test", {secure: true, cdn_subdomain: true, secure_cdn_subdomain: false}, "https://res.cloudinary.com/test123/image/upload/test", {});
+  });
+
+  it("should support secure_cdn_subdomain true override with secure", function() {
+    test_cloudinary_url("test", {secure: true, cdn_subdomain: true, secure_cdn_subdomain: true, private_cdn: true}, "https://test123-res-2.cloudinary.com/image/upload/test", {});
+  });
+
   it("should support effect", function() {
     test_cloudinary_url("test", {effect: "sepia"}, window.location.protocol+"//res.cloudinary.com/test123/image/upload/e_sepia/test", {});
   });

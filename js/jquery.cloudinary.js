@@ -270,6 +270,40 @@
     return url;
   }
 
+  function cloudinary_url_prefix(public_id, cloud_name, private_cdn, cdn_subdomain, secure_cdn_subdomain, cname, secure, secure_distribution, protocol) {
+    if (cloud_name.match(/^\//) && !secure) {
+      return "/res" + cloud_name;
+    }
+    
+    var prefix = secure ? 'https://' : (window.location.protocol === 'file:' ? "file://" : 'http://');
+    prefix = protocol ? protocol + '//' : prefix;
+
+    var shared_domain = !private_cdn;
+    if (secure) {
+      if (!secure_distribution || secure_distribution == OLD_AKAMAI_SHARED_CDN) {
+        secure_distribution = private_cdn ? cloud_name + "-res.cloudinary.com" : SHARED_CDN;
+      }
+      shared_domain = shared_domain || secure_distribution == SHARED_CDN;
+      if (secure_cdn_subdomain == null && shared_domain) {
+        secure_cdn_subdomain = cdn_subdomain;
+      }
+      if (secure_cdn_subdomain) {
+        secure_distribution = secure_distribution.replace('res.cloudinary.com', "res-" + ((crc32(public_id) % 5) + 1) + ".cloudinary.com");
+      }
+      prefix += secure_distribution;
+    } else if (cname) {
+      var subdomain = cdn_subdomain ? "a" + ((crc32(public_id) % 5) + 1) + "." : "";      
+      prefix += subdomain + cname;
+    } else {
+      prefix += (private_cdn ? cloud_name + "-res" : "res");
+      prefix += (cdn_subdomain ? "-" + ((crc32(public_id) % 5) + 1) : "") 
+      prefix += ".cloudinary.com";
+    }
+    if (shared_domain) prefix += "/" + cloud_name;
+
+    return prefix;
+  }
+
   function cloudinary_url(public_id, options) {
     options = options || {};
     var type = option_consume(options, 'type', 'upload');
@@ -286,6 +320,7 @@
     var secure_distribution = option_consume(options, 'secure_distribution', $.cloudinary.config().secure_distribution);
     var cname = option_consume(options, 'cname', $.cloudinary.config().cname);
     var cdn_subdomain = option_consume(options, 'cdn_subdomain', $.cloudinary.config().cdn_subdomain);
+    var secure_cdn_subdomain = option_consume(options, 'secure_cdn_subdomain', $.cloudinary.config().secure_cdn_subdomain);
     var shorten = option_consume(options, 'shorten', $.cloudinary.config().shorten);
     var secure = option_consume(options, 'secure', window.location.protocol == 'https:');
     var protocol = option_consume(options, 'protocol', $.cloudinary.config().protocol);
@@ -307,25 +342,6 @@
       }
     }
 
-    var prefix = secure ? 'https://' : (window.location.protocol === 'file:' ? "file://" : 'http://');
-    prefix = protocol ? protocol + '//' : prefix;
-    if (cloud_name.match(/^\//) && !secure) {
-      prefix = "/res" + cloud_name;
-    } else {
-      var shared_domain = !private_cdn;
-      if (secure) {
-        if (!secure_distribution || secure_distribution == OLD_AKAMAI_SHARED_CDN) {
-          secure_distribution = private_cdn ? cloud_name + "-res.cloudinary.com" : SHARED_CDN;
-        }
-        shared_domain = shared_domain || secure_distribution == SHARED_CDN;
-        prefix += secure_distribution;
-      } else {
-        var subdomain = cdn_subdomain ? "a" + ((crc32(public_id) % 5) + 1) + "." : "";
-        var host = cname || (private_cdn ? cloud_name + "-res.cloudinary.com" : "res.cloudinary.com" );
-        prefix += subdomain + host;
-      }
-      if (shared_domain) prefix += "/" + cloud_name;
-    }
     if (shorten && resource_type == "image" && type == "upload") {
       resource_type = "iu";
       type = undefined;
@@ -333,6 +349,8 @@
     if (public_id.search("/") >= 0 && !public_id.match(/^v[0-9]+/) && !public_id.match(/^https?:\//) && !present(version)) {
       version = 1;
     }
+
+    var prefix = cloudinary_url_prefix(public_id, cloud_name, private_cdn, cdn_subdomain, secure_cdn_subdomain, cname, secure, secure_distribution, protocol);
 
     var url = [prefix, resource_type, type, transformation, version ? "v" + version : "",
                public_id].join("/").replace(/([^:])\/+/g, '$1/');
