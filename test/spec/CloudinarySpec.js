@@ -246,6 +246,54 @@ describe("cloudinary", function() {
     test_cloudinary_url("test", {shorten: true}, window.location.protocol+"//res.cloudinary.com/test123/iu/test", {});
   });
 
+  it("should disallow url_suffix in shared distribution", function() {
+    test_cloudinary_url("test", {shorten: true}, window.location.protocol+"//res.cloudinary.com/test123/iu/test", {});
+  });
+
+  it("should disallow url_suffix in shared distribution", function() {
+    expect(function(){$.cloudinary.url_internal("test", {url_suffix: "hello"})}).toThrow();
+  });
+
+  it("should disallow url_suffix in non upload types", function() {
+    expect(function(){$.cloudinary.url_internal("test", {url_suffix: "hello", private_cdn: true, type: "facebook"})}).toThrow();
+  });
+
+  it("should disallow url_suffix with / or .", function() {
+    expect(function(){$.cloudinary.url_internal("test", {url_suffix: "hello/world", private_cdn: true})}).toThrow();
+    expect(function(){$.cloudinary.url_internal("test", {url_suffix: "hello.world", private_cdn: true})}).toThrow();
+  });
+
+  it("should support url_suffix for private_cdn", function() {
+    test_cloudinary_url("test", {url_suffix: "hello", private_cdn: true}, window.location.protocol+"//test123-res.cloudinary.com/images/test/hello", {})
+    test_cloudinary_url("test", {url_suffix: "hello", angle: 0, private_cdn: true}, window.location.protocol+"//test123-res.cloudinary.com/images/a_0/test/hello", {})
+  });
+
+  it("should put format after url_suffix", function() {
+    test_cloudinary_url("test", {url_suffix: "hello", private_cdn: true, format: "jpg"}, window.location.protocol+"//test123-res.cloudinary.com/images/test/hello.jpg", {})
+  });
+
+  it("should support url_suffix for raw uploads", function() {
+    test_cloudinary_url("test", {url_suffix: "hello", private_cdn: true, resource_type: "raw"}, window.location.protocol+"//test123-res.cloudinary.com/files/test/hello", {})
+  });
+
+  it("should disallow use_root_path in shared distribution", function() {
+    expect(function(){$.cloudinary.url_internal("test", {use_root_path: true})}).toThrow();
+  });
+
+  it("should support url_suffix for private_cdn", function() {
+    test_cloudinary_url("test", {use_root_path: true, private_cdn: true}, window.location.protocol+"//test123-res.cloudinary.com/test", {})
+    test_cloudinary_url("test", {use_root_path: true, angle: 0, private_cdn: true}, window.location.protocol+"//test123-res.cloudinary.com/a_0/test", {})
+  });
+
+  it("should support use_root_path together with url_suffix for private_cdn", function() {
+    test_cloudinary_url("test", {use_root_path: true, private_cdn: true, url_suffix: "hello"}, window.location.protocol+"//test123-res.cloudinary.com/test/hello", {})
+  });
+
+  it("should disllow use_root_path if not image/upload", function() {
+    expect(function(){$.cloudinary.url_internal("test", {use_root_path: true, private_cdn: true, type: "facebook"})}).toThrow();
+    expect(function(){$.cloudinary.url_internal("test", {use_root_path: true, private_cdn: true, resource_type: "raw"})}).toThrow();
+  });
+
   it("should generate sprite css urls", function() {
     result = $.cloudinary.sprite_css("test");
     expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/sprite/test.css");

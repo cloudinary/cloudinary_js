@@ -118,7 +118,7 @@
   }
 
   function build_array(arg) {
-    if (!arg) {
+    if (arg === null || typeof(arg) == 'undefined') {
       return [];
     } else if ($.isArray(arg)) {
       return arg;
@@ -304,6 +304,30 @@
     return prefix;
   }
 
+  function finalize_resource_type(resource_type, type, url_suffix, use_root_path, shorten) {
+    var resource_type_and_type = resource_type + "/" + type;
+    if (url_suffix) {
+      if (resource_type_and_type == "image/upload") {
+        resource_type_and_type = "images";
+      } else if (resource_type_and_type == "raw/upload") {
+        resource_type_and_type = "files";
+      } else {
+        throw "URL Suffix only supported for image/upload and raw/upload";
+      }
+    }
+    if (use_root_path) {
+      if (resource_type_and_type == "image/upload" || resource_type_and_type == "images") {
+        resource_type_and_type = "";
+      } else {
+        throw "Root path only supported for image/upload";
+      }
+    }
+    if (shorten && resource_type_and_type == "image/upload") {
+      resource_type_and_type = "iu";
+    }
+    return resource_type_and_type;
+  }
+
   function cloudinary_url(public_id, options) {
     options = options || {};
     var type = option_consume(options, 'type', 'upload');
@@ -325,9 +349,19 @@
     var secure = option_consume(options, 'secure', window.location.protocol == 'https:');
     var protocol = option_consume(options, 'protocol', $.cloudinary.config().protocol);
     var trust_public_id = option_consume(options, 'trust_public_id');
+    var url_suffix = option_consume(options, 'url_suffix');
+    var use_root_path = option_consume(options, 'use_root_path');
+    if (!private_cdn) {
+      if (url_suffix) throw "URL Suffix only supported in private CDN";
+      if (use_root_path) throw "Root path only supported in private CDN";
+    }
 
     if (type == 'fetch') {
       public_id = absolutize(public_id);
+    }
+
+    if (public_id.search("/") >= 0 && !public_id.match(/^v[0-9]+/) && !public_id.match(/^https?:\//) && !present(version)) {
+      version = 1;
     }
 
     if (public_id.match(/^https?:/)) {
@@ -336,23 +370,22 @@
     } else {
       // Make sure public_id is URI encoded.
       public_id = encodeURIComponent(decodeURIComponent(public_id)).replace(/%3A/g, ":").replace(/%2F/g, "/");
+      if (url_suffix) {
+        if (url_suffix.match(/[\.\/]/)) throw "url_suffix should not include . or /";
+        public_id = public_id + "/" + url_suffix;
+      }
+
       if (format) {
         if (!trust_public_id) public_id = public_id.replace(/\.(jpg|png|gif|webp)$/, '');
         public_id = public_id + "." + format;
       }
     }
 
-    if (shorten && resource_type == "image" && type == "upload") {
-      resource_type = "iu";
-      type = undefined;
-    }
-    if (public_id.search("/") >= 0 && !public_id.match(/^v[0-9]+/) && !public_id.match(/^https?:\//) && !present(version)) {
-      version = 1;
-    }
+    var resource_type_and_type = finalize_resource_type(resource_type, type, url_suffix, use_root_path, shorten);
 
     var prefix = cloudinary_url_prefix(public_id, cloud_name, private_cdn, cdn_subdomain, secure_cdn_subdomain, cname, secure, secure_distribution, protocol);
 
-    var url = [prefix, resource_type, type, transformation, version ? "v" + version : "",
+    var url = [prefix, resource_type_and_type, transformation, version ? "v" + version : "",
                public_id].join("/").replace(/([^:])\/+/g, '$1/');
     return url;
   }
