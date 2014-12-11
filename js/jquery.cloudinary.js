@@ -350,7 +350,7 @@
     var protocol = option_consume(options, 'protocol', $.cloudinary.config().protocol);
     var trust_public_id = option_consume(options, 'trust_public_id');
     var url_suffix = option_consume(options, 'url_suffix');
-    var use_root_path = option_consume(options, 'use_root_path');
+    var use_root_path = option_consume(options, 'use_root_path', $.cloudinary.config().use_root_path);
     if (!private_cdn) {
       if (url_suffix) throw "URL Suffix only supported in private CDN";
       if (use_root_path) throw "Root path only supported in private CDN";

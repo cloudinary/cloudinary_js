@@ -285,6 +285,12 @@ describe("cloudinary", function() {
     test_cloudinary_url("test", {use_root_path: true, angle: 0, private_cdn: true}, window.location.protocol+"//test123-res.cloudinary.com/a_0/test", {})
   });
 
+  it("should support globally set use_root_path for private_cdn", function() {
+    $.cloudinary.config().use_root_path = true;
+    test_cloudinary_url("test", {private_cdn: true}, window.location.protocol+"//test123-res.cloudinary.com/test", {})
+    delete($.cloudinary.config().use_root_path);
+  });
+
   it("should support use_root_path together with url_suffix for private_cdn", function() {
     test_cloudinary_url("test", {use_root_path: true, private_cdn: true, url_suffix: "hello"}, window.location.protocol+"//test123-res.cloudinary.com/test/hello", {})
   });
