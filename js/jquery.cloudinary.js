@@ -718,6 +718,9 @@
         }
         $(e.target).trigger('cloudinarydone', data);
       });
+      this.bind("fileuploadsend", function(e, data) {
+        data.headers["X-Unique-Upload-Id"] = (Math.random() * 10000000000).toString(16);
+      });
 
       this.bind("fileuploadstart", function(e){
         $(e.target).trigger('cloudinarystart');
