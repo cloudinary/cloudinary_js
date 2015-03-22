@@ -1,5 +1,5 @@
 /*
- * Cloudinary's jQuery library - v1.0.22
+ * Cloudinary's jQuery library - v1.0.23
  * Copyright Cloudinary
  * see https://github.com/cloudinary/cloudinary_js
  */
@@ -813,6 +813,7 @@
         $(e.target).trigger('cloudinarydone', data);
       });
       this.bind("fileuploadsend", function(e, data) {
+        // add a common unique ID to all chunks of the same uploaded file
         data.headers["X-Unique-Upload-Id"] = (Math.random() * 10000000000).toString(16);
       });
 
