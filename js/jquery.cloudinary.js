@@ -838,7 +838,9 @@
 
       if (!this.fileupload('option').url) {
         var cloud_name = options.cloud_name || $.cloudinary.config().cloud_name;
-        var upload_url = "https://api.cloudinary.com/v1_1/" + cloud_name + "/upload";
+        var resource_type = options.resource_type || "auto";
+        var type = options.type || "upload";
+        var upload_url = "https://api.cloudinary.com/v1_1/" + cloud_name + "/" + resource_type + "/" + type;
         this.fileupload('option', 'url', upload_url);
       }
     }
@@ -855,9 +857,13 @@
     options = options || {};
     upload_params = $.extend({}, upload_params) || {};
 
-    if (upload_params.cloud_name) {
-      options.cloud_name = upload_params.cloud_name;
-      delete upload_params.cloud_name;
+    var attrs_to_move = ["cloud_name", "resource_type", "type"];
+    for (var i = 0; i < attrs_to_move.length; i++) {
+      var attr = attrs_to_move[i];
+      if (upload_params[attr]) {
+        options[attr] = upload_params[attr];
+        delete upload_params[attr];
+      }
     }
 
     // Serialize upload_params
