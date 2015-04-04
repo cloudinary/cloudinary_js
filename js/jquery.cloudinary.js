@@ -660,6 +660,7 @@
      *   - true - always use stoppoints for width
      *   - "resize" - use exact width on first render and stoppoints on resize (default)
      *   - false - always use exact width
+     * - responsive_preserve_height: if set to true, original css height is perserved. Should only be used if the transformation supports different aspect ratios.
      * Stoppoints - to prevent creating a transformation for every pixel, stop-points can be configured. The smallest stop-point that is larger than
      *    the wanted width will be used. The default stoppoints are all the multiples of 10. See calc_stoppoint for ways to override this.
      */
@@ -749,6 +750,7 @@
    * - responsive:
    *   - true - enable responsive on this element. Can be done by adding cld-responsive.
    *            Note that $.cloudinary.responsive() should be called once on the page.
+   * - responsive_preserve_height: if set to true, original css height is perserved. Should only be used if the transformation supports different aspect ratios.
    */
   $.fn.cloudinary_update = function(options) {
     options = options || {};
@@ -794,7 +796,7 @@
         }
         src = src.replace(/\bw_auto\b/g, "w_" + requestedWidth);
         attrs.width = null;
-        attrs.height = null;
+        if (!options.responsive_preserve_height) attrs.height = null;
       }
       // Update dpr according to the device's devicePixelRatio
       attrs.src = src.replace(/\bdpr_(1\.0|auto)\b/g, "dpr_" + $.cloudinary.device_pixel_ratio());
