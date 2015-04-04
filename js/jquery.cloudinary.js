@@ -775,8 +775,8 @@
 
         for (nthParent = 0; nthParent < parentsLength; nthParent+=1) {
           container = parents[nthParent];
-          if (container && container.clientWidth) {
-            containerWidth = container.clientWidth;
+          containerWidth = $(container).width();
+          if (containerWidth) {
             break;
           }
         }
