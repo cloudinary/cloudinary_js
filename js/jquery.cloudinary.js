@@ -285,33 +285,35 @@
     return base_transformations.join("/");
   }
 
+  var number_pattern = "([0-9]*)\\.([0-9]+)|([0-9]+)";
+  var offset_any_pattern = "(" + number_pattern + ")([%pP])?";
+
   function split_range(range) {
-    var ary = range;
-    if(typeof range === 'string'){
-      var offset_any_pattern = "(([0-9]*)\\.([0-9]+)|([0-9]+))([%pP])?"
-      var offset_any_pattern_re = "("+offset_any_pattern+ ")\.\.("+offset_any_pattern+")";
-      if (range.match(offset_any_pattern_re )){
-        ary = range.split("..");
-      }
+    var splitted;
+    switch(range.constructor){
+      case String:
+        var offset_any_pattern_re = "("+offset_any_pattern+ ")\.\.("+offset_any_pattern+")";
+        if (range.match(offset_any_pattern_re )){
+          splitted = range.split("..");
+        }
+        break;
+      case Array:
+        splitted = range;
+        break;
+      default :
+        splitted = [null, null];
+
     }
-    return ary;
+    return splitted;
   }
 
   function norm_range_value(value) {
-    var offset = value.match(new RegExp("^" + offset_any_pattern()+ "$"));
+    var offset = String(value).match(new RegExp("^" + offset_any_pattern+ "$"));
     if( offset){
       var modifier   = present(offset[5]) ? 'p' : '';
       value  = (offset[1] || offset[4]) + modifier;
     }
     return value;
-  }
-
-  function number_pattern(){
-    return "([0-9]*)\\.([0-9]+)|([0-9]+)";
-  }
-
-  function offset_any_pattern(){
-    return "(" + number_pattern() + ")([%pP])?";
   }
 
   function absolutize(url) {

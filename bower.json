@@ -48,8 +48,8 @@
     "blueimp-file-upload": ">=7.2.1"
   },
   "devDependencies": {
-    "lodash": "~3.5.0",
-    "jasmine": "~2.2.1"
+    "lodash": "~3.6.x",
+    "jasmine": "~2.2.x"
   },
   "ignore": [
     "/*.*",
