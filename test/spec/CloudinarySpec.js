@@ -222,7 +222,11 @@ describe("cloudinary", function() {
     test_cloudinary_url("test", {dpr: "auto"}, window.location.protocol+"//res.cloudinary.com/test123/image/upload/dpr_1.0/test", {});
     test_cloudinary_url("test", {dpr: 1.5}, window.location.protocol+"//res.cloudinary.com/test123/image/upload/dpr_1.5/test", {});
   });
-
+  describe("zoom", function(){
+    it("should support a decimal value", function(){
+      test_cloudinary_url("test", {zoom: 1.2}, window.location.protocol+"//res.cloudinary.com/test123/image/upload/z_1.2/test", {});
+    })
+  })
   it("should support updating dpr according to devicePixelRatio", function() {
     window.devicePixelRatio = 2;
     options = {dpr: "auto"};
