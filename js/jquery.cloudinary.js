@@ -30,7 +30,8 @@
   var OLD_AKAMAI_SHARED_CDN = "cloudinary-a.akamaihd.net";
   var AKAMAI_SHARED_CDN = "res.cloudinary.com";
   var SHARED_CDN = AKAMAI_SHARED_CDN;
-  var DEFAULT_POSTER_OPTIONS = { format: 'jpg', resource_type: 'video' }
+  var DEFAULT_POSTER_OPTIONS = { format: 'jpg', resource_type: 'video' };
+  var DEFAULT_VIDEO_SOURCE_TYPES = ['webm', 'mp4', 'ogv'];
   function utf8_encode (argString) {
     // http://kevin.vanzonneveld.net
     // +   original by: Webtoolkit.info (http://www.webtoolkit.info/)
@@ -287,7 +288,7 @@
 
   function split_range(range) {
     var ary = range;
-    if(typeof range === 'string'){
+    if (typeof range === 'string') {
       var offset_any_pattern = "(([0-9]*)\\.([0-9]+)|([0-9]+))([%pP])?"
       var offset_any_pattern_re = "("+offset_any_pattern+ ")\.\.("+offset_any_pattern+")";
       if (range.match(offset_any_pattern_re )){
@@ -298,20 +299,14 @@
   }
 
   function norm_range_value(value) {
-    var offset = value.match(new RegExp("^" + offset_any_pattern()+ "$"));
-    if( offset){
-      var modifier   = present(offset[5]) ? 'p' : '';
+    var number_pattern = "([0-9]*)\\.([0-9]+)|([0-9]+)";
+    var offset_any_pattern = "(" + number_pattern + ")([%pP])?";
+    var offset = value.toString().match(new RegExp("^" + offset_any_pattern + "$"));
+    if (offset) {
+      var modifier = present(offset[5]) ? 'p' : '';
       value  = (offset[1] || offset[4]) + modifier;
     }
     return value;
-  }
-
-  function number_pattern(){
-    return "([0-9]*)\\.([0-9]+)|([0-9]+)";
-  }
-
-  function offset_any_pattern(){
-    return "(" + number_pattern() + ")([%pP])?";
   }
 
   function absolutize(url) {
@@ -502,6 +497,23 @@
         return null;
     }
   }
+
+  function join_pair(key, value) {
+    if (!value) {
+      return undefined;
+    } else if (value === true) {
+      return key;
+    } else {
+      return key + "=\"" + value + "\"";
+    }
+  }
+
+  function html_attrs(attrs) {
+    var pairs = $.map(attrs, function(value, key) { return join_pair(key, value); });
+    pairs.sort();
+    return pairs.filter(function(pair){return pair;}).join(" ");
+  }
+
   var cloudinary_config = null;
   var responsive_config = null;
   var responsive_resize_initialized = false;
@@ -530,21 +542,17 @@
       return cloudinary_config;
     },
     url: function(public_id, options) {
-      options = $.extend({}, options);
-      return cloudinary_url(public_id, options);
+      return cloudinary_url(public_id, $.extend({}, options));
     },
     video_url: function(public_id, options) {
-      options = $.extend({ resource_type: 'video' }, options);
-      return cloudinary_url(public_id, options);
+      return cloudinary_url(public_id, $.extend({resource_type: 'video'}, options));
     },
     video_thumbnail_url: function(public_id, options) {
-      options = $.extend(DEFAULT_POSTER_OPTIONS, options);
-      return cloudinary_url(public_id, options);
+      return cloudinary_url(public_id, $.extend({}, DEFAULT_POSTER_OPTIONS, options));
     },
     url_internal: cloudinary_url,
     transformation_string: function(options) {
-      options = $.extend({}, options);
-      return generate_transformation_string(options);
+      return generate_transformation_string($.extend({}, options));
     },
     image: function(public_id, options) {
       options = $.extend({}, options);
@@ -553,7 +561,7 @@
       return img;
     },
     video_thumbnail: function(public_id, options) {
-      image(public_id, $.merge(DEFAULT_POSTER_OPTIONS, options));
+      image(public_id, $.extend({}, DEFAULT_POSTER_OPTIONS, options));
     },
     facebook_profile_image: function(public_id, options) {
       return $.cloudinary.image(public_id, $.extend({type: 'facebook'}, options));
@@ -569,6 +577,71 @@
     },
     fetch_image: function(public_id, options) {
       return $.cloudinary.image(public_id, $.extend({type: 'fetch'}, options));
+    },
+    /* Creates an HTML video tag for the provided public_id
+     * Options: 
+     * - source_types - Specify which source type the tag should include. defaults to webm, mp4 and ogv.
+     * - source_transformation - specific transformations to use for a specific source type.
+     * - poster - override default thumbnail:
+     *   - url: provide an ad hoc url
+     *   - options: with specific poster transformations and/or Cloudinary public_id
+     * Examples:
+     * - $.cloudinary.video("mymovie.mp4")
+     * - $.cloudinary.video("mymovie.mp4", {source_types: 'webm'})
+     * - $.cloudinary.video("mymovie.ogv", {poster: "myspecialplaceholder.jpg"})
+     * - $.cloudinary.video("mymovie.webm", {source_types: ['webm', 'mp4'], poster: {effect: 'sepia'}})
+     */
+    video: function(public_id, options) {
+      options = options || {};
+      public_id = public_id.replace(/\.(mp4|ogv|webm)$/, '');
+      var source_types = option_consume(options, 'source_types', []);
+      var source_transformation = option_consume(options, 'source_transformation', {});
+      var fallback = option_consume(options, 'fallback_content', '');
+
+      if (source_types.length == 0) source_types = DEFAULT_VIDEO_SOURCE_TYPES;
+      var video_options = $.extend(true, {}, options);
+
+      if (video_options.hasOwnProperty('poster')) {
+        if ($.isPlainObject(video_options.poster)) {
+          if (video_options.poster.hasOwnProperty('public_id')) {
+            video_options.poster = cloudinary_url(video_options.poster.public_id, video_options.poster);
+          } else {
+            video_options.poster = cloudinary_url(public_id, $.extend({}, DEFAULT_POSTER_OPTIONS, video_options.poster));
+          }
+        }
+      } else {
+        video_options.poster = cloudinary_url(public_id, $.extend({}, DEFAULT_POSTER_OPTIONS, options));
+      }
+      
+      if (!video_options.poster) delete video_options.poster;
+
+      var html = '<video ';
+
+      if (!video_options.hasOwnProperty('resource_type')) video_options.resource_type = 'video';
+      var multi_source = $.isArray(source_types) && source_types.length > 1;
+      var source = public_id;
+      if (!multi_source){
+        source = source + '.' + build_array(source_types)[0];
+      }
+      var src = cloudinary_url(source, video_options);
+      if (!multi_source) video_options.src = src;
+      if (video_options.hasOwnProperty("html_width")) video_options.width = option_consume(video_options, 'html_width');
+      if (video_options.hasOwnProperty("html_height")) video_options.height = option_consume(video_options, 'html_height');
+      html = html + html_attrs(video_options) + '>';
+      if (multi_source) {          
+        for(var i = 0; i < source_types.length; i++) {
+          var source_type = source_types[i];
+          var transformation = source_transformation[source_type] || {};
+          src = cloudinary_url(source + "." + source_type, $.extend(true, {resource_type: 'video'}, options, transformation));
+          var video_type = source_type == 'ogv' ? 'ogg' : source_type;
+          var mime_type = "video/" + video_type;
+          html = html + '<source '+ html_attrs({src: src, type: mime_type}) + '>';
+        }
+      }
+
+      html = html + fallback;
+      html = html + '</video>';
+      return html;
     },
     sprite_css: function(public_id, options) {
       options = $.extend({type: 'sprite'}, options);
