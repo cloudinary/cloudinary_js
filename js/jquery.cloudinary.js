@@ -30,7 +30,8 @@
   var OLD_AKAMAI_SHARED_CDN = "cloudinary-a.akamaihd.net";
   var AKAMAI_SHARED_CDN = "res.cloudinary.com";
   var SHARED_CDN = AKAMAI_SHARED_CDN;
-  var DEFAULT_POSTER_OPTIONS = { format: 'jpg', resource_type: 'video' }
+  var DEFAULT_POSTER_OPTIONS = { format: 'jpg', resource_type: 'video' };
+  var DEFAULT_VIDEO_SOURCE_TYPES = ['webm', 'mp4', 'ogv'];
   function utf8_encode (argString) {
     // http://kevin.vanzonneveld.net
     // +   original by: Webtoolkit.info (http://www.webtoolkit.info/)
@@ -504,6 +505,23 @@
         return null;
     }
   }
+
+  function join_pair(key, value) {
+    if (!value) {
+      return undefined;
+    } else if (value === true) {
+      return key;
+    } else {
+      return key + "=\"" + value + "\"";
+    }
+  }
+
+  function html_attrs(attrs) {
+    var pairs = $.map(attrs, function(value, key) { return join_pair(key, value); });
+    pairs.sort();
+    return pairs.filter(function(pair){return pair;}).join(" ");
+  }
+
   var cloudinary_config = null;
   var responsive_config = null;
   var responsive_resize_initialized = false;
@@ -572,6 +590,71 @@
     fetch_image: function(public_id, options) {
       return $.cloudinary.image(public_id, $.extend({type: 'fetch'}, options));
     },
+    /* Creates an HTML video tag for the provided public_id
+     * Options: 
+     * - source_types - Specify which source type the tag should include. defaults to webm, mp4 and ogv.
+     * - source_transformation - specific transformations to use for a specific source type.
+     * - poster - override default thumbnail:
+     *   - url: provide an ad hoc url
+     *   - options: with specific poster transformations and/or Cloudinary public_id
+     * Examples:
+     * - $.cloudinary.video("mymovie.mp4")
+     * - $.cloudinary.video("mymovie.mp4", {source_types: 'webm'})
+     * - $.cloudinary.video("mymovie.ogv", {poster: "myspecialplaceholder.jpg"})
+     * - $.cloudinary.video("mymovie.webm", {source_types: ['webm', 'mp4'], poster: {effect: 'sepia'}})
+     */
+    video: function(public_id, options) {
+      options = options || {};
+      public_id = public_id.replace(/\.(mp4|ogv|webm)$/, '');
+      var source_types = option_consume(options, 'source_types', []);
+      var source_transformation = option_consume(options, 'source_transformation', {});
+      var fallback = option_consume(options, 'fallback_content', '');
+
+      if (source_types.length == 0) source_types = DEFAULT_VIDEO_SOURCE_TYPES;
+      var video_options = $.extend(true, {}, options);
+
+      if (video_options.hasOwnProperty('poster')) {
+        if ($.isPlainObject(video_options.poster)) {
+          if (video_options.poster.hasOwnProperty('public_id')) {
+            video_options.poster = cloudinary_url(video_options.poster.public_id, video_options.poster);
+          } else {
+            video_options.poster = cloudinary_url(public_id, $.extend({}, DEFAULT_POSTER_OPTIONS, video_options.poster));
+          }
+        }
+      } else {
+        video_options.poster = cloudinary_url(public_id, $.extend({}, DEFAULT_POSTER_OPTIONS, options));
+      }
+      
+      if (!video_options.poster) delete video_options.poster;
+
+      var html = '<video ';
+
+      if (!video_options.hasOwnProperty('resource_type')) video_options.resource_type = 'video';
+      var multi_source = $.isArray(source_types) && source_types.length > 1;
+      var source = public_id;
+      if (!multi_source){
+        source = source + '.' + build_array(source_types)[0];
+      }
+      var src = cloudinary_url(source, video_options);
+      if (!multi_source) video_options.src = src;
+      if (video_options.hasOwnProperty("html_width")) video_options.width = option_consume(video_options, 'html_width');
+      if (video_options.hasOwnProperty("html_height")) video_options.height = option_consume(video_options, 'html_height');
+      html = html + html_attrs(video_options) + '>';
+      if (multi_source) {          
+        for(var i = 0; i < source_types.length; i++) {
+          var source_type = source_types[i];
+          var transformation = source_transformation[source_type] || {};
+          src = cloudinary_url(source + "." + source_type, $.extend(true, {resource_type: 'video'}, options, transformation));
+          var video_type = source_type == 'ogv' ? 'ogg' : source_type;
+          var mime_type = "video/" + video_type;
+          html = html + '<source '+ html_attrs({src: src, type: mime_type}) + '>';
+        }
+      }
+
+      html = html + fallback;
+      html = html + '</video>';
+      return html;
+    },
     sprite_css: function(public_id, options) {
       options = $.extend({type: 'sprite'}, options);
       if (!public_id.match(/.css$/)) options.format = 'css';
@@ -589,6 +672,7 @@
      *   - true - always use stoppoints for width
      *   - "resize" - use exact width on first render and stoppoints on resize (default)
      *   - false - always use exact width
+     * - responsive_preserve_height: if set to true, original css height is perserved. Should only be used if the transformation supports different aspect ratios.
      * Stoppoints - to prevent creating a transformation for every pixel, stop-points can be configured. The smallest stop-point that is larger than
      *    the wanted width will be used. The default stoppoints are all the multiples of 10. See calc_stoppoint for ways to override this.
      */
@@ -678,6 +762,7 @@
    * - responsive:
    *   - true - enable responsive on this element. Can be done by adding cld-responsive.
    *            Note that $.cloudinary.responsive() should be called once on the page.
+   * - responsive_preserve_height: if set to true, original css height is perserved. Should only be used if the transformation supports different aspect ratios.
    */
   $.fn.cloudinary_update = function(options) {
     options = options || {};
@@ -723,7 +808,7 @@
         }
         src = src.replace(/\bw_auto\b/g, "w_" + requestedWidth);
         attrs.width = null;
-        attrs.height = null;
+        if (!options.responsive_preserve_height) attrs.height = null;
       }
       // Update dpr according to the device's devicePixelRatio
       attrs.src = src.replace(/\bdpr_(1\.0|auto)\b/g, "dpr_" + $.cloudinary.device_pixel_ratio());
@@ -840,7 +925,9 @@
 
       if (!this.fileupload('option').url) {
         var cloud_name = options.cloud_name || $.cloudinary.config().cloud_name;
-        var upload_url = "https://api.cloudinary.com/v1_1/" + cloud_name + "/upload";
+        var resource_type = options.resource_type || "auto";
+        var type = options.type || "upload";
+        var upload_url = "https://api.cloudinary.com/v1_1/" + cloud_name + "/" + resource_type + "/" + type;
         this.fileupload('option', 'url', upload_url);
       }
     }
@@ -857,9 +944,13 @@
     options = options || {};
     upload_params = $.extend({}, upload_params) || {};
 
-    if (upload_params.cloud_name) {
-      options.cloud_name = upload_params.cloud_name;
-      delete upload_params.cloud_name;
+    var attrs_to_move = ["cloud_name", "resource_type", "type"];
+    for (var i = 0; i < attrs_to_move.length; i++) {
+      var attr = attrs_to_move[i];
+      if (upload_params[attr]) {
+        options[attr] = upload_params[attr];
+        delete upload_params[attr];
+      }
     }
 
     // Serialize upload_params
