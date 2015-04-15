@@ -1,5 +1,5 @@
 /*
- * Cloudinary's jQuery library - v1.0.21
+ * Cloudinary's jQuery library - v1.0.23
  * Copyright Cloudinary
  * see https://github.com/cloudinary/cloudinary_js
  */
@@ -30,7 +30,8 @@
   var OLD_AKAMAI_SHARED_CDN = "cloudinary-a.akamaihd.net";
   var AKAMAI_SHARED_CDN = "res.cloudinary.com";
   var SHARED_CDN = AKAMAI_SHARED_CDN;
-
+  var DEFAULT_POSTER_OPTIONS = { format: 'jpg', resource_type: 'video' };
+  var DEFAULT_VIDEO_SOURCE_TYPES = ['webm', 'mp4', 'ogv'];
   function utf8_encode (argString) {
     // http://kevin.vanzonneveld.net
     // +   original by: Webtoolkit.info (http://www.webtoolkit.info/)
@@ -127,6 +128,12 @@
     }
   }
 
+  function join_array_function(sep){
+    return function(value) {
+      return build_array(value).join(sep);
+    };
+  }
+
   function present(value) {
     return typeof value != 'undefined' && ("" + value).length > 0;
   }
@@ -179,7 +186,10 @@
 
   var TRANSFORMATION_PARAM_NAME_MAPPING = {
     angle: 'a',
+    audio_codec: 'ac',
+    audio_frequency: 'af',
     background: 'b',
+    bit_rate: 'br',
     border: 'bo',
     color: 'co',
     color_space: 'cs',
@@ -187,8 +197,10 @@
     default_image: 'd',
     delay: 'dl',
     density: 'dn',
+    duration: 'du',
     dpr: 'dpr',
     effect: 'e',
+    end_offset: 'eo',
     fetch_format: 'f',
     flags: 'fl',
     gravity: 'g',
@@ -199,11 +211,15 @@
     prefix: 'p',
     quality: 'q',
     radius: 'r',
+    start_offset: 'so',
     transformation: 't',
     underlay: 'u',
+    video_codec: 'vc',
+    video_sampling: 'vs',
     width: 'w',
     x: 'x',
-    y: 'y'
+    y: 'y',
+    zoom: 'z'
   };
 
   var TRANSFORMATION_PARAM_VALUE_MAPPING = {
@@ -228,15 +244,28 @@
         return dpr;
       }
     },
-    effect: function(effect) { return build_array(effect).join(":");},
-    flags: function(flags) { return build_array(flags).join(".")},
-    transformation: function(transformation) { return build_array(transformation).join(".")}
+    effect: join_array_function(":"),
+    flags: join_array_function("."),
+    transformation: join_array_function("."),
+    video_codec: process_video_params,
+    start_offset: norm_range_value,
+    end_offset: norm_range_value,
+    duration: norm_range_value
   };
 
   function generate_transformation_string(options) {
     var base_transformations = process_base_transformations(options);
     process_size(options);
     process_html_dimensions(options);
+
+    if(options['offset'] !== undefined){
+      var range = split_range(options['offset']);
+      delete options['offset'];
+      if(range !== null){
+        options['start_offset'] = range[0];
+        options['end_offset'] = range[1];
+      }
+    }
 
     var params = [];
     for (var param in TRANSFORMATION_PARAM_NAME_MAPPING) {
@@ -255,6 +284,37 @@
     var transformation = params.join(",");
     if (present(transformation)) base_transformations.push(transformation);
     return base_transformations.join("/");
+  }
+
+  var number_pattern = "([0-9]*)\\.([0-9]+)|([0-9]+)";
+  var offset_any_pattern = "(" + number_pattern + ")([%pP])?";
+
+  function split_range(range) {
+    var splitted;
+    switch(range.constructor){
+      case String:
+        var offset_any_pattern_re = "("+offset_any_pattern+ ")\.\.("+offset_any_pattern+")";
+        if (range.match(offset_any_pattern_re )){
+          splitted = range.split("..");
+        }
+        break;
+      case Array:
+        splitted = range;
+        break;
+      default :
+        splitted = [null, null];
+
+    }
+    return splitted;
+  }
+
+  function norm_range_value(value) {
+    var offset = String(value).match(new RegExp("^" + offset_any_pattern+ "$"));
+    if( offset){
+      var modifier   = present(offset[5]) ? 'p' : '';
+      value  = (offset[1] || offset[4]) + modifier;
+    }
+    return value;
   }
 
   function absolutize(url) {
@@ -296,11 +356,10 @@
       prefix += subdomain + cname;
     } else {
       prefix += (private_cdn ? cloud_name + "-res" : "res");
-      prefix += (cdn_subdomain ? "-" + ((crc32(public_id) % 5) + 1) : "") 
+      prefix += (cdn_subdomain ? "-" + ((crc32(public_id) % 5) + 1) : "");
       prefix += ".cloudinary.com";
     }
     if (shared_domain) prefix += "/" + cloud_name;
-
     return prefix;
   }
 
@@ -374,7 +433,6 @@
         if (url_suffix.match(/[\.\/]/)) throw "url_suffix should not include . or /";
         public_id = public_id + "/" + url_suffix;
       }
-
       if (format) {
         if (!trust_public_id) public_id = public_id.replace(/\.(jpg|png|gif|webp)$/, '');
         public_id = public_id + "." + format;
@@ -382,9 +440,7 @@
     }
 
     var resource_type_and_type = finalize_resource_type(resource_type, type, url_suffix, use_root_path, shorten);
-
     var prefix = cloudinary_url_prefix(public_id, cloud_name, private_cdn, cdn_subdomain, secure_cdn_subdomain, cname, secure, secure_distribution, protocol);
-
     var url = [prefix, resource_type_and_type, transformation, version ? "v" + version : "",
                public_id].join("/").replace(/([^:])\/+/g, '$1/');
     return url;
@@ -420,6 +476,52 @@
     return list[i+1];
   }
 
+  /**
+   * A video codec parameter can be either a String or a Hash.
+   *
+   * @param {object} param <code>vc_<codec>[ : <profile> : [<level>]]</code>
+   *                       or <code>{ codec: 'h264', profile: 'basic', level: '3.1' }</code>
+   * @return {string} <code><codec> : <profile> : [<level>]]</code> if a Hash was provided
+   *                   or the param if a String was provided.
+   *                   Returns NIL if param is not a Hash or String
+   */
+  function process_video_params(param) {
+    switch (typeof param) {
+      case "object":
+        var video = "";
+        if (param['codec'] !== undefined) {
+          video = param['codec'];
+          if (param['profile'] !== undefined) {
+            video += ":" + param['profile'];
+            if (param['level'] !== undefined) {
+              video += ":" + param['level'];
+            }
+          }
+        }
+        return video;
+      case "string":
+        return param;
+      default:
+        return null;
+    }
+  }
+  
+  function join_pair(key, value) {
+    if (!value) {
+      return undefined;
+    } else if (value === true) {
+      return key;
+    } else {
+      return key + "=\"" + value + "\"";
+    }
+  }
+
+  function html_attrs(attrs) {
+    var pairs = $.map(attrs, function(value, key) { return join_pair(key, value); });
+    pairs.sort();
+    return pairs.filter(function(pair){return pair;}).join(" ");
+  }
+
   var cloudinary_config = null;
   var responsive_config = null;
   var responsive_resize_initialized = false;
@@ -430,6 +532,7 @@
     OLD_AKAMAI_SHARED_CDN: OLD_AKAMAI_SHARED_CDN,
     AKAMAI_SHARED_CDN: AKAMAI_SHARED_CDN,
     SHARED_CDN: SHARED_CDN,
+    DEFAULT_POSTER_OPTIONS: DEFAULT_POSTER_OPTIONS,
     config: function(new_config, new_value) {
       if (!cloudinary_config) {
         cloudinary_config = {};
@@ -450,6 +553,14 @@
       options = $.extend({}, options);
       return cloudinary_url(public_id, options);
     },
+    video_url: function(public_id, options) {
+      options = $.extend({ resource_type: 'video' }, options);
+      return cloudinary_url(public_id, options);
+    },
+    video_thumbnail_url: function(public_id, options) {
+      options = $.extend(DEFAULT_POSTER_OPTIONS, options);
+      return cloudinary_url(public_id, options);
+    },
     url_internal: cloudinary_url,
     transformation_string: function(options) {
       options = $.extend({}, options);
@@ -460,6 +571,9 @@
       var url = prepare_html_url(public_id, options);
       var img = $('<img/>').data('src-cache', url).attr(options).cloudinary_update(options);
       return img;
+    },
+    video_thumbnail: function(public_id, options) {
+      image(public_id, $.merge(DEFAULT_POSTER_OPTIONS, options));
     },
     facebook_profile_image: function(public_id, options) {
       return $.cloudinary.image(public_id, $.extend({type: 'facebook'}, options));
@@ -475,6 +589,76 @@
     },
     fetch_image: function(public_id, options) {
       return $.cloudinary.image(public_id, $.extend({type: 'fetch'}, options));
+    },
+    /**
+     * Creates an HTML video tag for the provided public_id
+     * @param {String} public_id the resource public ID
+     * @param {Object} [options] options for the resource and HTML tag
+     * @param {(String|Array<String>)} [options.source_types] Specify which
+     *        source type the tag should include. defaults to webm, mp4 and ogv.
+     * @param {String} [options.source_transformation] specific transformations
+     *        to use for a specific source type.
+     * @param {(String|Object)} [options.poster] image URL or
+     *        poster options that may include a <tt>public_id</tt> key and
+     *        poster-specific transformations
+     * @example <caption>Exmaple of generating a video tag:</caption>
+     * $.cloudinary.video("mymovie.mp4");
+     * $.cloudinary.video("mymovie.mp4", {source_types: 'webm'});
+     * $.cloudinary.video("mymovie.ogv", {poster: "myspecialplaceholder.jpg"});
+     * $.cloudinary.video("mymovie.webm", {source_types: ['webm', 'mp4'], poster: {effect: 'sepia'}});
+     * @return {string} HTML video tag
+     */
+    video: function(public_id, options) {
+      options = options || {};
+      public_id = public_id.replace(/\.(mp4|ogv|webm)$/, '');
+      var source_types = option_consume(options, 'source_types', []);
+      var source_transformation = option_consume(options, 'source_transformation', {});
+      var fallback = option_consume(options, 'fallback_content', '');
+
+      if (source_types.length == 0) source_types = DEFAULT_VIDEO_SOURCE_TYPES;
+      var video_options = $.extend(true, {}, options);
+
+      if (video_options.hasOwnProperty('poster')) {
+        if ($.isPlainObject(video_options.poster)) {
+          if (video_options.poster.hasOwnProperty('public_id')) {
+            video_options.poster = cloudinary_url(video_options.poster.public_id, video_options.poster);
+          } else {
+            video_options.poster = cloudinary_url(public_id, $.extend({}, DEFAULT_POSTER_OPTIONS, video_options.poster));
+          }
+        }
+      } else {
+        video_options.poster = cloudinary_url(public_id, $.extend({}, DEFAULT_POSTER_OPTIONS, options));
+      }
+      
+      if (!video_options.poster) delete video_options.poster;
+
+      var html = '<video ';
+
+      if (!video_options.hasOwnProperty('resource_type')) video_options.resource_type = 'video';
+      var multi_source = $.isArray(source_types) && source_types.length > 1;
+      var source = public_id;
+      if (!multi_source){
+        source = source + '.' + build_array(source_types)[0];
+      }
+      var src = cloudinary_url(source, video_options);
+      if (!multi_source) video_options.src = src;
+      if (video_options.hasOwnProperty("html_width")) video_options.width = option_consume(video_options, 'html_width');
+      if (video_options.hasOwnProperty("html_height")) video_options.height = option_consume(video_options, 'html_height');
+      html = html + html_attrs(video_options) + '>';
+      if (multi_source) {          
+        for(var i = 0; i < source_types.length; i++) {
+          var source_type = source_types[i];
+          var transformation = source_transformation[source_type] || {};
+          src = cloudinary_url(source + "." + source_type, $.extend(true, {resource_type: 'video'}, options, transformation));
+          var video_type = source_type == 'ogv' ? 'ogg' : source_type;
+          var mime_type = "video/" + video_type;
+          html = html + '<source '+ html_attrs({src: src, type: mime_type}) + '>';
+        }
+      }
+
+      html = html + fallback;
+      html = html + '</video>';
+      return html;
     },
     sprite_css: function(public_id, options) {
       options = $.extend({type: 'sprite'}, options);
@@ -493,10 +677,11 @@
      *   - true - always use stoppoints for width
      *   - "resize" - use exact width on first render and stoppoints on resize (default)
      *   - false - always use exact width
+     * - responsive_preserve_height: if set to true, original css height is perserved. Should only be used if the transformation supports different aspect ratios.
      * Stoppoints - to prevent creating a transformation for every pixel, stop-points can be configured. The smallest stop-point that is larger than
      *    the wanted width will be used. The default stoppoints are all the multiples of 10. See calc_stoppoint for ways to override this.
      */
-    responsive: function(options) {
+      responsive: function(options) {
       responsive_config = $.extend(responsive_config || {}, options);
       $('img.cld-responsive, img.cld-hidpi').cloudinary_update(responsive_config);
       var responsive_resize = get_config('responsive_resize', responsive_config, true);
@@ -582,6 +767,7 @@
    * - responsive:
    *   - true - enable responsive on this element. Can be done by adding cld-responsive.
    *            Note that $.cloudinary.responsive() should be called once on the page.
+   * - responsive_preserve_height: if set to true, original css height is perserved. Should only be used if the transformation supports different aspect ratios.
    */
   $.fn.cloudinary_update = function(options) {
     options = options || {};
@@ -627,7 +813,7 @@
         }
         src = src.replace(/\bw_auto\b/g, "w_" + requestedWidth);
         attrs.width = null;
-        attrs.height = null;
+        if (!options.responsive_preserve_height) attrs.height = null;
       }
       // Update dpr according to the device's devicePixelRatio
       attrs.src = src.replace(/\bdpr_(1\.0|auto)\b/g, "dpr_" + $.cloudinary.device_pixel_ratio());
@@ -635,7 +821,6 @@
     });
     return this;
   };
-
 
   var webp = null;
   $.fn.webpify = function(options, webp_options) {
@@ -702,7 +887,7 @@
           var upload_info = [data.result.resource_type, data.result.type, data.result.path].join("/") + "#" + data.result.signature;
           var multiple = $(e.target).prop("multiple");
           var add_field = function() {
-            $('<input></input>').attr({type: "hidden", name: data.cloudinaryField}).val(upload_info).appendTo(data.form);
+            $('<input/>').attr({type: "hidden", name: data.cloudinaryField}).val(upload_info).appendTo(data.form);
           };
 
           if (multiple) {
@@ -717,6 +902,10 @@
           }
         }
         $(e.target).trigger('cloudinarydone', data);
+      });
+      this.bind("fileuploadsend", function(e, data) {
+        // add a common unique ID to all chunks of the same uploaded file
+        data.headers["X-Unique-Upload-Id"] = (Math.random() * 10000000000).toString(16);
       });
 
       this.bind("fileuploadstart", function(e){
@@ -740,7 +929,9 @@
 
       if (!this.fileupload('option').url) {
         var cloud_name = options.cloud_name || $.cloudinary.config().cloud_name;
-        var upload_url = "https://api.cloudinary.com/v1_1/" + cloud_name + "/upload";
+        var resource_type = options.resource_type || "auto";
+        var type = options.type || "upload";
+        var upload_url = "https://api.cloudinary.com/v1_1/" + cloud_name + "/" + resource_type + "/" + type;
         this.fileupload('option', 'url', upload_url);
       }
     }
@@ -757,9 +948,13 @@
     options = options || {};
     upload_params = $.extend({}, upload_params) || {};
 
-    if (upload_params.cloud_name) {
-      options.cloud_name = upload_params.cloud_name;
-      delete upload_params.cloud_name;
+    var attrs_to_move = ["cloud_name", "resource_type", "type"];
+    for (var i = 0; i < attrs_to_move.length; i++) {
+      var attr = attrs_to_move[i];
+      if (upload_params[attr]) {
+        options[attr] = upload_params[attr];
+        delete upload_params[attr];
+      }
     }
 
     // Serialize upload_params

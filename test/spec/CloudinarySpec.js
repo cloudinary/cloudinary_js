@@ -222,7 +222,11 @@ describe("cloudinary", function() {
     test_cloudinary_url("test", {dpr: "auto"}, window.location.protocol+"//res.cloudinary.com/test123/image/upload/dpr_1.0/test", {});
     test_cloudinary_url("test", {dpr: 1.5}, window.location.protocol+"//res.cloudinary.com/test123/image/upload/dpr_1.5/test", {});
   });
-
+  describe("zoom", function(){
+    it("should support a decimal value", function(){
+      test_cloudinary_url("test", {zoom: 1.2}, window.location.protocol+"//res.cloudinary.com/test123/image/upload/z_1.2/test", {});
+    })
+  })
   it("should support updating dpr according to devicePixelRatio", function() {
     window.devicePixelRatio = 2;
     options = {dpr: "auto"};
@@ -331,12 +335,16 @@ describe("cloudinary", function() {
     expect(options.formData.tags).toEqual('a,b');
     expect(options.formData.upload_preset).toEqual('test');
     expect(options.width).toEqual(100);
-    expect(options.url).toEqual("https://api.cloudinary.com/v1_1/test1/upload");
+    expect(options.url).toEqual("https://api.cloudinary.com/v1_1/test1/auto/upload");
     expect(result.prop("multiple")).toEqual(true);
 
     result = $.cloudinary.unsigned_upload_tag("test", {context: {alt: "alternative", caption: "cap"}, tags: ['a','b'], cloud_name: "test2"}, {width: 100, multiple: true});
     options = result.fileupload('option');
-    expect(options.url).toEqual("https://api.cloudinary.com/v1_1/test2/upload");
+    expect(options.url).toEqual("https://api.cloudinary.com/v1_1/test2/auto/upload");
+
+    result = $.cloudinary.unsigned_upload_tag("test", {cloud_name: "test2", resource_type: "video", type: "private"}, {width: 100, multiple: true});
+    options = result.fileupload('option');
+    expect(options.url).toEqual("https://api.cloudinary.com/v1_1/test2/video/private");
 
   });
 
