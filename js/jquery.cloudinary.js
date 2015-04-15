@@ -505,7 +505,7 @@
         return null;
     }
   }
-
+  
   function join_pair(key, value) {
     if (!value) {
       return undefined;
@@ -590,18 +590,23 @@
     fetch_image: function(public_id, options) {
       return $.cloudinary.image(public_id, $.extend({type: 'fetch'}, options));
     },
-    /* Creates an HTML video tag for the provided public_id
-     * Options: 
-     * - source_types - Specify which source type the tag should include. defaults to webm, mp4 and ogv.
-     * - source_transformation - specific transformations to use for a specific source type.
-     * - poster - override default thumbnail:
-     *   - url: provide an ad hoc url
-     *   - options: with specific poster transformations and/or Cloudinary public_id
-     * Examples:
-     * - $.cloudinary.video("mymovie.mp4")
-     * - $.cloudinary.video("mymovie.mp4", {source_types: 'webm'})
-     * - $.cloudinary.video("mymovie.ogv", {poster: "myspecialplaceholder.jpg"})
-     * - $.cloudinary.video("mymovie.webm", {source_types: ['webm', 'mp4'], poster: {effect: 'sepia'}})
+    /**
+     * Creates an HTML video tag for the provided public_id
+     * @param {String} public_id the resource public ID
+     * @param {Object} [options] options for the resource and HTML tag
+     * @param {(String|Array<String>)} [options.source_types] Specify which
+     *        source type the tag should include. defaults to webm, mp4 and ogv.
+     * @param {String} [options.source_transformation] specific transformations
+     *        to use for a specific source type.
+     * @param {(String|Object)} [options.poster] image URL or
+     *        poster options that may include a <tt>public_id</tt> key and
+     *        poster-specific transformations
+     * @example <caption>Exmaple of generating a video tag:</caption>
+     * $.cloudinary.video("mymovie.mp4");
+     * $.cloudinary.video("mymovie.mp4", {source_types: 'webm'});
+     * $.cloudinary.video("mymovie.ogv", {poster: "myspecialplaceholder.jpg"});
+     * $.cloudinary.video("mymovie.webm", {source_types: ['webm', 'mp4'], poster: {effect: 'sepia'}});
+     * @return {string} HTML video tag
      */
     video: function(public_id, options) {
       options = options || {};
@@ -816,7 +821,6 @@
     });
     return this;
   };
-
 
   var webp = null;
   $.fn.webpify = function(options, webp_options) {
