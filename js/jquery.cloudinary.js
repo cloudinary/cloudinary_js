@@ -532,7 +532,6 @@
     OLD_AKAMAI_SHARED_CDN: OLD_AKAMAI_SHARED_CDN,
     AKAMAI_SHARED_CDN: AKAMAI_SHARED_CDN,
     SHARED_CDN: SHARED_CDN,
-    DEFAULT_POSTER_OPTIONS: DEFAULT_POSTER_OPTIONS,
     config: function(new_config, new_value) {
       if (!cloudinary_config) {
         cloudinary_config = {};
@@ -558,7 +557,7 @@
       return cloudinary_url(public_id, options);
     },
     video_thumbnail_url: function(public_id, options) {
-      options = $.extend(DEFAULT_POSTER_OPTIONS, options);
+      options = $.extend({}, DEFAULT_POSTER_OPTIONS, options);
       return cloudinary_url(public_id, options);
     },
     url_internal: cloudinary_url,
@@ -566,6 +565,13 @@
       options = $.extend({}, options);
       return generate_transformation_string(options);
     },
+    /**
+     * Generate an HTML image tag based on the public ID and options
+     * as a jQuery object. The tag is preinitialized with cloudinary functionality.
+     * @param {String} public_id the cloudinary resource ID
+     * @param {String} [options]
+     * @returns {jQuery} Image tag
+     */
     image: function(public_id, options) {
       options = $.extend({}, options);
       var url = prepare_html_url(public_id, options);
@@ -670,16 +676,16 @@
      * Use the following classes:
      * - cld-hidpi - only set dpr_auto
      * - cld-responsive - update both dpr_auto and w_auto
-     * @param: options
-     * - responsive_resize - should responsive images be updated on resize (default: true).
-     * - responsive_debounce - if set, how many milliseconds after resize is done before the image is replaces (default: 100). Set to 0 to disable.
-     * - responsive_use_stoppoints:
-     *   - true - always use stoppoints for width
-     *   - "resize" - use exact width on first render and stoppoints on resize (default)
-     *   - false - always use exact width
-     * - responsive_preserve_height: if set to true, original css height is perserved. Should only be used if the transformation supports different aspect ratios.
      * Stoppoints - to prevent creating a transformation for every pixel, stop-points can be configured. The smallest stop-point that is larger than
      *    the wanted width will be used. The default stoppoints are all the multiples of 10. See calc_stoppoint for ways to override this.
+     * @param {Object} options
+     * @param {boolean} [options.responsive_resize=true] should responsive images be updated on resize (default: true).
+     * @param {integer} [options.responsive_debounce=100] if set, how many milliseconds after resize is done before the image is replaces (default: 100). Set to 0 to disable.
+     * @param {boolean|String} [options.responsive_use_stoppoints]
+     *   <ul><li>true - always use stoppoints for width</li>
+     *   <li>"resize" - use exact width on first render and stoppoints on resize (default)</li>
+     *   <li>false - always use exact width</li></ul>
+     * @param {boolean} [options.responsive_preserve_height] if set to true, original css height is perserved. Should only be used if the transformation supports different aspect ratios.
      */
       responsive: function(options) {
       responsive_config = $.extend(responsive_config || {}, options);
@@ -758,16 +764,15 @@
 
   /**
    * Update hidpi (dpr_auto) and responsive (w_auto) fields according to the current container size and the device pixel ratio.
-   * Only images marked with the cld-responsive class have w_auto updated.
-   * options:
-   * - responsive_use_stoppoints:
-   *   - true - always use stoppoints for width
-   *   - "resize" - use exact width on first render and stoppoints on resize (default)
-   *   - false - always use exact width
-   * - responsive:
-   *   - true - enable responsive on this element. Can be done by adding cld-responsive.
-   *            Note that $.cloudinary.responsive() should be called once on the page.
-   * - responsive_preserve_height: if set to true, original css height is perserved. Should only be used if the transformation supports different aspect ratios.
+   * Only images marked with the <tt>cld-responsive</tt> class have w_auto updated.
+   * @param {Object} [options] Options
+   * @param {boolean|String} [options.responsive_use_stoppoints]
+   *   <ul><li>true - always use stoppoints for width</li>
+   *   <li>"resize" - use exact width on first render and stoppoints on resize (default)</li>
+   *   <li>false - always use exact width</li></ul>
+   * @param {boolean} [options.responsive] if true, enable responsice on this element. Note that $.cloudinary.responsive() should be called once on the page.
+   * @param {boolean} [options.responsive_preserve_height] if set to true, original css height is perserved. Should only be used if the transformation supports different aspect ratios.
+   * @return {$.fn}
    */
   $.fn.cloudinary_update = function(options) {
     options = options || {};
