@@ -579,7 +579,8 @@
       return img;
     },
     video_thumbnail: function(public_id, options) {
-      image(public_id, $.merge(DEFAULT_POSTER_OPTIONS, options));
+      options = $.extend({}, DEFAULT_POSTER_OPTIONS, options);
+      image(public_id, options);
     },
     facebook_profile_image: function(public_id, options) {
       return $.cloudinary.image(public_id, $.extend({type: 'facebook'}, options));
@@ -797,8 +798,8 @@
 
         for (nthParent = 0; nthParent < parentsLength; nthParent+=1) {
           container = parents[nthParent];
-          if (container && container.clientWidth) {
-            containerWidth = container.clientWidth;
+          containerWidth = $(container).width();
+          if (containerWidth) {
             break;
           }
         }
