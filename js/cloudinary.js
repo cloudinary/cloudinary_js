@@ -441,9 +441,13 @@
     config: function(new_config, new_value) {
       if (!cloudinary_config) {
         cloudinary_config = {};
-        $('meta[name^="cloudinary_"]').each(function() {
-          cloudinary_config[$(this).attr('name').replace("cloudinary_", '')] = $(this).attr('content');
-        });
+        var meta = document.querySelectorAll('meta[name^="cloudinary_"]');
+        for(var i=0; i < meta.length; i++) {
+          var name = meta[i].getAttribute('name');
+          if(name) {
+            cloudinary_config[name.replace("cloudinary_", '')] = meta[i].getAttribute('content');
+          }
+        };
       }
       if (typeof(new_value) != 'undefined') {
         cloudinary_config[new_config] = new_value;
