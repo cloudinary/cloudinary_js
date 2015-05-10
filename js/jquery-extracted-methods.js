@@ -37,7 +37,7 @@ if ( jQuery !== undefined ) {
     }
   };
 
-  jQuery.extend = jQuery.fn.extend = function() {
+  extend = function() {
     var options, name, src, copy, copyIsArray, clone,
         target = arguments[0] || {},
         i = 1,

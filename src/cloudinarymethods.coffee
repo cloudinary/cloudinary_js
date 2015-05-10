@@ -103,17 +103,17 @@ class Cloudinary
   split_range = (range) ->
     splitted = undefined
     switch range.constructor
-    when String
-      offset_any_pattern_re = '(' + offset_any_pattern + ')..(' + offset_any_pattern + ')'
-      if range.match(offset_any_pattern_re)
-        splitted = range.split('..')
-    when Array
-      splitted = range
-    else
-      splitted = [
-        null
-        null
-      ]
+      when String
+        offset_any_pattern_re = '(' + offset_any_pattern + ')..(' + offset_any_pattern + ')'
+        if range.match(offset_any_pattern_re)
+          splitted = range.split('..')
+      when Array
+        splitted = range
+      else
+        splitted = [
+          null
+          null
+        ]
     splitted
 
   norm_range_value = (value) ->
@@ -386,19 +386,13 @@ class Cloudinary
   responsive_config = null
   responsive_resize_initialized = false
   device_pixel_ratio_cache = {}
-  $.cloudinary =
+  cloudinary =
     CF_SHARED_CDN: CF_SHARED_CDN
     OLD_AKAMAI_SHARED_CDN: OLD_AKAMAI_SHARED_CDN
     AKAMAI_SHARED_CDN: AKAMAI_SHARED_CDN
     SHARED_CDN: SHARED_CDN
     DEFAULT_POSTER_OPTIONS: DEFAULT_POSTER_OPTIONS
     config: (new_config, new_value) ->
-      if !cloudinary_config
-        cloudinary_config = {}
-        meta = document.querySelectorAll('meta[name^="cloudinary_"]')
-        for i in 
-          cloudinary_config[$(this).attr('name').replace('cloudinary_', '')] = $(this).attr('content')
-          return
       if typeof new_value != 'undefined'
         cloudinary_config[new_config] = new_value
       else if typeof new_config == 'string'
@@ -407,7 +401,7 @@ class Cloudinary
         cloudinary_config = new_config
       cloudinary_config
     url: (public_id, options) ->
-      options = $.extend({}, options)
+      options = extend({}, options)
       cloudinary_url public_id, options
     video_url: (public_id, options) ->
       options = $.extend({ resource_type: 'video' }, options)
