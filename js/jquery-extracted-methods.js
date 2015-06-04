@@ -10,6 +10,8 @@ if ( jQuery !== undefined ) {
   return;
 }
   var _$ = window.$,
+  location = window.location,
+  document = window.document
 
 
   // Define a local copy of jQuery

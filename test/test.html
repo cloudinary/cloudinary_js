@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<div id="output" style="overflow-y: scroll; overflow-wrap: break-word; width: 80%;" ></div>
+<script !src="" type="application/javascript">
+    var _log;
+
+    _log = console.log;
+
+    var out;
+    out = document.getElementById("output");
+    console.log = function(value) {
+        out.innerHTML += "<p>" + value + "</p>";
+        return _log(value);
+    };
+    _dir = console.dir;
+    console.dir = function(value){
+        out.innerHTML += "<p>#{value}</p>"
+    }
+</script>
+<script src="bower_components/lodash/lodash.js" type="application/javascript"></script>
+<script src="js/parameters.js" type="application/javascript" ></script>
+<script src="js/transformation.js" type="application/javascript"></script>
+<!--<script src="main.js" type="application/javascript"></script>-->
+</body>
+</html>
