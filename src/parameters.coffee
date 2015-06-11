@@ -1,3 +1,9 @@
+
+config = config || -> {}
+
+###*
+# Parameters that are filtered out before passing the options to an HTML tag
+###
 filtered_transformation_params = [
   "angle"
   "audio_codec"
@@ -38,10 +44,34 @@ filtered_transformation_params = [
   "zoom"
 ]
 
+###*
+# Defaults values for parameters.
+#
+# (Previously defined using option_consume() )
+###
 default_transformation_params ={
-  "responsive_width": config().responsive_width
-  "transformation": []
-  "dpr": config().dpr
+  responsive_width: config().responsive_width
+  transformation: []
+  dpr: config().dpr
+  type: "upload"
+  resource_type: "image"
+  cloud_name: config().cloud_name
+  private_cdn: config().private_cdn
+  type: 'upload'
+  resource_type: "image"
+  cloud_name: config().cloud_name
+  private_cdn: config().private_cdn
+  secure_distribution: config().secure_distribution
+  cname: config().cname
+  cdn_subdomain: config().cdn_subdomain
+  secure_cdn_subdomain: config().secure_cdn_subdomain
+  shorten: config().shorten
+  secure: window.location.protocol == 'https:'
+  protocol: config().protocol
+  use_root_path: config().use_root_path
+  source_types: []
+  source_transformation: {}
+  fallback_content: ''
 
 }
 
@@ -77,12 +107,42 @@ class Param
 class ArrayParam extends Param
   constructor: (@name, @short, @sep = '.', @process = _.identity) ->
     super(@name, @short, @process)
-  flatten: -> "#{@short}_#{@build_array(@value).join(@sep)}"
+  flatten: -> #FIXME when to handle string?
+    flat = for t in @value
+      if _.isFunction( t.flatten)
+        t.flatten() # Param or Transformation
+      else
+        t
+    "#{@short}_#{flat.join(@sep)}"
+  set: (@value)->
+    super(_.toArray(@value))
+
+class TransformationParam extends Param
+  constructor: (@name, @short = "t", @sep = '.', @process = _.identity) ->
+    super(@name, @short, @process)
+  flatten: -> #FIXME when to handle string?
+    if _.all(@value, _.isString)
+      ["#{@short}_#{@value.join(@sep)}"]
+    else
+      for t in @value when _.isString(t) || _.isFunction( t.flatten)
+        if _.isString( t)
+          "#{@short}_#{t}"
+        else if _.isFunction( t.flatten)
+          t.flatten()
+
+
+  set: (@value)->
+    super(_.toArray(@value))
 
 class RangeParam extends Param
   constructor: (@name, @short, @process = @norm_range_value)->
     super(@name, @short, @process)
 
+class RawParam extends Param
+  constructor: (@name, @short, @process = _.identity)->
+    super(@name, @short, @process)
+  flatten: ->
+    @value
 
 
 ###*

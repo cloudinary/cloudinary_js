@@ -1,5 +1,4 @@
 class Cloudinary
-  'use strict';
   CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
   OLD_AKAMAI_SHARED_CDN = "cloudinary-a.akamaihd.net";
   AKAMAI_SHARED_CDN = "res.cloudinary.com";
@@ -21,107 +20,60 @@ class Cloudinary
     else if new_config?
       @cloudinary_config = new_config
     this
+  url: (public_id, options) ->
+    options = _.extend({}, options)
+    cloudinary_url public_id, options
 
-
-  option_consume = (options, option_name, default_value) ->
-    result = options[option_name]
-    delete options[option_name]
-    if typeof result == 'undefined' then default_value else result
-class Transformation
-
-  constructor: (@name, @short, @process)->
-    console.log("setting up " + @name)
-
-  set: (@value)=>
-    console.log("Set " + @name + "= " + @value)
-    this
-
-  flatten: ->
-    @short + '_' + @process(@value)
-
-class Resource
-  constructor: (@cloudinary)->
-    @transformations = new Array()
-  add: (name, transformation)->
-    @transformations.push {name, transformation}
-    this
-
-  angle: (angle) ->
-    add build_array(angle).join '.'
-
-  background: (background) ->
-    add background.replace /^#/, 'rgb:'
-
-  border: (border) ->
-    if _.isPlainObject(border)
-      border_width = '' + (border.width or 2)
-      border_color = (border.color or 'black').replace(/^#/, 'rgb:')
-      border = border_width + 'px_solid_' + border_color
-    add border
-
-  color: (color) ->
-    add color.replace /^#/, 'rgb:'
-
-  dpr: (dpr) ->
-    dpr = dpr.toString()
-    add if dpr == 'auto'
-      '1.0'
-    else if dpr.match(/^\d+$/)
-      dpr + '.0'
-    else
-      dpr
-  effect: (value) ->
-    build_array(value).join ':'
-  flags: (value) ->
-    build_array(value).join '.'
-  transformation: (value) ->
-    build_array(value).join '.'
-
-  ###*
-  # A video codec parameter can be either a String or a Hash.
-  #
-  # @param {object} param <code>vc_<codec>[ : <profile> : [<level>]]</code>
-  #                       or <code>{ codec: 'h264', profile: 'basic', level: '3.1' }</code>
-  # @return {string} <code><codec> : <profile> : [<level>]]</code> if a Hash was provided
-  #                   or the param if a String was provided.
-  #                   Returns NIL if param is not a Hash or String
-  ###
-  video_codec: (param) ->
-    add 'vc',
-      switch typeof param
-        when 'object'
-          if param['codec'] != undefined
-            video = param['codec']
-            if param['profile'] != undefined
-              video += ':' + param['profile']
-              if param['level'] != undefined
-                video += ':' + param['level']
-          else
-            ''
-        when 'string'
-          param
-        else
-          null
-    this
-
-  start_offset: (value)->
-    add 'so', norm_range_value(value)
-    this
-
-  end_offset: (value)->
-    add 'eo', norm_range_value(value)
-    this
-
-  duration: (value)->
-    add 'du', norm_range_value(value)
-
-  join_array_function = (sep) ->
-  (value) ->
-    build_array(value).join sep
-
-  norm_range_value = (value) ->
-    offset = String(value).match(new RegExp('^' + offset_any_pattern + '$'))
-    if offset
-      modifier = if present(offset[5]) then 'p' else ''
-      value = (offset[1] or offset[4]) + modifier
-    value
+cloudinary_url = (public_id, options = {}) ->
+  type = option_consume(options, 'type', 'upload')
+  if type == 'fetch'
+    options.fetch_format = options.fetch_format or option_consume(options, 'format')
+  transformation = new Transformation(options).flatten()
+  resource_type = option_consume(options, 'resource_type', 'image')
+  version = option_consume(options, 'version')
+  format = option_consume(options, 'format')
+  cloud_name = option_consume(options, 'cloud_name', $.cloudinary.config().cloud_name)
+  if !cloud_name
+    throw 'Unknown cloud_name'
+  private_cdn = option_consume(options, 'private_cdn', $.cloudinary.config().private_cdn)
+  secure_distribution = option_consume(options, 'secure_distribution', $.cloudinary.config().secure_distribution)
+  cname = option_consume(options, 'cname', $.cloudinary.config().cname)
+  cdn_subdomain = option_consume(options, 'cdn_subdomain', $.cloudinary.config().cdn_subdomain)
+  secure_cdn_subdomain = option_consume(options, 'secure_cdn_subdomain', $.cloudinary.config().secure_cdn_subdomain)
+  shorten = option_consume(options, 'shorten', $.cloudinary.config().shorten)
+  secure = option_consume(options, 'secure', window.location.protocol == 'https:')
+  protocol = option_consume(options, 'protocol', $.cloudinary.config().protocol)
+  trust_public_id = option_consume(options, 'trust_public_id')
+  url_suffix = option_consume(options, 'url_suffix')
+  use_root_path = option_consume(options, 'use_root_path', $.cloudinary.config().use_root_path)
+  if url_suffix and !private_cdn
+    throw 'URL Suffix only supported in private CDN'
+  if type == 'fetch'
+    public_id = absolutize(public_id)
+  if public_id.search('/') >= 0 and !public_id.match(/^v[0-9]+/) and !public_id.match(/^https?:\//) and !present(version)
+    version = 1
+  if public_id.match(/^https?:/)
+    if type == 'upload' or type == 'asset'
+      return public_id
+    public_id = encodeURIComponent(public_id).replace(/%3A/g, ':').replace(/%2F/g, '/')
+  else
+# Make sure public_id is URI encoded.
+    public_id = encodeURIComponent(decodeURIComponent(public_id)).replace(/%3A/g, ':').replace(/%2F/g, '/')
+    if url_suffix
+      if url_suffix.match(/[\.\/]/)
+        throw 'url_suffix should not include . or /'
+      public_id = public_id + '/' + url_suffix
+    if format
+      if !trust_public_id
+        public_id = public_id.replace(/\.(jpg|png|gif|webp)$/, '')
+      public_id = public_id + '.' + format
+  resource_type_and_type = finalize_resource_type(resource_type, type, url_suffix, use_root_path, shorten)
+  prefix = cloudinary_url_prefix(public_id, cloud_name, private_cdn, cdn_subdomain, secure_cdn_subdomain, cname, secure, secure_distribution, protocol)
+  url = [
+    prefix
+    resource_type_and_type
+    transformation
+    if version then 'v' + version else ''
+    public_id
+  ].join('/').replace(/([^:])\/+/g, '$1/')
+  url
