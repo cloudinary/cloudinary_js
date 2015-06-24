@@ -7,15 +7,23 @@ offset_any_pattern = "(#{number_pattern })([%pP])?";
 #  _log(value)
 
 class TransformationBase
-  param: (value, name, abbr, default_value, process = _.identity) ->
-    process = default_value if _.isFunction(default_value) && !process?
-    console.dir(@)
-    console.dir(@trans)
+  param: (value, name, abbr, default_value, process) ->
+    unless process?
+      if _.isFunction(default_value)
+        process = default_value
+      else
+        process = _.identity
+    #console.dir(@)
+    #console.dir(@trans)
     @trans[name] = new Param(name, abbr, process).set(value)
 
   rawParam: (value, name, abbr, default_value, process = _.identity) ->
     process = default_value if _.isFunction(default_value) && !process?
     @trans[name] = new RawParam(name, abbr, process).set(value)
+
+#  fetchParam: (value, name, abbr, default_value, process = _.identity) ->
+#    process = default_value if _.isFunction(default_value) && !process?
+#    @trans[name] = new FetchParam(name, abbr, process).set(value)
 
   rangeParam: (value, name, abbr, default_value, process = _.identity) ->
     process = default_value if _.isFunction(default_value) && !process?
@@ -25,11 +33,17 @@ class TransformationBase
     process = default_value if _.isFunction(default_value) && !process?
     @trans[name] = new ArrayParam(name, abbr, sep, process).set(value)
 
-  constructor: (@trans = {})->
+  transformationParam: (value, name, abbr, sep = ".", default_value, process = _.identity) ->
+    process = default_value if _.isFunction(default_value) && !process?
+    @trans[name] = new TransformationParam(name, abbr, sep, process).set(value)
+
+
+  constructor: (options = {})->
     @trans = {}
+    @exclude_list = []
     @whitelist = _.functions(TransformationBase.prototype)
     _.difference(@whitelist, ["_set", "param", "rawParam", "rangeParam", "arrayParam"])
-    console.log(@whitelist)
+#    console.log(@whitelist)
   angle: (value)-> @param value, "angle", "a"
   audio_codec: (value)-> @param value, "audio_codec", "ac"
   audio_frequency: (value)-> @param value, "audio_frequency", "f"
@@ -37,7 +51,7 @@ class TransformationBase
   bit_rate: (value)-> @param value, "bit_rate", "r"
   border: (value)-> @param value, "border", "bo", (border) ->
     if (_.isPlainObject(border))
-      _.assign({color: "black", width: 2}, border)
+      border = _.assign({}, {color: "black", width: 2}, border)
       "#{border.width}px_solid_#{Param.norm_color(border.color)}"
     else
       border
@@ -46,12 +60,13 @@ class TransformationBase
   crop: (value)-> @param value, "crop", "c"
   default_image: (value)-> @param value, "default_image", "d"
   delay: (value)-> @param value, "delay", "l"
-  density: (value)-> @param value, "density", "n"
+  density: (value)-> @param value, "density", "dn"
   duration: (value)-> @rangeParam value, "duration", "du"
   dpr: (value)-> @param value, "dpr", "dpr", (dpr) ->
+    dpr = dpr.toString()
     if (dpr == "auto")
       "1.0"
-    else if (dpr?.match(/^d+$/))
+    else if (dpr?.match(/^\d+$/))
       dpr + ".0"
     else
       dpr
@@ -60,7 +75,11 @@ class TransformationBase
   fetch_format: (value)-> @param value, "fetch_format", "f"
   flags: (value)-> @arrayParam value, "flags", "fl", "."
   gravity: (value)-> @param value, "gravity", "g"
-  height: (value)-> @param value, "height", "h"
+  height: (value)-> @param value, "height", "h", =>
+    if _.any([ @getValue("crop"), @getValue("overlay"), @getValue("underlay")])
+      value
+    else
+      null
   html_height: (value)-> @param value, "html_height"
   html_width:(value)-> @param value, "html_width"
   offset: (value)->
@@ -74,7 +93,7 @@ class TransformationBase
     @end_offset(end_o) if end_o?
   opacity: (value)-> @param value, "opacity", "o"
   overlay: (value)-> @param value, "overlay", "l"
-  page: (value)-> @param value, "page", "g"
+  page: (value)-> @param value, "page", "pg"
   prefix: (value)-> @param value, "prefix", "p"
   quality: (value)-> @param value, "quality", "q"
   radius: (value)-> @param value, "radius", "r"
@@ -85,13 +104,15 @@ class TransformationBase
       @width(width)
       @height(height)
   start_offset: (value)-> @rangeParam value, "start_offset", "so"
-  transformation: (value)-> @arrayParam value, "transformation", "t", ".", (transformation_array)->
-    for t in transformation_array
-      if _.isString(t) then t else new Transformation(t)
+  transformation: (value)-> @transformationParam value, "transformation"
   underlay: (value)-> @param value, "underlay", "u"
   video_codec: (value)-> @param value, "video_codec", "vc", process_video_params
   video_sampling: (value)-> @param value, "video_sampling", "s"
-  width: (value)-> @param value, "width", "w"
+  width: (value)-> @param value, "width", "w", =>
+    if _.any([ @getValue("crop"), @getValue("overlay"), @getValue("underlay")])
+      value
+    else
+      null
   x: (value)-> @param value, "x", "x"
   y: (value)-> @param value, "y", "y"
   zoom: (value)-> @param value, "zoom", "z"
@@ -113,9 +134,9 @@ class Transformation extends TransformationBase
     this.fromOptions(options)
   fromOptions: (options = {}) ->
     options = {transformation: options } if _.isString(options) || _.isArray(options)
-    console.dir(_.intersection(options, @whitelist))
+    #console.dir(_.intersection(options, @whitelist))
     for k in _.intersection(_.keys(options), @whitelist)
-      console.log("setting #{k} to #{options[k]}")
+#      console.log("setting #{k} to #{options[k]}")
       this[k](options[k])
     this
   getValue: (name)->
@@ -127,35 +148,65 @@ class Transformation extends TransformationBase
     delete @trans[name]
     temp
   flatten: ->
-    param_list = @trans.sort()
     result_array = []
-    console.log("filtered_transformation_params")
-    console.log(filtered_transformation_params)
-    transformations = remove("transformation");
+#    console.log("filtered_transformation_params")
+#    console.log(filtered_transformation_params)
+    transformations = @remove("transformation");
     if transformations
-      result_array.concat( transformations.flatten())
-    unless _.any([ @getValue("overlay"), @getValue("underlay"), _.contains( ["fit", "limit", "lfill"],@["crop"])])
+      result_array = result_array.concat( transformations.flatten())
+    unless _.any([ @getValue("overlay"), @getValue("underlay"), @getValue("angle"), _.contains( ["fit", "limit", "lfill"],@getValue("crop"))])
       width = @getValue("width")
+      height = @getValue("height")
       if width && width != "auto" && parseFloat(width) >= 1.0
-        html_width(width) unless @get("html_width")
-      if @get("height") && parseFloat(@getValue("height")) >= 1.0
-        html_height(height) unless @get("html_height")
-    unless _.any([ @getValue("crop"), @getValue("overlay"), @getValue("underlay")])
-      _.pull( param_list, "width", "height")
+        @html_width(width) unless @getValue("html_width")
+      if @get("height") && parseFloat(height) >= 1.0
+        @html_height(height) unless @getValue("html_height")
+# TODO will this have affect on client code? (shouldn't because public api dup options)
+#    unless _.any([ @getValue("crop"), @getValue("overlay"), @getValue("underlay")])
+#      @remove("width")
+#      @remove("height")
 
-    #    (@get(t).flatten() for t of @trans when filtered_transformation_params.indexOf(t) == -1).join(',')
-    transformation_string = (@get(t).flatten() for t of param_list ).join(',')
+    param_list = _.keys(@trans).sort()
+
+    transformation_string = (@get(t)?.flatten() for t in param_list )
+    transformation_string = _.filter(transformation_string, null).join(',')
     result_array.push(transformation_string) unless _.isEmpty(transformation_string)
     result_array.join('/')
 
   listNames: ->
     @whitelist
 
+  toPlainObject: ()->
+    hash = {}
+    hash[key] = @trans[key].value for key of @trans
+    hash
+
+  ###*
+  # Returns an options object with attributes for an HTML tag.
+  #
+  # @param {Object} options if provided, this object will be muted
+  ###
+  toHtmlTagOptions: (options = {})->
+    # delete any filtered key or options.keys - @trans
+    # copy rest
+    # rest = @trans.keys - filtered
+    delete_keys = _.union( filtered_transformation_params,
+                    _.difference(_.keys(options), _.keys(@trans)))
+    delete options[key] for key in delete_keys
+    options[key] = @trans[key].value for key in _.difference(_.keys(@trans ), filtered_transformation_params)
+    options.width == options.html_width if options.html_width
+    options.height == options.html_height if options.html_height
+
+    options
+
   isValidParamName: (name) ->
     @whitelist.indexOf(name) >= 0
+
+
 if module?.exports
 #On a server
   exports.Transformation = Transformation
 else
 #On a client
   window.Transformation = Transformation
+

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>List Cloiudinary Javascript SDK globals</title>
+    <script src="bower_components/lodash/lodash.js" type="application/javascript"></script>
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+</head>
+<body>
+<h1>New in $.fn</h1>
+<div id="output">
+
+</div>
+<h1>New in window</h1>
+<div id="window-globals">
+
+</div>
+<h1>$.cloudinary public items</h1>
+<div id="cld-globals">
+
+</div>
+<script !src="">
+    var globals_before = _.keys($.fn);
+    var window_before = _.keys(window);
+    var globals_after;
+    var window_after;
+    var s = document.createElement("script");
+    s.setAttribute("id", "cld-script");
+    s.setAttribute("src", "js/jquery.cloudinary.old.js");
+    s.setAttribute("type", "application/javascript");
+    document.body.appendChild(s);
+    var output = document.getElementById("output");
+    var window_globals = document.getElementById("window-globals");
+    var cld_globals = document.getElementById("cld-globals");
+    window.setTimeout( function(){
+        globals_after = _.keys($.fn);
+        window_after = _.keys(window);
+        output.innerHTML = _.difference(globals_after, globals_before).join("<br>");
+        window_globals.innerHTML = _.difference(window_before, window_after).join("<br>");
+        cld_globals.innerHTML = _.keys($.cloudinary).join("<br>");
+
+
+    }, 2000);
+</script>
+</body>
+</html>

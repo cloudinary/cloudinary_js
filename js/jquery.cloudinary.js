@@ -1,5 +1,33 @@
 (function() {
-  var ArrayParam, CloudinaryConfiguration, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, cloudinary_config, config, crc32, default_transformation_params, filtered_transformation_params, number_pattern, offset_any_pattern, process_video_params, utf8_encode,
+  /*
+ * Cloudinary's jQuery library - v1.0.24
+ * Copyright Cloudinary
+ * see https://github.com/cloudinary/cloudinary_js
+ */
+
+(function (factory) {
+    'use strict';
+    if (typeof define === 'function' && define.amd) {
+        // Register as an anonymous AMD module:
+        define([
+            'jquery',
+            'jquery.ui.widget',
+            'jquery.iframe-transport',
+            'jquery.fileupload'
+        ], factory);
+    } else {
+        // Browser globals:
+        var $ = window.jQuery;
+        factory($);
+        $(function() {
+            if($.fn.cloudinary_fileupload !== undefined) {
+                $("input.cloudinary-fileupload[type=file]").cloudinary_fileupload();
+            }
+        });
+    }
+}(function ($) {
+;
+  var ArrayParam, Cloudinary, CloudinaryConfiguration, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, cloudinary_config, config, crc32, default_transformation_params, filtered_transformation_params, number_pattern, offset_any_pattern, process_video_params, utf8_encode,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
@@ -79,8 +107,30 @@
   cloudinary_config = void 0;
 
   CloudinaryConfiguration = (function() {
-    function CloudinaryConfiguration(configuration) {
-      this.configuration = configuration;
+
+    /**
+     * Defaults values for parameters.
+     *
+     * (Previously defined using option_consume() )
+     */
+    var default_transformation_params, ref;
+
+    default_transformation_params = {
+      fallback_content: '',
+      resource_type: "image",
+      secure: (typeof window !== "undefined" && window !== null ? (ref = window.location) != null ? ref.protocol : void 0 : void 0) === 'https:',
+      source_transformation: {},
+      source_types: [],
+      transformation: [],
+      type: 'upload'
+    };
+
+    function CloudinaryConfiguration(options) {
+      if (options == null) {
+        options = {};
+      }
+      this.configuration = _.cloneDeep(options);
+      _.defaults(this.configuration, default_transformation_params);
     }
 
     CloudinaryConfiguration.prototype.set = function(config, value) {
@@ -111,18 +161,18 @@
       if (meta_elements) {
         for (j = 0, len = meta_elements.length; j < len; j++) {
           el = meta_elements[j];
-          this.cloudinary_config[el.getAttribute('name').replace('cloudinary_', '')] = el.getAttribute('content');
+          this.cloudinary[el.getAttribute('name').replace('cloudinary_', '')] = el.getAttribute('content');
         }
       }
       return this;
     };
 
     CloudinaryConfiguration.prototype.fromEnvironment = function() {
-      var cloudinary_url, k, ref, ref1, uri, v;
-      cloudinary_url = typeof process !== "undefined" && process !== null ? (ref = process.env) != null ? ref.CLOUDINARY_URL : void 0 : void 0;
+      var cloudinary, cloudinary_url, k, ref1, ref2, uri, v;
+      cloudinary_url = typeof process !== "undefined" && process !== null ? (ref1 = process.env) != null ? ref1.CLOUDINARY_URL : void 0 : void 0;
       if (cloudinary_url != null) {
         uri = require('url').parse(cloudinary_url, true);
-        cloudinary_config = {
+        cloudinary = {
           cloud_name: uri.host,
           api_key: uri.auth && uri.auth.split(":")[0],
           api_secret: uri.auth && uri.auth.split(":")[1],
@@ -130,10 +180,10 @@
           secure_distribution: uri.pathname && uri.pathname.substring(1)
         };
         if (uri.query != null) {
-          ref1 = uri.query;
-          for (k in ref1) {
-            v = ref1[k];
-            cloudinary_config[k] = v;
+          ref2 = uri.query;
+          for (k in ref2) {
+            v = ref2[k];
+            cloudinary[k] = v;
           }
         }
       }
@@ -160,6 +210,10 @@
       }
     };
 
+    CloudinaryConfiguration.prototype.defaults = function() {
+      return _.pick(this.configuration, ["cdn_subdomain", "cloud_name", "cname", "dpr", "fallback_content", "private_cdn", "protocol", "resource_type", "responsive_width", "secure", "secure_cdn_subdomain", "secure_distribution", "shorten", "source_transformation", "source_types", "transformation", "type", "use_root_path"]);
+    };
+
     return CloudinaryConfiguration;
 
   })();
@@ -179,7 +233,7 @@
    * Parameters that are filtered out before passing the options to an HTML tag
    */
 
-  filtered_transformation_params = ["angle", "audio_codec", "audio_frequency", "background", "bit_rate", "border", "color", "color_space", "crop", "default_image", "delay", "density", "dpr", "duration", "effect", "end_offset", "fetch_format", "flags", "gravity", "offset", "opacity", "overlay", "page", "prefix", "quality", "radius", "raw_transformation", "responsive_width", "size", "start_offset", "transformation", "underlay", "video_codec", "video_sampling", "x", "y", "zoom"];
+  filtered_transformation_params = ["angle", "audio_codec", "audio_frequency", "background", "bit_rate", "border", "cdn_subdomain", "cloud_name", "cname", "color", "color_space", "crop", "default_image", "delay", "density", "dpr", "dpr", "duration", "effect", "end_offset", "fallback_content", "fetch_format", "format", "flags", "gravity", "height", "offset", "opacity", "overlay", "page", "prefix", "private_cdn", "protocol", "quality", "radius", "raw_transformation", "resource_type", "responsive_width", "secure", "secure_cdn_subdomain", "secure_distribution", "shorten", "size", "source_transformation", "source_types", "start_offset", "transformation", "type", "underlay", "use_root_path", "video_codec", "video_sampling", "width", "x", "y", "zoom"];
 
 
   /**
@@ -189,28 +243,24 @@
    */
 
   default_transformation_params = {
-    responsive_width: config().responsive_width,
-    transformation: [],
-    dpr: config().dpr,
-    type: "upload",
-    resource_type: "image",
-    cloud_name: config().cloud_name,
-    private_cdn: config().private_cdn,
-    type: 'upload',
-    resource_type: "image",
-    cloud_name: config().cloud_name,
-    private_cdn: config().private_cdn,
-    secure_distribution: config().secure_distribution,
-    cname: config().cname,
     cdn_subdomain: config().cdn_subdomain,
-    secure_cdn_subdomain: config().secure_cdn_subdomain,
-    shorten: config().shorten,
-    secure: window.location.protocol === 'https:',
+    cloud_name: config().cloud_name,
+    cname: config().cname,
+    dpr: config().dpr,
+    fallback_content: '',
+    private_cdn: config().private_cdn,
     protocol: config().protocol,
-    use_root_path: config().use_root_path,
-    source_types: [],
+    resource_type: "image",
+    responsive_width: config().responsive_width,
+    secure: window.location.protocol === 'https:',
+    secure_cdn_subdomain: config().secure_cdn_subdomain,
+    secure_distribution: config().secure_distribution,
+    shorten: config().shorten,
     source_transformation: {},
-    fallback_content: ''
+    source_types: [],
+    transformation: [],
+    type: 'upload',
+    use_root_path: config().use_root_path
   };
 
   Param = (function() {
@@ -218,19 +268,21 @@
       this.name = name1;
       this.short = short;
       this.process = process1 != null ? process1 : _.identity;
-      console.log("setting up " + this.name);
     }
 
     Param.prototype.set = function(value1) {
       this.value = value1;
-      console.log("Set " + this.name + "= " + this.value);
       return this;
     };
 
     Param.prototype.flatten = function() {
-      console.log("flatten " + this.value);
-      console.dir(this);
-      return this.short + "_" + (this.process(this.value));
+      var val;
+      val = this.process(this.value);
+      if ((this.short != null) && (val != null)) {
+        return this.short + "_" + val;
+      } else {
+        return null;
+      }
     };
 
     Param.norm_range_value = function(value) {
@@ -244,7 +296,7 @@
     };
 
     Param.norm_color = function(value) {
-      return value.replace(/^#/, 'rgb:');
+      return value != null ? value.replace(/^#/, 'rgb:') : void 0;
     };
 
     Param.prototype.build_array = function(arg) {
@@ -294,7 +346,11 @@
 
     ArrayParam.prototype.set = function(value1) {
       this.value = value1;
-      return ArrayParam.__super__.set.call(this, _.toArray(this.value));
+      if (_.isArray(this.value)) {
+        return ArrayParam.__super__.set.call(this, this.value);
+      } else {
+        return ArrayParam.__super__.set.call(this, [this.value]);
+      }
     };
 
     return ArrayParam;
@@ -314,18 +370,22 @@
 
     TransformationParam.prototype.flatten = function() {
       var j, len, ref, results, t;
-      if (_.all(this.value, _.isString)) {
+      if (_.isEmpty(this.value)) {
+        return null;
+      } else if (_.all(this.value, _.isString)) {
         return [this.short + "_" + (this.value.join(this.sep))];
       } else {
         ref = this.value;
         results = [];
         for (j = 0, len = ref.length; j < len; j++) {
           t = ref[j];
-          if (_.isString(t) || _.isFunction(t.flatten)) {
+          if (t != null) {
             if (_.isString(t)) {
               results.push(this.short + "_" + t);
             } else if (_.isFunction(t.flatten)) {
               results.push(t.flatten());
+            } else if (_.isPlainObject(t)) {
+              results.push(new Transformation(t).flatten());
             } else {
               results.push(void 0);
             }
@@ -337,7 +397,11 @@
 
     TransformationParam.prototype.set = function(value1) {
       this.value = value1;
-      return TransformationParam.__super__.set.call(this, _.toArray(this.value));
+      if (_.isArray(this.value)) {
+        return TransformationParam.__super__.set.call(this, this.value);
+      } else {
+        return TransformationParam.__super__.set.call(this, [this.value]);
+      }
     };
 
     return TransformationParam;
@@ -415,13 +479,12 @@
   TransformationBase = (function() {
     TransformationBase.prototype.param = function(value, name, abbr, default_value, process) {
       if (process == null) {
-        process = _.identity;
+        if (_.isFunction(default_value)) {
+          process = default_value;
+        } else {
+          process = _.identity;
+        }
       }
-      if (_.isFunction(default_value) && (process == null)) {
-        process = default_value;
-      }
-      console.dir(this);
-      console.dir(this.trans);
       return this.trans[name] = new Param(name, abbr, process).set(value);
     };
 
@@ -458,12 +521,27 @@
       return this.trans[name] = new ArrayParam(name, abbr, sep, process).set(value);
     };
 
-    function TransformationBase(trans) {
-      this.trans = trans != null ? trans : {};
+    TransformationBase.prototype.transformationParam = function(value, name, abbr, sep, default_value, process) {
+      if (sep == null) {
+        sep = ".";
+      }
+      if (process == null) {
+        process = _.identity;
+      }
+      if (_.isFunction(default_value) && (process == null)) {
+        process = default_value;
+      }
+      return this.trans[name] = new TransformationParam(name, abbr, sep, process).set(value);
+    };
+
+    function TransformationBase(options) {
+      if (options == null) {
+        options = {};
+      }
       this.trans = {};
+      this.exclude_list = [];
       this.whitelist = _.functions(TransformationBase.prototype);
       _.difference(this.whitelist, ["_set", "param", "rawParam", "rangeParam", "arrayParam"]);
-      console.log(this.whitelist);
     }
 
     TransformationBase.prototype.angle = function(value) {
@@ -489,7 +567,7 @@
     TransformationBase.prototype.border = function(value) {
       return this.param(value, "border", "bo", function(border) {
         if (_.isPlainObject(border)) {
-          _.assign({
+          border = _.assign({}, {
             color: "black",
             width: 2
           }, border);
@@ -521,7 +599,7 @@
     };
 
     TransformationBase.prototype.density = function(value) {
-      return this.param(value, "density", "n");
+      return this.param(value, "density", "dn");
     };
 
     TransformationBase.prototype.duration = function(value) {
@@ -530,9 +608,10 @@
 
     TransformationBase.prototype.dpr = function(value) {
       return this.param(value, "dpr", "dpr", function(dpr) {
+        dpr = dpr.toString();
         if (dpr === "auto") {
           return "1.0";
-        } else if (dpr != null ? dpr.match(/^d+$/) : void 0) {
+        } else if (dpr != null ? dpr.match(/^\d+$/) : void 0) {
           return dpr + ".0";
         } else {
           return dpr;
@@ -561,7 +640,15 @@
     };
 
     TransformationBase.prototype.height = function(value) {
-      return this.param(value, "height", "h");
+      return this.param(value, "height", "h", (function(_this) {
+        return function() {
+          if (_.any([_this.getValue("crop"), _this.getValue("overlay"), _this.getValue("underlay")])) {
+            return value;
+          } else {
+            return null;
+          }
+        };
+      })(this));
     };
 
     TransformationBase.prototype.html_height = function(value) {
@@ -592,7 +679,7 @@
     };
 
     TransformationBase.prototype.page = function(value) {
-      return this.param(value, "page", "g");
+      return this.param(value, "page", "pg");
     };
 
     TransformationBase.prototype.prefix = function(value) {
@@ -625,19 +712,7 @@
     };
 
     TransformationBase.prototype.transformation = function(value) {
-      return this.arrayParam(value, "transformation", "t", ".", function(transformation_array) {
-        var j, len, results, t;
-        results = [];
-        for (j = 0, len = transformation_array.length; j < len; j++) {
-          t = transformation_array[j];
-          if (_.isString(t)) {
-            results.push(t);
-          } else {
-            results.push(new Transformation(t));
-          }
-        }
-        return results;
-      });
+      return this.transformationParam(value, "transformation");
     };
 
     TransformationBase.prototype.underlay = function(value) {
@@ -653,7 +728,15 @@
     };
 
     TransformationBase.prototype.width = function(value) {
-      return this.param(value, "width", "w");
+      return this.param(value, "width", "w", (function(_this) {
+        return function() {
+          if (_.any([_this.getValue("crop"), _this.getValue("overlay"), _this.getValue("underlay")])) {
+            return value;
+          } else {
+            return null;
+          }
+        };
+      })(this));
     };
 
     TransformationBase.prototype.x = function(value) {
@@ -706,11 +789,9 @@
           transformation: options
         };
       }
-      console.dir(_.intersection(options, this.whitelist));
       ref = _.intersection(_.keys(options), this.whitelist);
       for (j = 0, len = ref.length; j < len; j++) {
         k = ref[j];
-        console.log("setting " + k + " to " + options[k]);
         this[k](options[k]);
       }
       return this;
@@ -733,39 +814,37 @@
     };
 
     Transformation.prototype.flatten = function() {
-      var param_list, result_array, t, transformation_string, transformations, width;
-      param_list = this.trans.sort();
+      var height, param_list, result_array, t, transformation_string, transformations, width;
       result_array = [];
-      console.log("filtered_transformation_params");
-      console.log(filtered_transformation_params);
-      transformations = remove("transformation");
+      transformations = this.remove("transformation");
       if (transformations) {
-        result_array.concat(transformations.flatten());
+        result_array = result_array.concat(transformations.flatten());
       }
-      if (!_.any([this.getValue("overlay"), this.getValue("underlay"), _.contains(["fit", "limit", "lfill"], this["crop"])])) {
+      if (!_.any([this.getValue("overlay"), this.getValue("underlay"), this.getValue("angle"), _.contains(["fit", "limit", "lfill"], this.getValue("crop"))])) {
         width = this.getValue("width");
+        height = this.getValue("height");
         if (width && width !== "auto" && parseFloat(width) >= 1.0) {
-          if (!this.get("html_width")) {
-            html_width(width);
+          if (!this.getValue("html_width")) {
+            this.html_width(width);
           }
         }
-        if (this.get("height") && parseFloat(this.getValue("height")) >= 1.0) {
-          if (!this.get("html_height")) {
-            html_height(height);
+        if (this.get("height") && parseFloat(height) >= 1.0) {
+          if (!this.getValue("html_height")) {
+            this.html_height(height);
           }
         }
       }
-      if (!_.any([this.getValue("crop"), this.getValue("overlay"), this.getValue("underlay")])) {
-        _.pull(param_list, "width", "height");
-      }
-      transformation_string = ((function() {
-        var results;
+      param_list = _.keys(this.trans).sort();
+      transformation_string = (function() {
+        var j, len, ref, results;
         results = [];
-        for (t in param_list) {
-          results.push(this.get(t).flatten());
+        for (j = 0, len = param_list.length; j < len; j++) {
+          t = param_list[j];
+          results.push((ref = this.get(t)) != null ? ref.flatten() : void 0);
         }
         return results;
-      }).call(this)).join(',');
+      }).call(this);
+      transformation_string = _.filter(transformation_string, null).join(',');
       if (!_.isEmpty(transformation_string)) {
         result_array.push(transformation_string);
       }
@@ -774,6 +853,46 @@
 
     Transformation.prototype.listNames = function() {
       return this.whitelist;
+    };
+
+    Transformation.prototype.toPlainObject = function() {
+      var hash, key;
+      hash = {};
+      for (key in this.trans) {
+        hash[key] = this.trans[key].value;
+      }
+      return hash;
+    };
+
+
+    /**
+     * Returns an options object with attributes for an HTML tag.
+     *
+     * @param {Object} options if provided, this object will be muted
+     */
+
+    Transformation.prototype.toHtmlTagOptions = function(options) {
+      var delete_keys, j, key, l, len, len1, ref;
+      if (options == null) {
+        options = {};
+      }
+      delete_keys = _.union(filtered_transformation_params, _.difference(_.keys(options), _.keys(this.trans)));
+      for (j = 0, len = delete_keys.length; j < len; j++) {
+        key = delete_keys[j];
+        delete options[key];
+      }
+      ref = _.difference(_.keys(this.trans), filtered_transformation_params);
+      for (l = 0, len1 = ref.length; l < len1; l++) {
+        key = ref[l];
+        options[key] = this.trans[key].value;
+      }
+      if (options.html_width) {
+        options.width === options.html_width;
+      }
+      if (options.html_height) {
+        options.height === options.html_height;
+      }
+      return options;
     };
 
     Transformation.prototype.isValidParamName = function(name) {
@@ -789,5 +908,466 @@
   } else {
     window.Transformation = Transformation;
   }
+
+
+  /*
+    Main Cloudinary class
+  
+    Backward compatibility:
+    Must provide public keys
+     * CF_SHARED_CDN
+     * OLD_AKAMAI_SHARED_CDN
+     * AKAMAI_SHARED_CDN
+     * SHARED_CDN
+     * config
+     * url
+     * video_url
+     * video_thumbnail_url
+     * url_internal
+     * transformation_string
+     * image
+     * video_thumbnail
+     * facebook_profile_image
+     * twitter_profile_image
+     * twitter_name_profile_image
+     * gravatar_image
+     * fetch_image
+     * video
+     * sprite_css
+     * responsive
+     * calc_stoppoint
+     * device_pixel_ratio
+     * supported_dpr_values
+   */
+
+  Cloudinary = (function() {
+    var AKAMAI_SHARED_CDN, CF_SHARED_CDN, DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_SOURCE_TYPES, OLD_AKAMAI_SHARED_CDN, SHARED_CDN, absolutize, cdn_subdomain_number, cloudinary_url, cloudinary_url_prefix, finalize_resource_type, html_attrs;
+
+    CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
+
+    OLD_AKAMAI_SHARED_CDN = "cloudinary-a.akamaihd.net";
+
+    AKAMAI_SHARED_CDN = "res.cloudinary.com";
+
+    SHARED_CDN = AKAMAI_SHARED_CDN;
+
+    DEFAULT_POSTER_OPTIONS = {
+      format: 'jpg',
+      resource_type: 'video'
+    };
+
+    DEFAULT_VIDEO_SOURCE_TYPES = ['webm', 'mp4', 'ogv'];
+
+
+    /**
+     * Return the resource type and action type based on the given configuration
+     * @param resource_type
+     * @param type
+     * @param url_suffix
+     * @param use_root_path
+     * @param shorten
+     * @returns {string} resource_type/type
+     */
+
+    finalize_resource_type = function(resource_type, type, url_suffix, use_root_path, shorten) {
+      var options;
+      if (_.isPlainObject(resource_type)) {
+        options = resource_type;
+        resource_type = options.resource_type;
+        type = options.type;
+        url_suffix = options.url_suffix;
+        use_root_path = options.use_root_path;
+        shorten = options.shorten;
+      }
+      if (type == null) {
+        type = 'upload';
+      }
+      if (url_suffix != null) {
+        if (resource_type === 'image' && type === 'upload') {
+          resource_type = "images";
+          type = null;
+        } else if (resource_type === 'raw' && type === 'upload') {
+          resource_type = 'files';
+          type = null;
+        } else {
+          throw new Error("URL Suffix only supported for image/upload and raw/upload");
+        }
+      }
+      if (use_root_path) {
+        if (resource_type === 'image' && (type === 'upload' || (type == null))) {
+          resource_type = null;
+          type = null;
+        } else {
+          throw new Error("Root path only supported for image/upload");
+        }
+      }
+      if (shorten && resource_type === 'image' && type === 'upload') {
+        resource_type = 'iu';
+        type = null;
+      }
+      return [resource_type, type].join("/");
+    };
+
+    absolutize = function(url) {
+      var prefix;
+      if (!url.match(/^https?:\//)) {
+        prefix = document.location.protocol + '//' + document.location.host;
+        if (url[0] === '?') {
+          prefix += document.location.pathname;
+        } else if (url[0] !== '/') {
+          prefix += document.location.pathname.replace(/\/[^\/]*$/, '/');
+        }
+        url = prefix + url;
+      }
+      return url;
+    };
+
+    cloudinary_url = function(public_id, options) {
+      var prefix, resource_type_and_type, transformation, transformation_string, url, version;
+      if (options == null) {
+        options = {};
+      }
+      _.defaults(options, this.configuration.defaults());
+      if (options.type === 'fetch') {
+        options.fetch_format = options.fetch_format || options.format;
+        public_id = absolutize(public_id);
+      }
+      transformation = new Transformation(options);
+      transformation_string = transformation.flatten();
+      if (!options.cloud_name) {
+        throw 'Unknown cloud_name';
+      }
+      if (options.url_suffix && !options.private_cdn) {
+        throw 'URL Suffix only supported in private CDN';
+      }
+      if (public_id.search('/') >= 0 && !public_id.match(/^v[0-9]+/) && !public_id.match(/^https?:\//) && _.isEmpty(options.version)) {
+        options.version = 1;
+      }
+      if (public_id.match(/^https?:/)) {
+        if (options.type === 'upload' || options.type === 'asset') {
+          url = public_id;
+        } else {
+          public_id = encodeURIComponent(public_id).replace(/%3A/g, ':').replace(/%2F/g, '/');
+        }
+      } else {
+        public_id = encodeURIComponent(decodeURIComponent(public_id)).replace(/%3A/g, ':').replace(/%2F/g, '/');
+        if (options.url_suffix) {
+          if (options.url_suffix.match(/[\.\/]/)) {
+            throw 'url_suffix should not include . or /';
+          }
+          public_id = public_id + '/' + options.url_suffix;
+        }
+        if (options.format) {
+          if (!options.trust_public_id) {
+            public_id = public_id.replace(/\.(jpg|png|gif|webp)$/, '');
+          }
+          public_id = public_id + '.' + options.format;
+        }
+      }
+      prefix = cloudinary_url_prefix(public_id, options);
+      resource_type_and_type = finalize_resource_type(options.resource_type, options.type, options.url_suffix, options.use_root_path, options.shorten);
+      transformation.toHtmlTagOptions(options);
+      version = options.version ? 'v' + options.version : '';
+      return url || _.filter([prefix, resource_type_and_type, transformation_string, version, public_id], null).join('/').replace(/([^:])\/+/g, '$1/');
+    };
+
+    function Cloudinary(options) {
+      this.configuration = new CloudinaryConfiguration(options);
+    }
+
+    Cloudinary.prototype.config = function(new_config, new_value) {
+      return this.configuration.config(new_config, new_value);
+    };
+
+    Cloudinary.prototype.url = function(public_id, options) {
+      options = _.cloneDeep(options);
+      return cloudinary_url.call(this, public_id, options);
+    };
+
+    Cloudinary.prototype.video_url = function(public_id, options) {
+      options = _.merge({
+        resource_type: 'video'
+      }, options);
+      return cloudinary_url.call(this, public_id, options);
+    };
+
+    Cloudinary.prototype.video_thumbnail_url = function(public_id, options) {
+      options = _.merge(DEFAULT_POSTER_OPTIONS, options);
+      return cloudinary_url.call(this, public_id, options);
+    };
+
+    Cloudinary.prototype.url_internal = cloudinary_url;
+
+    Cloudinary.prototype.transformation_string = function(options) {
+      options = _.cloneDeep(options);
+      return generate_transformation_string(options);
+    };
+
+    Cloudinary.prototype.image = function(public_id, options) {
+      var img, name, url, value;
+      options = _.cloneDeep(options);
+      url = this.url(public_id, options);
+      if (typeof document !== "undefined" && document !== null) {
+        img = document.createElement("img");
+        img.setAttribute("data-src-cache", url);
+        for (name in options) {
+          value = options[name];
+          img.setAttribute(name, value);
+        }
+        return img;
+      }
+    };
+
+    Cloudinary.prototype.video_thumbnail = function(public_id, options) {
+      return image(public_id, _.cloneDeep(DEFAULT_POSTER_OPTIONS, options));
+    };
+
+    Cloudinary.prototype.facebook_profile_image = function(public_id, options) {
+      return this.image(public_id, _.merge({
+        type: 'facebook'
+      }, options));
+    };
+
+    Cloudinary.prototype.twitter_profile_image = function(public_id, options) {
+      return this.image(public_id, _.merge({
+        type: 'twitter'
+      }, options));
+    };
+
+    Cloudinary.prototype.twitter_name_profile_image = function(public_id, options) {
+      return this.image(public_id, _.merge({
+        type: 'twitter_name'
+      }, options));
+    };
+
+    Cloudinary.prototype.gravatar_image = function(public_id, options) {
+      return this.image(public_id, _.merge({
+        type: 'gravatar'
+      }, options));
+    };
+
+    Cloudinary.prototype.fetch_image = function(public_id, options) {
+      return this.image(public_id, _.merge({
+        type: 'fetch'
+      }, options));
+    };
+
+    Cloudinary.prototype.video = function(public_id, options) {
+      var fallback, html, i, mime_type, multi_source, source, source_transformation, source_type, source_types, src, transformation, video_options, video_type;
+      options = options || {};
+      public_id = public_id.replace(/\.(mp4|ogv|webm)$/, '');
+      source_types = option_consume(options, 'source_types', []);
+      source_transformation = option_consume(options, 'source_transformation', {});
+      fallback = option_consume(options, 'fallback_content', '');
+      if (source_types.length === 0) {
+        source_types = DEFAULT_VIDEO_SOURCE_TYPES;
+      }
+      video_options = _.cloneDeep(options);
+      if (video_options.hasOwnProperty('poster')) {
+        if (_.isPlainObject(video_options.poster)) {
+          if (video_options.poster.hasOwnProperty('public_id')) {
+            video_options.poster = cloudinary_url.call(this, video_options.poster.public_id, video_options.poster);
+          } else {
+            video_options.poster = cloudinary_url.call(this, public_id, _.merge(DEFAULT_POSTER_OPTIONS, video_options.poster));
+          }
+        }
+      } else {
+        video_options.poster = cloudinary_url.call(this, public_id, _.merge(DEFAULT_POSTER_OPTIONS, options));
+      }
+      if (!video_options.poster) {
+        delete video_options.poster;
+      }
+      html = '<video ';
+      if (!video_options.hasOwnProperty('resource_type')) {
+        video_options.resource_type = 'video';
+      }
+      multi_source = _.isArray(source_types) && source_types.length > 1;
+      source = public_id;
+      if (!multi_source) {
+        source = source + '.' + build_array(source_types)[0];
+      }
+      src = cloudinary_url.call(this, source, video_options);
+      if (!multi_source) {
+        video_options.src = src;
+      }
+      if (video_options.hasOwnProperty('html_width')) {
+        video_options.width = option_consume(video_options, 'html_width');
+      }
+      if (video_options.hasOwnProperty('html_height')) {
+        video_options.height = option_consume(video_options, 'html_height');
+      }
+      html = html + html_attrs(video_options) + '>';
+      if (multi_source) {
+        i = 0;
+        while (i < source_types.length) {
+          source_type = source_types[i];
+          transformation = source_transformation[source_type] || {};
+          src = cloudinary_url.call(this, source + '.' + source_type, _.merge({
+            resource_type: 'video'
+          }, _.cloneDeep(options), _.cloneDeep(transformation)));
+          video_type = source_type === 'ogv' ? 'ogg' : source_type;
+          mime_type = 'video/' + video_type;
+          html = html + '<source ' + html_attrs({
+            src: src,
+            type: mime_type
+          }) + '>';
+          i++;
+        }
+      }
+      html = html + fallback;
+      html = html + '</video>';
+      return html;
+    };
+
+    Cloudinary.prototype.sprite_css = function(public_id, options) {
+      options = _.merge({
+        type: 'sprite'
+      }, options);
+      if (!public_id.match(/.css$/)) {
+        options.format = 'css';
+      }
+      return this.url(public_id, options);
+    };
+
+    Cloudinary.prototype.responsive = function(options) {
+      var responsive_config, responsive_resize, responsive_resize_initialized, timeout;
+      responsive_config = _.merge(responsive_config || {}, options);
+      $('img.cld-responsive, img.cld-hidpi').cloudinary_update(responsive_config);
+      responsive_resize = get_config('responsive_resize', responsive_config, true);
+      if (responsive_resize && !responsive_resize_initialized) {
+        responsive_config.resizing = responsive_resize_initialized = true;
+        timeout = null;
+        $(window).on('resize', function() {
+          var debounce, reset, run, wait;
+          debounce = get_config('responsive_debounce', responsive_config, 100);
+          reset = function() {
+            if (timeout) {
+              clearTimeout(timeout);
+              timeout = null;
+            }
+          };
+          run = function() {
+            $('img.cld-responsive').cloudinary_update(responsive_config);
+          };
+          wait = function() {
+            reset();
+            setTimeout((function() {
+              reset();
+              run();
+            }), debounce);
+          };
+          if (debounce) {
+            wait();
+          } else {
+            run();
+          }
+        });
+      }
+    };
+
+    Cloudinary.prototype.calc_stoppoint = function(element, width) {
+      var stoppoints;
+      stoppoints = $(element).data('stoppoints') || this.config().stoppoints || default_stoppoints;
+      if (typeof stoppoints === 'function') {
+        return stoppoints(width);
+      }
+      if (typeof stoppoints === 'string') {
+        stoppoints = _.map(stoppoints.split(','), function(val) {
+          return parseInt(val);
+        });
+      }
+      return closest_above(stoppoints, width);
+    };
+
+    Cloudinary.prototype.device_pixel_ratio = function() {
+      var dpr, dpr_string, dpr_used;
+      dpr = window.devicePixelRatio || 1;
+      dpr_string = device_pixel_ratio_cache[dpr];
+      if (!dpr_string) {
+        dpr_used = closest_above(this.supported_dpr_values, dpr);
+        dpr_string = dpr_used.toString();
+        if (dpr_string.match(/^\d+$/)) {
+          dpr_string += '.0';
+        }
+        device_pixel_ratio_cache[dpr] = dpr_string;
+      }
+      return dpr_string;
+    };
+
+    Cloudinary.prototype.supported_dpr_values = [0.75, 1.0, 1.3, 1.5, 2.0, 3.0];
+
+    cdn_subdomain_number = function(public_id) {
+      return crc32(public_id) % 5 + 1;
+    };
+
+    cloudinary_url_prefix = function(public_id, options) {
+      var cdn_part, host, path, protocol, ref, ref1, subdomain;
+      if (((ref = options.cloud_name) != null ? ref.indexOf("/") : void 0) === 0) {
+        return '/res' + options.cloud_name;
+      }
+      protocol = "http://";
+      cdn_part = "";
+      subdomain = "res";
+      host = ".cloudinary.com";
+      path = "/" + options.cloud_name;
+      if (options.protocol) {
+        protocol += '//';
+      } else if ((typeof window !== "undefined" && window !== null ? (ref1 = window.location) != null ? ref1.protocol : void 0 : void 0) === 'file:') {
+        protocol = 'file://';
+      }
+      if (options.private_cdn) {
+        cdn_part = options.cloud_name + "-";
+        path = "";
+      }
+      if (options.cdn_subdomain) {
+        subdomain = "res-" + cdn_subdomain_number(public_id);
+      }
+      if (options.secure) {
+        protocol = "https://";
+        if (options.secure_cdn_subdomain === false) {
+          subdomain = "res";
+        }
+        if ((options.secure_distribution != null) && options.secure_distribution !== OLD_AKAMAI_SHARED_CDN && options.secure_distribution !== SHARED_CDN) {
+          cdn_part = "";
+          subdomain = "";
+          host = options.secure_distribution;
+        }
+      } else if (options.cname) {
+        protocol = "http://";
+        cdn_part = "";
+        subdomain = options.cdn_subdomain ? 'a' + ((crc32(public_id) % 5) + 1) + '.' : '';
+        host = options.cname;
+      }
+      return [protocol, cdn_part, subdomain, host, path].join("");
+    };
+
+    html_attrs = function(attrs) {
+      var pairs;
+      pairs = _.map(attrs, function(value, key) {
+        return join_pair(key, value);
+      });
+      pairs.sort();
+      return pairs.filter(function(pair) {
+        return pair;
+      }).join(' ');
+    };
+
+    return Cloudinary;
+
+  })();
+
+  if (typeof module !== "undefined" && module !== null ? module.exports : void 0) {
+    exports.Cloudinary = Cloudinary;
+  } else {
+    window.Cloudinary = Cloudinary;
+  }
+
+  if (window.jQuery != null) {
+    window.jQuery.cloudinary = new Cloudinary();
+  }
+
+  
+}));
+;
 
 }).call(this);

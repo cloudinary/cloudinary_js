@@ -11,6 +11,9 @@ filtered_transformation_params = [
   "background"
   "bit_rate"
   "border"
+  "cdn_subdomain"
+  "cloud_name"
+  "cname"
   "color"
   "color_space"
   "crop"
@@ -18,30 +21,47 @@ filtered_transformation_params = [
   "delay"
   "density"
   "dpr"
+  "dpr"
   "duration"
   "effect"
   "end_offset"
+  "fallback_content"
   "fetch_format"
+  "format"
   "flags"
   "gravity"
+  "height"
   "offset"
   "opacity"
   "overlay"
   "page"
   "prefix"
+  "private_cdn"
+  "protocol"
   "quality"
   "radius"
   "raw_transformation"
+  "resource_type"
   "responsive_width"
+  "secure"
+  "secure_cdn_subdomain"
+  "secure_distribution"
+  "shorten"
   "size"
+  "source_transformation"
+  "source_types"
   "start_offset"
   "transformation"
+  "type"
   "underlay"
+  "use_root_path"
   "video_codec"
   "video_sampling"
+  "width"
   "x"
   "y"
   "zoom"
+
 ]
 
 ###*
@@ -50,43 +70,43 @@ filtered_transformation_params = [
 # (Previously defined using option_consume() )
 ###
 default_transformation_params ={
-  responsive_width: config().responsive_width
-  transformation: []
-  dpr: config().dpr
-  type: "upload"
-  resource_type: "image"
-  cloud_name: config().cloud_name
-  private_cdn: config().private_cdn
-  type: 'upload'
-  resource_type: "image"
-  cloud_name: config().cloud_name
-  private_cdn: config().private_cdn
-  secure_distribution: config().secure_distribution
-  cname: config().cname
   cdn_subdomain: config().cdn_subdomain
-  secure_cdn_subdomain: config().secure_cdn_subdomain
-  shorten: config().shorten
-  secure: window.location.protocol == 'https:'
-  protocol: config().protocol
-  use_root_path: config().use_root_path
-  source_types: []
-  source_transformation: {}
+  cloud_name: config().cloud_name
+  cname: config().cname
+  dpr: config().dpr
   fallback_content: ''
+  private_cdn: config().private_cdn
+  protocol: config().protocol
+  resource_type: "image"
+  responsive_width: config().responsive_width
+  secure: window.location.protocol == 'https:'
+  secure_cdn_subdomain: config().secure_cdn_subdomain
+  secure_distribution: config().secure_distribution
+  shorten: config().shorten
+  source_transformation: {}
+  source_types: []
+  transformation: []
+  type: 'upload'
+  use_root_path: config().use_root_path
 
 }
 
 class Param
   constructor: (@name, @short, @process = _.identity)->
-    console.log("setting up " + @name)
+    #console.log("setting up " + @name)
 
   set: (@value)->
-    console.log("Set " + @name + "= " + @value)
+    #console.log("Set " + @name + "= " + @value)
     this
 
   flatten: ->
-    console.log("flatten #{@value}")
-    console.dir(this)
-    "#{@short }_#{@process(@value)}"
+    #console.log("flatten #{@value}")
+    #console.dir(this)
+    val = @process(@value)
+    if @short? && val?
+      "#{@short }_#{val}"
+    else
+      null
 
   @norm_range_value: (value) ->
     offset = String(value).match(new RegExp('^' + offset_any_pattern + '$'))
@@ -95,7 +115,7 @@ class Param
       value = (offset[1] or offset[4]) + modifier
     value
 
-  @norm_color: (value) -> value.replace(/^#/, 'rgb:')
+  @norm_color: (value) -> value?.replace(/^#/, 'rgb:')
 
   build_array: (arg = []) ->
     if _.isArray(arg)
@@ -115,28 +135,43 @@ class ArrayParam extends Param
         t
     "#{@short}_#{flat.join(@sep)}"
   set: (@value)->
-    super(_.toArray(@value))
+    if _.isArray(@value)
+      super(@value)
+    else
+      super([@value])
 
 class TransformationParam extends Param
   constructor: (@name, @short = "t", @sep = '.', @process = _.identity) ->
     super(@name, @short, @process)
   flatten: -> #FIXME when to handle string?
-    if _.all(@value, _.isString)
+    if _.isEmpty(@value)
+      null
+    else if _.all(@value, _.isString)
       ["#{@short}_#{@value.join(@sep)}"]
     else
-      for t in @value when _.isString(t) || _.isFunction( t.flatten)
+      for t in @value when t?
         if _.isString( t)
           "#{@short}_#{t}"
         else if _.isFunction( t.flatten)
           t.flatten()
-
+        else if _.isPlainObject(t)
+          new Transformation(t).flatten()
 
   set: (@value)->
-    super(_.toArray(@value))
+    if _.isArray(@value)
+      super(@value)
+    else
+      super([@value])
 
 class RangeParam extends Param
   constructor: (@name, @short, @process = @norm_range_value)->
     super(@name, @short, @process)
+
+#class FetchParam extends Param
+#  constructor: (@name = "fetch", @short = "f", @process = _.identity)->
+#    super(@name, @short, @process)
+#  flatten: ->
+#    "#{@short}/#{@value}"
 
 class RawParam extends Param
   constructor: (@name, @short, @process = _.identity)->
