@@ -27,7 +27,7 @@
     }
 }(function ($) {
 ;
-  var ArrayParam, Cloudinary, CloudinaryConfiguration, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, cloudinary_config, config, crc32, default_transformation_params, filtered_transformation_params, number_pattern, offset_any_pattern, process_video_params, utf8_encode,
+  var ArrayParam, Cloudinary, CloudinaryConfiguration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, VideoTag, cloudinary_config, config, crc32, default_transformation_params, filtered_transformation_params, number_pattern, offset_any_pattern, process_video_params, utf8_encode,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
@@ -1441,6 +1441,135 @@
 
   if (window.jQuery != null) {
     window.jQuery.cloudinary = new Cloudinary();
+  }
+
+  HtmlTag = (function(superClass) {
+    extend(HtmlTag, superClass);
+
+    function HtmlTag(name1, public_id1, options) {
+      this.name = name1;
+      this.public_id = public_id1;
+      if (options == null) {
+        options = {};
+      }
+      HtmlTag.__super__.constructor.call(this, options);
+    }
+
+    HtmlTag.prototype.content = function() {
+      return "";
+    };
+
+    HtmlTag.prototype.openTag = function() {
+      return "<" + this.name + " " + (_.compact(this.attributes()).join(" ")) + ">";
+    };
+
+    HtmlTag.prototype.attributes = function() {
+      var name, ref, results, value;
+      ref = this.toHtmlTagOptions();
+      results = [];
+      for (name in ref) {
+        value = ref[name];
+        if (value != null) {
+          if (value === true) {
+            results.push(name);
+          } else {
+            results.push(name + "=\"" + value + "\"");
+          }
+        }
+      }
+      return results;
+    };
+
+    HtmlTag.prototype.closeTag = function() {
+      return "</" + this.name + ">";
+    };
+
+    HtmlTag.prototype.content = function() {
+      return "";
+    };
+
+    HtmlTag.prototype.toHtml = function() {
+      return this.openTag()(+this.content() + this.closeTag());
+    };
+
+    return HtmlTag;
+
+  })(Transformation);
+
+  ImageTag = (function(superClass) {
+    extend(ImageTag, superClass);
+
+    function ImageTag(public_id1, options) {
+      this.public_id = public_id1;
+      if (options == null) {
+        options = {};
+      }
+      ImageTag.__super__.constructor.call(this, "img", this.public_id, options);
+    }
+
+    ImageTag.prototype.toHtml = function() {
+      return this.openTag();
+    };
+
+    return ImageTag;
+
+  })(HtmlTag);
+
+  VideoTag = (function(superClass) {
+    var DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_SOURCE_TYPES;
+
+    extend(VideoTag, superClass);
+
+    DEFAULT_VIDEO_SOURCE_TYPES = ['webm', 'mp4', 'ogv'];
+
+    DEFAULT_POSTER_OPTIONS = {
+      format: 'jpg',
+      resource_type: 'video'
+    };
+
+    function VideoTag(public_id1, options) {
+      this.public_id = public_id1;
+      if (options == null) {
+        options = {};
+      }
+      VideoTag.__super__.constructor.call(this, "video", this.public_id, options);
+      this.whitelist.push("source_transformation", "source_types", "poster");
+    }
+
+    VideoTag.prototype.source_transformation = function(value) {
+      return this.transformationParam(value, "source_transformation");
+    };
+
+    VideoTag.prototype.source_types = function(value) {
+      return this.arrayParam(value, "source_types");
+    };
+
+    VideoTag.prototype.poster = function(value) {
+      return this.param(value, "poster");
+    };
+
+    VideoTag.prototype.content = function() {
+      var source_types;
+      return source_types = this.getValue("source_types") || Cloudinary.DEFAULT_VIDEO_SOURCE_TYPES;
+    };
+
+    VideoTag.prototype.toHtmlTagOptions = function() {
+      return VideoTag.__super__.toHtmlTagOptions.call(this)["src"] = new Cloudinary(this.options).url();
+    };
+
+    return VideoTag;
+
+  })(HtmlTag);
+
+  if (typeof module !== "undefined" && module !== null ? module.exports : void 0) {
+    if (exports.Cloudinary == null) {
+      exports.Cloudinary = {};
+    }
+    exports.Cloudinary.ImageTag = ImageTag;
+    exports.Cloudinary.VideoTag = VideoTag;
+  } else {
+    window.Cloudinary.ImageTag = ImageTag;
+    window.Cloudinary.VideoTag = VideoTag;
   }
 
   

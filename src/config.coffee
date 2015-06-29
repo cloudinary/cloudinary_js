@@ -3,24 +3,22 @@
 cloudinary_config = undefined
 
 class CloudinaryConfiguration
+  DEFAULT_VIDEO_SOURCE_TYPES = ['webm', 'mp4', 'ogv'] # TODO remove from Cloudinary
+  DEFAULT_POSTER_OPTIONS = { format: 'jpg', resource_type: 'video' }
+
   ###*
-  # Defaults values for parameters.
+  # Defaults configuration.
   #
   # (Previously defined using option_consume() )
   ###
-  default_transformation_params ={
-    fallback_content: ''
-    resource_type: "image"
+  DEFAULT_CONFIGURATION_PARAMS ={
     secure: window?.location?.protocol == 'https:'
-    source_transformation: {}
-    source_types: []
-    transformation: []
-    type: 'upload'
   }
+
 
   constructor: (options ={})->
     @configuration = _.cloneDeep(options)
-    _.defaults( @configuration, default_transformation_params)
+    _.defaults( @configuration, DEFAULT_CONFIGURATION_PARAMS)
 
 
   # Set or update the configuration
@@ -109,7 +107,8 @@ class CloudinaryConfiguration
 if module?.exports
 #On a server
 # module.exports = (new_config, new_value) ->
-  exports.config = config
+
+  exports.CloudinaryConfiguration = CloudinaryConfiguration
 else
 #On a client
-  window.config = config
+  window.CloudinaryConfiguration = CloudinaryConfiguration

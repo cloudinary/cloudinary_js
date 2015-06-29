@@ -14,6 +14,7 @@ module.exports = (grunt)->
             'src/parameters.coffee'
             'src/transformation.coffee'
             'src/cloudinary.coffee'
+            'src/tag-helpers.coffee'
             'src/footer.coffee'
           ],
           'js/jquery.cloudinary.js': [
@@ -37,6 +38,7 @@ module.exports = (grunt)->
         'src/parameters.coffee'
         'src/transformation.coffee'
         'src/cloudinary.coffee'
+        'src/tag-helpers.coffee'
         'src/footer.coffee'
       ]
   grunt.loadNpmTasks('grunt-contrib-coffee')

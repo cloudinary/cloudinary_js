@@ -30,7 +30,6 @@ filtered_transformation_params = [
   "format"
   "flags"
   "gravity"
-  "height"
   "offset"
   "opacity"
   "overlay"
@@ -57,7 +56,6 @@ filtered_transformation_params = [
   "use_root_path"
   "video_codec"
   "video_sampling"
-  "width"
   "x"
   "y"
   "zoom"
@@ -128,12 +126,15 @@ class ArrayParam extends Param
   constructor: (@name, @short, @sep = '.', @process = _.identity) ->
     super(@name, @short, @process)
   flatten: -> #FIXME when to handle string?
-    flat = for t in @value
-      if _.isFunction( t.flatten)
-        t.flatten() # Param or Transformation
-      else
-        t
-    "#{@short}_#{flat.join(@sep)}"
+    if @short?
+      flat = for t in @value
+        if _.isFunction( t.flatten)
+          t.flatten() # Param or Transformation
+        else
+          t
+      "#{@short}_#{flat.join(@sep)}"
+    else
+      null
   set: (@value)->
     if _.isArray(@value)
       super(@value)
@@ -144,7 +145,7 @@ class TransformationParam extends Param
   constructor: (@name, @short = "t", @sep = '.', @process = _.identity) ->
     super(@name, @short, @process)
   flatten: -> #FIXME when to handle string?
-    if _.isEmpty(@value)
+    result = if _.isEmpty(@value)
       null
     else if _.all(@value, _.isString)
       ["#{@short}_#{@value.join(@sep)}"]
@@ -156,7 +157,7 @@ class TransformationParam extends Param
           t.flatten()
         else if _.isPlainObject(t)
           new Transformation(t).flatten()
-
+    _.compact(result)
   set: (@value)->
     if _.isArray(@value)
       super(@value)
@@ -203,3 +204,4 @@ process_video_params = (param) ->
       param
     else
       null
+

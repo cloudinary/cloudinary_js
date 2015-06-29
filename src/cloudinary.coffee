@@ -37,6 +37,32 @@ class Cloudinary
   SHARED_CDN = AKAMAI_SHARED_CDN;
   DEFAULT_POSTER_OPTIONS = { format: 'jpg', resource_type: 'video' };
   DEFAULT_VIDEO_SOURCE_TYPES = ['webm', 'mp4', 'ogv'];
+  device_pixel_ratio_cache = {}
+
+  ###*
+  # Defaults values for parameters.
+  #
+  # (Previously defined using option_consume() )
+  ###
+  DEFAULT_IMAGE_PARAMS ={
+    resource_type: "image"
+    transformation: []
+    type: 'upload'
+  }
+
+  ###*
+  # Defaults values for parameters.
+  #
+  # (Previously defined using option_consume() )
+  ###
+  DEFAULT_VIDEO_PARAMS ={
+    fallback_content: ''
+    resource_type: "video"
+    source_transformation: {}
+    source_types: DEFAULT_VIDEO_SOURCE_TYPES
+    transformation: []
+    type: 'upload'
+  }
 
   ###*
    * Return the resource type and action type based on the given configuration
@@ -66,7 +92,7 @@ class Cloudinary
       else
         throw new Error("URL Suffix only supported for image/upload and raw/upload")
     if use_root_path
-      if (resource_type== 'image' && (type== 'upload' || !type?))
+      if (resource_type== 'image' && type== 'upload' || resource_type == "images")
         resource_type = null
         type = null
       else
@@ -87,7 +113,7 @@ class Cloudinary
     url
 
   cloudinary_url = (public_id, options = {}) ->
-    _.defaults(options, @configuration.defaults())
+    _.defaults(options, @configuration.defaults(), DEFAULT_IMAGE_PARAMS)
     if options.type == 'fetch'
       options.fetch_format = options.fetch_format or options.format
       public_id = absolutize(public_id)
@@ -100,7 +126,8 @@ class Cloudinary
     throw 'URL Suffix only supported in private CDN' if options.url_suffix and !options.private_cdn
 
     # if public_id has a '/' and doesn't begin with v<number> and doesn't start with http[s]:/ and version is empty
-    if public_id.search('/') >= 0 and !public_id.match(/^v[0-9]+/) and !public_id.match(/^https?:\//) and _.isEmpty(options.version)
+    # TODO Using !options.version?.toString() fixes bug when version == null
+    if public_id.search('/') >= 0 and !public_id.match(/^v[0-9]+/) and !public_id.match(/^https?:\//) and !options.version?.toString()
       options.version = 1
 
     if public_id.match(/^https?:/)
@@ -122,8 +149,9 @@ class Cloudinary
 
     prefix = cloudinary_url_prefix(public_id, options)
     resource_type_and_type = finalize_resource_type(options.resource_type, options.type, options.url_suffix, options.use_root_path, options.shorten)
-    transformation.toHtmlTagOptions(options) # backward compatibility - options is muted
     version = if options.version then 'v' + options.version else ''
+
+    transformation.toHtmlTagOptions(options) # backward compatibility - options is mutated
 
     url ||  _.filter([
       prefix
@@ -148,23 +176,20 @@ class Cloudinary
     options = _.merge({ resource_type: 'video' }, options)
     cloudinary_url.call this,  public_id, options
   video_thumbnail_url: (public_id, options) ->
-    options = _.merge(DEFAULT_POSTER_OPTIONS, options)
+    options = _.merge({}, DEFAULT_POSTER_OPTIONS, options)
     cloudinary_url.call this, public_id, options
   url_internal: cloudinary_url
   transformation_string: (options) ->
     options = _.cloneDeep( options)
     generate_transformation_string options
-  image: (public_id, options) ->
-    options = _.cloneDeep( options)
-    url = @url(public_id, options)
-    if document?
-      img = document.createElement("img")
-      img.setAttribute("data-src-cache", url)
-      img.setAttribute(name, value) for name, value of options
-#      img.attr(options).cloudinary_update(options)
-      img
+  image: (public_id, options={}) ->
+    options = _.defaults(_.cloneDeep(options),@configuration.defaults(), DEFAULT_IMAGE_PARAMS)
+    src = cloudinary_url.call(this, public_id, options)
+    options["src"] = src
+    new ImageTag(options).toHtml()
+
   video_thumbnail: (public_id, options) ->
-    image public_id, _.cloneDeep( DEFAULT_POSTER_OPTIONS, options)
+    image public_id, _.extend( {}, DEFAULT_POSTER_OPTIONS, options)
 
   facebook_profile_image: (public_id, options) ->
     @image public_id, _.merge({ type: 'facebook' }, options)
@@ -176,40 +201,37 @@ class Cloudinary
     @image public_id, _.merge({ type: 'gravatar' }, options)
   fetch_image: (public_id, options) ->
     @image public_id, _.merge({ type: 'fetch' }, options)
-  video: (public_id, options) ->
-    options = options or {}
+  video: (public_id, options = {}) ->
+    options = _.defaults(_.cloneDeep(options),@configuration.defaults(), DEFAULT_VIDEO_PARAMS)
     public_id = public_id.replace(/\.(mp4|ogv|webm)$/, '')
-    source_types = option_consume(options, 'source_types', [])
-    source_transformation = option_consume(options, 'source_transformation', {})
-    fallback = option_consume(options, 'fallback_content', '')
-    if source_types.length == 0
-      source_types = DEFAULT_VIDEO_SOURCE_TYPES
+
+    source_types = options['source_types']
+    source_transformation = options['source_transformation']
+    fallback = options['fallback_content']
+
     video_options = _.cloneDeep(options)
     if video_options.hasOwnProperty('poster')
-      if _.isPlainObject(video_options.poster)
+      if _.isPlainObject(video_options.poster) # else assume it is a literal poster string or `false`
         if video_options.poster.hasOwnProperty('public_id')
+          # poster is a regular image
           video_options.poster = cloudinary_url.call( this, video_options.poster.public_id, video_options.poster)
-        else
-          video_options.poster = cloudinary_url.call( this, public_id, _.merge( DEFAULT_POSTER_OPTIONS, video_options.poster))
+        else # use the same public_id as the video, with video defaults
+          video_options.poster = cloudinary_url.call( this, public_id, _.defaults( video_options.poster, DEFAULT_POSTER_OPTIONS))
     else
-      video_options.poster = cloudinary_url.call( this, public_id, _.merge( DEFAULT_POSTER_OPTIONS, options))
+      video_options.poster = cloudinary_url.call( this, public_id, _.defaults( options, DEFAULT_POSTER_OPTIONS))
     if !video_options.poster
       delete video_options.poster
-    html = '<video '
-    if !video_options.hasOwnProperty('resource_type')
-      video_options.resource_type = 'video'
+    poster = video_options.poster # TODO handle video attributes
+
     multi_source = _.isArray(source_types) and source_types.length > 1
     source = public_id
     if !multi_source
       source = source + '.' + build_array(source_types)[0]
-    src = cloudinary_url.call( this, source, video_options)
+    src = @url( source, video_options)
     if !multi_source
       video_options.src = src
-    if video_options.hasOwnProperty('html_width')
-      video_options.width = option_consume(video_options, 'html_width')
-    if video_options.hasOwnProperty('html_height')
-      video_options.height = option_consume(video_options, 'html_height')
-    html = html + html_attrs(video_options) + '>'
+    video_options.poster = poster # TODO handle video attributes
+    html = '<video ' + html_attrs(video_options) + '>'
     if multi_source
       i = 0
       while i < source_types.length
@@ -298,6 +320,13 @@ class Cloudinary
     3.0
   ]
 
+  default_stoppoints = (width) ->
+    10 * Math.ceil(width / 10)
+  closest_above = (list, value) ->
+    i = list.length - 2
+    while i >= 0 and list[i] >= value
+      i--
+    list[i + 1]
 
   # Produce a number between 1 and 5 to be used for cdn sub domains designation
   cdn_subdomain_number = (public_id)->
@@ -320,7 +349,7 @@ class Cloudinary
 
     # modifications
     if options.protocol
-      protocol += '//'
+      protocol = options.protocol + '//'
     else if window?.location?.protocol == 'file:'
       protocol = 'file://'
 
@@ -350,8 +379,22 @@ class Cloudinary
 
     [protocol, cdn_part, subdomain, host, path].join("")
 
+  join_pair = (key, value) ->
+    if !value
+      undefined
+    else if value == true
+      key
+    else
+      key + '="' + value + '"'
 
+  ###*
+  # combine key and value from the `attr` to generate an HTML tag attributes string.
+  # `Transformation::toHtmlTagOptions` is used to filter out transformation and configuration keys.
+  # @param {Object} attr
+  # @return {String} the attributes in the format `'key1="value1" key2="value2"'`
+  ###
   html_attrs = (attrs) ->
+    attrs = new Transformation(_.clone(attrs)).toHtmlTagOptions()
     pairs = _.map(attrs, (value, key) ->
       join_pair key, value
     )
@@ -359,6 +402,11 @@ class Cloudinary
     pairs.filter((pair) ->
       pair
     ).join ' '
+
+  unsigned_upload_tag = (upload_preset, upload_params, options) ->
+    $('<input/>').attr(
+      type: 'file'
+      name: 'file').unsigned_cloudinary_upload upload_preset, upload_params, options
 
 if module?.exports
 #On a server
