@@ -16,10 +16,12 @@ class TransformationBase
     #console.dir(@)
     #console.dir(@trans)
     @trans[name] = new Param(name, abbr, process).set(value)
+    @
 
   rawParam: (value, name, abbr, default_value, process = _.identity) ->
     process = default_value if _.isFunction(default_value) && !process?
     @trans[name] = new RawParam(name, abbr, process).set(value)
+    @
 
 #  fetchParam: (value, name, abbr, default_value, process = _.identity) ->
 #    process = default_value if _.isFunction(default_value) && !process?
@@ -28,23 +30,25 @@ class TransformationBase
   rangeParam: (value, name, abbr, default_value, process = _.identity) ->
     process = default_value if _.isFunction(default_value) && !process?
     @trans[name] = new RangeParam(name, abbr, process).set(value)
+    @
 
   arrayParam: (value, name, abbr, sep = ":", default_value = [], process = _.identity) ->
     process = default_value if _.isFunction(default_value) && !process?
     @trans[name] = new ArrayParam(name, abbr, sep, process).set(value)
+    @
 
   transformationParam: (value, name, abbr, sep = ".", default_value, process = _.identity) ->
     process = default_value if _.isFunction(default_value) && !process?
     @trans[name] = new TransformationParam(name, abbr, sep, process).set(value)
+    @
 
 
   constructor: (options = {})->
     @trans = {}
-    @exclude_list = []
+    @exclude_list = [] # TODO remove
     @whitelist = _.functions(TransformationBase.prototype)
     _.difference(@whitelist, ["_set", "param", "rawParam", "rangeParam", "arrayParam"])
-#    console.log(@whitelist)
-  angle: (value)->            @param value, "angle", "a"
+  angle: (value)->            @arrayParam value, "angle", "a", "."
   audio_codec: (value)->      @param value, "audio_codec", "ac"
   audio_frequency: (value)->  @param value, "audio_frequency", "af"
   background: (value)->       @param value, "background", "b", Param.norm_color
@@ -130,25 +134,35 @@ class TransformationBase
 #      t = new Transformation( {angle: 20, crop: "scale", width: "auto"});
 ###
 class Transformation extends TransformationBase
+
   constructor: (options = {}) ->
-    # TODO dup options
+    @other_options = {}
     super()
     this.fromOptions(options)
+
   fromOptions: (options = {}) ->
+    options = _.cloneDeep(options)
     options = {transformation: options } if _.isString(options) || _.isArray(options)
     #console.dir(_.intersection(options, @whitelist))
-    for k in _.intersection(_.keys(options), @whitelist)
+    for k in _.keys(options)
 #      console.log("setting #{k} to #{options[k]}")
-      this[k](options[k])
+      if _.includes( @whitelist, k)
+        this[k](options[k])
+      else
+        @other_options[k] = options[k]
     this
+
   getValue: (name)->
     @trans[name]?.value
+
   get: (name)->
     @trans[name]
+
   remove: (name)->
     temp = @trans[name]
     delete @trans[name]
     temp
+
   flatten: ->
     result_array = []
 #    console.log("filtered_transformation_params")
@@ -159,14 +173,10 @@ class Transformation extends TransformationBase
     unless _.any([ @getValue("overlay"), @getValue("underlay"), @getValue("angle"), _.contains( ["fit", "limit", "lfill"],@getValue("crop"))])
       width = @getValue("width")
       height = @getValue("height")
-      if width && width != "auto" && parseFloat(width) >= 1.0
+      if parseFloat(width) >= 1.0
         @html_width(width) unless @getValue("html_width")
-      if @get("height") && parseFloat(height) >= 1.0
+      if parseFloat(height) >= 1.0
         @html_height(height) unless @getValue("html_height")
-# TODO will this have affect on client code? (shouldn't because public api dup options)
-#    unless _.any([ @getValue("crop"), @getValue("overlay"), @getValue("underlay")])
-#      @remove("width")
-#      @remove("height")
 
     param_list = _.keys(@trans).sort()
 
@@ -188,29 +198,38 @@ class Transformation extends TransformationBase
   ###*
   # Returns an options object with attributes for an HTML tag.
   #
-  # @param {Object} options if provided, this object will be muted
   ###
-  toHtmlTagOptions: (options = {})->
-    # delete any filtered key or options.keys - @trans
-    # copy rest
-    # rest = @trans.keys - filtered
-    delete_keys = _.union( filtered_transformation_params,
-                    _.difference(_.keys(options), _.keys(@trans)))
-    delete options[key] for key in delete_keys
+  toHtmlTagOptions: ()->
+    options = _.omit( @other_options, filtered_transformation_params)
     options[key] = @trans[key].value for key in _.difference(_.keys(@trans ), filtered_transformation_params)
-    options.width == options.html_width if options.html_width
-    options.height == options.html_height if options.html_height
+    # convert all "html_key" to "key"
+    for k,v of options when /^html_/.exec(k)
+      options[k.substr(5)] = v
+      delete options['k']
 
-    options
+    unless _.any([ @getValue("overlay"), @getValue("underlay"), @getValue("angle"), _.contains( ["fit", "limit", "lfill"],@getValue("crop"))])
+      width = @getValue("width")
+      height = @getValue("height")
+      if parseFloat(width) >= 1.0
+        options['width'] ?= width
+      if parseFloat(height) >= 1.0
+        options['height'] ?= height
+
+
+    _.omit(options, ['html_height', 'html_width'])
 
   isValidParamName: (name) ->
     @whitelist.indexOf(name) >= 0
 
 
 if module?.exports
-#On a server
-  exports.Transformation = Transformation
+#On a server TODO namespace
+  exports.Cloudianry.Transformation = Transformation
 else
 #On a client
-  window.Transformation = Transformation
+  window.Cloudinary.Transformation = Transformation
 
+#.transformation(t).url()
+#new ImageTag().transformation().width(100).render()
+#new Transformation().width(100).render()
+#c.imageTag("sample").transformation().width(100).render()

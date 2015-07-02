@@ -9,20 +9,11 @@
     if (typeof define === 'function' && define.amd) {
         // Register as an anonymous AMD module:
         define([
-            'jquery',
-            'jquery.ui.widget',
-            'jquery.iframe-transport',
-            'jquery.fileupload'
+            'lodash'
         ], factory);
     } else {
         // Browser globals:
-        var $ = window.jQuery;
-        factory($);
-        $(function() {
-            if($.fn.cloudinary_fileupload !== undefined) {
-                $("input.cloudinary-fileupload[type=file]").cloudinary_fileupload();
-            }
-        });
+        factory(_);
     }
 }(function ($) {
 `
@@ -260,6 +251,9 @@ filtered_transformation_params = [
   "format"
   "flags"
   "gravity"
+  "height"
+#  "html_height"
+#  "html_width"
   "offset"
   "opacity"
   "overlay"
@@ -283,9 +277,12 @@ filtered_transformation_params = [
   "transformation"
   "type"
   "underlay"
+  "url_suffix"
   "use_root_path"
+  "version"
   "video_codec"
   "video_sampling"
+  "width"
   "x"
   "y"
   "zoom"
@@ -454,10 +451,12 @@ class TransformationBase
     #console.dir(@)
     #console.dir(@trans)
     @trans[name] = new Param(name, abbr, process).set(value)
+    @
 
   rawParam: (value, name, abbr, default_value, process = _.identity) ->
     process = default_value if _.isFunction(default_value) && !process?
     @trans[name] = new RawParam(name, abbr, process).set(value)
+    @
 
 #  fetchParam: (value, name, abbr, default_value, process = _.identity) ->
 #    process = default_value if _.isFunction(default_value) && !process?
@@ -466,23 +465,25 @@ class TransformationBase
   rangeParam: (value, name, abbr, default_value, process = _.identity) ->
     process = default_value if _.isFunction(default_value) && !process?
     @trans[name] = new RangeParam(name, abbr, process).set(value)
+    @
 
   arrayParam: (value, name, abbr, sep = ":", default_value = [], process = _.identity) ->
     process = default_value if _.isFunction(default_value) && !process?
     @trans[name] = new ArrayParam(name, abbr, sep, process).set(value)
+    @
 
   transformationParam: (value, name, abbr, sep = ".", default_value, process = _.identity) ->
     process = default_value if _.isFunction(default_value) && !process?
     @trans[name] = new TransformationParam(name, abbr, sep, process).set(value)
+    @
 
 
   constructor: (options = {})->
     @trans = {}
-    @exclude_list = []
+    @exclude_list = [] # TODO remove
     @whitelist = _.functions(TransformationBase.prototype)
     _.difference(@whitelist, ["_set", "param", "rawParam", "rangeParam", "arrayParam"])
-#    console.log(@whitelist)
-  angle: (value)->            @param value, "angle", "a"
+  angle: (value)->            @arrayParam value, "angle", "a", "."
   audio_codec: (value)->      @param value, "audio_codec", "ac"
   audio_frequency: (value)->  @param value, "audio_frequency", "af"
   background: (value)->       @param value, "background", "b", Param.norm_color
@@ -568,25 +569,35 @@ class TransformationBase
 #      t = new Transformation( {angle: 20, crop: "scale", width: "auto"});
 ###
 class Transformation extends TransformationBase
+
   constructor: (options = {}) ->
-    # TODO dup options
+    @other_options = {}
     super()
     this.fromOptions(options)
+
   fromOptions: (options = {}) ->
+    options = _.cloneDeep(options)
     options = {transformation: options } if _.isString(options) || _.isArray(options)
     #console.dir(_.intersection(options, @whitelist))
-    for k in _.intersection(_.keys(options), @whitelist)
+    for k in _.keys(options)
 #      console.log("setting #{k} to #{options[k]}")
-      this[k](options[k])
+      if _.includes( @whitelist, k)
+        this[k](options[k])
+      else
+        @other_options[k] = options[k]
     this
+
   getValue: (name)->
     @trans[name]?.value
+
   get: (name)->
     @trans[name]
+
   remove: (name)->
     temp = @trans[name]
     delete @trans[name]
     temp
+
   flatten: ->
     result_array = []
 #    console.log("filtered_transformation_params")
@@ -597,14 +608,10 @@ class Transformation extends TransformationBase
     unless _.any([ @getValue("overlay"), @getValue("underlay"), @getValue("angle"), _.contains( ["fit", "limit", "lfill"],@getValue("crop"))])
       width = @getValue("width")
       height = @getValue("height")
-      if width && width != "auto" && parseFloat(width) >= 1.0
+      if parseFloat(width) >= 1.0
         @html_width(width) unless @getValue("html_width")
-      if @get("height") && parseFloat(height) >= 1.0
+      if parseFloat(height) >= 1.0
         @html_height(height) unless @getValue("html_height")
-# TODO will this have affect on client code? (shouldn't because public api dup options)
-#    unless _.any([ @getValue("crop"), @getValue("overlay"), @getValue("underlay")])
-#      @remove("width")
-#      @remove("height")
 
     param_list = _.keys(@trans).sort()
 
@@ -626,32 +633,41 @@ class Transformation extends TransformationBase
   ###*
   # Returns an options object with attributes for an HTML tag.
   #
-  # @param {Object} options if provided, this object will be muted
   ###
-  toHtmlTagOptions: (options = {})->
-    # delete any filtered key or options.keys - @trans
-    # copy rest
-    # rest = @trans.keys - filtered
-    delete_keys = _.union( filtered_transformation_params,
-                    _.difference(_.keys(options), _.keys(@trans)))
-    delete options[key] for key in delete_keys
+  toHtmlTagOptions: ()->
+    options = _.omit( @other_options, filtered_transformation_params)
     options[key] = @trans[key].value for key in _.difference(_.keys(@trans ), filtered_transformation_params)
-    options.width == options.html_width if options.html_width
-    options.height == options.html_height if options.html_height
+    # convert all "html_key" to "key"
+    for k,v of options when /^html_/.exec(k)
+      options[k.substr(5)] = v
+      delete options['k']
 
-    options
+    unless _.any([ @getValue("overlay"), @getValue("underlay"), @getValue("angle"), _.contains( ["fit", "limit", "lfill"],@getValue("crop"))])
+      width = @getValue("width")
+      height = @getValue("height")
+      if parseFloat(width) >= 1.0
+        options['width'] ?= width
+      if parseFloat(height) >= 1.0
+        options['height'] ?= height
+
+
+    _.omit(options, ['html_height', 'html_width'])
 
   isValidParamName: (name) ->
     @whitelist.indexOf(name) >= 0
 
 
 if module?.exports
-#On a server
-  exports.Transformation = Transformation
+#On a server TODO namespace
+  exports.Cloudianry.Transformation = Transformation
 else
 #On a client
-  window.Transformation = Transformation
+  window.Cloudinary.Transformation = Transformation
 
+#.transformation(t).url()
+#new ImageTag().transformation().width(100).render()
+#new Transformation().width(100).render()
+#c.imageTag("sample").transformation().width(100).render()
 
 
 
@@ -668,7 +684,6 @@ else
    * url
    * video_url
    * video_thumbnail_url
-   * url_internal
    * transformation_string
    * image
    * video_thumbnail
@@ -781,7 +796,6 @@ class Cloudinary
     throw 'URL Suffix only supported in private CDN' if options.url_suffix and !options.private_cdn
 
     # if public_id has a '/' and doesn't begin with v<number> and doesn't start with http[s]:/ and version is empty
-    # TODO Using !options.version?.toString() fixes bug when version == null
     if public_id.search('/') >= 0 and !public_id.match(/^v[0-9]+/) and !public_id.match(/^https?:\//) and !options.version?.toString()
       options.version = 1
 
@@ -806,7 +820,7 @@ class Cloudinary
     resource_type_and_type = finalize_resource_type(options.resource_type, options.type, options.url_suffix, options.use_root_path, options.shorten)
     version = if options.version then 'v' + options.version else ''
 
-    transformation.toHtmlTagOptions(options) # backward compatibility - options is mutated
+#    transformation.toHtmlTagOptions(options) # backward compatibility - options is mutated
 
     url ||  _.filter([
       prefix
@@ -878,25 +892,22 @@ class Cloudinary
       delete video_options.poster
     poster = video_options.poster # TODO handle video attributes
 
-    multi_source = _.isArray(source_types) and source_types.length > 1
     source = public_id
-    if !multi_source
-      source = source + '.' + build_array(source_types)[0]
-    src = @url( source, video_options)
-    if !multi_source
-      video_options.src = src
-    video_options.poster = poster # TODO handle video attributes
-    html = '<video ' + html_attrs(video_options) + '>'
-    if multi_source
+
+    unless  _.isArray(source_types)
+      video_options.src = @url( "#{source}.#{source_types}", video_options)
+    attributes = new Transformation(video_options).toHtmlTagOptions()
+    attributes.poster = poster # TODO handle video attributes
+    html = '<video ' + html_attrs(attributes) + '>'
+    if _.isArray(source_types)
       i = 0
       while i < source_types.length
         source_type = source_types[i]
         transformation = source_transformation[source_type] or {}
-        src = cloudinary_url.call( this, source + '.' +
-            source_type,
-            _.merge({ resource_type: 'video' },
-                      _.cloneDeep(options),
-                      _.cloneDeep(transformation)))
+        src = @url( "#{source }",
+            _.defaults({ resource_type: 'video', format: source_type},
+                      options,
+                      transformation))
         video_type = if source_type == 'ogv' then 'ogg' else source_type
         mime_type = 'video/' + video_type
         html = html + '<source ' + html_attrs(
@@ -1049,7 +1060,6 @@ class Cloudinary
   # @return {String} the attributes in the format `'key1="value1" key2="value2"'`
   ###
   html_attrs = (attrs) ->
-    attrs = new Transformation(_.clone(attrs)).toHtmlTagOptions()
     pairs = _.map(attrs, (value, key) ->
       join_pair key, value
     )
@@ -1072,9 +1082,17 @@ else
 
 if window.jQuery?
   window.jQuery.cloudinary = new Cloudinary()
-class HtmlTag extends Transformation
-  constructor: (@name, @public_id, options={})->
-    super(options)
+class HtmlTag
+  constructor: (name, public_id, options)->
+    @name = name
+    if !options?
+      if _.isPlainObject(public_id)
+        options = public_id
+        public_id = undefined 
+      else
+        options = {}
+    @cloudinary = Cloudinary(options)
+    @_transformation = new Transformation(options)
   content: ()->
     ""
   openTag: ()->
@@ -1103,8 +1121,9 @@ class VideoTag extends HtmlTag
   DEFAULT_POSTER_OPTIONS = { format: 'jpg', resource_type: 'video' }
 
   constructor: (@public_id, options={})->
-    super("video", @public_id, options)
+    super("video", @public_id, {})
     @whitelist.push("source_transformation", "source_types", "poster")
+    @fromOptions(options)
   source_transformation: (value)-> @transformationParam value, "source_transformation"
   source_types: (value)->     @arrayParam value, "source_types"
   poster: (value)-> @param value, "poster"

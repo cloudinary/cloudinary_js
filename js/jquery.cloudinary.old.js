@@ -596,7 +596,7 @@
     facebook_profile_image: function(public_id, options) {
       return $.cloudinary.image(public_id, $.extend({type: 'facebook'}, options));
     },
-    twitter_profile_image: function(public_id, options) {
+    facebook_profile_image: function(public_id, options) {
       return $.cloudinary.image(public_id, $.extend({type: 'twitter'}, options));
     },
     twitter_name_profile_image: function(public_id, options) {

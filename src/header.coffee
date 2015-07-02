@@ -9,20 +9,11 @@
     if (typeof define === 'function' && define.amd) {
         // Register as an anonymous AMD module:
         define([
-            'jquery',
-            'jquery.ui.widget',
-            'jquery.iframe-transport',
-            'jquery.fileupload'
+            'lodash'
         ], factory);
     } else {
         // Browser globals:
-        var $ = window.jQuery;
-        factory($);
-        $(function() {
-            if($.fn.cloudinary_fileupload !== undefined) {
-                $("input.cloudinary-fileupload[type=file]").cloudinary_fileupload();
-            }
-        });
+        factory(_);
     }
 }(function ($) {
 `

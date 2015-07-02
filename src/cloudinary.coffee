@@ -13,7 +13,6 @@
    * url
    * video_url
    * video_thumbnail_url
-   * url_internal
    * transformation_string
    * image
    * video_thumbnail
@@ -126,7 +125,6 @@ class Cloudinary
     throw 'URL Suffix only supported in private CDN' if options.url_suffix and !options.private_cdn
 
     # if public_id has a '/' and doesn't begin with v<number> and doesn't start with http[s]:/ and version is empty
-    # TODO Using !options.version?.toString() fixes bug when version == null
     if public_id.search('/') >= 0 and !public_id.match(/^v[0-9]+/) and !public_id.match(/^https?:\//) and !options.version?.toString()
       options.version = 1
 
@@ -151,7 +149,7 @@ class Cloudinary
     resource_type_and_type = finalize_resource_type(options.resource_type, options.type, options.url_suffix, options.use_root_path, options.shorten)
     version = if options.version then 'v' + options.version else ''
 
-    transformation.toHtmlTagOptions(options) # backward compatibility - options is mutated
+#    transformation.toHtmlTagOptions(options) # backward compatibility - options is mutated
 
     url ||  _.filter([
       prefix
@@ -223,25 +221,22 @@ class Cloudinary
       delete video_options.poster
     poster = video_options.poster # TODO handle video attributes
 
-    multi_source = _.isArray(source_types) and source_types.length > 1
     source = public_id
-    if !multi_source
-      source = source + '.' + build_array(source_types)[0]
-    src = @url( source, video_options)
-    if !multi_source
-      video_options.src = src
-    video_options.poster = poster # TODO handle video attributes
-    html = '<video ' + html_attrs(video_options) + '>'
-    if multi_source
+
+    unless  _.isArray(source_types)
+      video_options.src = @url( "#{source}.#{source_types}", video_options)
+    attributes = new Transformation(video_options).toHtmlTagOptions()
+    attributes.poster = poster # TODO handle video attributes
+    html = '<video ' + html_attrs(attributes) + '>'
+    if _.isArray(source_types)
       i = 0
       while i < source_types.length
         source_type = source_types[i]
         transformation = source_transformation[source_type] or {}
-        src = cloudinary_url.call( this, source + '.' +
-            source_type,
-            _.merge({ resource_type: 'video' },
-                      _.cloneDeep(options),
-                      _.cloneDeep(transformation)))
+        src = @url( "#{source }",
+            _.defaults({ resource_type: 'video', format: source_type},
+                      options,
+                      transformation))
         video_type = if source_type == 'ogv' then 'ogg' else source_type
         mime_type = 'video/' + video_type
         html = html + '<source ' + html_attrs(
@@ -394,7 +389,6 @@ class Cloudinary
   # @return {String} the attributes in the format `'key1="value1" key2="value2"'`
   ###
   html_attrs = (attrs) ->
-    attrs = new Transformation(_.clone(attrs)).toHtmlTagOptions()
     pairs = _.map(attrs, (value, key) ->
       join_pair key, value
     )

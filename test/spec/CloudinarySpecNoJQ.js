@@ -15,8 +15,10 @@ describe("cloudinary", function() {
   });
 
   function test_cloudinary_url(public_id, options, expected_url, expected_options) {
-    result = window.cloudinary.url_internal(public_id, options);
-    expect(options).toEqual(expected_options);
+    result = window.cloudinary.url(public_id, options);
+    expect(new Transformation(options).toHtmlTagOptions()).toEqual(expected_options);
+
+    console.log( "expecting options %s ", _.pairs(expected_options).join(' '));
     expect(result).toEqual(expected_url);
   }
 
@@ -69,8 +71,8 @@ describe("cloudinary", function() {
   });
 
   it("should use width and height from options only if crop is given", function() {
-    test_cloudinary_url("test", {width: 100, height: 100}, window.location.protocol+"//res.cloudinary.com/test123/image/upload/test", {html_width: 100, html_height: 100});
-    test_cloudinary_url("test", {width: 100, height: 100, crop: "crop"}, window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_crop,h_100,w_100/test", {html_width: 100, html_height: 100});
+    expect(cloudinary.url("test", {width: 100, height: 100})).toBe( window.location.protocol+"//res.cloudinary.com/test123/image/upload/test");
+    expect(cloudinary.url("test", {width: 100, height: 100, crop: "crop"})).toBe(window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_crop,h_100,w_100/test");
   });
 
   it("should not pass width and height to html in case of fit, lfill or limit crop", function() {
@@ -96,19 +98,19 @@ describe("cloudinary", function() {
   });
 
   it("should support base tranformation", function() {
-    test_cloudinary_url("test", {transformation: {x: 100, y: 100, crop: "fill"}, crop: "crop", width: 100}, window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_fill,x_100,y_100/c_crop,w_100/test", {html_width: 100});
+    expect(cloudinary.url("test", {transformation: {x: 100, y: 100, crop: "fill"}, crop: "crop", width: 100})).toBe( window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_fill,x_100,y_100/c_crop,w_100/test");
   });
 
   it("should support array of base tranformations", function() {
-    test_cloudinary_url("test", {transformation: [{x: 100, y: 100, width: 200, crop: "fill"}, {radius: 10}], crop: "crop", width: 100}, window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_fill,w_200,x_100,y_100/r_10/c_crop,w_100/test", {html_width: 100});
+    expect(cloudinary.url("test", {transformation: [{x: 100, y: 100, width: 200, crop: "fill"}, {radius: 10}], crop: "crop", width: 100})).toBe( window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_fill,w_200,x_100,y_100/r_10/c_crop,w_100/test");
   });
 
   it("should not include empty tranformations", function() {
-    test_cloudinary_url("test", {transformation: [{}, {x: 100, y: 100, crop: "fill"}, {}]}, window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_fill,x_100,y_100/test", {});
+    expect(cloudinary.url("test", {transformation: [{}, {x: 100, y: 100, crop: "fill"}, {}]})).toBe( window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_fill,x_100,y_100/test");
   });
 
   it("should support size", function() {
-    test_cloudinary_url("test", {size: "10x10", crop: "crop"}, window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_crop,h_10,w_10/test", {html_width: "10", html_height: "10"});
+    test_cloudinary_url("test", {size: "10x10", crop: "crop"}, window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_crop,h_10,w_10/test", {width: '10', height:'10'});
   });
 
   it("should use type from options", function() {
@@ -324,7 +326,7 @@ describe("cloudinary", function() {
   it("should allow to override protocol", function() {
     options = {"protocol": "custom:"};
     result = window.cloudinary.url_internal("test", options);
-    expect(options).toEqual({});
+    expect(new Transformation(options).toHtmlTagOptions()).toEqual({});
     expect(result).toEqual("custom://res.cloudinary.com/test123/image/upload/test") ;
   });
 

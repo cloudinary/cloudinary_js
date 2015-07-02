@@ -10,20 +10,11 @@
     if (typeof define === 'function' && define.amd) {
         // Register as an anonymous AMD module:
         define([
-            'jquery',
-            'jquery.ui.widget',
-            'jquery.iframe-transport',
-            'jquery.fileupload'
+            'lodash'
         ], factory);
     } else {
         // Browser globals:
-        var $ = window.jQuery;
-        factory($);
-        $(function() {
-            if($.fn.cloudinary_fileupload !== undefined) {
-                $("input.cloudinary-fileupload[type=file]").cloudinary_fileupload();
-            }
-        });
+        factory(_);
     }
 }(function ($) {
 ;
@@ -235,7 +226,7 @@
    * Parameters that are filtered out before passing the options to an HTML tag
    */
 
-  filtered_transformation_params = ["angle", "audio_codec", "audio_frequency", "background", "bit_rate", "border", "cdn_subdomain", "cloud_name", "cname", "color", "color_space", "crop", "default_image", "delay", "density", "dpr", "dpr", "duration", "effect", "end_offset", "fallback_content", "fetch_format", "format", "flags", "gravity", "offset", "opacity", "overlay", "page", "prefix", "private_cdn", "protocol", "quality", "radius", "raw_transformation", "resource_type", "responsive_width", "secure", "secure_cdn_subdomain", "secure_distribution", "shorten", "size", "source_transformation", "source_types", "start_offset", "transformation", "type", "underlay", "use_root_path", "video_codec", "video_sampling", "x", "y", "zoom"];
+  filtered_transformation_params = ["angle", "audio_codec", "audio_frequency", "background", "bit_rate", "border", "cdn_subdomain", "cloud_name", "cname", "color", "color_space", "crop", "default_image", "delay", "density", "dpr", "dpr", "duration", "effect", "end_offset", "fallback_content", "fetch_format", "format", "flags", "gravity", "height", "offset", "opacity", "overlay", "page", "prefix", "private_cdn", "protocol", "quality", "radius", "raw_transformation", "resource_type", "responsive_width", "secure", "secure_cdn_subdomain", "secure_distribution", "shorten", "size", "source_transformation", "source_types", "start_offset", "transformation", "type", "underlay", "url_suffix", "use_root_path", "version", "video_codec", "video_sampling", "width", "x", "y", "zoom"];
 
 
   /**
@@ -495,7 +486,8 @@
           process = _.identity;
         }
       }
-      return this.trans[name] = new Param(name, abbr, process).set(value);
+      this.trans[name] = new Param(name, abbr, process).set(value);
+      return this;
     };
 
     TransformationBase.prototype.rawParam = function(value, name, abbr, default_value, process) {
@@ -505,7 +497,8 @@
       if (_.isFunction(default_value) && (process == null)) {
         process = default_value;
       }
-      return this.trans[name] = new RawParam(name, abbr, process).set(value);
+      this.trans[name] = new RawParam(name, abbr, process).set(value);
+      return this;
     };
 
     TransformationBase.prototype.rangeParam = function(value, name, abbr, default_value, process) {
@@ -515,7 +508,8 @@
       if (_.isFunction(default_value) && (process == null)) {
         process = default_value;
       }
-      return this.trans[name] = new RangeParam(name, abbr, process).set(value);
+      this.trans[name] = new RangeParam(name, abbr, process).set(value);
+      return this;
     };
 
     TransformationBase.prototype.arrayParam = function(value, name, abbr, sep, default_value, process) {
@@ -531,7 +525,8 @@
       if (_.isFunction(default_value) && (process == null)) {
         process = default_value;
       }
-      return this.trans[name] = new ArrayParam(name, abbr, sep, process).set(value);
+      this.trans[name] = new ArrayParam(name, abbr, sep, process).set(value);
+      return this;
     };
 
     TransformationBase.prototype.transformationParam = function(value, name, abbr, sep, default_value, process) {
@@ -544,7 +539,8 @@
       if (_.isFunction(default_value) && (process == null)) {
         process = default_value;
       }
-      return this.trans[name] = new TransformationParam(name, abbr, sep, process).set(value);
+      this.trans[name] = new TransformationParam(name, abbr, sep, process).set(value);
+      return this;
     };
 
     function TransformationBase(options) {
@@ -558,7 +554,7 @@
     }
 
     TransformationBase.prototype.angle = function(value) {
-      return this.param(value, "angle", "a");
+      return this.arrayParam(value, "angle", "a", ".");
     };
 
     TransformationBase.prototype.audio_codec = function(value) {
@@ -792,6 +788,7 @@
       if (options == null) {
         options = {};
       }
+      this.other_options = {};
       Transformation.__super__.constructor.call(this);
       this.fromOptions(options);
     }
@@ -801,15 +798,20 @@
       if (options == null) {
         options = {};
       }
+      options = _.cloneDeep(options);
       if (_.isString(options) || _.isArray(options)) {
         options = {
           transformation: options
         };
       }
-      ref = _.intersection(_.keys(options), this.whitelist);
+      ref = _.keys(options);
       for (j = 0, len = ref.length; j < len; j++) {
         k = ref[j];
-        this[k](options[k]);
+        if (_.includes(this.whitelist, k)) {
+          this[k](options[k]);
+        } else {
+          this.other_options[k] = options[k];
+        }
       }
       return this;
     };
@@ -840,12 +842,12 @@
       if (!_.any([this.getValue("overlay"), this.getValue("underlay"), this.getValue("angle"), _.contains(["fit", "limit", "lfill"], this.getValue("crop"))])) {
         width = this.getValue("width");
         height = this.getValue("height");
-        if (width && width !== "auto" && parseFloat(width) >= 1.0) {
+        if (parseFloat(width) >= 1.0) {
           if (!this.getValue("html_width")) {
             this.html_width(width);
           }
         }
-        if (this.get("height") && parseFloat(height) >= 1.0) {
+        if (parseFloat(height) >= 1.0) {
           if (!this.getValue("html_height")) {
             this.html_height(height);
           }
@@ -887,31 +889,39 @@
     /**
      * Returns an options object with attributes for an HTML tag.
      *
-     * @param {Object} options if provided, this object will be muted
      */
 
-    Transformation.prototype.toHtmlTagOptions = function(options) {
-      var delete_keys, j, key, l, len, len1, ref;
-      if (options == null) {
-        options = {};
-      }
-      delete_keys = _.union(filtered_transformation_params, _.difference(_.keys(options), _.keys(this.trans)));
-      for (j = 0, len = delete_keys.length; j < len; j++) {
-        key = delete_keys[j];
-        delete options[key];
-      }
+    Transformation.prototype.toHtmlTagOptions = function() {
+      var height, j, k, key, len, options, ref, v, width;
+      options = _.omit(this.other_options, filtered_transformation_params);
       ref = _.difference(_.keys(this.trans), filtered_transformation_params);
-      for (l = 0, len1 = ref.length; l < len1; l++) {
-        key = ref[l];
+      for (j = 0, len = ref.length; j < len; j++) {
+        key = ref[j];
         options[key] = this.trans[key].value;
       }
-      if (options.html_width) {
-        options.width === options.html_width;
+      for (k in options) {
+        v = options[k];
+        if (!(/^html_/.exec(k))) {
+          continue;
+        }
+        options[k.substr(5)] = v;
+        delete options['k'];
       }
-      if (options.html_height) {
-        options.height === options.html_height;
+      if (!_.any([this.getValue("overlay"), this.getValue("underlay"), this.getValue("angle"), _.contains(["fit", "limit", "lfill"], this.getValue("crop"))])) {
+        width = this.getValue("width");
+        height = this.getValue("height");
+        if (parseFloat(width) >= 1.0) {
+          if (options['width'] == null) {
+            options['width'] = width;
+          }
+        }
+        if (parseFloat(height) >= 1.0) {
+          if (options['height'] == null) {
+            options['height'] = height;
+          }
+        }
       }
-      return options;
+      return _.omit(options, ['html_height', 'html_width']);
     };
 
     Transformation.prototype.isValidParamName = function(name) {
@@ -923,9 +933,9 @@
   })(TransformationBase);
 
   if (typeof module !== "undefined" && module !== null ? module.exports : void 0) {
-    exports.Transformation = Transformation;
+    exports.Cloudianry.Transformation = Transformation;
   } else {
-    window.Transformation = Transformation;
+    window.Cloudinary.Transformation = Transformation;
   }
 
 
@@ -942,7 +952,6 @@
      * url
      * video_url
      * video_thumbnail_url
-     * url_internal
      * transformation_string
      * image
      * video_thumbnail
@@ -1117,7 +1126,6 @@
       prefix = cloudinary_url_prefix(public_id, options);
       resource_type_and_type = finalize_resource_type(options.resource_type, options.type, options.url_suffix, options.use_root_path, options.shorten);
       version = options.version ? 'v' + options.version : '';
-      transformation.toHtmlTagOptions(options);
       return url || _.filter([prefix, resource_type_and_type, transformation_string, version, public_id], null).join('/').replace(/([^:])\/+/g, '$1/');
     };
 
@@ -1199,7 +1207,7 @@
     };
 
     Cloudinary.prototype.video = function(public_id, options) {
-      var fallback, html, i, mime_type, multi_source, poster, source, source_transformation, source_type, source_types, src, transformation, video_options, video_type;
+      var attributes, fallback, html, i, mime_type, poster, source, source_transformation, source_type, source_types, src, transformation, video_options, video_type;
       if (options == null) {
         options = {};
       }
@@ -1224,25 +1232,22 @@
         delete video_options.poster;
       }
       poster = video_options.poster;
-      multi_source = _.isArray(source_types) && source_types.length > 1;
       source = public_id;
-      if (!multi_source) {
-        source = source + '.' + build_array(source_types)[0];
+      if (!_.isArray(source_types)) {
+        video_options.src = this.url(source + "." + source_types, video_options);
       }
-      src = this.url(source, video_options);
-      if (!multi_source) {
-        video_options.src = src;
-      }
-      video_options.poster = poster;
-      html = '<video ' + html_attrs(video_options) + '>';
-      if (multi_source) {
+      attributes = new Transformation(video_options).toHtmlTagOptions();
+      attributes.poster = poster;
+      html = '<video ' + html_attrs(attributes) + '>';
+      if (_.isArray(source_types)) {
         i = 0;
         while (i < source_types.length) {
           source_type = source_types[i];
           transformation = source_transformation[source_type] || {};
-          src = cloudinary_url.call(this, source + '.' + source_type, _.merge({
-            resource_type: 'video'
-          }, _.cloneDeep(options), _.cloneDeep(transformation)));
+          src = this.url("" + source, _.defaults({
+            resource_type: 'video',
+            format: source_type
+          }, options, transformation));
           video_type = source_type === 'ogv' ? 'ogg' : source_type;
           mime_type = 'video/' + video_type;
           html = html + '<source ' + html_attrs({
@@ -1412,7 +1417,6 @@
 
     html_attrs = function(attrs) {
       var pairs;
-      attrs = new Transformation(_.clone(attrs)).toHtmlTagOptions();
       pairs = _.map(attrs, function(value, key) {
         return join_pair(key, value);
       });

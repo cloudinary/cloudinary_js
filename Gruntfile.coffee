@@ -19,7 +19,7 @@ module.exports = (grunt)->
           ],
           'js/jquery.cloudinary.js': [
             'src/header.coffee'
-            'src/jquery-extenion'
+            'src/jquery-extension'
             'src/crc32.coffee'
             'src/utf8_encode.coffee'
             'src/config.coffee'
@@ -29,6 +29,15 @@ module.exports = (grunt)->
             'src/footer.coffee'
 
           ]
+      compile_test:
+        expand: true
+        cwd: 'test/spec'
+        src: ['*.coffee']
+        dest: 'test/spec'
+        ext: '.js'
+
+
+
     concat:
       "js/cloudinary.coffee": [
         'src/header.coffee'

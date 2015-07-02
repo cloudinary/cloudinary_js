@@ -1,6 +1,14 @@
-class HtmlTag extends Transformation
-  constructor: (@name, @public_id, options={})->
-    super(options)
+class HtmlTag
+  constructor: (name, public_id, options)->
+    @name = name
+    if !options?
+      if _.isPlainObject(public_id)
+        options = public_id
+        public_id = undefined 
+      else
+        options = {}
+    @cloudinary = Cloudinary(options)
+    @_transformation = new Transformation(options)
   content: ()->
     ""
   openTag: ()->
@@ -29,8 +37,9 @@ class VideoTag extends HtmlTag
   DEFAULT_POSTER_OPTIONS = { format: 'jpg', resource_type: 'video' }
 
   constructor: (@public_id, options={})->
-    super("video", @public_id, options)
+    super("video", @public_id, {})
     @whitelist.push("source_transformation", "source_types", "poster")
+    @fromOptions(options)
   source_transformation: (value)-> @transformationParam value, "source_transformation"
   source_types: (value)->     @arrayParam value, "source_types"
   poster: (value)-> @param value, "poster"
