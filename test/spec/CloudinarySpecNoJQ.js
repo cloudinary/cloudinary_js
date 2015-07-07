@@ -16,9 +16,7 @@ describe("cloudinary", function() {
 
   function test_cloudinary_url(public_id, options, expected_url, expected_options) {
     result = window.cloudinary.url(public_id, options);
-    expect(new Transformation(options).toHtmlTagOptions()).toEqual(expected_options);
-
-    console.log( "expecting options %s ", _.pairs(expected_options).join(' '));
+    expect(new Cloudinary.Transformation(options).toHtmlAttributes()).toEqual(expected_options);
     expect(result).toEqual(expected_url);
   }
 
@@ -326,7 +324,7 @@ describe("cloudinary", function() {
   it("should allow to override protocol", function() {
     options = {"protocol": "custom:"};
     result = window.cloudinary.url_internal("test", options);
-    expect(new Transformation(options).toHtmlTagOptions()).toEqual({});
+    expect(new Cloudinary.Transformation(options).toHtmlAttributes()).toEqual({});
     expect(result).toEqual("custom://res.cloudinary.com/test123/image/upload/test") ;
   });
 

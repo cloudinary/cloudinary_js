@@ -1,10 +1,8 @@
 
 #_ = require("lodash")
 cloudinary_config = undefined
-
+# REVIEW should we expose the Configuration object? if yes, in what name?
 class CloudinaryConfiguration
-  DEFAULT_VIDEO_SOURCE_TYPES = ['webm', 'mp4', 'ogv'] # TODO remove from Cloudinary
-  DEFAULT_POSTER_OPTIONS = { format: 'jpg', resource_type: 'video' }
 
   ###*
   # Defaults configuration.
@@ -15,6 +13,25 @@ class CloudinaryConfiguration
     secure: window?.location?.protocol == 'https:'
   }
 
+  @CONFIG_PARAMS = [
+    "api_key"
+    "api_secret"
+    "cdn_subdomain"
+    "cloud_name"
+    "cname"
+    "private_cdn"
+    "protocol"
+    "resource_type"
+    "responsive_width"
+    "secure"
+    "secure_cdn_subdomain"
+    "secure_distribution"
+    "shorten"
+    "type"
+    "url_suffix"
+    "use_root_path"
+    "version"
+  ]
 
   constructor: (options ={})->
     @configuration = _.cloneDeep(options)
@@ -80,7 +97,7 @@ class CloudinaryConfiguration
       @configuration
 
   # Whitelisted default options
-  defaults: ()->
+  defaults: ()-> # TODO rename: this is not defaults but rather current config
     _.pick(@configuration, [
       "cdn_subdomain"
       "cloud_name"

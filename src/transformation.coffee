@@ -1,53 +1,132 @@
-number_pattern = "([0-9]*)\\.([0-9]+)|([0-9]+)";
-offset_any_pattern = "(#{number_pattern })([%pP])?";
-#_log = console.log
-#console.log = (value)->
-#  out = document.getElementById("output")
-#  out.innerHTML += "<p>#{value}</p>"
-#  _log(value)
+###*
+# Parameters that are filtered out before passing the options to an HTML tag
+###
+transformationParams = [
+  "angle"
+  "audio_codec"
+  "audio_frequency"
+  "background"
+  "bit_rate"
+  "border"
+  "cdn_subdomain"
+  "cloud_name"
+  "cname"
+  "color"
+  "color_space"
+  "crop"
+  "default_image"
+  "delay"
+  "density"
+  "dpr"
+  "dpr"
+  "duration"
+  "effect"
+  "end_offset"
+  "fallback_content"
+  "fetch_format"
+  "format"
+  "flags"
+  "gravity"
+  "height"
+  "offset"
+  "opacity"
+  "overlay"
+  "page"
+  "prefix"
+  "private_cdn"
+  "protocol"
+  "quality"
+  "radius"
+  "raw_transformation"
+  "resource_type"
+  "responsive_width"
+  "secure"
+  "secure_cdn_subdomain"
+  "secure_distribution"
+  "shorten"
+  "size"
+  "source_transformation"
+  "source_types"
+  "start_offset"
+  "transformation"
+  "type"
+  "underlay"
+  "url_suffix"
+  "use_root_path"
+  "version"
+  "video_codec"
+  "video_sampling"
+  "width"
+  "x"
+  "y"
+  "zoom"
+
+]
 
 class TransformationBase
-  param: (value, name, abbr, default_value, process) ->
-    unless process?
-      if _.isFunction(default_value)
-        process = default_value
-      else
-        process = _.identity
-    #console.dir(@)
-    #console.dir(@trans)
-    @trans[name] = new Param(name, abbr, process).set(value)
-    @
-
-  rawParam: (value, name, abbr, default_value, process = _.identity) ->
-    process = default_value if _.isFunction(default_value) && !process?
-    @trans[name] = new RawParam(name, abbr, process).set(value)
-    @
-
-#  fetchParam: (value, name, abbr, default_value, process = _.identity) ->
-#    process = default_value if _.isFunction(default_value) && !process?
-#    @trans[name] = new FetchParam(name, abbr, process).set(value)
-
-  rangeParam: (value, name, abbr, default_value, process = _.identity) ->
-    process = default_value if _.isFunction(default_value) && !process?
-    @trans[name] = new RangeParam(name, abbr, process).set(value)
-    @
-
-  arrayParam: (value, name, abbr, sep = ":", default_value = [], process = _.identity) ->
-    process = default_value if _.isFunction(default_value) && !process?
-    @trans[name] = new ArrayParam(name, abbr, sep, process).set(value)
-    @
-
-  transformationParam: (value, name, abbr, sep = ".", default_value, process = _.identity) ->
-    process = default_value if _.isFunction(default_value) && !process?
-    @trans[name] = new TransformationParam(name, abbr, sep, process).set(value)
-    @
-
+# TODO convert names to camel case
 
   constructor: (options = {})->
-    @trans = {}
-    @exclude_list = [] # TODO remove
+    trans = {}
     @whitelist = _.functions(TransformationBase.prototype)
-    _.difference(@whitelist, ["_set", "param", "rawParam", "rangeParam", "arrayParam"])
+
+    @toOptions = ()->
+      _.mapValues(trans, (t)-> t.value)
+
+    @param = (value, name, abbr, defaultValue, process) ->
+      unless process?
+        if _.isFunction(defaultValue)
+          process = defaultValue
+        else
+          process = _.identity
+      #console.dir(@)
+      #console.dir(@trans)
+      trans[name] = new Param(name, abbr, process).set(value)
+      @
+
+    @rawParam = (value, name, abbr, defaultValue, process = _.identity) ->
+      process = defaultValue if _.isFunction(defaultValue) && !process?
+      trans[name] = new RawParam(name, abbr, process).set(value)
+      @
+
+  #  fetchParam: (value, name, abbr, defaultValue, process = _.identity) ->
+  #    process = defaultValue if _.isFunction(defaultValue) && !process?
+  #    @trans[name] = new FetchParam(name, abbr, process).set(value)
+
+    @rangeParam = (value, name, abbr, defaultValue, process = _.identity) ->
+      process = defaultValue if _.isFunction(defaultValue) && !process?
+      trans[name] = new RangeParam(name, abbr, process).set(value)
+      @
+
+    @arrayParam = (value, name, abbr, sep = ":", defaultValue = [], process = _.identity) ->
+      process = defaultValue if _.isFunction(defaultValue) && !process?
+      trans[name] = new ArrayParam(name, abbr, sep, process).set(value)
+      @
+
+    @transformationParam = (value, name, abbr, sep = ".", defaultValue, process = _.identity) ->
+      process = defaultValue if _.isFunction(defaultValue) && !process?
+      trans[name] = new TransformationParam(name, abbr, sep, process).set(value)
+      @
+    @getValue = (name)->
+      trans[name]?.value
+
+    @get = (name)->
+      trans[name]
+
+    @remove = (name)->
+      temp = trans[name]
+      delete trans[name]
+      temp
+
+    @keys = ()->
+      _.keys(trans).sort()
+
+    @toPlainObject = ()->
+      hash = {}
+      hash[key] = trans[key].value for key of trans
+      hash
+
+
   angle: (value)->            @arrayParam value, "angle", "a", "."
   audio_codec: (value)->      @param value, "audio_codec", "ac"
   audio_frequency: (value)->  @param value, "audio_frequency", "af"
@@ -136,98 +215,86 @@ class TransformationBase
 class Transformation extends TransformationBase
 
   constructor: (options = {}) ->
-    @other_options = {}
+    parent = null
+    @otherOptions = {}
     super()
-    this.fromOptions(options)
+    @fromOptions(options)
+
+    @setParent = (object)->
+      parent = object
+
+    @getParent = ()->
+      parent
+
 
   fromOptions: (options = {}) ->
     options = _.cloneDeep(options)
     options = {transformation: options } if _.isString(options) || _.isArray(options)
     #console.dir(_.intersection(options, @whitelist))
-    for k in _.keys(options)
+    for k in _.keys(options) # TODO change to comprehension
 #      console.log("setting #{k} to #{options[k]}")
       if _.includes( @whitelist, k)
         this[k](options[k])
       else
-        @other_options[k] = options[k]
+        console.log("setting otherOptions[%s] = %o", k, options[k])
+        @otherOptions[k] = options[k]
     this
 
-  getValue: (name)->
-    @trans[name]?.value
+  @new = (args)-> new Transformation(args)
 
-  get: (name)->
-    @trans[name]
-
-  remove: (name)->
-    temp = @trans[name]
-    delete @trans[name]
-    temp
+  hasLayer: ()->
+    @getValue("overlay") || @getValue("underlay") || @getValue("angle")
 
   flatten: ->
-    result_array = []
-#    console.log("filtered_transformation_params")
-#    console.log(filtered_transformation_params)
+    resultArray = []
     transformations = @remove("transformation");
     if transformations
-      result_array = result_array.concat( transformations.flatten())
-    unless _.any([ @getValue("overlay"), @getValue("underlay"), @getValue("angle"), _.contains( ["fit", "limit", "lfill"],@getValue("crop"))])
-      width = @getValue("width")
-      height = @getValue("height")
-      if parseFloat(width) >= 1.0
-        @html_width(width) unless @getValue("html_width")
-      if parseFloat(height) >= 1.0
-        @html_height(height) unless @getValue("html_height")
+      resultArray = resultArray.concat( transformations.flatten())
 
-    param_list = _.keys(@trans).sort()
-
-    transformation_string = (@get(t)?.flatten() for t in param_list )
-    transformation_string = _.filter(transformation_string, (value)->
+    transformationString = (@get(t)?.flatten() for t in @keys() )
+    transformationString = _.filter(transformationString, (value)->
       _.isArray(value) &&!_.isEmpty(value) || !_.isArray(value) && value
     ).join(',')
-    result_array.push(transformation_string) unless _.isEmpty(transformation_string)
-    _.compact(result_array).join('/')
+    resultArray.push(transformationString) unless _.isEmpty(transformationString)
+    _.compact(resultArray).join('/')
 
   listNames: ->
     @whitelist
 
-  toPlainObject: ()->
-    hash = {}
-    hash[key] = @trans[key].value for key of @trans
-    hash
 
   ###*
   # Returns an options object with attributes for an HTML tag.
-  #
+  # @return Object
   ###
-  toHtmlTagOptions: ()->
-    options = _.omit( @other_options, filtered_transformation_params)
-    options[key] = @trans[key].value for key in _.difference(_.keys(@trans ), filtered_transformation_params)
-    # convert all "html_key" to "key"
+  toHtmlAttributes: ()->
+    options = _.omit( @otherOptions, transformationParams)
+    options[key] = @get(key).value for key in _.difference(@keys(), transformationParams)
+    # convert all "html_key" to "key" with the same value
     for k,v of options when /^html_/.exec(k)
       options[k.substr(5)] = v
-      delete options['k']
+      delete options[k]
 
-    unless _.any([ @getValue("overlay"), @getValue("underlay"), @getValue("angle"), _.contains( ["fit", "limit", "lfill"],@getValue("crop"))])
+    unless @hasLayer() || _.contains( ["fit", "limit", "lfill"],@getValue("crop"))
       width = @getValue("width")
       height = @getValue("height")
       if parseFloat(width) >= 1.0
         options['width'] ?= width
       if parseFloat(height) >= 1.0
         options['height'] ?= height
-
-
-    _.omit(options, ['html_height', 'html_width'])
+    options
 
   isValidParamName: (name) ->
     @whitelist.indexOf(name) >= 0
 
 
-if module?.exports
-#On a server TODO namespace
-  exports.Cloudianry.Transformation = Transformation
-else
-#On a client
-  window.Cloudinary.Transformation = Transformation
+# unless running on server side, export to the windows object
+unless module?.exports? || exports?
+  exports = window
+
+exports.Cloudinary ?= {}
+exports.Cloudinary.Transformation = Transformation
+exports.Cloudinary.transformationParams = transformationParams
+
 
 #.transformation(t).url()
 #new ImageTag().transformation().width(100).render()

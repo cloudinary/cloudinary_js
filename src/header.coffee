@@ -15,5 +15,5 @@
         // Browser globals:
         factory(_);
     }
-}(function ($) {
+}(function (_) {
 `

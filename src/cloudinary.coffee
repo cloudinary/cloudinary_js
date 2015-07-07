@@ -71,35 +71,35 @@ class Cloudinary
    * @param use_root_path
    * @param shorten
    * @returns {string} resource_type/type ###
-  finalize_resource_type = (resource_type,type,url_suffix,use_root_path,shorten) ->
-    if _.isPlainObject(resource_type)
-      options = resource_type
-      resource_type = options.resource_type
+  finalizeResourceType = (resourceType,type,urlSuffix,useRootPath,shorten) ->
+    if _.isPlainObject(resourceType)
+      options = resourceType
+      resourceType = options.resource_type
       type = options.type
-      url_suffix = options.url_suffix
-      use_root_path = options.use_root_path
+      urlSuffix = options.url_suffix
+      useRootPath = options.use_root_path
       shorten = options.shorten
 
     type?='upload'
-    if url_suffix?
-      if resource_type=='image' && type=='upload'
-        resource_type = "images"
+    if urlSuffix?
+      if resourceType=='image' && type=='upload'
+        resourceType = "images"
         type = null
-      else if resource_type== 'raw' && type== 'upload'
-        resource_type = 'files'
+      else if resourceType== 'raw' && type== 'upload'
+        resourceType = 'files'
         type = null
       else
         throw new Error("URL Suffix only supported for image/upload and raw/upload")
-    if use_root_path
-      if (resource_type== 'image' && type== 'upload' || resource_type == "images")
-        resource_type = null
+    if useRootPath
+      if (resourceType== 'image' && type== 'upload' || resourceType == "images")
+        resourceType = null
         type = null
       else
         throw new Error("Root path only supported for image/upload")
-    if shorten && resource_type== 'image' && type== 'upload'
-      resource_type = 'iu'
+    if shorten && resourceType== 'image' && type== 'upload'
+      resourceType = 'iu'
       type = null
-    [resource_type,type].join("/")
+    [resourceType,type].join("/")
 
   absolutize = (url) ->
     if !url.match(/^https?:\//)
@@ -111,11 +111,11 @@ class Cloudinary
       url = prefix + url
     url
 
-  cloudinary_url = (public_id, options = {}) ->
+  cloudinary_url = (publicId, options = {}) ->
     _.defaults(options, @configuration.defaults(), DEFAULT_IMAGE_PARAMS)
     if options.type == 'fetch'
       options.fetch_format = options.fetch_format or options.format
-      public_id = absolutize(public_id)
+      publicId = absolutize(publicId)
 
     transformation = new Transformation(options)
     transformation_string = transformation.flatten()
@@ -124,29 +124,29 @@ class Cloudinary
 
     throw 'URL Suffix only supported in private CDN' if options.url_suffix and !options.private_cdn
 
-    # if public_id has a '/' and doesn't begin with v<number> and doesn't start with http[s]:/ and version is empty
-    if public_id.search('/') >= 0 and !public_id.match(/^v[0-9]+/) and !public_id.match(/^https?:\//) and !options.version?.toString()
+    # if publicId has a '/' and doesn't begin with v<number> and doesn't start with http[s]:/ and version is empty
+    if publicId.search('/') >= 0 and !publicId.match(/^v[0-9]+/) and !publicId.match(/^https?:\//) and !options.version?.toString()
       options.version = 1
 
-    if public_id.match(/^https?:/)
+    if publicId.match(/^https?:/)
       if options.type == 'upload' or options.type == 'asset'
-        url = public_id
+        url = publicId
       else
-        public_id = encodeURIComponent(public_id).replace(/%3A/g, ':').replace(/%2F/g, '/')
+        publicId = encodeURIComponent(publicId).replace(/%3A/g, ':').replace(/%2F/g, '/')
     else
-      # Make sure public_id is URI encoded.
-      public_id = encodeURIComponent(decodeURIComponent(public_id)).replace(/%3A/g, ':').replace(/%2F/g, '/')
+      # Make sure publicId is URI encoded.
+      publicId = encodeURIComponent(decodeURIComponent(publicId)).replace(/%3A/g, ':').replace(/%2F/g, '/')
       if options.url_suffix
         if options.url_suffix.match(/[\.\/]/)
           throw 'url_suffix should not include . or /'
-        public_id = public_id + '/' + options.url_suffix
+        publicId = publicId + '/' + options.url_suffix
       if options.format
         if !options.trust_public_id
-          public_id = public_id.replace(/\.(jpg|png|gif|webp)$/, '')
-        public_id = public_id + '.' + options.format
+          publicId = publicId.replace(/\.(jpg|png|gif|webp)$/, '')
+        publicId = publicId + '.' + options.format
 
-    prefix = cloudinary_url_prefix(public_id, options)
-    resource_type_and_type = finalize_resource_type(options.resource_type, options.type, options.url_suffix, options.use_root_path, options.shorten)
+    prefix = cloudinary_url_prefix(publicId, options)
+    resource_type_and_type = finalizeResourceType(options.resource_type, options.type, options.url_suffix, options.use_root_path, options.shorten)
     version = if options.version then 'v' + options.version else ''
 
 #    transformation.toHtmlTagOptions(options) # backward compatibility - options is mutated
@@ -156,30 +156,30 @@ class Cloudinary
       resource_type_and_type
       transformation_string
       version
-      public_id
+      publicId
     ], null).join('/').replace(/([^:])\/+/g, '$1/')
 
   constructor: (options)->
     @configuration = new CloudinaryConfiguration(options)
 
   # Provided for backward compatibility
-  config: (new_config, new_value) ->
-    @configuration.config(new_config, new_value)
+  config: (newConfig, newValue) ->
+    @configuration.config(newConfig, newValue)
 
   # Generate a resource URL
-  url: (public_id, options) ->
+  url: (publicId, options) ->
     options = _.cloneDeep( options)
-    cloudinary_url.call this, public_id, options
-  video_url: (public_id, options) ->
+    cloudinary_url.call this, publicId, options
+  video_url: (publicId, options) ->
     options = _.merge({ resource_type: 'video' }, options)
-    cloudinary_url.call this,  public_id, options
-  video_thumbnail_url: (public_id, options) ->
+    cloudinary_url.call this,  publicId, options
+  video_thumbnail_url: (publicId, options) ->
     options = _.merge({}, DEFAULT_POSTER_OPTIONS, options)
-    cloudinary_url.call this, public_id, options
+    cloudinary_url.call this, publicId, options
   url_internal: cloudinary_url
   transformation_string: (options) ->
     options = _.cloneDeep( options)
-    generate_transformation_string options
+    new Transformation( options).flatten()
   image: (public_id, options={}) ->
     options = _.defaults(_.cloneDeep(options),@configuration.defaults(), DEFAULT_IMAGE_PARAMS)
     src = cloudinary_url.call(this, public_id, options)
@@ -199,49 +199,47 @@ class Cloudinary
     @image public_id, _.merge({ type: 'gravatar' }, options)
   fetch_image: (public_id, options) ->
     @image public_id, _.merge({ type: 'fetch' }, options)
-  video: (public_id, options = {}) ->
+  video: (publicId, options = {}) ->
     options = _.defaults(_.cloneDeep(options),@configuration.defaults(), DEFAULT_VIDEO_PARAMS)
-    public_id = public_id.replace(/\.(mp4|ogv|webm)$/, '')
+    publicId = publicId.replace(/\.(mp4|ogv|webm)$/, '')
 
-    source_types = options['source_types']
-    source_transformation = options['source_transformation']
+    sourceTypes = options['source_types']
+    sourceTransformation = options['source_transformation']
     fallback = options['fallback_content']
 
-    video_options = _.cloneDeep(options)
-    if video_options.hasOwnProperty('poster')
-      if _.isPlainObject(video_options.poster) # else assume it is a literal poster string or `false`
-        if video_options.poster.hasOwnProperty('public_id')
+    videoOptions = _.cloneDeep(options)
+    if videoOptions.hasOwnProperty('poster')
+      if _.isPlainObject(videoOptions.poster) # else assume it is a literal poster string or `false`
+        if videoOptions.poster.hasOwnProperty('public_id')
           # poster is a regular image
-          video_options.poster = cloudinary_url.call( this, video_options.poster.public_id, video_options.poster)
-        else # use the same public_id as the video, with video defaults
-          video_options.poster = cloudinary_url.call( this, public_id, _.defaults( video_options.poster, DEFAULT_POSTER_OPTIONS))
+          videoOptions.poster = cloudinary_url.call( this, videoOptions.poster.public_id, videoOptions.poster)
+        else # use the same publicId as the video, with video defaults
+          videoOptions.poster = cloudinary_url.call( this, publicId, _.defaults( videoOptions.poster, DEFAULT_POSTER_OPTIONS))
     else
-      video_options.poster = cloudinary_url.call( this, public_id, _.defaults( options, DEFAULT_POSTER_OPTIONS))
-    if !video_options.poster
-      delete video_options.poster
-    poster = video_options.poster # TODO handle video attributes
+      videoOptions.poster = cloudinary_url.call( this, publicId, _.defaults( options, DEFAULT_POSTER_OPTIONS))
+    if !videoOptions.poster
+      delete videoOptions.poster
 
-    source = public_id
+    source = publicId
 
-    unless  _.isArray(source_types)
-      video_options.src = @url( "#{source}.#{source_types}", video_options)
-    attributes = new Transformation(video_options).toHtmlTagOptions()
-    attributes.poster = poster # TODO handle video attributes
+    unless  _.isArray(sourceTypes)
+      videoOptions.src = @url( "#{source}.#{sourceTypes}", videoOptions)
+    attributes = new Transformation(videoOptions).toHtmlAttributes()
     html = '<video ' + html_attrs(attributes) + '>'
-    if _.isArray(source_types)
+    if _.isArray(sourceTypes)
       i = 0
-      while i < source_types.length
-        source_type = source_types[i]
-        transformation = source_transformation[source_type] or {}
+      while i < sourceTypes.length
+        source_type = sourceTypes[i]
+        transformation = sourceTransformation[source_type] or {}
         src = @url( "#{source }",
             _.defaults({ resource_type: 'video', format: source_type},
                       options,
                       transformation))
-        video_type = if source_type == 'ogv' then 'ogg' else source_type
-        mime_type = 'video/' + video_type
+        videoType = if source_type == 'ogv' then 'ogg' else source_type
+        mimeType = 'video/' + videoType
         html = html + '<source ' + html_attrs(
             src: src
-            type: mime_type) + '>'
+            type: mimeType) + '>'
         i++
     html = html + fallback
     html = html + '</video>'
@@ -408,6 +406,3 @@ if module?.exports
 else
 #On a client
   window.Cloudinary = Cloudinary
-
-if window.jQuery?
-  window.jQuery.cloudinary = new Cloudinary()

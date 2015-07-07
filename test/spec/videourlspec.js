@@ -6,7 +6,7 @@
   test_cloudinary_url = function(public_id, options, expected_url, expected_options) {
     var result;
     result = cloudinary.url(public_id, options);
-    expect(new Transformation(options).toHtmlTagOptions()).toEqual(expected_options);
+    expect(new Cloudinary.Transformation(options).toHtmlAttributes()).toEqual(expected_options);
     return expect(result).toEqual(expected_url);
   };
 
@@ -148,7 +148,7 @@
                 offset: range
               };
               url = cloudinary.url_internal("video_id", options);
-              expect(new Transformation(options).toHtmlTagOptions()).toEqual({});
+              expect(new Cloudinary.Transformation(options).toHtmlAttributes()).toEqual({});
               matched = /([^\/]*)\/video_id$/.exec(url);
               transformation = matched ? matched[1] : '';
               return expect(transformation.split(',').sort().reverse().join(',')).toEqual(url_param);

@@ -1,59 +1,143 @@
 class HtmlTag
+
+  toAttribute = (key, value) ->
+    if !value
+      undefined
+    else if value == true
+      key
+    else
+      "#{key}=\"#{value} \""
+
+  ###*
+  # combine key and value from the `attr` to generate an HTML tag attributes string.
+  # `Transformation::toHtmlTagOptions` is used to filter out transformation and configuration keys.
+  # @param {Object} attr
+  # @return {String} the attributes in the format `'key1="value1" key2="value2"'`
+  ###
+  html_attrs = (attrs) ->
+    pairs = _.map(attrs, (value, key) -> toAttribute( key, value))
+    pairs.sort()
+    pairs.filter((pair) ->
+                   pair
+                ).join ' '
+
   constructor: (name, public_id, options)->
     @name = name
+    @public_id = public_id
     if !options?
       if _.isPlainObject(public_id)
         options = public_id
-        public_id = undefined 
+        @public_id = undefined
       else
         options = {}
-    @cloudinary = Cloudinary(options)
-    @_transformation = new Transformation(options)
+    @options = _.cloneDeep(options)
+    transformation = new Transformation(options)
+    transformation.setParent(this)
+    @getTransformation = ()->
+      transformation
+
+  getOptions: ()-> @options
+  attributes: ()->
+    options = _.omit( @options, _.union(Cloudinary.transformationParams, CloudinaryConfiguration.CONFIG_PARAMS))
+#    options[key] = @get(key).value for key in _.difference(@keys(), Cloudinary.transformationParams)
+    # convert all "html_key" to "key" with the same value
+    for k,v of options when /^html_/.exec(k)
+      options[k.substr(5)] = v
+      delete options[k]
+
+    unless @hasLayer() || _.contains( ["fit", "limit", "lfill"],@getValue("crop"))
+      width = @getValue("width")
+      height = @getValue("height")
+      if parseFloat(width) >= 1.0
+        options['width'] ?= width
+      if parseFloat(height) >= 1.0
+        options['height'] ?= height
+    options
   content: ()->
     ""
   openTag: ()->
-    "<#{@name} #{_.compact(@attributes()).join(" ")}>"
-  attributes: ()->
-    for name, value of @toHtmlTagOptions() when value?
-      if value == true
-        name
-      else
-        "#{name}=\"#{value}\""
+    "<#{@name} #{html_attrs(@attributes())}>"
+
   closeTag:()->
     "</#{@name}>"
+
   content: ()->
     ""
+
   toHtml: ()->
-    @openTag() +@content()+ @closeTag()
+    @openTag() + @content()+ @closeTag()
 
 class ImageTag extends HtmlTag
+
   constructor: (@public_id, options={})->
     super("img", @public_id, options)
+
   toHtml: ()->
     @openTag()
 
 class VideoTag extends HtmlTag
+  ###*
+  # Defaults values for parameters.
+  #
+  # (Previously defined using option_consume() )
+  ###
+  DEFAULT_VIDEO_PARAMS ={
+    fallback_content: ''
+    resource_type: "video"
+    source_transformation: {}
+    source_types: DEFAULT_VIDEO_SOURCE_TYPES
+    transformation: [] # TODO needed?
+    type: 'upload'
+  }
+  VIDEO_TAG_PARAMS = ['source_types','source_transformation','fallback_content', 'poster']
   DEFAULT_VIDEO_SOURCE_TYPES = ['webm', 'mp4', 'ogv']
   DEFAULT_POSTER_OPTIONS = { format: 'jpg', resource_type: 'video' }
 
-  constructor: (@public_id, options={})->
-    super("video", @public_id, {})
-    @whitelist.push("source_transformation", "source_types", "poster")
-    @fromOptions(options)
-  source_transformation: (value)-> @transformationParam value, "source_transformation"
-  source_types: (value)->     @arrayParam value, "source_types"
-  poster: (value)-> @param value, "poster"
-  content: ()->
-    source_types = @getValue("source_types") || Cloudinary.DEFAULT_VIDEO_SOURCE_TYPES
-  toHtmlTagOptions: ()->
-    super()["src"] = new Cloudinary(@options).url()
+  constructor: (publicId, options={})->
+    super("video", publicId.replace(/\.(mp4|ogv|webm)$/, ''), options)
+    _.defaults(@options, DEFAULT_VIDEO_PARAMS)
+#    @whitelist.push("source_transformation", "source_types", "poster")
+#    @fromOptions(options)
 
-if module?.exports
-#On a server
-  exports.Cloudinary ?= {}
-  exports.Cloudinary.ImageTag = ImageTag
-  exports.Cloudinary.VideoTag = VideoTag
-else
-#On a client
-  window.Cloudinary.ImageTag  = ImageTag
-  window.Cloudinary.VideoTag  = VideoTag
+  setSourceTransformation: (value)->
+    @sourceTransformation = value
+    this
+  setSourceTypes: (value)->
+    @sourceType = value
+    this
+  setPoster: (value)-> @poster = value
+  content: ()->
+    sourceTypes = options['source_types']
+    sourceTransformation = options['source_transformation']
+    fallback = options['fallback_content']
+
+    if _.isArray(sourceTypes)
+      innerTags = for source_type in sourceTypes
+        transformation = sourceTransformation[source_type] or {}
+        src = @url( "#{@public_id }",
+                    _.defaults({ resource_type: 'video', format: source_type},
+                               options,
+                               transformation))
+        videoType = if source_type == 'ogv' then 'ogg' else source_type
+        mimeType = 'video/' + videoType
+        '<source ' + html_attrs(
+          src: src
+          type: mimeType) + '>'
+    else
+      innerTags = []
+    innerTags.join("\n") + fallback
+  attributes: ()->
+    sourceTypes = @options['source_types']
+    attr = super() || []
+    attr = _.omit(attr, VIDEO_TAG_PARAMS)
+    unless  _.isArray(sourceTypes) # FIXME if sourceTypes is a string
+      attr["src"] = new Cloudinary(@options).url("#{@public_id}.#{sourceTypes}")
+    attr
+
+# unless running on server side, export to the windows object
+unless module?.exports? || exports?
+  exports = window
+
+exports.Cloudinary ?= {}
+exports.Cloudinary.ImageTag = ImageTag
+exports.Cloudinary.VideoTag = VideoTag

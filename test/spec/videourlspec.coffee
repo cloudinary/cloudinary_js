@@ -1,7 +1,7 @@
 cloudinary = {}
 test_cloudinary_url = (public_id, options, expected_url, expected_options) ->
   result = cloudinary.url(public_id, options)
-  expect(new Transformation(options).toHtmlTagOptions()).toEqual(expected_options)
+  expect(new Cloudinary.Transformation(options).toHtmlAttributes()).toEqual(expected_options)
   expect(result).toEqual(expected_url)
 
 describe "Cloudinary::Utils", ->
@@ -79,7 +79,7 @@ describe "Cloudinary::Utils", ->
             options = { resource_type: 'video', offset: range }
           #            expect( subject(options) ).to change { options }.to({})
             url = cloudinary.url_internal("video_id", options)
-            expect( new Transformation(options).toHtmlTagOptions() ).toEqual( {})
+            expect( new Cloudinary.Transformation(options).toHtmlAttributes() ).toEqual( {})
             matched = /([^\/]*)\/video_id$/.exec(url)
             transformation = if matched then matched[1] else ''
             # we can't rely on the order of the parameters so we sort them before comparing

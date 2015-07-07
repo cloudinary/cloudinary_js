@@ -80,7 +80,7 @@ class Transformation extends TransformationBase
       console.log("setting #{k} to #{config[k]}")
       this[k](config[k])
   toString: ->
-    (@trans[t].flatten() for t of @trans when filtered_transformation_params.indexOf(t) == -1).join(',')
+    (@trans[t].flatten() for t of @trans when transformationParams.indexOf(t) == -1).join(',')
 
   listNames: ->
     @whitelist
