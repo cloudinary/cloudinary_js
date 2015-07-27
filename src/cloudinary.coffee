@@ -160,7 +160,7 @@ class Cloudinary
     ], null).join('/').replace(/([^:])\/+/g, '$1/')
 
   constructor: (options)->
-    @configuration = new CloudinaryConfiguration(options)
+    @configuration = new Cloudinary.Configuration(options)
 
   # Provided for backward compatibility
   config: (newConfig, newValue) ->

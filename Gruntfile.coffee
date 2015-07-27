@@ -14,7 +14,6 @@ module.exports = (grunt)->
             'src/config.coffee'
             'src/parameters.coffee'
             'src/transformation.coffee'
-
             'src/tag-helpers.coffee'
             'src/footer.coffee'
           ],

@@ -1,8 +1,8 @@
 
 #_ = require("lodash")
 cloudinary_config = undefined
-# REVIEW should we expose the Configuration object? if yes, in what name?
-class CloudinaryConfiguration
+
+class Configuration
 
   ###*
   # Defaults configuration.
@@ -33,6 +33,28 @@ class CloudinaryConfiguration
     "version"
   ]
 
+  @WHITELIST = [
+    "cdn_subdomain"
+    "cloud_name"
+    "cname"
+    "dpr"
+    "fallback_content"
+    "private_cdn"
+    "protocol"
+    "resource_type"
+    "responsive_width"
+    "secure"
+    "secure_cdn_subdomain"
+    "secure_distribution"
+    "shorten"
+    "source_transformation"
+    "source_types"
+    "transformation"
+    "type"
+    "use_root_path"
+
+  ]
+
   constructor: (options ={})->
     @configuration = _.cloneDeep(options)
     _.defaults( @configuration, DEFAULT_CONFIGURATION_PARAMS)
@@ -52,6 +74,7 @@ class CloudinaryConfiguration
 
   merge: (config={})->
     _.assign(@configuration, config)
+
   fromDocument: ->
     meta_elements = document?.getElementsByTagName("meta");
     if meta_elements
@@ -121,11 +144,8 @@ class CloudinaryConfiguration
     ])
 
 
-if module?.exports
-#On a server
-# module.exports = (new_config, new_value) ->
+unless module?.exports
+  exports = window
 
-  exports.CloudinaryConfiguration = CloudinaryConfiguration
-else
-#On a client
-  window.CloudinaryConfiguration = CloudinaryConfiguration
+exports.Cloudinary ?= {}
+exports.Cloudinary.Configuration = Configuration

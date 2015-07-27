@@ -17,7 +17,7 @@
     }
 }(function (_) {
 ;
-var ArrayParam, Cloudinary, CloudinaryConfiguration, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, cloudinary_config, config, crc32, exports, process_video_params, transformationParams, utf8_encode,
+var ArrayParam, Cloudinary, Configuration, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, cloudinary_config, config, crc32, exports, process_video_params, utf8_encode,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -96,7 +96,7 @@ if (typeof module !== "undefined" && module.exports) {
 
 cloudinary_config = void 0;
 
-CloudinaryConfiguration = (function() {
+Configuration = (function() {
 
   /**
    * Defaults configuration.
@@ -109,9 +109,11 @@ CloudinaryConfiguration = (function() {
     secure: (typeof window !== "undefined" && window !== null ? (ref = window.location) != null ? ref.protocol : void 0 : void 0) === 'https:'
   };
 
-  CloudinaryConfiguration.CONFIG_PARAMS = ["api_key", "api_secret", "cdn_subdomain", "cloud_name", "cname", "private_cdn", "protocol", "resource_type", "responsive_width", "secure", "secure_cdn_subdomain", "secure_distribution", "shorten", "type", "url_suffix", "use_root_path", "version"];
+  Configuration.CONFIG_PARAMS = ["api_key", "api_secret", "cdn_subdomain", "cloud_name", "cname", "private_cdn", "protocol", "resource_type", "responsive_width", "secure", "secure_cdn_subdomain", "secure_distribution", "shorten", "type", "url_suffix", "use_root_path", "version"];
 
-  function CloudinaryConfiguration(options) {
+  Configuration.WHITELIST = ["cdn_subdomain", "cloud_name", "cname", "dpr", "fallback_content", "private_cdn", "protocol", "resource_type", "responsive_width", "secure", "secure_cdn_subdomain", "secure_distribution", "shorten", "source_transformation", "source_types", "transformation", "type", "use_root_path"];
+
+  function Configuration(options) {
     if (options == null) {
       options = {};
     }
@@ -119,7 +121,7 @@ CloudinaryConfiguration = (function() {
     _.defaults(this.configuration, DEFAULT_CONFIGURATION_PARAMS);
   }
 
-  CloudinaryConfiguration.prototype.set = function(config, value) {
+  Configuration.prototype.set = function(config, value) {
     if (_.isUndefined(value)) {
       if (_.isPlainObject(config)) {
         this.merge(config);
@@ -130,18 +132,18 @@ CloudinaryConfiguration = (function() {
     return this;
   };
 
-  CloudinaryConfiguration.prototype.get = function(name) {
+  Configuration.prototype.get = function(name) {
     return this.configuration[name];
   };
 
-  CloudinaryConfiguration.prototype.merge = function(config) {
+  Configuration.prototype.merge = function(config) {
     if (config == null) {
       config = {};
     }
     return _.assign(this.configuration, config);
   };
 
-  CloudinaryConfiguration.prototype.fromDocument = function() {
+  Configuration.prototype.fromDocument = function() {
     var el, j, len, meta_elements;
     meta_elements = typeof document !== "undefined" && document !== null ? document.getElementsByTagName("meta") : void 0;
     if (meta_elements) {
@@ -153,7 +155,7 @@ CloudinaryConfiguration = (function() {
     return this;
   };
 
-  CloudinaryConfiguration.prototype.fromEnvironment = function() {
+  Configuration.prototype.fromEnvironment = function() {
     var cloudinary, cloudinary_url, k, ref1, ref2, uri, v;
     cloudinary_url = typeof process !== "undefined" && process !== null ? (ref1 = process.env) != null ? ref1.CLOUDINARY_URL : void 0 : void 0;
     if (cloudinary_url != null) {
@@ -176,7 +178,7 @@ CloudinaryConfiguration = (function() {
     return this;
   };
 
-  CloudinaryConfiguration.prototype.config = function(new_config, new_value) {
+  Configuration.prototype.config = function(new_config, new_value) {
     if ((this.configuration == null) || new_config === true) {
       this.fromEnvironment();
       if (!this.configuration) {
@@ -196,19 +198,23 @@ CloudinaryConfiguration = (function() {
     }
   };
 
-  CloudinaryConfiguration.prototype.defaults = function() {
+  Configuration.prototype.defaults = function() {
     return _.pick(this.configuration, ["cdn_subdomain", "cloud_name", "cname", "dpr", "fallback_content", "private_cdn", "protocol", "resource_type", "responsive_width", "secure", "secure_cdn_subdomain", "secure_distribution", "shorten", "source_transformation", "source_types", "transformation", "type", "use_root_path"]);
   };
 
-  return CloudinaryConfiguration;
+  return Configuration;
 
 })();
 
-if (typeof module !== "undefined" && module !== null ? module.exports : void 0) {
-  exports.CloudinaryConfiguration = CloudinaryConfiguration;
-} else {
-  window.CloudinaryConfiguration = CloudinaryConfiguration;
+if (!(typeof module !== "undefined" && module !== null ? module.exports : void 0)) {
+  exports = window;
 }
+
+if (exports.Cloudinary == null) {
+  exports.Cloudinary = {};
+}
+
+exports.Cloudinary.Configuration = Configuration;
 
 config = config || function() {
   return {};
@@ -438,21 +444,19 @@ process_video_params = function(param) {
   }
 };
 
-
-/**
- * Parameters that are filtered out before passing the options to an HTML tag
- */
-
-transformationParams = ["angle", "audio_codec", "audio_frequency", "background", "bit_rate", "border", "cdn_subdomain", "cloud_name", "cname", "color", "color_space", "crop", "default_image", "delay", "density", "dpr", "dpr", "duration", "effect", "end_offset", "fallback_content", "fetch_format", "format", "flags", "gravity", "height", "offset", "opacity", "overlay", "page", "prefix", "private_cdn", "protocol", "quality", "radius", "raw_transformation", "resource_type", "responsive_width", "secure", "secure_cdn_subdomain", "secure_distribution", "shorten", "size", "source_transformation", "source_types", "start_offset", "transformation", "type", "underlay", "url_suffix", "use_root_path", "version", "video_codec", "video_sampling", "width", "x", "y", "zoom"];
-
 TransformationBase = (function() {
   function TransformationBase(options) {
     var trans;
     if (options == null) {
       options = {};
     }
+
+    /**
+     * Parameters that are filtered out before passing the options to an HTML tag
+     */
+    this.PARAM_NAMES = ["angle", "api_key", "api_secret", "audio_codec", "audio_frequency", "background", "bit_rate", "border", "cdn_subdomain", "cloud_name", "cname", "color", "color_space", "crop", "default_image", "delay", "density", "dpr", "duration", "effect", "end_offset", "fallback_content", "fetch_format", "format", "flags", "gravity", "height", "offset", "opacity", "overlay", "page", "prefix", "private_cdn", "protocol", "quality", "radius", "raw_transformation", "resource_type", "responsive_width", "secure", "secure_cdn_subdomain", "secure_distribution", "shorten", "size", "source_transformation", "source_types", "start_offset", "transformation", "type", "underlay", "url_suffix", "use_root_path", "version", "video_codec", "video_sampling", "width", "x", "y", "zoom"];
     trans = {};
-    this.whitelist = _.functions(TransformationBase.prototype);
+    this.whitelist = _(TransformationBase.prototype).functions().map(_.snakeCase).value();
     this.toOptions = function() {
       return _.mapValues(trans, function(t) {
         return t.value;
@@ -532,7 +536,7 @@ TransformationBase = (function() {
       return temp;
     };
     this.keys = function() {
-      return _.keys(trans).sort();
+      return _(trans).keys().map(_.snakeCase).value().sort();
     };
     this.toPlainObject = function() {
       var hash, key;
@@ -548,11 +552,11 @@ TransformationBase = (function() {
     return this.arrayParam(value, "angle", "a", ".");
   };
 
-  TransformationBase.prototype.audio_codec = function(value) {
+  TransformationBase.prototype.audioCodec = function(value) {
     return this.param(value, "audio_codec", "ac");
   };
 
-  TransformationBase.prototype.audio_frequency = function(value) {
+  TransformationBase.prototype.audioFrequency = function(value) {
     return this.param(value, "audio_frequency", "af");
   };
 
@@ -560,7 +564,7 @@ TransformationBase = (function() {
     return this.param(value, "background", "b", Param.norm_color);
   };
 
-  TransformationBase.prototype.bit_rate = function(value) {
+  TransformationBase.prototype.bitRate = function(value) {
     return this.param(value, "bit_rate", "br");
   };
 
@@ -582,7 +586,7 @@ TransformationBase = (function() {
     return this.param(value, "color", "co", Param.norm_color);
   };
 
-  TransformationBase.prototype.color_space = function(value) {
+  TransformationBase.prototype.colorSpace = function(value) {
     return this.param(value, "color_space", "cs");
   };
 
@@ -590,7 +594,7 @@ TransformationBase = (function() {
     return this.param(value, "crop", "c");
   };
 
-  TransformationBase.prototype.default_image = function(value) {
+  TransformationBase.prototype.defaultImage = function(value) {
     return this.param(value, "default_image", "d");
   };
 
@@ -623,11 +627,11 @@ TransformationBase = (function() {
     return this.arrayParam(value, "effect", "e", ":");
   };
 
-  TransformationBase.prototype.end_offset = function(value) {
+  TransformationBase.prototype.endOffset = function(value) {
     return this.rangeParam(value, "end_offset", "eo");
   };
 
-  TransformationBase.prototype.fetch_format = function(value) {
+  TransformationBase.prototype.fetchFormat = function(value) {
     return this.param(value, "fetch_format", "f");
   };
 
@@ -655,11 +659,11 @@ TransformationBase = (function() {
     })(this));
   };
 
-  TransformationBase.prototype.html_height = function(value) {
+  TransformationBase.prototype.htmlHeight = function(value) {
     return this.param(value, "html_height");
   };
 
-  TransformationBase.prototype.html_width = function(value) {
+  TransformationBase.prototype.htmlWidth = function(value) {
     return this.param(value, "html_width");
   };
 
@@ -667,10 +671,10 @@ TransformationBase = (function() {
     var end_o, ref, start_o;
     ref = _.isFunction(value != null ? value.split : void 0) ? value.split('..') : _.isArray(value) ? value : [null, null], start_o = ref[0], end_o = ref[1];
     if (start_o != null) {
-      this.start_offset(start_o);
+      this.startOffset(start_o);
     }
     if (end_o != null) {
-      return this.end_offset(end_o);
+      return this.endOffset(end_o);
     }
   };
 
@@ -698,7 +702,7 @@ TransformationBase = (function() {
     return this.param(value, "radius", "r");
   };
 
-  TransformationBase.prototype.raw_transformation = function(value) {
+  TransformationBase.prototype.rawTransformation = function(value) {
     return this.rawParam(value, "raw_transformation");
   };
 
@@ -711,7 +715,7 @@ TransformationBase = (function() {
     }
   };
 
-  TransformationBase.prototype.start_offset = function(value) {
+  TransformationBase.prototype.startOffset = function(value) {
     return this.rangeParam(value, "start_offset", "so");
   };
 
@@ -723,11 +727,11 @@ TransformationBase = (function() {
     return this.param(value, "underlay", "u");
   };
 
-  TransformationBase.prototype.video_codec = function(value) {
+  TransformationBase.prototype.videoCodec = function(value) {
     return this.param(value, "video_codec", "vc", process_video_params);
   };
 
-  TransformationBase.prototype.video_sampling = function(value) {
+  TransformationBase.prototype.videoSampling = function(value) {
     return this.param(value, "video_sampling", "vs");
   };
 
@@ -782,7 +786,7 @@ Transformation = (function(superClass) {
     }
     parent = null;
     this.otherOptions = {};
-    Transformation.__super__.constructor.call(this);
+    Transformation.__super__.constructor.call(this, options);
     this.fromOptions(options);
     this.setParent = function(object) {
       return parent = object;
@@ -793,7 +797,7 @@ Transformation = (function(superClass) {
   }
 
   Transformation.prototype.fromOptions = function(options) {
-    var j, k, len, ref;
+    var key, opt;
     if (options == null) {
       options = {};
     }
@@ -803,14 +807,12 @@ Transformation = (function(superClass) {
         transformation: options
       };
     }
-    ref = _.keys(options);
-    for (j = 0, len = ref.length; j < len; j++) {
-      k = ref[j];
-      if (_.includes(this.whitelist, k)) {
-        this[k](options[k]);
+    for (key in options) {
+      opt = options[key];
+      if (_.includes(this.whitelist, key)) {
+        this[_.camelCase(key)](opt);
       } else {
-        console.log("setting otherOptions[%s] = %o", k, options[k]);
-        this.otherOptions[k] = options[k];
+        this.otherOptions[key] = opt;
       }
     }
     return this;
@@ -862,8 +864,8 @@ Transformation = (function(superClass) {
 
   Transformation.prototype.toHtmlAttributes = function() {
     var height, j, k, key, len, options, ref, v, width;
-    options = _.omit(this.otherOptions, transformationParams);
-    ref = _.difference(this.keys(), transformationParams);
+    options = _.omit(this.otherOptions, this.PARAM_NAMES);
+    ref = _.difference(this.keys(), this.PARAM_NAMES);
     for (j = 0, len = ref.length; j < len; j++) {
       key = ref[j];
       options[key] = this.get(key).value;
@@ -901,7 +903,7 @@ Transformation = (function(superClass) {
 
 })(TransformationBase);
 
-if (!(((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) || (typeof exports !== "undefined" && exports !== null))) {
+if (!(((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) || (exports != null))) {
   exports = window;
 }
 
@@ -910,8 +912,6 @@ if (exports.Cloudinary == null) {
 }
 
 exports.Cloudinary.Transformation = Transformation;
-
-exports.Cloudinary.transformationParams = transformationParams;
 
 
 /*
@@ -1105,7 +1105,7 @@ Cloudinary = (function() {
   };
 
   function Cloudinary(options) {
-    this.configuration = new CloudinaryConfiguration(options);
+    this.configuration = new Cloudinary.Configuration(options);
   }
 
   Cloudinary.prototype.config = function(newConfig, newValue) {
