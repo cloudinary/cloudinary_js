@@ -17,7 +17,7 @@
     }
 }(function (_) {
 ;
-var ArrayParam, Cloudinary, Configuration, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, cloudinary_config, config, crc32, exports, process_video_params, utf8_encode,
+var ArrayParam, Cloudinary, Configuration, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, cloudinary_config, config, crc32, exports, global, process_video_params, ref, utf8_encode,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -1045,6 +1045,7 @@ Cloudinary = (function() {
   absolutize = function(url) {
     var prefix;
     if (!url.match(/^https?:\//)) {
+      console.log("document.location.protocol %s", document.location.protocol);
       prefix = document.location.protocol + '//' + document.location.host;
       if (url[0] === '?') {
         prefix += document.location.pathname;
@@ -1410,11 +1411,20 @@ Cloudinary = (function() {
 
 })();
 
-if (typeof module !== "undefined" && module !== null ? module.exports : void 0) {
-  exports.Cloudinary = Cloudinary;
-} else {
-  window.Cloudinary = Cloudinary;
+global = (ref = typeof module !== "undefined" && module !== null ? module.exports : void 0) != null ? ref : window;
+
+
+/* REVIEW another option is assigned Cloudinary to Cloudinary scope:
+  global.Cloudinary.Cloudinary
+
+  ...but it feels awkward
+ */
+
+if (global.Cloudinary) {
+  _.extend(Cloudinary, global.Cloudinary);
 }
+
+global.Cloudinary = Cloudinary;
 
 
 }));

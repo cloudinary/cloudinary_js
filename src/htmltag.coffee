@@ -100,7 +100,8 @@ class VideoTag extends HtmlTag
     type: 'upload'
   }
   constructor: (publicId, options={})->
-    _.defaults(options, DEFAULT_VIDEO_PARAMS)
+    options = _.defaults(_.cloneDeep(options), DEFAULT_VIDEO_PARAMS)
+
     super("video", publicId.replace(/\.(mp4|ogv|webm)$/, ''), options)
 
 #    @whitelist.push("source_transformation", "source_types", "poster")
@@ -143,7 +144,6 @@ class VideoTag extends HtmlTag
 
     if poster?.public_id?
       poster_id = poster.public_id
-    poster_id2 = poster?.public_id ? poster ? @public_id
 
     if poster?
       if _.isPlainObject(poster)

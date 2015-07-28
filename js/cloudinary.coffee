@@ -812,6 +812,7 @@ class Cloudinary
 
   absolutize = (url) ->
     if !url.match(/^https?:\//)
+      console.log("document.location.protocol %s", document.location.protocol  )
       prefix = document.location.protocol + '//' + document.location.host
       if url[0] == '?'
         prefix += document.location.pathname
@@ -1109,12 +1110,16 @@ class Cloudinary
       type: 'file'
       name: 'file').unsigned_cloudinary_upload upload_preset, upload_params, options
 
-if module?.exports
-#On a server
-  exports.Cloudinary = Cloudinary
-else
-#On a client
-  window.Cloudinary = Cloudinary
+global = module?.exports ? window
+# Copy all previously defined object in the "Cloudinary" scope
+### REVIEW another option is assigned Cloudinary to Cloudinary scope:
+  global.Cloudinary.Cloudinary
+
+  ...but it feels awkward
+###
+
+_.extend( Cloudinary, global.Cloudinary) if global.Cloudinary
+global.Cloudinary = Cloudinary
 
 
 toAttribute = (key, value) ->
@@ -1218,7 +1223,8 @@ class VideoTag extends HtmlTag
     type: 'upload'
   }
   constructor: (publicId, options={})->
-    _.defaults(options, DEFAULT_VIDEO_PARAMS)
+    options = _.defaults(_.cloneDeep(options), DEFAULT_VIDEO_PARAMS)
+
     super("video", publicId.replace(/\.(mp4|ogv|webm)$/, ''), options)
 
 #    @whitelist.push("source_transformation", "source_types", "poster")
@@ -1261,7 +1267,6 @@ class VideoTag extends HtmlTag
 
     if poster?.public_id?
       poster_id = poster.public_id
-    poster_id2 = poster?.public_id ? poster ? @public_id
 
     if poster?
       if _.isPlainObject(poster)

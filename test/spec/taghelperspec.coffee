@@ -1,9 +1,11 @@
 cloudinary = {}
-# Create a regexp with the given tag name.
-# @param [String or Symbol] tag tag name (e.g. `img`)
-# @return [Regexp] the regular expression to match the tag
-html_tag_matcher = ( tag)->
-    new RegExp("<#{tag}([\\s]+[-[:word:]]+[\\s]*\\=\\s*\"[^\"]*\")*\\s*>.*<\\s*\\/#{tag}\s*>")
+
+getTag = (tag)->
+  next = /<.*?>/.exec(tag)
+  if next
+    [tag.substr(next[0].length), next[0]]
+  else
+    [tag, null]
 
 
 test_cloudinary_url = (public_id, options, expected_url, expected_options) ->
@@ -30,9 +32,11 @@ describe "Cloudinary.VideoTag", ->
     cdn_subdomain: false
     api_key: "1234"
     api_secret: "b"
+  options = {}
 
   beforeEach ->
     cloudinary = new Cloudinary( config)
+    options = _.clone(config)
 
   root_path = "#{window.location.protocol}//res.cloudinary.com/test123"
   upload_path = "#{root_path}/video/upload"
@@ -48,15 +52,19 @@ describe "Cloudinary.VideoTag", ->
 
   it "should generate video tag", ->
     expected_url = VIDEO_UPLOAD_PATH + "movie"
-    tag = new Cloudinary.VideoTag("movie", options).toHtml()
-    expect(tag).toContain("<video poster=\"#{expected_url}.jpg\">")
-    expect(tag).toContain("<source src=\"#{expected_url}.webm\" type=\"video/webm\">")
-    expect(tag).toContain("<source src=\"#{expected_url}.mp4\" type=\"video/mp4\">")
-    expect(tag).toContain("<source src=\"#{expected_url}.ogv\" type=\"video/ogg\">")
+    videoTag = new Cloudinary.VideoTag("movie", options).toHtml()
+    [videoTag, tag] = getTag(videoTag)
+    expect(tag).toBe("<video poster=\"#{expected_url}.jpg\">")
+    [videoTag, tag] = getTag(videoTag)
+    expect(tag).toBe("<source src=\"#{expected_url}.webm\" type=\"video/webm\">")
+    [videoTag, tag] = getTag(videoTag)
+    expect(tag).toBe("<source src=\"#{expected_url}.mp4\" type=\"video/mp4\">")
+    [videoTag, tag] = getTag(videoTag)
+    expect(tag).toBe("<source src=\"#{expected_url}.ogv\" type=\"video/ogg\">")
 
   it "should generate video tag with html5 attributes", ->
     expected_url = VIDEO_UPLOAD_PATH + "movie"
-    tag = new Cloudinary.VideoTag("movie", _.assign({
+    videoTag = new Cloudinary.VideoTag("movie", _.assign({
                                            autoplay: 1,
                                            controls: true,
                                            loop: true,
@@ -64,10 +72,14 @@ describe "Cloudinary.VideoTag", ->
                                            preload: true,
                                            style: "border: 1px"
                                          }, options)).toHtml()
-    expect(tag).toContain("<video autoplay=\"1\" controls loop muted=\"true\" poster=\"#{expected_url}.jpg\" preload style=\"border: 1px\">" )
-    expect(tag).toContain("<source src=\"#{expected_url}.webm\" type=\"video/webm\">")
-    expect(tag).toContain("<source src=\"#{expected_url}.mp4\" type=\"video/mp4\">")
-    expect(tag).toContain("<source src=\"#{expected_url}.ogv\" type=\"video/ogg\">")
+    [videoTag, tag] = getTag(videoTag)
+    expect(tag).toBe("<video autoplay=\"1\" controls loop muted=\"true\" poster=\"#{expected_url}.jpg\" preload style=\"border: 1px\">" )
+    [videoTag, tag] = getTag(videoTag)
+    expect(tag).toBe("<source src=\"#{expected_url}.webm\" type=\"video/webm\">")
+    [videoTag, tag] = getTag(videoTag)
+    expect(tag).toBe("<source src=\"#{expected_url}.mp4\" type=\"video/mp4\">")
+    [videoTag, tag] = getTag(videoTag)
+    expect(tag).toBe("<source src=\"#{expected_url}.ogv\" type=\"video/ogg\">")
 
   it "should generate video tag with various attributes", ->
     options2 = _.assign( options, {

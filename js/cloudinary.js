@@ -46,7 +46,7 @@
    * device_pixel_ratio
    * supported_dpr_values
  */
-var ArrayParam, Cloudinary, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, VideoTag, cloudinary_config, config, crc32, exports, html_attrs, process_video_params, toAttribute, utf8_encode,
+var ArrayParam, Cloudinary, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, VideoTag, cloudinary_config, config, crc32, exports, global, html_attrs, process_video_params, ref, toAttribute, utf8_encode,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -152,6 +152,7 @@ Cloudinary = (function() {
   absolutize = function(url) {
     var prefix;
     if (!url.match(/^https?:\//)) {
+      console.log("document.location.protocol %s", document.location.protocol);
       prefix = document.location.protocol + '//' + document.location.host;
       if (url[0] === '?') {
         prefix += document.location.pathname;
@@ -517,11 +518,20 @@ Cloudinary = (function() {
 
 })();
 
-if (typeof module !== "undefined" && module !== null ? module.exports : void 0) {
-  exports.Cloudinary = Cloudinary;
-} else {
-  window.Cloudinary = Cloudinary;
+global = (ref = typeof module !== "undefined" && module !== null ? module.exports : void 0) != null ? ref : window;
+
+
+/* REVIEW another option is assigned Cloudinary to Cloudinary scope:
+  global.Cloudinary.Cloudinary
+
+  ...but it feels awkward
+ */
+
+if (global.Cloudinary) {
+  _.extend(Cloudinary, global.Cloudinary);
 }
+
+global.Cloudinary = Cloudinary;
 
 crc32 = function(str) {
   var crc, i, iTop, table, x, y;
@@ -605,10 +615,10 @@ Configuration = (function() {
    *
    * (Previously defined using option_consume() )
    */
-  var DEFAULT_CONFIGURATION_PARAMS, ref;
+  var DEFAULT_CONFIGURATION_PARAMS, ref1;
 
   DEFAULT_CONFIGURATION_PARAMS = {
-    secure: (typeof window !== "undefined" && window !== null ? (ref = window.location) != null ? ref.protocol : void 0 : void 0) === 'https:'
+    secure: (typeof window !== "undefined" && window !== null ? (ref1 = window.location) != null ? ref1.protocol : void 0 : void 0) === 'https:'
   };
 
   Configuration.CONFIG_PARAMS = ["api_key", "api_secret", "cdn_subdomain", "cloud_name", "cname", "private_cdn", "protocol", "resource_type", "responsive_width", "secure", "secure_cdn_subdomain", "secure_distribution", "shorten", "type", "url_suffix", "use_root_path", "version"];
@@ -658,8 +668,8 @@ Configuration = (function() {
   };
 
   Configuration.prototype.fromEnvironment = function() {
-    var cloudinary, cloudinary_url, k, ref1, ref2, uri, v;
-    cloudinary_url = typeof process !== "undefined" && process !== null ? (ref1 = process.env) != null ? ref1.CLOUDINARY_URL : void 0 : void 0;
+    var cloudinary, cloudinary_url, k, ref2, ref3, uri, v;
+    cloudinary_url = typeof process !== "undefined" && process !== null ? (ref2 = process.env) != null ? ref2.CLOUDINARY_URL : void 0 : void 0;
     if (cloudinary_url != null) {
       uri = require('url').parse(cloudinary_url, true);
       cloudinary = {
@@ -670,9 +680,9 @@ Configuration = (function() {
         secure_distribution: uri.pathname && uri.pathname.substring(1)
       };
       if (uri.query != null) {
-        ref2 = uri.query;
-        for (k in ref2) {
-          v = ref2[k];
+        ref3 = uri.query;
+        for (k in ref3) {
+          v = ref3[k];
           cloudinary[k] = v;
         }
       }
@@ -795,11 +805,11 @@ ArrayParam = (function(superClass) {
     var flat, t;
     if (this.short != null) {
       flat = (function() {
-        var j, len, ref, results;
-        ref = this.value;
+        var j, len, ref1, results;
+        ref1 = this.value;
         results = [];
-        for (j = 0, len = ref.length; j < len; j++) {
-          t = ref[j];
+        for (j = 0, len = ref1.length; j < len; j++) {
+          t = ref1[j];
           if (_.isFunction(t.flatten)) {
             results.push(t.flatten());
           } else {
@@ -841,16 +851,16 @@ TransformationParam = (function(superClass) {
   TransformationParam.prototype.flatten = function() {
     var result, t;
     result = (function() {
-      var j, len, ref, results;
+      var j, len, ref1, results;
       if (_.isEmpty(this.value)) {
         return null;
       } else if (_.all(this.value, _.isString)) {
         return [this.short + "_" + (this.value.join(this.sep))];
       } else {
-        ref = this.value;
+        ref1 = this.value;
         results = [];
-        for (j = 0, len = ref.length; j < len; j++) {
-          t = ref[j];
+        for (j = 0, len = ref1.length; j < len; j++) {
+          t = ref1[j];
           if (t != null) {
             if (_.isString(t)) {
               results.push(this.short + "_" + t);
@@ -1025,8 +1035,8 @@ TransformationBase = (function() {
       return this;
     };
     this.getValue = function(name) {
-      var ref;
-      return (ref = trans[name]) != null ? ref.value : void 0;
+      var ref1;
+      return (ref1 = trans[name]) != null ? ref1.value : void 0;
     };
     this.get = function(name) {
       return trans[name];
@@ -1170,8 +1180,8 @@ TransformationBase = (function() {
   };
 
   TransformationBase.prototype.offset = function(value) {
-    var end_o, ref, start_o;
-    ref = _.isFunction(value != null ? value.split : void 0) ? value.split('..') : _.isArray(value) ? value : [null, null], start_o = ref[0], end_o = ref[1];
+    var end_o, ref1, start_o;
+    ref1 = _.isFunction(value != null ? value.split : void 0) ? value.split('..') : _.isArray(value) ? value : [null, null], start_o = ref1[0], end_o = ref1[1];
     if (start_o != null) {
       this.startOffset(start_o);
     }
@@ -1209,9 +1219,9 @@ TransformationBase = (function() {
   };
 
   TransformationBase.prototype.size = function(value) {
-    var height, ref, width;
+    var height, ref1, width;
     if (_.isFunction(value != null ? value.split : void 0)) {
-      ref = value.split('x'), width = ref[0], height = ref[1];
+      ref1 = value.split('x'), width = ref1[0], height = ref1[1];
       this.width(width);
       return this.height(height);
     }
@@ -1336,12 +1346,12 @@ Transformation = (function(superClass) {
       resultArray = resultArray.concat(transformations.flatten());
     }
     transformationString = (function() {
-      var j, len, ref, ref1, results;
-      ref = this.keys();
+      var j, len, ref1, ref2, results;
+      ref1 = this.keys();
       results = [];
-      for (j = 0, len = ref.length; j < len; j++) {
-        t = ref[j];
-        results.push((ref1 = this.get(t)) != null ? ref1.flatten() : void 0);
+      for (j = 0, len = ref1.length; j < len; j++) {
+        t = ref1[j];
+        results.push((ref2 = this.get(t)) != null ? ref2.flatten() : void 0);
       }
       return results;
     }).call(this);
@@ -1365,11 +1375,11 @@ Transformation = (function(superClass) {
    */
 
   Transformation.prototype.toHtmlAttributes = function() {
-    var height, j, k, key, len, options, ref, v, width;
+    var height, j, k, key, len, options, ref1, v, width;
     options = _.omit(this.otherOptions, this.PARAM_NAMES);
-    ref = _.difference(this.keys(), this.PARAM_NAMES);
-    for (j = 0, len = ref.length; j < len; j++) {
-      key = ref[j];
+    ref1 = _.difference(this.keys(), this.PARAM_NAMES);
+    for (j = 0, len = ref1.length; j < len; j++) {
+      key = ref1[j];
       options[key] = this.get(key).value;
     }
     for (k in options) {
@@ -1575,7 +1585,7 @@ VideoTag = (function(superClass) {
     if (options == null) {
       options = {};
     }
-    _.defaults(options, DEFAULT_VIDEO_PARAMS);
+    options = _.defaults(_.cloneDeep(options), DEFAULT_VIDEO_PARAMS);
     VideoTag.__super__.constructor.call(this, "video", publicId.replace(/\.(mp4|ogv|webm)$/, ''), options);
   }
 
@@ -1625,13 +1635,12 @@ VideoTag = (function(superClass) {
   };
 
   VideoTag.prototype.attributes = function() {
-    var attr, poster, poster_id, poster_id2, ref, ref1, sourceTypes;
+    var attr, poster, poster_id, sourceTypes;
     sourceTypes = this.options['source_types'];
     poster = this.options['poster'];
     if ((poster != null ? poster.public_id : void 0) != null) {
       poster_id = poster.public_id;
     }
-    poster_id2 = (ref = (ref1 = poster != null ? poster.public_id : void 0) != null ? ref1 : poster) != null ? ref : this.public_id;
     if (poster != null) {
       if (_.isPlainObject(poster)) {
         if (poster.public_id != null) {
