@@ -40,21 +40,6 @@ class HtmlTag
   getOptions: ()-> @options
 
   attributes: ()->
-    options = _.omit( @options, _.union(Transformation.PARAM_NAMES, Configuration.CONFIG_PARAMS))
-#    options[key] = @get(key).value for key in _.difference(@keys(), Cloudinary.transformationParams)
-    # convert all "html_key" to "key" with the same value
-    for k,v of options when /^html_/.exec(k)
-      options[k.substr(5)] = v
-      delete options[k]
-
-    unless @getTransformation().hasLayer() || _.contains( ["fit", "limit", "lfill"],@getTransformation().getValue("crop"))
-      width = @getTransformation().getValue("width")
-      height = @getTransformation().getValue("height")
-      if parseFloat(width) >= 1.0
-        options['width'] ?= width
-      if parseFloat(height) >= 1.0
-        options['height'] ?= height
-    options
     @getTransformation().toHtmlAttributes()
 
   content: ()->

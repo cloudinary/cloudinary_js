@@ -286,14 +286,13 @@ class Cloudinary
         return
     return
   calc_stoppoint: (element, width) ->
-    stoppoints = $(element).data('stoppoints') or @config().stoppoints or default_stoppoints
-    if typeof stoppoints == 'function'
-      return stoppoints(width)
+    stoppoints = element.getAttribute('data-stoppoints') or @configuration.get('stoppoints') # REVIEW should we use $().data when available?
     if typeof stoppoints == 'string'
-      stoppoints = _.map(stoppoints.split(','), (val) ->
-        parseInt val
-      )
-    closest_above stoppoints, width
+      stoppoints = _.map(stoppoints.split(','), _.parseInt).sort()
+      closest_above stoppoints, width
+    else
+      default_stoppoints(width)
+
   device_pixel_ratio: ->
     dpr = window.devicePixelRatio or 1
     dpr_string = device_pixel_ratio_cache[dpr]
@@ -400,6 +399,45 @@ class Cloudinary
     $('<input/>').attr(
       type: 'file'
       name: 'file').unsigned_cloudinary_upload upload_preset, upload_params, options
+
+  prepare_html_url = (public_id, options) ->
+    options.dpr ||= @configuration.get('dpr')
+    url = cloudinary_url(public_id, options)
+    attributes =
+    if width
+      options.width = width
+    if height
+      options.height = height
+    url
+
+
+  ###*
+  # similar to `$.fn.cloudinary`
+  # Finds all `img` tags under each node and sets it up to provide the image through Cloudinary
+  ###
+  processImageTags: (nodes, options = {}) ->
+    options = _(options).cloneDeep().defaults(@configuration.config()).value()
+    images = _(nodes).map( (n)-> _.flatten(n.getElementsByTagName('img')))
+      .dropWhile( _.isEmpty)
+      .flatten()
+      .uniq()
+      .forEach( (i) ->
+        img_options = _.extend({
+          width: i.getAttribute('width')
+          height: i.getAttribute('height')
+          src: i.getAttribute('src')
+        },  options)
+        public_id = img_options['source'] || img_options['src']
+        delete img_options['source']
+        delete img_options['src']
+        url = url(public_id, img_options)
+        img_options = new Transformation(img_options).toHtmlAttributes() # FIXME include own config
+        i.setAttribute('data-src-cache', url)
+        i.setAttribute('width', img_options.width)
+        i.setAttribute('height', img_options.height)
+      ).value()
+#    .cloudinary_update options # FIXME enable
+    this
 
 global = module?.exports ? window
 # Copy all previously defined object in the "Cloudinary" scope

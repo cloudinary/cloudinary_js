@@ -944,7 +944,7 @@ exports.Cloudinary.Transformation = Transformation;
  */
 
 Cloudinary = (function() {
-  var AKAMAI_SHARED_CDN, CF_SHARED_CDN, DEFAULT_IMAGE_PARAMS, DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_PARAMS, DEFAULT_VIDEO_SOURCE_TYPES, OLD_AKAMAI_SHARED_CDN, SHARED_CDN, absolutize, cdn_subdomain_number, closest_above, cloudinary_url, cloudinary_url_prefix, default_stoppoints, device_pixel_ratio_cache, finalizeResourceType, html_attrs, join_pair, unsigned_upload_tag;
+  var AKAMAI_SHARED_CDN, CF_SHARED_CDN, DEFAULT_IMAGE_PARAMS, DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_PARAMS, DEFAULT_VIDEO_SOURCE_TYPES, OLD_AKAMAI_SHARED_CDN, SHARED_CDN, absolutize, cdn_subdomain_number, closest_above, cloudinary_url, cloudinary_url_prefix, default_stoppoints, device_pixel_ratio_cache, finalizeResourceType, html_attrs, join_pair, prepare_html_url, unsigned_upload_tag;
 
   CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
 
@@ -1284,16 +1284,13 @@ Cloudinary = (function() {
 
   Cloudinary.prototype.calc_stoppoint = function(element, width) {
     var stoppoints;
-    stoppoints = $(element).data('stoppoints') || this.config().stoppoints || default_stoppoints;
-    if (typeof stoppoints === 'function') {
-      return stoppoints(width);
-    }
+    stoppoints = element.getAttribute('data-stoppoints') || this.configuration.get('stoppoints');
     if (typeof stoppoints === 'string') {
-      stoppoints = _.map(stoppoints.split(','), function(val) {
-        return parseInt(val);
-      });
+      stoppoints = _.map(stoppoints.split(','), _.parseInt).sort();
+      return closest_above(stoppoints, width);
+    } else {
+      return default_stoppoints(width);
     }
-    return closest_above(stoppoints, width);
   };
 
   Cloudinary.prototype.device_pixel_ratio = function() {
@@ -1405,6 +1402,50 @@ Cloudinary = (function() {
       type: 'file',
       name: 'file'
     }).unsigned_cloudinary_upload(upload_preset, upload_params, options);
+  };
+
+  prepare_html_url = function(public_id, options) {
+    var attributes, url;
+    options.dpr || (options.dpr = this.configuration.get('dpr'));
+    url = cloudinary_url(public_id, options);
+    attributes = width ? options.width = width : void 0;
+    if (height) {
+      options.height = height;
+    }
+    return url;
+  };
+
+
+  /**
+   * similar to `$.fn.cloudinary`
+   * Finds all `img` tags under each node and sets it up to provide the image through Cloudinary
+   */
+
+  Cloudinary.prototype.processImageTags = function(nodes, options) {
+    var images;
+    if (options == null) {
+      options = {};
+    }
+    options = _(options).cloneDeep().defaults(this.configuration.config()).value();
+    images = _(nodes).map(function(n) {
+      return _.flatten(n.getElementsByTagName('img'));
+    }).dropWhile(_.isEmpty).flatten().uniq().forEach(function(i) {
+      var img_options, public_id, url;
+      img_options = _.extend({
+        width: i.getAttribute('width'),
+        height: i.getAttribute('height'),
+        src: i.getAttribute('src')
+      }, options);
+      public_id = img_options['source'] || img_options['src'];
+      delete img_options['source'];
+      delete img_options['src'];
+      url = url(public_id, img_options);
+      img_options = new Transformation(img_options).toHtmlAttributes();
+      i.setAttribute('data-src-cache', url);
+      i.setAttribute('width', img_options.width);
+      return i.setAttribute('height', img_options.height);
+    }).value();
+    return this;
   };
 
   return Cloudinary;
