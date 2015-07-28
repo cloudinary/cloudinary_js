@@ -1,4 +1,11 @@
 cloudinary = {}
+# Create a regexp with the given tag name.
+# @param [String or Symbol] tag tag name (e.g. `img`)
+# @return [Regexp] the regular expression to match the tag
+html_tag_matcher = ( tag)->
+    new RegExp("<#{tag}([\\s]+[-[:word:]]+[\\s]*\\=\\s*\"[^\"]*\")*\\s*>.*<\\s*\\/#{tag}\s*>")
+
+
 test_cloudinary_url = (public_id, options, expected_url, expected_options) ->
   result = cloudinary.url(public_id, options)
   expect(new Cloudinary.Transformation(options).toHtmlAttributes()).toEqual(expected_options)
@@ -14,7 +21,7 @@ describe "Cloudinary.HtmlTag", ->
 describe "Cloudinary.VideoTag", ->
   VIDEO_UPLOAD_PATH = "#{window.location.protocol}//res.cloudinary.com/test123/video/upload/"
   DEFAULT_UPLOAD_PATH = "#{window.location.protocol}//res.cloudinary.com/test123/image/upload/"
-  options =
+  config =
     cloud_name: "test123"
     secure_distribution: null
     private_cdn: false
@@ -25,7 +32,7 @@ describe "Cloudinary.VideoTag", ->
     api_secret: "b"
 
   beforeEach ->
-    cloudinary = new Cloudinary( options)
+    cloudinary = new Cloudinary( config)
 
   root_path = "#{window.location.protocol}//res.cloudinary.com/test123"
   upload_path = "#{root_path}/video/upload"
@@ -63,7 +70,7 @@ describe "Cloudinary.VideoTag", ->
     expect(tag).toContain("<source src=\"#{expected_url}.ogv\" type=\"video/ogg\">")
 
   it "should generate video tag with various attributes", ->
-    options = _.assign( options, {
+    options2 = _.assign( options, {
       source_types: "mp4",
       html_height : "100",
       html_width  : "200",
@@ -72,22 +79,22 @@ describe "Cloudinary.VideoTag", ->
       start_offset: 3
     })
     expected_url = VIDEO_UPLOAD_PATH + "ac_acc,so_3,vc_h264/movie"
-    expect(new Cloudinary.VideoTag("movie", options).toHtml()).toEqual(
+    expect(new Cloudinary.VideoTag("movie", options2).toHtml()).toEqual(
       "<video height=\"100\" poster=\"#{expected_url}.jpg\" src=\"#{expected_url}.mp4\" width=\"200\"></video>")
 
-    delete options['source_types']
-    tag = new Cloudinary.VideoTag("movie", options).toHtml()
+    delete options2['source_types']
+    tag = new Cloudinary.VideoTag("movie", options2).toHtml()
     expect(tag).toContain("<video height=\"100\" poster=\"#{expected_url}.jpg\" width=\"200\">")
     expect(tag).toContain("<source src=\"#{expected_url}.webm\" type=\"video/webm\">")
     expect(tag).toContain("<source src=\"#{expected_url}.mp4\" type=\"video/mp4\">")
     expect(tag).toContain("<source src=\"#{expected_url}.ogv\" type=\"video/ogg\">")
 
-    delete options['html_height']
-    delete options['html_width']
-    options['width'] = 250
-    options['crop'] = 'scale'
+    delete options2['html_height']
+    delete options2['html_width']
+    options2['width'] = 250
+    options2['crop'] = 'scale'
     expected_url = VIDEO_UPLOAD_PATH + "ac_acc,c_scale,so_3,vc_h264,w_250/movie"
-    expect(new Cloudinary.VideoTag("movie", options).toHtml()).toEqual(
+    expect(new Cloudinary.VideoTag("movie", options2).toHtml()).toEqual(
       "<video poster=\"#{expected_url}.jpg\" width=\"250\">" +
       "<source src=\"#{expected_url}.webm\" type=\"video/webm\">" +
       "<source src=\"#{expected_url}.mp4\" type=\"video/mp4\">" +
@@ -95,8 +102,8 @@ describe "Cloudinary.VideoTag", ->
       "</video>")
 
     expected_url = VIDEO_UPLOAD_PATH + "ac_acc,c_fit,so_3,vc_h264,w_250/movie"
-    options['crop'] = 'fit'
-    expect(new Cloudinary.VideoTag("movie", options).toHtml()).toEqual(
+    options2['crop'] = 'fit'
+    expect(new Cloudinary.VideoTag("movie", options2).toHtml()).toEqual(
       "<video poster=\"#{expected_url}.jpg\">" +
       "<source src=\"#{expected_url}.webm\" type=\"video/webm\">" +
       "<source src=\"#{expected_url}.mp4\" type=\"video/mp4\">" +

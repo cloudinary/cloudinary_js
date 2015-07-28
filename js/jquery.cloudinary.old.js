@@ -279,7 +279,7 @@
     }
     params.sort();
 
-    var raw_transformation = option_consume(options, 'raw_transformation'); // TODO Raw must be at the end?
+    var raw_transformation = option_consume(options, 'raw_transformation'); // REVIEW Raw must be at the end?
     if (present(raw_transformation)) params.push(raw_transformation);
     var transformation = params.join(",");
     if (present(transformation)) base_transformations.push(transformation);

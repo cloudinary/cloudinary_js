@@ -1,17 +1,15 @@
 describe("cloudinary", function() {
-  var result,
-      fixtureContainer;
+  var result;
   beforeEach(function() {
     window.cloudinary = new Cloudinary({
       cloud_name: "test123"
     });
 
-    fixtureContainer = $('<div id="fixture">');
-    fixtureContainer.appendTo('body');
+
   });
 
   afterEach(function() {
-    fixtureContainer.remove();
+
   });
 
   function test_cloudinary_url(public_id, options, expected_url, expected_options) {
@@ -367,37 +365,5 @@ describe("cloudinary", function() {
     expect(window.cloudinary.calc_stoppoint(el, 100)).toEqual(140);
   });
 
-  xit("should correctly resize responsive images", function() {
-    var container, img;
-    var dpr = window.cloudinary.device_pixel_ratio();
-    container = $('<div></div>').css({width: 101}).appendTo(fixtureContainer);
-    runs(function() {
-      img = window.cloudinary.image("sample.jpg", {width: "auto", dpr: "auto", crop: "scale", responsive: true}).appendTo(container);
-      expect(img.attr('src')).toEqual(null);
-      window.cloudinary.responsive();
-      expect(img.attr('src')).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_scale,dpr_"+dpr+",w_101/sample.jpg");
-      container.css('width', 111);
-      expect(img.attr('src')).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_scale,dpr_"+dpr+",w_101/sample.jpg");
-      $(window).resize();
-    });
-    waits(200);
-    runs(function() {
-      expect(img.attr('src')).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_scale,dpr_"+dpr+",w_120/sample.jpg");
-      container.css('width', 101);
-    });
-    waits(200);
-    runs(function() {
-      expect(img.attr('src')).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_scale,dpr_"+dpr+",w_120/sample.jpg");
-    });
-  });
 
-  xit("should traverse up the DOM to find a parent that has clientWidth", function() {
-    var aContainer, divContainer, img;
-    divContainer = $('<div>').css({width: 101}).appendTo(fixtureContainer);
-    aContainer = $('<a>').appendTo(divContainer);
-    img = window.cloudinary.image("sample.jpg", {width: "auto", dpr: "auto", crop: "scale", responsive: true}).appendTo(aContainer);
-
-    window.cloudinary.responsive();
-    expect(img.attr('src')).not.toEqual(undefined);
-  });
 });

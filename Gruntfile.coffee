@@ -8,7 +8,7 @@ module.exports = (grunt)->
         files:
           'js/cloudinary.js': [
             'src/header.coffee'
-            'src/cloudinary.coffee'
+            'src/cloudinary-main.coffee'
             'src/crc32.coffee'
             'src/utf8_encode.coffee'
             'src/config.coffee'
@@ -25,7 +25,7 @@ module.exports = (grunt)->
             'src/config.coffee'
             'src/parameters.coffee'
             'src/transformation.coffee'
-            'src/cloudinary.coffee'
+            'src/cloudinary-main.coffee'
             'src/footer.coffee'
 
           ]
@@ -46,7 +46,7 @@ module.exports = (grunt)->
         'src/config.coffee'
         'src/parameters.coffee'
         'src/transformation.coffee'
-        'src/cloudinary.coffee'
+        'src/cloudinary-main.coffee'
         'src/tag-helpers.coffee'
         'src/footer.coffee'
       ]
