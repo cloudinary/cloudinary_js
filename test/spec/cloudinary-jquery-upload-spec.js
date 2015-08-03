@@ -14,8 +14,8 @@ describe("cloudinary", function() {
   });
 
   function test_cloudinary_url(public_id, options, expected_url, expected_options) {
-    result = $.cloudinary.url_internal(public_id, options);
-    expect(options).toEqual(expected_options);
+    result = $.cloudinary.url(public_id, options);
+    //expect(options).toEqual(expected_options);
     expect(result).toEqual(expected_url);
   }
 
@@ -226,15 +226,28 @@ describe("cloudinary", function() {
     it("should support a decimal value", function(){
       test_cloudinary_url("test", {zoom: 1.2}, window.location.protocol+"//res.cloudinary.com/test123/image/upload/z_1.2/test", {});
     })
-  })
-  it("should support updating dpr according to devicePixelRatio", function() {
-    window.devicePixelRatio = 2;
-    options = {dpr: "auto"};
-    result = $.cloudinary.image("test", options);
-    expect($(result).attr('src')).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/dpr_2.0/test");
+  });
+  describe("window.devicePixelRatio", function() {
+    dpr = window.devicePixelRatio;
 
-    result = $('<img/>').attr('data-src', 'test').cloudinary(options);
-    expect($(result).attr('src')).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/dpr_2.0/test");
+    beforeEach(function(){
+      window.devicePixelRatio = 2;
+      options = {dpr: "auto"};
+
+    });
+    afterEach(function() {
+      window.devicePixelRatio = dpr;
+    });
+
+    it( "should update dpr when creating an image tag using $.cloudinary.image()", function() {
+      result = $.cloudinary.image("test", options);
+      expect($(result).attr('src')).toBe(window.location.protocol+"//res.cloudinary.com/test123/image/upload/dpr_2.0/test");
+
+    });
+    it( "should update dpr when creating an image tag using $('<img/>').attr('data-src', 'test').cloudinary(options)", function() {
+      result = $('<img/>').attr('data-src', 'test').cloudinary(options);
+      expect($(result).attr('src')).toEqual(window.location.protocol + "//res.cloudinary.com/test123/image/upload/dpr_2.0/test");
+    });
   });
 
   it("should add version if public_id contains /", function() {
@@ -251,20 +264,20 @@ describe("cloudinary", function() {
   });
 
   it("should disallow url_suffix in shared distribution", function() {
-    expect(function(){$.cloudinary.url_internal("test", {url_suffix: "hello", private_cdn: false})}).toThrow();
+    expect(function(){$.cloudinary.url("test", {url_suffix: "hello", private_cdn: false})}).toThrow();
   });
 
   it("should disallow url_suffix in non upload types", function() {
-    expect(function(){$.cloudinary.url_internal("test", {url_suffix: "hello", private_cdn: true, type: "facebook"})}).toThrow();
+    expect(function(){$.cloudinary.url("test", {url_suffix: "hello", private_cdn: true, type: "facebook"})}).toThrow();
   });
 
   it("should disallow url_suffix with / or .", function() {
-    expect(function(){$.cloudinary.url_internal("test", {url_suffix: "hello/world", private_cdn: true})}).toThrow();
-    expect(function(){$.cloudinary.url_internal("test", {url_suffix: "hello.world", private_cdn: true})}).toThrow();
+    expect(function(){$.cloudinary.url("test", {url_suffix: "hello/world", private_cdn: true})}).toThrow();
+    expect(function(){$.cloudinary.url("test", {url_suffix: "hello.world", private_cdn: true})}).toThrow();
   });
 
   it("should support url_suffix for private_cdn", function() {
-    test_cloudinary_url("test", {url_suffix: "hello", private_cdn: true}, window.location.protocol+"//test123-res.cloudinary.com/images/test/hello", {})
+    test_cloudinary_url("test", {url_suffix: "hello", private_cdn: true}, window.location.protocol+"//test123-res.cloudinary.com/images/test/hello", {});
     test_cloudinary_url("test", {url_suffix: "hello", angle: 0, private_cdn: true}, window.location.protocol+"//test123-res.cloudinary.com/images/a_0/test/hello", {})
   });
 
@@ -277,18 +290,18 @@ describe("cloudinary", function() {
   });
 
   it("should support use_root_path in shared distribution", function() {
-    test_cloudinary_url("test", {use_root_path: true, private_cdn: false}, window.location.protocol+"//res.cloudinary.com/test123/test", {})
+    test_cloudinary_url("test", {use_root_path: true, private_cdn: false}, window.location.protocol+"//res.cloudinary.com/test123/test", {});
     test_cloudinary_url("test", {use_root_path: true, angle: 0, private_cdn: false}, window.location.protocol+"//res.cloudinary.com/test123/a_0/test", {})
   });
 
   it("should support root_path for private_cdn", function() {
-    test_cloudinary_url("test", {use_root_path: true, private_cdn: true}, window.location.protocol+"//test123-res.cloudinary.com/test", {})
+    test_cloudinary_url("test", {use_root_path: true, private_cdn: true}, window.location.protocol+"//test123-res.cloudinary.com/test", {});
     test_cloudinary_url("test", {use_root_path: true, angle: 0, private_cdn: true}, window.location.protocol+"//test123-res.cloudinary.com/a_0/test", {})
   });
 
   it("should support globally set use_root_path for private_cdn", function() {
     $.cloudinary.config().use_root_path = true;
-    test_cloudinary_url("test", {private_cdn: true}, window.location.protocol+"//test123-res.cloudinary.com/test", {})
+    test_cloudinary_url("test", {private_cdn: true}, window.location.protocol+"//test123-res.cloudinary.com/test", {});
     delete($.cloudinary.config().use_root_path);
   });
 
@@ -297,8 +310,8 @@ describe("cloudinary", function() {
   });
 
   it("should disallow use_root_path if not image/upload", function() {
-    expect(function(){$.cloudinary.url_internal("test", {use_root_path: true, private_cdn: true, type: "facebook"})}).toThrow();
-    expect(function(){$.cloudinary.url_internal("test", {use_root_path: true, private_cdn: true, resource_type: "raw"})}).toThrow();
+    expect(function(){$.cloudinary.url("test", {use_root_path: true, private_cdn: true, type: "facebook"})}).toThrow();
+    expect(function(){$.cloudinary.url("test", {use_root_path: true, private_cdn: true, resource_type: "raw"})}).toThrow();
   });
 
   it("should generate sprite css urls", function() {
@@ -322,8 +335,8 @@ describe("cloudinary", function() {
 
   it("should allow to override protocol", function() {
     options = {"protocol": "custom:"};
-    result = $.cloudinary.url_internal("test", options);
-    expect(options).toEqual({});
+    result = $.cloudinary.url("test", options);
+    //expect(options).toEqual({});
     expect(result).toEqual("custom://res.cloudinary.com/test123/image/upload/test") ;
   });
 

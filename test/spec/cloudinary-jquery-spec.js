@@ -1,20 +1,21 @@
 describe("cloudinary", function() {
-  var result;
+  var result,
+      fixtureContainer;
   beforeEach(function() {
-    window.cloudinary = new Cloudinary({
+    $.cloudinary.config({
       cloud_name: "test123"
     });
-
-
+    fixtureContainer = $('<div id="fixture">');
+    fixtureContainer.appendTo('body');
   });
 
   afterEach(function() {
-
+    fixtureContainer.remove();
   });
 
   function test_cloudinary_url(public_id, options, expected_url, expected_options) {
-    result = window.cloudinary.url(public_id, options);
-    //expect(new Cloudinary.Transformation(options).toHtmlAttributes()).toEqual(expected_options);
+    result = $.cloudinary.url(public_id, options);
+    //expect(options).toEqual(expected_options);
     expect(result).toEqual(expected_url);
   }
 
@@ -67,8 +68,8 @@ describe("cloudinary", function() {
   });
 
   it("should use width and height from options only if crop is given", function() {
-    expect(cloudinary.url("test", {width: 100, height: 100})).toBe( window.location.protocol+"//res.cloudinary.com/test123/image/upload/test");
-    expect(cloudinary.url("test", {width: 100, height: 100, crop: "crop"})).toBe(window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_crop,h_100,w_100/test");
+    test_cloudinary_url("test", {width: 100, height: 100}, window.location.protocol+"//res.cloudinary.com/test123/image/upload/test", {html_width: 100, html_height: 100});
+    test_cloudinary_url("test", {width: 100, height: 100, crop: "crop"}, window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_crop,h_100,w_100/test", {html_width: 100, html_height: 100});
   });
 
   it("should not pass width and height to html in case of fit, lfill or limit crop", function() {
@@ -94,19 +95,19 @@ describe("cloudinary", function() {
   });
 
   it("should support base tranformation", function() {
-    expect(cloudinary.url("test", {transformation: {x: 100, y: 100, crop: "fill"}, crop: "crop", width: 100})).toBe( window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_fill,x_100,y_100/c_crop,w_100/test");
+    test_cloudinary_url("test", {transformation: {x: 100, y: 100, crop: "fill"}, crop: "crop", width: 100}, window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_fill,x_100,y_100/c_crop,w_100/test", {html_width: 100});
   });
 
   it("should support array of base tranformations", function() {
-    expect(cloudinary.url("test", {transformation: [{x: 100, y: 100, width: 200, crop: "fill"}, {radius: 10}], crop: "crop", width: 100})).toBe( window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_fill,w_200,x_100,y_100/r_10/c_crop,w_100/test");
+    test_cloudinary_url("test", {transformation: [{x: 100, y: 100, width: 200, crop: "fill"}, {radius: 10}], crop: "crop", width: 100}, window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_fill,w_200,x_100,y_100/r_10/c_crop,w_100/test", {html_width: 100});
   });
 
   it("should not include empty tranformations", function() {
-    expect(cloudinary.url("test", {transformation: [{}, {x: 100, y: 100, crop: "fill"}, {}]})).toBe( window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_fill,x_100,y_100/test");
+    test_cloudinary_url("test", {transformation: [{}, {x: 100, y: 100, crop: "fill"}, {}]}, window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_fill,x_100,y_100/test", {});
   });
 
   it("should support size", function() {
-    test_cloudinary_url("test", {size: "10x10", crop: "crop"}, window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_crop,h_10,w_10/test", {width: '10', height:'10'});
+    test_cloudinary_url("test", {size: "10x10", crop: "crop"}, window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_crop,h_10,w_10/test", {html_width: "10", html_height: "10"});
   });
 
   it("should use type from options", function() {
@@ -175,11 +176,11 @@ describe("cloudinary", function() {
   it("should support effect with param", function() {
     test_cloudinary_url("test", {effect: ["sepia", 10]}, window.location.protocol+"//res.cloudinary.com/test123/image/upload/e_sepia:10/test", {});
   });
-  // FIXME
-  //it("should support fetch_image", function() {
-  //  result = window.cloudinary.fetch_image("http://example.com/hello.jpg?a=b").attr("src");
-  //  expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/fetch/http://example.com/hello.jpg%3Fa%3Db")
-  //});
+
+  it("should support fetch_image", function() {
+    result = $.cloudinary.fetch_image("http://example.com/hello.jpg?a=b").attr("src");
+    expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/fetch/http://example.com/hello.jpg%3Fa%3Db")
+  });
 
   layers = {overlay: "l", underlay: "u"};
   for (var layer in layers) {
@@ -226,15 +227,28 @@ describe("cloudinary", function() {
       test_cloudinary_url("test", {zoom: 1.2}, window.location.protocol+"//res.cloudinary.com/test123/image/upload/z_1.2/test", {});
     })
   });
-  //it("should support updating dpr according to devicePixelRatio", function() {
-  //  window.devicePixelRatio = 2;
-  //  options = {dpr: "auto"};
-  //  result = window.cloudinary.image("test", options);
-  //  expect($(result).attr('src')).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/dpr_2.0/test");
-  //
-  //  result = $('<img/>').attr('data-src', 'test').cloudinary(options);
-  //  expect($(result).attr('src')).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/dpr_2.0/test");
-  //});
+  describe("window.devicePixelRatio", function() {
+    dpr = window.devicePixelRatio;
+
+    beforeEach(function(){
+      window.devicePixelRatio = 2;
+      options = {dpr: "auto"};
+
+    });
+    afterEach(function() {
+      window.devicePixelRatio = dpr;
+    });
+
+    it( "should update dpr when creating an image tag using $.cloudinary.image()", function() {
+      result = $.cloudinary.image("test", options);
+      expect($(result).attr('src')).toBe(window.location.protocol+"//res.cloudinary.com/test123/image/upload/dpr_2.0/test");
+
+    });
+    it( "should update dpr when creating an image tag using $('<img/>').attr('data-src', 'test').cloudinary(options)", function() {
+      result = $('<img/>').attr('data-src', 'test').cloudinary(options);
+      expect($(result).attr('src')).toEqual(window.location.protocol + "//res.cloudinary.com/test123/image/upload/dpr_2.0/test");
+    });
+  });
 
   it("should add version if public_id contains /", function() {
     test_cloudinary_url("folder/test", {}, window.location.protocol+"//res.cloudinary.com/test123/image/upload/v1/folder/test", {});
@@ -250,16 +264,16 @@ describe("cloudinary", function() {
   });
 
   it("should disallow url_suffix in shared distribution", function() {
-    expect(function(){window.cloudinary.url("test", {url_suffix: "hello", private_cdn: false})}).toThrow();
+    expect(function(){$.cloudinary.url("test", {url_suffix: "hello", private_cdn: false})}).toThrow();
   });
 
   it("should disallow url_suffix in non upload types", function() {
-    expect(function(){window.cloudinary.url("test", {url_suffix: "hello", private_cdn: true, type: "facebook"})}).toThrow();
+    expect(function(){$.cloudinary.url("test", {url_suffix: "hello", private_cdn: true, type: "facebook"})}).toThrow();
   });
 
   it("should disallow url_suffix with / or .", function() {
-    expect(function(){window.cloudinary.url("test", {url_suffix: "hello/world", private_cdn: true})}).toThrow();
-    expect(function(){window.cloudinary.url("test", {url_suffix: "hello.world", private_cdn: true})}).toThrow();
+    expect(function(){$.cloudinary.url("test", {url_suffix: "hello/world", private_cdn: true})}).toThrow();
+    expect(function(){$.cloudinary.url("test", {url_suffix: "hello.world", private_cdn: true})}).toThrow();
   });
 
   it("should support url_suffix for private_cdn", function() {
@@ -286,9 +300,9 @@ describe("cloudinary", function() {
   });
 
   it("should support globally set use_root_path for private_cdn", function() {
-    window.cloudinary.config().use_root_path = true;
+    $.cloudinary.config().use_root_path = true;
     test_cloudinary_url("test", {private_cdn: true}, window.location.protocol+"//test123-res.cloudinary.com/test", {});
-    delete(window.cloudinary.config().use_root_path);
+    delete($.cloudinary.config().use_root_path);
   });
 
   it("should support use_root_path together with url_suffix for private_cdn", function() {
@@ -296,14 +310,14 @@ describe("cloudinary", function() {
   });
 
   it("should disallow use_root_path if not image/upload", function() {
-    expect(function(){window.cloudinary.url("test", {use_root_path: true, private_cdn: true, type: "facebook"})}).toThrow();
-    expect(function(){window.cloudinary.url("test", {use_root_path: true, private_cdn: true, resource_type: "raw"})}).toThrow();
+    expect(function(){$.cloudinary.url("test", {use_root_path: true, private_cdn: true, type: "facebook"})}).toThrow();
+    expect(function(){$.cloudinary.url("test", {use_root_path: true, private_cdn: true, resource_type: "raw"})}).toThrow();
   });
 
   it("should generate sprite css urls", function() {
-    result = window.cloudinary.sprite_css("test");
+    result = $.cloudinary.sprite_css("test");
     expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/sprite/test.css");
-    result = window.cloudinary.sprite_css("test.css");
+    result = $.cloudinary.sprite_css("test.css");
     expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/sprite/test.css");
   });
 
@@ -321,48 +335,63 @@ describe("cloudinary", function() {
 
   it("should allow to override protocol", function() {
     options = {"protocol": "custom:"};
-    result = window.cloudinary.url("test", options);
-    //expect(new Cloudinary.Transformation(options).toHtmlAttributes()).toEqual({});
+    result = $.cloudinary.url("test", options);
+    //expect(options).toEqual({});
     expect(result).toEqual("custom://res.cloudinary.com/test123/image/upload/test") ;
   });
 
-  xit("should create an unsigned upload tag", function(){
-    window.cloudinary.config().cloud_name = 'test';
-    var result = window.cloudinary.unsigned_upload_tag("test", {context: {alt: "alternative", caption: "cap"}, tags: ['a','b']}, {width: 100, cloud_name: "test1", multiple: true});
-    var options = result.fileupload('option');
-    expect(options.formData.context).toEqual('alt=alternative|caption=cap');
-    expect(options.formData.tags).toEqual('a,b');
-    expect(options.formData.upload_preset).toEqual('test');
-    expect(options.width).toEqual(100);
-    expect(options.url).toEqual("https://api.cloudinary.com/v1_1/test1/auto/upload");
-    expect(result.prop("multiple")).toEqual(true);
 
-    result = window.cloudinary.unsigned_upload_tag("test", {context: {alt: "alternative", caption: "cap"}, tags: ['a','b'], cloud_name: "test2"}, {width: 100, multiple: true});
-    options = result.fileupload('option');
-    expect(options.url).toEqual("https://api.cloudinary.com/v1_1/test2/auto/upload");
-
-    result = window.cloudinary.unsigned_upload_tag("test", {cloud_name: "test2", resource_type: "video", type: "private"}, {width: 100, multiple: true});
-    options = result.fileupload('option');
-    expect(options.url).toEqual("https://api.cloudinary.com/v1_1/test2/video/private");
-
-  });
-
-  xit("should compute stoppoints correctly", function() {
+  it("should compute stoppoints correctly", function() {
     var el = $('<img/>');
-    expect(window.cloudinary.calc_stoppoint(el, 1)).toEqual(10);
-    expect(window.cloudinary.calc_stoppoint(el, 10)).toEqual(10);
-    expect(window.cloudinary.calc_stoppoint(el, 11)).toEqual(20);
-    window.cloudinary.config().stoppoints = [50, 150];
-    expect(window.cloudinary.calc_stoppoint(el, 1)).toEqual(50);
-    expect(window.cloudinary.calc_stoppoint(el, 100)).toEqual(150);
-    expect(window.cloudinary.calc_stoppoint(el, 180)).toEqual(150);
-    window.cloudinary.config().stoppoints = function(width) {
+    expect($.cloudinary.calc_stoppoint(el, 1)).toEqual(10);
+    expect($.cloudinary.calc_stoppoint(el, 10)).toEqual(10);
+    expect($.cloudinary.calc_stoppoint(el, 11)).toEqual(20);
+    $.cloudinary.config().stoppoints = [50, 150];
+    expect($.cloudinary.calc_stoppoint(el, 1)).toEqual(50);
+    expect($.cloudinary.calc_stoppoint(el, 100)).toEqual(150);
+    expect($.cloudinary.calc_stoppoint(el, 180)).toEqual(150);
+    $.cloudinary.config().stoppoints = function(width) {
       return width / 2;
     };
-    expect(window.cloudinary.calc_stoppoint(el, 100)).toEqual(50);
+    expect($.cloudinary.calc_stoppoint(el, 100)).toEqual(50);
     $(el).data("stoppoints", '70,140');
-    expect(window.cloudinary.calc_stoppoint(el, 1)).toEqual(70);
-    expect(window.cloudinary.calc_stoppoint(el, 100)).toEqual(140);
+    expect($.cloudinary.calc_stoppoint(el, 1)).toEqual(70);
+    expect($.cloudinary.calc_stoppoint(el, 100)).toEqual(140);
   });
 
+
+  it("should correctly resize responsive images", function(done) {
+    var container, img;
+    var dpr = $.cloudinary.device_pixel_ratio();
+    container = $('<div></div>').css({width: 101}).appendTo(fixtureContainer);
+
+    img = $.cloudinary.image("sample.jpg", {width: "auto", dpr: "auto", crop: "scale", responsive: true}).appendTo(container);
+    expect(img.attr('src')).toEqual(null);
+    $.cloudinary.responsive();
+    expect(img.attr('src')).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_scale,dpr_"+dpr+",w_101/sample.jpg");
+    container.css('width', 111);
+    expect(img.attr('src')).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_scale,dpr_"+dpr+",w_101/sample.jpg");
+    $(window).resize();
+    window.setTimeout(function(){
+      // wait(200)
+      expect(img.attr('src')).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_scale,dpr_"+dpr+",w_120/sample.jpg");
+      container.css('width', 101);
+      window.setTimeout(function(){
+        // wait(200)
+        expect(img.attr('src')).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_scale,dpr_"+dpr+",w_120/sample.jpg");
+        done();
+      }, 200);
+    }, 200);
+
+  });
+
+  it("should traverse up the DOM to find a parent that has clientWidth", function() {
+    var aContainer, divContainer, img;
+    divContainer = $('<div>').css({width: 101}).appendTo(fixtureContainer);
+    aContainer = $('<a>').appendTo(divContainer);
+    img = $.cloudinary.image("sample.jpg", {width: "auto", dpr: "auto", crop: "scale", responsive: true}).appendTo(aContainer);
+
+    $.cloudinary.responsive();
+    expect(img.attr('src')).not.toEqual(undefined);
+  });
 });

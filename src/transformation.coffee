@@ -5,6 +5,7 @@ class TransformationBase
 
     ###*
     # Parameters that are filtered out before passing the options to an HTML tag
+    # @see TransformationBase::toHtmlAttributes
     ###
     @PARAM_NAMES = [
       "angle"
@@ -66,9 +67,7 @@ class TransformationBase
       "x"
       "y"
       "zoom"
-
     ]
-
 
     trans = {}
     @whitelist = _(TransformationBase.prototype).functions().map(_.snakeCase).value()
@@ -76,14 +75,16 @@ class TransformationBase
     @toOptions = ()->
       _.mapValues(trans, (t)-> t.value)
 
+    ###
+    # Helper methods to create parameter methods
+    ###
+
     @param = (value, name, abbr, defaultValue, process) ->
       unless process?
         if _.isFunction(defaultValue)
           process = defaultValue
         else
           process = _.identity
-      #console.dir(@)
-      #console.dir(@trans)
       trans[name] = new Param(name, abbr, process).set(value)
       @
 
@@ -91,10 +92,6 @@ class TransformationBase
       process = defaultValue if _.isFunction(defaultValue) && !process?
       trans[name] = new RawParam(name, abbr, process).set(value)
       @
-
-  #  fetchParam: (value, name, abbr, defaultValue, process = _.identity) ->
-  #    process = defaultValue if _.isFunction(defaultValue) && !process?
-  #    @trans[name] = new FetchParam(name, abbr, process).set(value)
 
     @rangeParam = (value, name, abbr, defaultValue, process = _.identity) ->
       process = defaultValue if _.isFunction(defaultValue) && !process?
@@ -114,6 +111,11 @@ class TransformationBase
     @getValue = (name)->
       trans[name]?.value
 
+    ###*
+    # Get the parameter object for the given parameter name
+    # @param {String} name the name of the transformation parameter
+    # @returns {Param} the param object for the given name, or undefined
+    ###
     @get = (name)->
       trans[name]
 
@@ -218,30 +220,39 @@ class TransformationBase
 ###
 class Transformation extends TransformationBase
 
+  @new = (args)-> new Transformation(args)
+
   constructor: (options = {}) ->
-    parent = null
+    parent = undefined
     @otherOptions = {}
+
     super(options)
     @fromOptions(options)
 
     @setParent = (object)->
-      parent = object
+      @parent = object
+      @fromOptions( object.toOptions?())
+      this
 
     @getParent = ()->
-      parent
+      @parent
 
+  ###*
+  # Merge the provided options with own's options
+  ###
   fromOptions: (options = {}) ->
     options = _.cloneDeep(options)
     options = {transformation: options } if _.isString(options) || _.isArray(options)
-
     for key, opt of options
-      if _.includes( @whitelist, key)
-        this[_.camelCase(key)](opt)
-      else
-        @otherOptions[key] = opt
+      @set key, opt
     this
 
-  @new = (args)-> new Transformation(args)
+  set: (key, value)->
+    if _.includes( @whitelist, key)
+      this[_.camelCase(key)](value)
+    else
+      @otherOptions[key] = value
+    this
 
   hasLayer: ()->
     @getValue("overlay") || @getValue("underlay") || @getValue("angle")
@@ -264,8 +275,8 @@ class Transformation extends TransformationBase
 
 
   ###*
-  # Returns an options object with attributes for an HTML tag.
-  # @return Object
+  # Returns attributes for an HTML tag.
+  # @return PlainObject
   ###
   toHtmlAttributes: ()->
     options = _.omit( @otherOptions, @PARAM_NAMES)
@@ -287,6 +298,9 @@ class Transformation extends TransformationBase
   isValidParamName: (name) ->
     @whitelist.indexOf(name) >= 0
 
+  toHtml: ()->
+    getParent()?.toHtml?()
+
 
 # unless running on server side, export to the windows object
 unless module?.exports? || exports?
@@ -294,9 +308,3 @@ unless module?.exports? || exports?
 
 exports.Cloudinary ?= {}
 exports.Cloudinary.Transformation = Transformation
-
-
-#.transformation(t).url()
-#new ImageTag().transformation().width(100).render()
-#new Transformation().width(100).render()
-#c.imageTag("sample").transformation().width(100).render()

@@ -20,6 +20,11 @@ html_attrs = (attrs) ->
                  pair
               ).join ' '
 
+###*
+# Represents an HTML (DOM) tag
+#
+# Usage: tag = new HtmlTag( 'div', { 'width': 10})
+###
 class HtmlTag
 
   constructor: (name, public_id, options)->
@@ -34,13 +39,20 @@ class HtmlTag
     @options = _.cloneDeep(options)
     transformation = new Transformation(options)
     transformation.setParent(this)
-    @getTransformation = ()->
+    @transformation = ()->
       transformation
-
+  # REVIEW options and transformation will become out of sync. consider having one dynamically retrieved from the other.
   getOptions: ()-> @options
 
   attributes: ()->
-    @getTransformation().toHtmlAttributes()
+    @transformation().toHtmlAttributes()
+
+  setAttr: ( name, value)->
+    @transformation().set( name, value)
+    this
+
+  getAttr: (name)->
+    @attributes()[name]
 
   content: ()->
     ""
@@ -62,8 +74,13 @@ class ImageTag extends HtmlTag
   constructor: (@public_id, options={})->
     super("img", @public_id, options)
 
-  toHtml: ()->
-    @openTag()
+  closeTag: ()->
+    ""
+
+  attributes: ()->
+    attr = super() || []
+    attr['src'] ?= new Cloudinary(@options).url( @public_id)
+    attr
 
 class VideoTag extends HtmlTag
 
@@ -81,7 +98,7 @@ class VideoTag extends HtmlTag
     resource_type: "video"
     source_transformation: {}
     source_types: DEFAULT_VIDEO_SOURCE_TYPES
-    transformation: [] # TODO needed?
+    transformation: []
     type: 'upload'
   }
   constructor: (publicId, options={})->
@@ -127,9 +144,6 @@ class VideoTag extends HtmlTag
     sourceTypes = @options['source_types']
     poster = @options['poster']
 
-    if poster?.public_id?
-      poster_id = poster.public_id
-
     if poster?
       if _.isPlainObject(poster)
         if poster.public_id?
@@ -141,7 +155,7 @@ class VideoTag extends HtmlTag
 
     attr = super() || []
     attr = _.omit(attr, VIDEO_TAG_PARAMS)
-    unless  _.isArray(sourceTypes) # FIXME if sourceTypes is a string
+    unless  _.isArray(sourceTypes)
       attr["src"] = new Cloudinary(@options).url("#{@public_id}",
                                                  _.defaults({ resource_type: 'video', format: sourceTypes},
                                                             @options))

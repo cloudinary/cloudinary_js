@@ -6,6 +6,7 @@
   test_cloudinary_url = function(public_id, options, expected_url, expected_options) {
     var result;
     result = cloudinary.url(public_id, options);
+    expect(new Cloudinary.Transformation(options).toHtmlAttributes()).toEqual(expected_options);
     return expect(result).toEqual(expected_url);
   };
 
@@ -132,7 +133,7 @@
       describe(":offset", function() {
         var j, len1, name, params, range, results, subject, test, url_param;
         subject = function(options) {
-          return cloudinary.url_internal("video_id", options);
+          return cloudinary.url("video_id", options);
         };
         params = [['string range', 'so_2.66,eo_3.21', '2.66..3.21'], ['array', 'so_2.66,eo_3.21', [2.66, 3.21]], ['array of % strings', 'so_35p,eo_70p', ["35%", "70%"]], ['array of p strings', 'so_35p,eo_70p', ["35p", "70p"]], ['array of float percent', 'so_35.5p,eo_70.5p', ["35.5p", "70.5p"]]];
         results = [];
@@ -146,7 +147,7 @@
                 resource_type: 'video',
                 offset: range
               };
-              url = cloudinary.url_internal("video_id", options);
+              url = cloudinary.url("video_id", options);
               matched = /([^\/]*)\/video_id$/.exec(url);
               transformation = matched ? matched[1] : '';
               return expect(transformation.split(',').sort().reverse().join(',')).toEqual(url_param);

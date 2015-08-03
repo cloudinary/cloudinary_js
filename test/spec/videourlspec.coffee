@@ -1,7 +1,7 @@
 cloudinary = {}
 test_cloudinary_url = (public_id, options, expected_url, expected_options) ->
   result = cloudinary.url(public_id, options)
-#  expect(new Cloudinary.Transformation(options).toHtmlAttributes()).toEqual(expected_options)
+  expect(new Cloudinary.Transformation(options).toHtmlAttributes()).toEqual(expected_options)
   expect(result).toEqual(expected_url)
 
 describe "Cloudinary::Utils", ->
@@ -62,7 +62,7 @@ describe "Cloudinary::Utils", ->
 
     describe ":offset", ->
       subject = (options)->
-        cloudinary.url_internal("video_id", options)
+        cloudinary.url("video_id", options)
       params = [
         ['string range', 'so_2.66,eo_3.21', '2.66..3.21'],
         ['array', 'so_2.66,eo_3.21', [2.66, 3.21]],
@@ -78,7 +78,7 @@ describe "Cloudinary::Utils", ->
           it "should produce a range transformation in the format of #{url_param}", ->
             options = { resource_type: 'video', offset: range }
           #            expect( subject(options) ).to change { options }.to({})
-            url = cloudinary.url_internal("video_id", options)
+            url = cloudinary.url("video_id", options)
 #            expect( new Cloudinary.Transformation(options).toHtmlAttributes() ).toEqual( {})
             matched = /([^\/]*)\/video_id$/.exec(url)
             transformation = if matched then matched[1] else ''

@@ -66,11 +66,11 @@ class Cloudinary
   }
 
   constructor: (options)->
-    @configuration = new Cloudinary.Configuration(options)
+    configuration = new Cloudinary.Configuration(options)
 
-  # Provided for backward compatibility
-  config: (newConfig, newValue) ->
-    @configuration.config(newConfig, newValue)
+    # Provided for backward compatibility
+    @config= (newConfig, newValue) ->
+      configuration.config(newConfig, newValue)
 
   ###*
    * Return the resource type and action type based on the given configuration
@@ -121,7 +121,8 @@ class Cloudinary
     url
 
   url: (publicId, options = {}) ->
-    _.defaults(_.cloneDeep(options), @configuration.defaults(), DEFAULT_IMAGE_PARAMS)
+    options = _.cloneDeep(options)
+    _.defaults(options, @config(), DEFAULT_IMAGE_PARAMS)
     if options.type == 'fetch'
       options.fetch_format = options.fetch_format or options.format
       publicId = absolutize(publicId)
@@ -169,11 +170,6 @@ class Cloudinary
     ], null).join('/').replace(/([^:])\/+/g, '$1/')
 
 
-  ###*
-  # Generate a resource URL
-  ###
-  url: (publicId, options) ->
-    @url(publicId, options)
 
   video_url: (publicId, options) ->
     options = _.merge({ resource_type: 'video' }, options)
@@ -188,7 +184,7 @@ class Cloudinary
     new Transformation( options).flatten()
 
   image: (publicId, options={}) ->
-    options = _.defaults(_.cloneDeep(options),@configuration.defaults(), DEFAULT_IMAGE_PARAMS)
+    options = _.defaults(_.cloneDeep(options),@config(), DEFAULT_IMAGE_PARAMS)
     new ImageTag(publicId, options) # TODO need to call cloudinary_update
 
   video_thumbnail: (publicId, options) ->
@@ -210,7 +206,7 @@ class Cloudinary
     @image publicId, _.merge({type: 'fetch'}, options)
 
   video: (publicId, options = {}) ->
-    options = _.defaults(_.cloneDeep(options),@configuration.defaults(), DEFAULT_VIDEO_PARAMS)
+    options = _.defaults(_.cloneDeep(options),@config(), DEFAULT_VIDEO_PARAMS)
     publicId = publicId.replace(/\.(mp4|ogv|webm)$/, '')
 
     sourceTypes = options['source_types']
@@ -262,7 +258,7 @@ class Cloudinary
   responsive: (options) ->
     responsiveConfig = _.merge(responsiveConfig or {}, options)
     $('img.cld-responsive, img.cld-hidpi').cloudinary_update responsiveConfig
-    responsiveResize = get_config('responsive_resize', responsiveConfig, true)
+    responsiveResize = responsiveConfig['responsive_resize'] ? @config('responsive_resize') ? true
     if responsiveResize and !responsiveResizeInitialized
       responsiveConfig.resizing = responsiveResizeInitialized = true
       timeout = null
@@ -273,37 +269,33 @@ class Cloudinary
           if timeout
             clearTimeout timeout
             timeout = null
-          return
 
         run = ->
           $('img.cld-responsive').cloudinary_update responsiveConfig
-          return
 
         wait = ->
           reset()
           setTimeout (->
             reset()
             run()
-            return
           ), debounce
-          return
 
         if debounce
           wait()
         else
           run()
-        return
-    return
+
   calc_stoppoint: (element, width) ->
-    stoppoints = element.getAttribute('data-stoppoints') or @configuration.get('stoppoints') # REVIEW should we use $().data when available?
-    if typeof stoppoints == 'string'
-      stoppoints = _.map(stoppoints.split(','), _.parseInt).sort()
-      closestAbove stoppoints, width
+    stoppoints = getData(element,'stoppoints') or @config('stoppoints') or defaultStoppoints
+    if _.isFunction stoppoints  # REVIEW can 'stoppoints' have a function value or is this just for defaultStoppoints?
+      stoppoints(width)
     else
-      defaultStoppoints(width)
+      if _.isString stoppoints
+        stoppoints = _.map(stoppoints.split(','), _.parseInt).sort( (a,b) -> a - b )
+      closestAbove stoppoints, width
 
   device_pixel_ratio: ->
-    dpr = window.devicePixelRatio or 1
+    dpr = window?.devicePixelRatio or 1
     dprString = devicePixelRatioCache[dpr]
     if !dprString
       # Find closest supported DPR (to work correctly with device zoom)
@@ -411,11 +403,8 @@ class Cloudinary
   # Finds all `img` tags under each node and sets it up to provide the image through Cloudinary
   ###
   processImageTags: (nodes, options = {}) ->
-    options = _(options).cloneDeep().defaults(@configuration.config()).value()
-    images = _(nodes).map( (n)-> _.flatten(n.getElementsByTagName('img')))
-      .dropWhile( _.isEmpty)
-      .flatten()
-      .uniq()
+    options = _(options).cloneDeep().defaults(@config()).value()
+    images = _(nodes).filter( 'tagName': 'IMG')
       .forEach( (i) ->
         imgOptions = _.extend({
           width: i.getAttribute('width')
@@ -427,7 +416,7 @@ class Cloudinary
         delete imgOptions['src']
         url = @url(publicId, imgOptions)
         imgOptions = new Transformation(imgOptions).toHtmlAttributes() # FIXME include own config
-        i.setAttribute('data-src-cache', url)
+        setData(i, 'src-cache', url)
         i.setAttribute('width', imgOptions.width)
         i.setAttribute('height', imgOptions.height)
       ).value()
@@ -438,7 +427,8 @@ class Cloudinary
   # Provide a transformation object, initialized with own's options, for chaining purposes.
   # @return {Transformation}
   ###
-  transformation: (options={})->
+  transformation: (options)->
+    @config.merge( options)
     Transformation.new( @config().toOptions()).setParent( this)
 
 global = module?.exports ? window

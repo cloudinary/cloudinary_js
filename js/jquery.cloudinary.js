@@ -9,17 +9,588 @@
     if (typeof define === 'function' && define.amd) {
         // Register as an anonymous AMD module:
         define([
-            'lodash'
+            'lodash',
+            'jquery'
         ], factory);
     } else {
         // Browser globals:
-        factory(_);
+        factory(_, jQuery);
     }
-}(function (_) {
+}(function (_, $) {
 ;
-var ArrayParam, Cloudinary, Configuration, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, cloudinary_config, config, crc32, exports, global, process_video_params, ref, utf8_encode,
+var ArrayParam, Cloudinary, CloudinaryJQuery, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, VideoTag, cloudinary_config, config, crc32, exports, getAttribute, getData, global, html_attrs, process_video_params, ref, setAttribute, setData, toAttribute, utf8_encode, webp,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
+
+getData = function(element, name) {
+  if (_.isElement(element)) {
+    return element.getAttribute("data-" + name);
+  } else if (element.jquery != null) {
+    return element.data(name);
+  }
+};
+
+setData = function(element, name, value) {
+  if (_.isElement(element)) {
+    return element.setAttribute("data-" + name, value);
+  } else if (element.jquery != null) {
+    return element.data(name, value);
+  }
+};
+
+getAttribute = function(element, name) {
+  if (_.isElement(element)) {
+    return element.getAttribute(name);
+  } else if (element.jquery != null) {
+    return element.attr(name);
+  }
+};
+
+setAttribute = function(element, name, value) {
+  if (_.isElement(element)) {
+    return element.setAttribute(name, value);
+  } else if (element.jquery != null) {
+    return element.attr(name, value);
+  }
+};
+
+
+/*
+  Main Cloudinary class
+
+  Backward compatibility:
+  Must provide public keys
+   * CF_SHARED_CDN
+   * OLD_AKAMAI_SHARED_CDN
+   * AKAMAI_SHARED_CDN
+   * SHARED_CDN
+   * config
+   * url
+   * video_url
+   * video_thumbnail_url
+   * transformation_string
+   * image
+   * video_thumbnail
+   * facebook_profile_image
+   * twitter_profile_image
+   * twitter_name_profile_image
+   * gravatar_image
+   * fetch_image
+   * video
+   * sprite_css
+   * responsive
+   * calc_stoppoint
+   * device_pixel_ratio
+   * supported_dpr_values
+ */
+
+Cloudinary = (function() {
+  var AKAMAI_SHARED_CDN, CF_SHARED_CDN, DEFAULT_IMAGE_PARAMS, DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_PARAMS, DEFAULT_VIDEO_SOURCE_TYPES, OLD_AKAMAI_SHARED_CDN, SHARED_CDN, absolutize, cdnSubdomainNumber, closestAbove, cloudinaryUrlPrefix, defaultStoppoints, devicePixelRatioCache, finalizeResourceType, htmlAttrs, joinPair, responsiveConfig, responsiveResizeInitialized;
+
+  CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
+
+  OLD_AKAMAI_SHARED_CDN = "cloudinary-a.akamaihd.net";
+
+  AKAMAI_SHARED_CDN = "res.cloudinary.com";
+
+  SHARED_CDN = AKAMAI_SHARED_CDN;
+
+  DEFAULT_POSTER_OPTIONS = {
+    format: 'jpg',
+    resource_type: 'video'
+  };
+
+  DEFAULT_VIDEO_SOURCE_TYPES = ['webm', 'mp4', 'ogv'];
+
+  devicePixelRatioCache = {};
+
+  responsiveConfig = {};
+
+  responsiveResizeInitialized = true;
+
+
+  /**
+   * Defaults values for parameters.
+   *
+   * (Previously defined using option_consume() )
+   */
+
+  DEFAULT_IMAGE_PARAMS = {
+    resource_type: "image",
+    transformation: [],
+    type: 'upload'
+  };
+
+
+  /**
+   * Defaults values for parameters.
+   *
+   * (Previously defined using option_consume() )
+   */
+
+  DEFAULT_VIDEO_PARAMS = {
+    fallback_content: '',
+    resource_type: "video",
+    source_transformation: {},
+    source_types: DEFAULT_VIDEO_SOURCE_TYPES,
+    transformation: [],
+    type: 'upload'
+  };
+
+  function Cloudinary(options) {
+    var configuration;
+    configuration = new Cloudinary.Configuration(options);
+    this.config = function(newConfig, newValue) {
+      return configuration.config(newConfig, newValue);
+    };
+  }
+
+
+  /**
+   * Return the resource type and action type based on the given configuration
+   * @param resource_type
+   * @param type
+   * @param url_suffix
+   * @param use_root_path
+   * @param shorten
+   * @returns {string} resource_type/type
+   */
+
+  finalizeResourceType = function(resourceType, type, urlSuffix, useRootPath, shorten) {
+    var options;
+    if (_.isPlainObject(resourceType)) {
+      options = resourceType;
+      resourceType = options.resource_type;
+      type = options.type;
+      urlSuffix = options.url_suffix;
+      useRootPath = options.use_root_path;
+      shorten = options.shorten;
+    }
+    if (type == null) {
+      type = 'upload';
+    }
+    if (urlSuffix != null) {
+      if (resourceType === 'image' && type === 'upload') {
+        resourceType = "images";
+        type = null;
+      } else if (resourceType === 'raw' && type === 'upload') {
+        resourceType = 'files';
+        type = null;
+      } else {
+        throw new Error("URL Suffix only supported for image/upload and raw/upload");
+      }
+    }
+    if (useRootPath) {
+      if (resourceType === 'image' && type === 'upload' || resourceType === "images") {
+        resourceType = null;
+        type = null;
+      } else {
+        throw new Error("Root path only supported for image/upload");
+      }
+    }
+    if (shorten && resourceType === 'image' && type === 'upload') {
+      resourceType = 'iu';
+      type = null;
+    }
+    return [resourceType, type].join("/");
+  };
+
+  absolutize = function(url) {
+    var prefix;
+    if (!url.match(/^https?:\//)) {
+      prefix = document.location.protocol + '//' + document.location.host;
+      if (url[0] === '?') {
+        prefix += document.location.pathname;
+      } else if (url[0] !== '/') {
+        prefix += document.location.pathname.replace(/\/[^\/]*$/, '/');
+      }
+      url = prefix + url;
+    }
+    return url;
+  };
+
+  Cloudinary.prototype.url = function(publicId, options) {
+    var prefix, ref, resourceTypeAndType, transformation, transformationString, url, version;
+    if (options == null) {
+      options = {};
+    }
+    options = _.cloneDeep(options);
+    _.defaults(options, this.config(), DEFAULT_IMAGE_PARAMS);
+    if (options.type === 'fetch') {
+      options.fetch_format = options.fetch_format || options.format;
+      publicId = absolutize(publicId);
+    }
+    transformation = new Transformation(options);
+    transformationString = transformation.flatten();
+    if (!options.cloud_name) {
+      throw 'Unknown cloud_name';
+    }
+    if (options.url_suffix && !options.private_cdn) {
+      throw 'URL Suffix only supported in private CDN';
+    }
+    if (publicId.search('/') >= 0 && !publicId.match(/^v[0-9]+/) && !publicId.match(/^https?:\//) && !((ref = options.version) != null ? ref.toString() : void 0)) {
+      options.version = 1;
+    }
+    if (publicId.match(/^https?:/)) {
+      if (options.type === 'upload' || options.type === 'asset') {
+        url = publicId;
+      } else {
+        publicId = encodeURIComponent(publicId).replace(/%3A/g, ':').replace(/%2F/g, '/');
+      }
+    } else {
+      publicId = encodeURIComponent(decodeURIComponent(publicId)).replace(/%3A/g, ':').replace(/%2F/g, '/');
+      if (options.url_suffix) {
+        if (options.url_suffix.match(/[\.\/]/)) {
+          throw 'url_suffix should not include . or /';
+        }
+        publicId = publicId + '/' + options.url_suffix;
+      }
+      if (options.format) {
+        if (!options.trust_public_id) {
+          publicId = publicId.replace(/\.(jpg|png|gif|webp)$/, '');
+        }
+        publicId = publicId + '.' + options.format;
+      }
+    }
+    prefix = cloudinaryUrlPrefix(publicId, options);
+    resourceTypeAndType = finalizeResourceType(options.resource_type, options.type, options.url_suffix, options.use_root_path, options.shorten);
+    version = options.version ? 'v' + options.version : '';
+    return url || _.filter([prefix, resourceTypeAndType, transformationString, version, publicId], null).join('/').replace(/([^:])\/+/g, '$1/');
+  };
+
+  Cloudinary.prototype.video_url = function(publicId, options) {
+    options = _.merge({
+      resource_type: 'video'
+    }, options);
+    return this.url(publicId, options);
+  };
+
+  Cloudinary.prototype.video_thumbnail_url = function(publicId, options) {
+    options = _.merge({}, DEFAULT_POSTER_OPTIONS, options);
+    return this.url(publicId, options);
+  };
+
+  Cloudinary.prototype.transformation_string = function(options) {
+    options = _.cloneDeep(options);
+    return new Transformation(options).flatten();
+  };
+
+  Cloudinary.prototype.image = function(publicId, options) {
+    if (options == null) {
+      options = {};
+    }
+    options = _.defaults(_.cloneDeep(options), this.config(), DEFAULT_IMAGE_PARAMS);
+    return new ImageTag(publicId, options);
+  };
+
+  Cloudinary.prototype.video_thumbnail = function(publicId, options) {
+    return image(publicId, _.extend({}, DEFAULT_POSTER_OPTIONS, options));
+  };
+
+  Cloudinary.prototype.facebook_profile_image = function(publicId, options) {
+    return this.image(publicId, _.merge({
+      type: 'facebook'
+    }, options));
+  };
+
+  Cloudinary.prototype.twitter_profile_image = function(publicId, options) {
+    return this.image(publicId, _.merge({
+      type: 'twitter'
+    }, options));
+  };
+
+  Cloudinary.prototype.twitter_name_profile_image = function(publicId, options) {
+    return this.image(publicId, _.merge({
+      type: 'twitter_name'
+    }, options));
+  };
+
+  Cloudinary.prototype.gravatar_image = function(publicId, options) {
+    return this.image(publicId, _.merge({
+      type: 'gravatar'
+    }, options));
+  };
+
+  Cloudinary.prototype.fetch_image = function(publicId, options) {
+    return this.image(publicId, _.merge({
+      type: 'fetch'
+    }, options));
+  };
+
+  Cloudinary.prototype.video = function(publicId, options) {
+    var attributes, fallback, html, i, mimeType, source, sourceTransformation, sourceTypes, source_type, src, transformation, videoOptions, videoType;
+    if (options == null) {
+      options = {};
+    }
+    options = _.defaults(_.cloneDeep(options), this.config(), DEFAULT_VIDEO_PARAMS);
+    publicId = publicId.replace(/\.(mp4|ogv|webm)$/, '');
+    sourceTypes = options['source_types'];
+    sourceTransformation = options['source_transformation'];
+    fallback = options['fallback_content'];
+    videoOptions = _.cloneDeep(options);
+    if (videoOptions.hasOwnProperty('poster')) {
+      if (_.isPlainObject(videoOptions.poster)) {
+        if (videoOptions.poster.hasOwnProperty('public_id')) {
+          videoOptions.poster = this.url(videoOptions.poster.public_id, videoOptions.poster);
+        } else {
+          videoOptions.poster = this.url(publicId, _.defaults(videoOptions.poster, DEFAULT_POSTER_OPTIONS));
+        }
+      }
+    } else {
+      videoOptions.poster = this.url(publicId, _.defaults(options, DEFAULT_POSTER_OPTIONS));
+    }
+    if (!videoOptions.poster) {
+      delete videoOptions.poster;
+    }
+    source = publicId;
+    if (!_.isArray(sourceTypes)) {
+      videoOptions.src = this.url(source + "." + sourceTypes, videoOptions);
+    }
+    attributes = new Transformation(videoOptions).toHtmlAttributes();
+    html = '<video ' + htmlAttrs(attributes) + '>';
+    if (_.isArray(sourceTypes)) {
+      i = 0;
+      while (i < sourceTypes.length) {
+        source_type = sourceTypes[i];
+        transformation = sourceTransformation[source_type] || {};
+        src = this.url("" + source, _.defaults({
+          resource_type: 'video',
+          format: source_type
+        }, options, transformation));
+        videoType = source_type === 'ogv' ? 'ogg' : source_type;
+        mimeType = 'video/' + videoType;
+        html = html + '<source ' + htmlAttrs({
+          src: src,
+          type: mimeType
+        }) + '>';
+        i++;
+      }
+    }
+    html = html + fallback;
+    html = html + '</video>';
+    return html;
+  };
+
+  Cloudinary.prototype.sprite_css = function(publicId, options) {
+    options = _.merge({
+      type: 'sprite'
+    }, options);
+    if (!publicId.match(/.css$/)) {
+      options.format = 'css';
+    }
+    return this.url(publicId, options);
+  };
+
+  Cloudinary.prototype.responsive = function(options) {
+    var ref, ref1, responsiveResize, timeout;
+    responsiveConfig = _.merge(responsiveConfig || {}, options);
+    $('img.cld-responsive, img.cld-hidpi').cloudinary_update(responsiveConfig);
+    responsiveResize = (ref = (ref1 = responsiveConfig['responsive_resize']) != null ? ref1 : this.config('responsive_resize')) != null ? ref : true;
+    if (responsiveResize && !responsiveResizeInitialized) {
+      responsiveConfig.resizing = responsiveResizeInitialized = true;
+      timeout = null;
+      return $(window).on('resize', function() {
+        var debounce, reset, run, wait;
+        debounce = get_config('responsive_debounce', responsiveConfig, 100);
+        reset = function() {
+          if (timeout) {
+            clearTimeout(timeout);
+            return timeout = null;
+          }
+        };
+        run = function() {
+          return $('img.cld-responsive').cloudinary_update(responsiveConfig);
+        };
+        wait = function() {
+          reset();
+          return setTimeout((function() {
+            reset();
+            return run();
+          }), debounce);
+        };
+        if (debounce) {
+          return wait();
+        } else {
+          return run();
+        }
+      });
+    }
+  };
+
+  Cloudinary.prototype.calc_stoppoint = function(element, width) {
+    var stoppoints;
+    stoppoints = getData(element, 'stoppoints') || this.config('stoppoints') || defaultStoppoints;
+    if (_.isFunction(stoppoints)) {
+      return stoppoints(width);
+    } else {
+      if (_.isString(stoppoints)) {
+        stoppoints = _.map(stoppoints.split(','), _.parseInt).sort(function(a, b) {
+          return a - b;
+        });
+      }
+      return closestAbove(stoppoints, width);
+    }
+  };
+
+  Cloudinary.prototype.device_pixel_ratio = function() {
+    var dpr, dprString, dprUsed;
+    dpr = (typeof window !== "undefined" && window !== null ? window.devicePixelRatio : void 0) || 1;
+    dprString = devicePixelRatioCache[dpr];
+    if (!dprString) {
+      dprUsed = closestAbove(this.supported_dpr_values, dpr);
+      dprString = dprUsed.toString();
+      if (dprString.match(/^\d+$/)) {
+        dprString += '.0';
+      }
+      devicePixelRatioCache[dpr] = dprString;
+    }
+    return dprString;
+  };
+
+  Cloudinary.prototype.supported_dpr_values = [0.75, 1.0, 1.3, 1.5, 2.0, 3.0];
+
+  defaultStoppoints = function(width) {
+    return 10 * Math.ceil(width / 10);
+  };
+
+  closestAbove = function(list, value) {
+    var i;
+    i = list.length - 2;
+    while (i >= 0 && list[i] >= value) {
+      i--;
+    }
+    return list[i + 1];
+  };
+
+  cdnSubdomainNumber = function(publicId) {
+    return crc32(publicId) % 5 + 1;
+  };
+
+  cloudinaryUrlPrefix = function(publicId, options) {
+    var cdnPart, host, path, protocol, ref, ref1, subdomain;
+    if (((ref = options.cloud_name) != null ? ref.indexOf("/") : void 0) === 0) {
+      return '/res' + options.cloud_name;
+    }
+    protocol = "http://";
+    cdnPart = "";
+    subdomain = "res";
+    host = ".cloudinary.com";
+    path = "/" + options.cloud_name;
+    if (options.protocol) {
+      protocol = options.protocol + '//';
+    } else if ((typeof window !== "undefined" && window !== null ? (ref1 = window.location) != null ? ref1.protocol : void 0 : void 0) === 'file:') {
+      protocol = 'file://';
+    }
+    if (options.private_cdn) {
+      cdnPart = options.cloud_name + "-";
+      path = "";
+    }
+    if (options.cdn_subdomain) {
+      subdomain = "res-" + cdnSubdomainNumber(publicId);
+    }
+    if (options.secure) {
+      protocol = "https://";
+      if (options.secure_cdn_subdomain === false) {
+        subdomain = "res";
+      }
+      if ((options.secure_distribution != null) && options.secure_distribution !== OLD_AKAMAI_SHARED_CDN && options.secure_distribution !== SHARED_CDN) {
+        cdnPart = "";
+        subdomain = "";
+        host = options.secure_distribution;
+      }
+    } else if (options.cname) {
+      protocol = "http://";
+      cdnPart = "";
+      subdomain = options.cdn_subdomain ? 'a' + ((crc32(publicId) % 5) + 1) + '.' : '';
+      host = options.cname;
+    }
+    return [protocol, cdnPart, subdomain, host, path].join("");
+  };
+
+  joinPair = function(key, value) {
+    if (!value) {
+      return void 0;
+    } else if (value === true) {
+      return key;
+    } else {
+      return key + '="' + value + '"';
+    }
+  };
+
+
+  /**
+   * combine key and value from the `attr` to generate an HTML tag attributes string.
+   * `Transformation::toHtmlTagOptions` is used to filter out transformation and configuration keys.
+   * @param {Object} attr
+   * @return {String} the attributes in the format `'key1="value1" key2="value2"'`
+   */
+
+  htmlAttrs = function(attrs) {
+    var pairs;
+    pairs = _.map(attrs, function(value, key) {
+      return joinPair(key, value);
+    });
+    pairs.sort();
+    return pairs.filter(function(pair) {
+      return pair;
+    }).join(' ');
+  };
+
+
+  /**
+   * similar to `$.fn.cloudinary`
+   * Finds all `img` tags under each node and sets it up to provide the image through Cloudinary
+   */
+
+  Cloudinary.prototype.processImageTags = function(nodes, options) {
+    var images;
+    if (options == null) {
+      options = {};
+    }
+    options = _(options).cloneDeep().defaults(this.config()).value();
+    images = _(nodes).filter({
+      'tagName': 'IMG'
+    }).forEach(function(i) {
+      var imgOptions, publicId, url;
+      imgOptions = _.extend({
+        width: i.getAttribute('width'),
+        height: i.getAttribute('height'),
+        src: i.getAttribute('src')
+      }, options);
+      publicId = imgOptions['source'] || imgOptions['src'];
+      delete imgOptions['source'];
+      delete imgOptions['src'];
+      url = this.url(publicId, imgOptions);
+      imgOptions = new Transformation(imgOptions).toHtmlAttributes();
+      setData(i, 'src-cache', url);
+      i.setAttribute('width', imgOptions.width);
+      return i.setAttribute('height', imgOptions.height);
+    }).value();
+    return this;
+  };
+
+
+  /**
+   * Provide a transformation object, initialized with own's options, for chaining purposes.
+   * @return {Transformation}
+   */
+
+  Cloudinary.prototype.transformation = function(options) {
+    this.config.merge(options);
+    return Transformation["new"](this.config().toOptions()).setParent(this);
+  };
+
+  return Cloudinary;
+
+})();
+
+global = (ref = typeof module !== "undefined" && module !== null ? module.exports : void 0) != null ? ref : window;
+
+if (global.Cloudinary) {
+  _.extend(Cloudinary, global.Cloudinary);
+}
+
+global.Cloudinary = Cloudinary;
 
 crc32 = function(str) {
   var crc, i, iTop, table, x, y;
@@ -103,10 +674,10 @@ Configuration = (function() {
    *
    * (Previously defined using option_consume() )
    */
-  var DEFAULT_CONFIGURATION_PARAMS, ref;
+  var DEFAULT_CONFIGURATION_PARAMS, ref1;
 
   DEFAULT_CONFIGURATION_PARAMS = {
-    secure: (typeof window !== "undefined" && window !== null ? (ref = window.location) != null ? ref.protocol : void 0 : void 0) === 'https:'
+    secure: (typeof window !== "undefined" && window !== null ? (ref1 = window.location) != null ? ref1.protocol : void 0 : void 0) === 'https:'
   };
 
   Configuration.CONFIG_PARAMS = ["api_key", "api_secret", "cdn_subdomain", "cloud_name", "cname", "private_cdn", "protocol", "resource_type", "responsive_width", "secure", "secure_cdn_subdomain", "secure_distribution", "shorten", "type", "url_suffix", "use_root_path", "version"];
@@ -140,7 +711,8 @@ Configuration = (function() {
     if (config == null) {
       config = {};
     }
-    return _.assign(this.configuration, config);
+    _.assign(this.configuration, _.cloneDeep(config));
+    return this;
   };
 
   Configuration.prototype.fromDocument = function() {
@@ -156,8 +728,8 @@ Configuration = (function() {
   };
 
   Configuration.prototype.fromEnvironment = function() {
-    var cloudinary, cloudinary_url, k, ref1, ref2, uri, v;
-    cloudinary_url = typeof process !== "undefined" && process !== null ? (ref1 = process.env) != null ? ref1.CLOUDINARY_URL : void 0 : void 0;
+    var cloudinary, cloudinary_url, k, ref2, ref3, uri, v;
+    cloudinary_url = typeof process !== "undefined" && process !== null ? (ref2 = process.env) != null ? ref2.CLOUDINARY_URL : void 0 : void 0;
     if (cloudinary_url != null) {
       uri = require('url').parse(cloudinary_url, true);
       cloudinary = {
@@ -168,9 +740,9 @@ Configuration = (function() {
         secure_distribution: uri.pathname && uri.pathname.substring(1)
       };
       if (uri.query != null) {
-        ref2 = uri.query;
-        for (k in ref2) {
-          v = ref2[k];
+        ref3 = uri.query;
+        for (k in ref3) {
+          v = ref3[k];
           cloudinary[k] = v;
         }
       }
@@ -200,6 +772,10 @@ Configuration = (function() {
 
   Configuration.prototype.defaults = function() {
     return _.pick(this.configuration, ["cdn_subdomain", "cloud_name", "cname", "dpr", "fallback_content", "private_cdn", "protocol", "resource_type", "responsive_width", "secure", "secure_cdn_subdomain", "secure_distribution", "shorten", "source_transformation", "source_types", "transformation", "type", "use_root_path"]);
+  };
+
+  Configuration.prototype.toOptions = function() {
+    return this.configuration;
   };
 
   return Configuration;
@@ -293,11 +869,11 @@ ArrayParam = (function(superClass) {
     var flat, t;
     if (this.short != null) {
       flat = (function() {
-        var j, len, ref, results;
-        ref = this.value;
+        var j, len, ref1, results;
+        ref1 = this.value;
         results = [];
-        for (j = 0, len = ref.length; j < len; j++) {
-          t = ref[j];
+        for (j = 0, len = ref1.length; j < len; j++) {
+          t = ref1[j];
           if (_.isFunction(t.flatten)) {
             results.push(t.flatten());
           } else {
@@ -339,16 +915,16 @@ TransformationParam = (function(superClass) {
   TransformationParam.prototype.flatten = function() {
     var result, t;
     result = (function() {
-      var j, len, ref, results;
+      var j, len, ref1, results;
       if (_.isEmpty(this.value)) {
         return null;
       } else if (_.all(this.value, _.isString)) {
         return [this.short + "_" + (this.value.join(this.sep))];
       } else {
-        ref = this.value;
+        ref1 = this.value;
         results = [];
-        for (j = 0, len = ref.length; j < len; j++) {
-          t = ref[j];
+        for (j = 0, len = ref1.length; j < len; j++) {
+          t = ref1[j];
           if (t != null) {
             if (_.isString(t)) {
               results.push(this.short + "_" + t);
@@ -453,6 +1029,7 @@ TransformationBase = (function() {
 
     /**
      * Parameters that are filtered out before passing the options to an HTML tag
+     * @see TransformationBase::toHtmlAttributes
      */
     this.PARAM_NAMES = ["angle", "api_key", "api_secret", "audio_codec", "audio_frequency", "background", "bit_rate", "border", "cdn_subdomain", "cloud_name", "cname", "color", "color_space", "crop", "default_image", "delay", "density", "dpr", "duration", "effect", "end_offset", "fallback_content", "fetch_format", "format", "flags", "gravity", "height", "offset", "opacity", "overlay", "page", "prefix", "private_cdn", "protocol", "quality", "radius", "raw_transformation", "resource_type", "responsive_width", "secure", "secure_cdn_subdomain", "secure_distribution", "shorten", "size", "source_transformation", "source_types", "start_offset", "transformation", "type", "underlay", "url_suffix", "use_root_path", "version", "video_codec", "video_sampling", "width", "x", "y", "zoom"];
     trans = {};
@@ -462,6 +1039,10 @@ TransformationBase = (function() {
         return t.value;
       });
     };
+
+    /*
+     * Helper methods to create parameter methods
+     */
     this.param = function(value, name, abbr, defaultValue, process) {
       if (process == null) {
         if (_.isFunction(defaultValue)) {
@@ -523,9 +1104,15 @@ TransformationBase = (function() {
       return this;
     };
     this.getValue = function(name) {
-      var ref;
-      return (ref = trans[name]) != null ? ref.value : void 0;
+      var ref1;
+      return (ref1 = trans[name]) != null ? ref1.value : void 0;
     };
+
+    /**
+     * Get the parameter object for the given parameter name
+     * @param {String} name the name of the transformation parameter
+     * @returns {Param} the param object for the given name, or undefined
+     */
     this.get = function(name) {
       return trans[name];
     };
@@ -668,8 +1255,8 @@ TransformationBase = (function() {
   };
 
   TransformationBase.prototype.offset = function(value) {
-    var end_o, ref, start_o;
-    ref = _.isFunction(value != null ? value.split : void 0) ? value.split('..') : _.isArray(value) ? value : [null, null], start_o = ref[0], end_o = ref[1];
+    var end_o, ref1, start_o;
+    ref1 = _.isFunction(value != null ? value.split : void 0) ? value.split('..') : _.isArray(value) ? value : [null, null], start_o = ref1[0], end_o = ref1[1];
     if (start_o != null) {
       this.startOffset(start_o);
     }
@@ -707,9 +1294,9 @@ TransformationBase = (function() {
   };
 
   TransformationBase.prototype.size = function(value) {
-    var height, ref, width;
+    var height, ref1, width;
     if (_.isFunction(value != null ? value.split : void 0)) {
-      ref = value.split('x'), width = ref[0], height = ref[1];
+      ref1 = value.split('x'), width = ref1[0], height = ref1[1];
       this.width(width);
       return this.height(height);
     }
@@ -779,22 +1366,33 @@ TransformationBase = (function() {
 Transformation = (function(superClass) {
   extend(Transformation, superClass);
 
+  Transformation["new"] = function(args) {
+    return new Transformation(args);
+  };
+
   function Transformation(options) {
     var parent;
     if (options == null) {
       options = {};
     }
-    parent = null;
+    parent = void 0;
     this.otherOptions = {};
     Transformation.__super__.constructor.call(this, options);
     this.fromOptions(options);
     this.setParent = function(object) {
-      return parent = object;
+      this.parent = object;
+      this.fromOptions(typeof object.toOptions === "function" ? object.toOptions() : void 0);
+      return this;
     };
     this.getParent = function() {
-      return parent;
+      return this.parent;
     };
   }
+
+
+  /**
+   * Merge the provided options with own's options
+   */
 
   Transformation.prototype.fromOptions = function(options) {
     var key, opt;
@@ -809,17 +1407,18 @@ Transformation = (function(superClass) {
     }
     for (key in options) {
       opt = options[key];
-      if (_.includes(this.whitelist, key)) {
-        this[_.camelCase(key)](opt);
-      } else {
-        this.otherOptions[key] = opt;
-      }
+      this.set(key, opt);
     }
     return this;
   };
 
-  Transformation["new"] = function(args) {
-    return new Transformation(args);
+  Transformation.prototype.set = function(key, value) {
+    if (_.includes(this.whitelist, key)) {
+      this[_.camelCase(key)](value);
+    } else {
+      this.otherOptions[key] = value;
+    }
+    return this;
   };
 
   Transformation.prototype.hasLayer = function() {
@@ -834,12 +1433,12 @@ Transformation = (function(superClass) {
       resultArray = resultArray.concat(transformations.flatten());
     }
     transformationString = (function() {
-      var j, len, ref, ref1, results;
-      ref = this.keys();
+      var j, len, ref1, ref2, results;
+      ref1 = this.keys();
       results = [];
-      for (j = 0, len = ref.length; j < len; j++) {
-        t = ref[j];
-        results.push((ref1 = this.get(t)) != null ? ref1.flatten() : void 0);
+      for (j = 0, len = ref1.length; j < len; j++) {
+        t = ref1[j];
+        results.push((ref2 = this.get(t)) != null ? ref2.flatten() : void 0);
       }
       return results;
     }).call(this);
@@ -858,16 +1457,16 @@ Transformation = (function(superClass) {
 
 
   /**
-   * Returns an options object with attributes for an HTML tag.
-   * @return Object
+   * Returns attributes for an HTML tag.
+   * @return PlainObject
    */
 
   Transformation.prototype.toHtmlAttributes = function() {
-    var height, j, k, key, len, options, ref, v, width;
+    var height, j, k, key, len, options, ref1, v, width;
     options = _.omit(this.otherOptions, this.PARAM_NAMES);
-    ref = _.difference(this.keys(), this.PARAM_NAMES);
-    for (j = 0, len = ref.length; j < len; j++) {
-      key = ref[j];
+    ref1 = _.difference(this.keys(), this.PARAM_NAMES);
+    for (j = 0, len = ref1.length; j < len; j++) {
+      key = ref1[j];
       options[key] = this.get(key).value;
     }
     for (k in options) {
@@ -899,6 +1498,11 @@ Transformation = (function(superClass) {
     return this.whitelist.indexOf(name) >= 0;
   };
 
+  Transformation.prototype.toHtml = function() {
+    var ref1;
+    return (ref1 = getParent()) != null ? typeof ref1.toHtml === "function" ? ref1.toHtml() : void 0 : void 0;
+  };
+
   return Transformation;
 
 })(TransformationBase);
@@ -913,67 +1517,144 @@ if (exports.Cloudinary == null) {
 
 exports.Cloudinary.Transformation = Transformation;
 
+toAttribute = function(key, value) {
+  if (!value) {
+    return void 0;
+  } else if (value === true) {
+    return key;
+  } else {
+    return key + "=\"" + value + "\"";
+  }
+};
 
-/*
-  Main Cloudinary class
 
-  Backward compatibility:
-  Must provide public keys
-   * CF_SHARED_CDN
-   * OLD_AKAMAI_SHARED_CDN
-   * AKAMAI_SHARED_CDN
-   * SHARED_CDN
-   * config
-   * url
-   * video_url
-   * video_thumbnail_url
-   * transformation_string
-   * image
-   * video_thumbnail
-   * facebook_profile_image
-   * twitter_profile_image
-   * twitter_name_profile_image
-   * gravatar_image
-   * fetch_image
-   * video
-   * sprite_css
-   * responsive
-   * calc_stoppoint
-   * device_pixel_ratio
-   * supported_dpr_values
+/**
+ * combine key and value from the `attr` to generate an HTML tag attributes string.
+ * `Transformation::toHtmlTagOptions` is used to filter out transformation and configuration keys.
+ * @param {Object} attr
+ * @return {String} the attributes in the format `'key1="value1" key2="value2"'`
  */
 
-Cloudinary = (function() {
-  var AKAMAI_SHARED_CDN, CF_SHARED_CDN, DEFAULT_IMAGE_PARAMS, DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_PARAMS, DEFAULT_VIDEO_SOURCE_TYPES, OLD_AKAMAI_SHARED_CDN, SHARED_CDN, absolutize, cdn_subdomain_number, closest_above, cloudinary_url, cloudinary_url_prefix, default_stoppoints, device_pixel_ratio_cache, finalizeResourceType, html_attrs, join_pair, prepare_html_url, unsigned_upload_tag;
+html_attrs = function(attrs) {
+  var pairs;
+  pairs = _.map(attrs, function(value, key) {
+    return toAttribute(key, value);
+  });
+  pairs.sort();
+  return pairs.filter(function(pair) {
+    return pair;
+  }).join(' ');
+};
 
-  CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
 
-  OLD_AKAMAI_SHARED_CDN = "cloudinary-a.akamaihd.net";
+/**
+ * Represents an HTML (DOM) tag
+ *
+ * Usage: tag = new HtmlTag( 'div', { 'width': 10})
+ */
 
-  AKAMAI_SHARED_CDN = "res.cloudinary.com";
+HtmlTag = (function() {
+  function HtmlTag(name, public_id, options) {
+    var transformation;
+    this.name = name;
+    this.public_id = public_id;
+    if (options == null) {
+      if (_.isPlainObject(public_id)) {
+        options = public_id;
+        this.public_id = void 0;
+      } else {
+        options = {};
+      }
+    }
+    this.options = _.cloneDeep(options);
+    transformation = new Transformation(options);
+    transformation.setParent(this);
+    this.transformation = function() {
+      return transformation;
+    };
+  }
 
-  SHARED_CDN = AKAMAI_SHARED_CDN;
+  HtmlTag.prototype.getOptions = function() {
+    return this.options;
+  };
+
+  HtmlTag.prototype.attributes = function() {
+    return this.transformation().toHtmlAttributes();
+  };
+
+  HtmlTag.prototype.setAttr = function(name, value) {
+    this.transformation().set(name, value);
+    return this;
+  };
+
+  HtmlTag.prototype.getAttr = function(name) {
+    return this.attributes()[name];
+  };
+
+  HtmlTag.prototype.content = function() {
+    return "";
+  };
+
+  HtmlTag.prototype.openTag = function() {
+    return "<" + this.name + " " + (html_attrs(this.attributes())) + ">";
+  };
+
+  HtmlTag.prototype.closeTag = function() {
+    return "</" + this.name + ">";
+  };
+
+  HtmlTag.prototype.content = function() {
+    return "";
+  };
+
+  HtmlTag.prototype.toHtml = function() {
+    return this.openTag() + this.content() + this.closeTag();
+  };
+
+  return HtmlTag;
+
+})();
+
+ImageTag = (function(superClass) {
+  extend(ImageTag, superClass);
+
+  function ImageTag(public_id1, options) {
+    this.public_id = public_id1;
+    if (options == null) {
+      options = {};
+    }
+    ImageTag.__super__.constructor.call(this, "img", this.public_id, options);
+  }
+
+  ImageTag.prototype.closeTag = function() {
+    return "";
+  };
+
+  ImageTag.prototype.attributes = function() {
+    var attr;
+    attr = ImageTag.__super__.attributes.call(this) || [];
+    if (attr['src'] == null) {
+      attr['src'] = new Cloudinary(this.options).url(this.public_id);
+    }
+    return attr;
+  };
+
+  return ImageTag;
+
+})(HtmlTag);
+
+VideoTag = (function(superClass) {
+  var DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_PARAMS, DEFAULT_VIDEO_SOURCE_TYPES, VIDEO_TAG_PARAMS;
+
+  extend(VideoTag, superClass);
+
+  VIDEO_TAG_PARAMS = ['source_types', 'source_transformation', 'fallback_content', 'poster'];
+
+  DEFAULT_VIDEO_SOURCE_TYPES = ['webm', 'mp4', 'ogv'];
 
   DEFAULT_POSTER_OPTIONS = {
     format: 'jpg',
     resource_type: 'video'
-  };
-
-  DEFAULT_VIDEO_SOURCE_TYPES = ['webm', 'mp4', 'ogv'];
-
-  device_pixel_ratio_cache = {};
-
-
-  /**
-   * Defaults values for parameters.
-   *
-   * (Previously defined using option_consume() )
-   */
-
-  DEFAULT_IMAGE_PARAMS = {
-    resource_type: "image",
-    transformation: [],
-    type: 'upload'
   };
 
 
@@ -992,480 +1673,428 @@ Cloudinary = (function() {
     type: 'upload'
   };
 
-
-  /**
-   * Return the resource type and action type based on the given configuration
-   * @param resource_type
-   * @param type
-   * @param url_suffix
-   * @param use_root_path
-   * @param shorten
-   * @returns {string} resource_type/type
-   */
-
-  finalizeResourceType = function(resourceType, type, urlSuffix, useRootPath, shorten) {
-    var options;
-    if (_.isPlainObject(resourceType)) {
-      options = resourceType;
-      resourceType = options.resource_type;
-      type = options.type;
-      urlSuffix = options.url_suffix;
-      useRootPath = options.use_root_path;
-      shorten = options.shorten;
-    }
-    if (type == null) {
-      type = 'upload';
-    }
-    if (urlSuffix != null) {
-      if (resourceType === 'image' && type === 'upload') {
-        resourceType = "images";
-        type = null;
-      } else if (resourceType === 'raw' && type === 'upload') {
-        resourceType = 'files';
-        type = null;
-      } else {
-        throw new Error("URL Suffix only supported for image/upload and raw/upload");
-      }
-    }
-    if (useRootPath) {
-      if (resourceType === 'image' && type === 'upload' || resourceType === "images") {
-        resourceType = null;
-        type = null;
-      } else {
-        throw new Error("Root path only supported for image/upload");
-      }
-    }
-    if (shorten && resourceType === 'image' && type === 'upload') {
-      resourceType = 'iu';
-      type = null;
-    }
-    return [resourceType, type].join("/");
-  };
-
-  absolutize = function(url) {
-    var prefix;
-    if (!url.match(/^https?:\//)) {
-      console.log("document.location.protocol %s", document.location.protocol);
-      prefix = document.location.protocol + '//' + document.location.host;
-      if (url[0] === '?') {
-        prefix += document.location.pathname;
-      } else if (url[0] !== '/') {
-        prefix += document.location.pathname.replace(/\/[^\/]*$/, '/');
-      }
-      url = prefix + url;
-    }
-    return url;
-  };
-
-  cloudinary_url = function(publicId, options) {
-    var prefix, ref, resource_type_and_type, transformation, transformation_string, url, version;
+  function VideoTag(publicId, options) {
     if (options == null) {
       options = {};
     }
-    _.defaults(options, this.configuration.defaults(), DEFAULT_IMAGE_PARAMS);
-    if (options.type === 'fetch') {
-      options.fetch_format = options.fetch_format || options.format;
-      publicId = absolutize(publicId);
-    }
-    transformation = new Transformation(options);
-    transformation_string = transformation.flatten();
-    if (!options.cloud_name) {
-      throw 'Unknown cloud_name';
-    }
-    if (options.url_suffix && !options.private_cdn) {
-      throw 'URL Suffix only supported in private CDN';
-    }
-    if (publicId.search('/') >= 0 && !publicId.match(/^v[0-9]+/) && !publicId.match(/^https?:\//) && !((ref = options.version) != null ? ref.toString() : void 0)) {
-      options.version = 1;
-    }
-    if (publicId.match(/^https?:/)) {
-      if (options.type === 'upload' || options.type === 'asset') {
-        url = publicId;
-      } else {
-        publicId = encodeURIComponent(publicId).replace(/%3A/g, ':').replace(/%2F/g, '/');
-      }
-    } else {
-      publicId = encodeURIComponent(decodeURIComponent(publicId)).replace(/%3A/g, ':').replace(/%2F/g, '/');
-      if (options.url_suffix) {
-        if (options.url_suffix.match(/[\.\/]/)) {
-          throw 'url_suffix should not include . or /';
-        }
-        publicId = publicId + '/' + options.url_suffix;
-      }
-      if (options.format) {
-        if (!options.trust_public_id) {
-          publicId = publicId.replace(/\.(jpg|png|gif|webp)$/, '');
-        }
-        publicId = publicId + '.' + options.format;
-      }
-    }
-    prefix = cloudinary_url_prefix(publicId, options);
-    resource_type_and_type = finalizeResourceType(options.resource_type, options.type, options.url_suffix, options.use_root_path, options.shorten);
-    version = options.version ? 'v' + options.version : '';
-    return url || _.filter([prefix, resource_type_and_type, transformation_string, version, publicId], null).join('/').replace(/([^:])\/+/g, '$1/');
-  };
-
-  function Cloudinary(options) {
-    this.configuration = new Cloudinary.Configuration(options);
+    options = _.defaults(_.cloneDeep(options), DEFAULT_VIDEO_PARAMS);
+    VideoTag.__super__.constructor.call(this, "video", publicId.replace(/\.(mp4|ogv|webm)$/, ''), options);
   }
 
-  Cloudinary.prototype.config = function(newConfig, newValue) {
-    return this.configuration.config(newConfig, newValue);
-  };
-
-  Cloudinary.prototype.url = function(publicId, options) {
-    options = _.cloneDeep(options);
-    return cloudinary_url.call(this, publicId, options);
-  };
-
-  Cloudinary.prototype.video_url = function(publicId, options) {
-    options = _.merge({
-      resource_type: 'video'
-    }, options);
-    return cloudinary_url.call(this, publicId, options);
-  };
-
-  Cloudinary.prototype.video_thumbnail_url = function(publicId, options) {
-    options = _.merge({}, DEFAULT_POSTER_OPTIONS, options);
-    return cloudinary_url.call(this, publicId, options);
-  };
-
-  Cloudinary.prototype.url_internal = cloudinary_url;
-
-  Cloudinary.prototype.transformation_string = function(options) {
-    options = _.cloneDeep(options);
-    return new Transformation(options).flatten();
-  };
-
-  Cloudinary.prototype.image = function(public_id, options) {
-    var src;
-    if (options == null) {
-      options = {};
-    }
-    options = _.defaults(_.cloneDeep(options), this.configuration.defaults(), DEFAULT_IMAGE_PARAMS);
-    src = cloudinary_url.call(this, public_id, options);
-    options["src"] = src;
-    return new ImageTag(options).toHtml();
-  };
-
-  Cloudinary.prototype.video_thumbnail = function(public_id, options) {
-    return image(public_id, _.extend({}, DEFAULT_POSTER_OPTIONS, options));
-  };
-
-  Cloudinary.prototype.facebook_profile_image = function(public_id, options) {
-    return this.image(public_id, _.merge({
-      type: 'facebook'
-    }, options));
-  };
-
-  Cloudinary.prototype.twitter_profile_image = function(public_id, options) {
-    return this.image(public_id, _.merge({
-      type: 'twitter'
-    }, options));
-  };
-
-  Cloudinary.prototype.twitter_name_profile_image = function(public_id, options) {
-    return this.image(public_id, _.merge({
-      type: 'twitter_name'
-    }, options));
-  };
-
-  Cloudinary.prototype.gravatar_image = function(public_id, options) {
-    return this.image(public_id, _.merge({
-      type: 'gravatar'
-    }, options));
-  };
-
-  Cloudinary.prototype.fetch_image = function(public_id, options) {
-    return this.image(public_id, _.merge({
-      type: 'fetch'
-    }, options));
-  };
-
-  Cloudinary.prototype.video = function(publicId, options) {
-    var attributes, fallback, html, i, mimeType, source, sourceTransformation, sourceTypes, source_type, src, transformation, videoOptions, videoType;
-    if (options == null) {
-      options = {};
-    }
-    options = _.defaults(_.cloneDeep(options), this.configuration.defaults(), DEFAULT_VIDEO_PARAMS);
-    publicId = publicId.replace(/\.(mp4|ogv|webm)$/, '');
-    sourceTypes = options['source_types'];
-    sourceTransformation = options['source_transformation'];
-    fallback = options['fallback_content'];
-    videoOptions = _.cloneDeep(options);
-    if (videoOptions.hasOwnProperty('poster')) {
-      if (_.isPlainObject(videoOptions.poster)) {
-        if (videoOptions.poster.hasOwnProperty('public_id')) {
-          videoOptions.poster = cloudinary_url.call(this, videoOptions.poster.public_id, videoOptions.poster);
-        } else {
-          videoOptions.poster = cloudinary_url.call(this, publicId, _.defaults(videoOptions.poster, DEFAULT_POSTER_OPTIONS));
-        }
-      }
-    } else {
-      videoOptions.poster = cloudinary_url.call(this, publicId, _.defaults(options, DEFAULT_POSTER_OPTIONS));
-    }
-    if (!videoOptions.poster) {
-      delete videoOptions.poster;
-    }
-    source = publicId;
-    if (!_.isArray(sourceTypes)) {
-      videoOptions.src = this.url(source + "." + sourceTypes, videoOptions);
-    }
-    attributes = new Transformation(videoOptions).toHtmlAttributes();
-    html = '<video ' + html_attrs(attributes) + '>';
-    if (_.isArray(sourceTypes)) {
-      i = 0;
-      while (i < sourceTypes.length) {
-        source_type = sourceTypes[i];
-        transformation = sourceTransformation[source_type] || {};
-        src = this.url("" + source, _.defaults({
-          resource_type: 'video',
-          format: source_type
-        }, options, transformation));
-        videoType = source_type === 'ogv' ? 'ogg' : source_type;
-        mimeType = 'video/' + videoType;
-        html = html + '<source ' + html_attrs({
-          src: src,
-          type: mimeType
-        }) + '>';
-        i++;
-      }
-    }
-    html = html + fallback;
-    html = html + '</video>';
-    return html;
-  };
-
-  Cloudinary.prototype.sprite_css = function(public_id, options) {
-    options = _.merge({
-      type: 'sprite'
-    }, options);
-    if (!public_id.match(/.css$/)) {
-      options.format = 'css';
-    }
-    return this.url(public_id, options);
-  };
-
-  Cloudinary.prototype.responsive = function(options) {
-    var responsive_config, responsive_resize, responsive_resize_initialized, timeout;
-    responsive_config = _.merge(responsive_config || {}, options);
-    $('img.cld-responsive, img.cld-hidpi').cloudinary_update(responsive_config);
-    responsive_resize = get_config('responsive_resize', responsive_config, true);
-    if (responsive_resize && !responsive_resize_initialized) {
-      responsive_config.resizing = responsive_resize_initialized = true;
-      timeout = null;
-      $(window).on('resize', function() {
-        var debounce, reset, run, wait;
-        debounce = get_config('responsive_debounce', responsive_config, 100);
-        reset = function() {
-          if (timeout) {
-            clearTimeout(timeout);
-            timeout = null;
-          }
-        };
-        run = function() {
-          $('img.cld-responsive').cloudinary_update(responsive_config);
-        };
-        wait = function() {
-          reset();
-          setTimeout((function() {
-            reset();
-            run();
-          }), debounce);
-        };
-        if (debounce) {
-          wait();
-        } else {
-          run();
-        }
-      });
-    }
-  };
-
-  Cloudinary.prototype.calc_stoppoint = function(element, width) {
-    var stoppoints;
-    stoppoints = element.getAttribute('data-stoppoints') || this.configuration.get('stoppoints');
-    if (typeof stoppoints === 'string') {
-      stoppoints = _.map(stoppoints.split(','), _.parseInt).sort();
-      return closest_above(stoppoints, width);
-    } else {
-      return default_stoppoints(width);
-    }
-  };
-
-  Cloudinary.prototype.device_pixel_ratio = function() {
-    var dpr, dpr_string, dpr_used;
-    dpr = window.devicePixelRatio || 1;
-    dpr_string = device_pixel_ratio_cache[dpr];
-    if (!dpr_string) {
-      dpr_used = closest_above(this.supported_dpr_values, dpr);
-      dpr_string = dpr_used.toString();
-      if (dpr_string.match(/^\d+$/)) {
-        dpr_string += '.0';
-      }
-      device_pixel_ratio_cache[dpr] = dpr_string;
-    }
-    return dpr_string;
-  };
-
-  Cloudinary.prototype.supported_dpr_values = [0.75, 1.0, 1.3, 1.5, 2.0, 3.0];
-
-  default_stoppoints = function(width) {
-    return 10 * Math.ceil(width / 10);
-  };
-
-  closest_above = function(list, value) {
-    var i;
-    i = list.length - 2;
-    while (i >= 0 && list[i] >= value) {
-      i--;
-    }
-    return list[i + 1];
-  };
-
-  cdn_subdomain_number = function(public_id) {
-    return crc32(public_id) % 5 + 1;
-  };
-
-  cloudinary_url_prefix = function(public_id, options) {
-    var cdn_part, host, path, protocol, ref, ref1, subdomain;
-    if (((ref = options.cloud_name) != null ? ref.indexOf("/") : void 0) === 0) {
-      return '/res' + options.cloud_name;
-    }
-    protocol = "http://";
-    cdn_part = "";
-    subdomain = "res";
-    host = ".cloudinary.com";
-    path = "/" + options.cloud_name;
-    if (options.protocol) {
-      protocol = options.protocol + '//';
-    } else if ((typeof window !== "undefined" && window !== null ? (ref1 = window.location) != null ? ref1.protocol : void 0 : void 0) === 'file:') {
-      protocol = 'file://';
-    }
-    if (options.private_cdn) {
-      cdn_part = options.cloud_name + "-";
-      path = "";
-    }
-    if (options.cdn_subdomain) {
-      subdomain = "res-" + cdn_subdomain_number(public_id);
-    }
-    if (options.secure) {
-      protocol = "https://";
-      if (options.secure_cdn_subdomain === false) {
-        subdomain = "res";
-      }
-      if ((options.secure_distribution != null) && options.secure_distribution !== OLD_AKAMAI_SHARED_CDN && options.secure_distribution !== SHARED_CDN) {
-        cdn_part = "";
-        subdomain = "";
-        host = options.secure_distribution;
-      }
-    } else if (options.cname) {
-      protocol = "http://";
-      cdn_part = "";
-      subdomain = options.cdn_subdomain ? 'a' + ((crc32(public_id) % 5) + 1) + '.' : '';
-      host = options.cname;
-    }
-    return [protocol, cdn_part, subdomain, host, path].join("");
-  };
-
-  join_pair = function(key, value) {
-    if (!value) {
-      return void 0;
-    } else if (value === true) {
-      return key;
-    } else {
-      return key + '="' + value + '"';
-    }
-  };
-
-
-  /**
-   * combine key and value from the `attr` to generate an HTML tag attributes string.
-   * `Transformation::toHtmlTagOptions` is used to filter out transformation and configuration keys.
-   * @param {Object} attr
-   * @return {String} the attributes in the format `'key1="value1" key2="value2"'`
-   */
-
-  html_attrs = function(attrs) {
-    var pairs;
-    pairs = _.map(attrs, function(value, key) {
-      return join_pair(key, value);
-    });
-    pairs.sort();
-    return pairs.filter(function(pair) {
-      return pair;
-    }).join(' ');
-  };
-
-  unsigned_upload_tag = function(upload_preset, upload_params, options) {
-    return $('<input/>').attr({
-      type: 'file',
-      name: 'file'
-    }).unsigned_cloudinary_upload(upload_preset, upload_params, options);
-  };
-
-  prepare_html_url = function(public_id, options) {
-    var attributes, url;
-    options.dpr || (options.dpr = this.configuration.get('dpr'));
-    url = cloudinary_url(public_id, options);
-    attributes = width ? options.width = width : void 0;
-    if (height) {
-      options.height = height;
-    }
-    return url;
-  };
-
-
-  /**
-   * similar to `$.fn.cloudinary`
-   * Finds all `img` tags under each node and sets it up to provide the image through Cloudinary
-   */
-
-  Cloudinary.prototype.processImageTags = function(nodes, options) {
-    var images;
-    if (options == null) {
-      options = {};
-    }
-    options = _(options).cloneDeep().defaults(this.configuration.config()).value();
-    images = _(nodes).map(function(n) {
-      return _.flatten(n.getElementsByTagName('img'));
-    }).dropWhile(_.isEmpty).flatten().uniq().forEach(function(i) {
-      var img_options, public_id, url;
-      img_options = _.extend({
-        width: i.getAttribute('width'),
-        height: i.getAttribute('height'),
-        src: i.getAttribute('src')
-      }, options);
-      public_id = img_options['source'] || img_options['src'];
-      delete img_options['source'];
-      delete img_options['src'];
-      url = url(public_id, img_options);
-      img_options = new Transformation(img_options).toHtmlAttributes();
-      i.setAttribute('data-src-cache', url);
-      i.setAttribute('width', img_options.width);
-      return i.setAttribute('height', img_options.height);
-    }).value();
+  VideoTag.prototype.setSourceTransformation = function(value) {
+    this.sourceTransformation = value;
     return this;
   };
 
-  return Cloudinary;
+  VideoTag.prototype.setSourceTypes = function(value) {
+    this.sourceType = value;
+    return this;
+  };
 
-})();
+  VideoTag.prototype.setPoster = function(value) {
+    return this.poster = value;
+  };
 
-global = (ref = typeof module !== "undefined" && module !== null ? module.exports : void 0) != null ? ref : window;
+  VideoTag.prototype.content = function() {
+    var fallback, innerTags, mimeType, sourceTransformation, sourceTypes, source_type, src, transformation, videoType;
+    sourceTypes = this.options['source_types'];
+    sourceTransformation = this.options['source_transformation'];
+    fallback = this.options['fallback_content'];
+    if (_.isArray(sourceTypes)) {
+      innerTags = (function() {
+        var j, len, results;
+        results = [];
+        for (j = 0, len = sourceTypes.length; j < len; j++) {
+          source_type = sourceTypes[j];
+          transformation = sourceTransformation[source_type] || {};
+          src = new Cloudinary(this.options).url("" + this.public_id, _.defaults({
+            resource_type: 'video',
+            format: source_type
+          }, transformation, this.options));
+          videoType = source_type === 'ogv' ? 'ogg' : source_type;
+          mimeType = 'video/' + videoType;
+          results.push('<source ' + html_attrs({
+            src: src,
+            type: mimeType
+          }) + '>');
+        }
+        return results;
+      }).call(this);
+    } else {
+      innerTags = [];
+    }
+    return innerTags.join('') + fallback;
+  };
 
+  VideoTag.prototype.attributes = function() {
+    var attr, poster, sourceTypes;
+    sourceTypes = this.options['source_types'];
+    poster = this.options['poster'];
+    if (poster != null) {
+      if (_.isPlainObject(poster)) {
+        if (poster.public_id != null) {
+          poster = new Cloudinary(this.options).url("" + poster.public_id, poster);
+        } else {
+          poster = new Cloudinary(this.options).url(this, this.public_id, _.defaults(this.options.poster, DEFAULT_POSTER_OPTIONS));
+        }
+      }
+    } else {
+      poster = new Cloudinary(this.options).url(this.public_id, _.defaults(this.options, DEFAULT_POSTER_OPTIONS));
+    }
+    attr = VideoTag.__super__.attributes.call(this) || [];
+    attr = _.omit(attr, VIDEO_TAG_PARAMS);
+    if (!_.isArray(sourceTypes)) {
+      attr["src"] = new Cloudinary(this.options).url("" + this.public_id, _.defaults({
+        resource_type: 'video',
+        format: sourceTypes
+      }, this.options));
+    }
+    if (poster != null) {
+      attr["poster"] = poster;
+    }
+    return attr;
+  };
 
-/* REVIEW another option is assigned Cloudinary to Cloudinary scope:
-  global.Cloudinary.Cloudinary
+  return VideoTag;
 
-  ...but it feels awkward
- */
+})(HtmlTag);
 
-if (global.Cloudinary) {
-  _.extend(Cloudinary, global.Cloudinary);
+if (!(((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) || (exports != null))) {
+  exports = window;
 }
 
-global.Cloudinary = Cloudinary;
+if (exports.Cloudinary == null) {
+  exports.Cloudinary = {};
+}
+
+exports.Cloudinary.HtmlTag = HtmlTag;
+
+exports.Cloudinary.ImageTag = ImageTag;
+
+exports.Cloudinary.VideoTag = VideoTag;
+
+CloudinaryJQuery = (function(superClass) {
+  extend(CloudinaryJQuery, superClass);
+
+  function CloudinaryJQuery(options) {
+    CloudinaryJQuery.__super__.constructor.call(this, options);
+  }
+
+  CloudinaryJQuery.prototype.image = function(publicId, options) {
+    var i, url;
+    if (options == null) {
+      options = {};
+    }
+    i = CloudinaryJQuery.__super__.image.call(this, publicId, options);
+    url = i.getAttr('src');
+    i.setAttr('src', '');
+    return $(i.toHtml()).data('src-cache', url).attr(options).cloudinary_update(options);
+  };
+
+  CloudinaryJQuery.prototype.video = function(publicId, options) {
+    if (options == null) {
+      options = {};
+    }
+  };
+
+  return CloudinaryJQuery;
+
+})(Cloudinary);
+
+$.fn.cloudinary = function(options) {
+  this.filter('img').each(function() {
+    var img_options, public_id, url;
+    img_options = $.extend({
+      width: $(this).attr('width'),
+      height: $(this).attr('height'),
+      src: $(this).attr('src')
+    }, $(this).data(), options);
+    public_id = img_options.source || img_options.src;
+    delete img_options.source;
+    delete img_options.src;
+    url = $.cloudinary.url(public_id, img_options);
+    img_options = new Transformation(img_options).toHtmlAttributes();
+    return $(this).data('src-cache', url).attr({
+      width: img_options.width,
+      height: img_options.height
+    });
+  }).cloudinary_update(options);
+  return this;
+};
+
+
+/**
+ * Update hidpi (dpr_auto) and responsive (w_auto) fields according to the current container size and the device pixel ratio.
+ * Only images marked with the cld-responsive class have w_auto updated.
+ * options:
+ * - responsive_use_stoppoints:
+ *   - true - always use stoppoints for width
+ *   - "resize" - use exact width on first render and stoppoints on resize (default)
+ *   - false - always use exact width
+ * - responsive:
+ *   - true - enable responsive on this element. Can be done by adding cld-responsive.
+ *            Note that $.cloudinary.responsive() should be called once on the page.
+ * - responsive_preserve_height: if set to true, original css height is perserved. Should only be used if the transformation supports different aspect ratios.
+ */
+
+$.fn.cloudinary_update = function(options) {
+  var exact, ref1, ref2, responsive_use_stoppoints;
+  if (options == null) {
+    options = {};
+  }
+  responsive_use_stoppoints = (ref1 = (ref2 = options['responsive_use_stoppoints']) != null ? ref2 : $.cloudinary.config('responsive_use_stoppoints')) != null ? ref1 : 'resize';
+  exact = responsive_use_stoppoints === false || responsive_use_stoppoints === 'resize' && !options.resizing;
+  this.filter('img').each(function() {
+    var attrs, container, containerWidth, currentWidth, nthParent, parents, parentsLength, requestedWidth, responsive, src;
+    if (options.responsive) {
+      $(this).addClass('cld-responsive');
+    }
+    attrs = {};
+    src = $(this).data('src-cache') || $(this).data('src');
+    if (!src) {
+      return;
+    }
+    responsive = $(this).hasClass('cld-responsive') && src.match(/\bw_auto\b/);
+    if (responsive) {
+      parents = $(this).parents();
+      parentsLength = parents.length;
+      container = void 0;
+      containerWidth = 0;
+      nthParent = void 0;
+      nthParent = 0;
+      while (nthParent < parentsLength) {
+        container = parents[nthParent];
+        if (container && container.clientWidth) {
+          containerWidth = container.clientWidth;
+          break;
+        }
+        nthParent += 1;
+      }
+      if (containerWidth === 0) {
+        return;
+      }
+      requestedWidth = exact ? containerWidth : $.cloudinary.calc_stoppoint(this, containerWidth);
+      currentWidth = $(this).data('width') || 0;
+      if (requestedWidth > currentWidth) {
+        $(this).data('width', requestedWidth);
+      } else {
+        requestedWidth = currentWidth;
+      }
+      src = src.replace(/\bw_auto\b/g, 'w_' + requestedWidth);
+      attrs.width = null;
+      if (!options.responsive_preserve_height) {
+        attrs.height = null;
+      }
+    }
+    attrs.src = src.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + $.cloudinary.device_pixel_ratio());
+    return $(this).attr(attrs);
+  });
+  return this;
+};
+
+webp = null;
+
+$.fn.webpify = function(options, webp_options) {
+  var that, webp_canary;
+  if (options == null) {
+    options = {};
+  }
+  that = this;
+  webp_options = webp_options != null ? webp_options : options;
+  if (!webp) {
+    webp = $.Deferred();
+    webp_canary = new Image;
+    webp_canary.onerror = webp.reject;
+    webp_canary.onload = webp.resolve;
+    webp_canary.src = 'data:image/webp;base64,UklGRi4AAABXRUJQVlA4TCEAAAAvAUAAEB8wAiMwAgSSNtse/cXjxyCCmrYNWPwmHRH9jwMA';
+  }
+  $(function() {
+    return webp.done(function() {
+      return $(that).cloudinary($.extend({}, webp_options, {
+        format: 'webp'
+      }));
+    }).fail(function() {
+      return $(that).cloudinary(options);
+    });
+  });
+  return this;
+};
+
+$.fn.fetchify = function(options) {
+  return this.cloudinary($.extend(options, {
+    'type': 'fetch'
+  }));
+};
+
+$.cloudinary = new CloudinaryJQuery();
+
+CloudinaryJQuery.prototype.delete_by_token = function(delete_token, options) {
+  var cloud_name, dataType, url;
+  options = options || {};
+  url = options.url;
+  if (!url) {
+    cloud_name = options.cloud_name || $.cloudinary.config().cloud_name;
+    url = 'https://api.cloudinary.com/v1_1/' + cloud_name + '/delete_by_token';
+  }
+  dataType = $.support.xhrFileUpload ? 'json' : 'iframe json';
+  return $.ajax({
+    url: url,
+    method: 'POST',
+    data: {
+      token: delete_token
+    },
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest'
+    },
+    dataType: dataType
+  });
+};
+
+CloudinaryJQuery.prototype.unsigned_upload_tag = function(upload_preset, upload_params, options) {
+  return $('<input/>').attr({
+    type: 'file',
+    name: 'file'
+  }).unsigned_cloudinary_upload(upload_preset, upload_params, options);
+};
+
+$.fn.cloudinary_fileupload = function(options) {
+  var cloud_name, initializing, resource_type, type, upload_url;
+  initializing = !this.data('blueimpFileupload');
+  if (initializing) {
+    options = $.extend({
+      maxFileSize: 20000000,
+      dataType: 'json',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    }, options);
+  }
+  this.fileupload(options);
+  if (initializing) {
+    this.bind('fileuploaddone', function(e, data) {
+      var add_field, field, multiple, upload_info;
+      if (data.result.error) {
+        return;
+      }
+      data.result.path = ['v', data.result.version, '/', data.result.public_id, data.result.format ? '.' + data.result.format : ''].join('');
+      if (data.cloudinaryField && data.form.length > 0) {
+        upload_info = [data.result.resource_type, data.result.type, data.result.path].join('/') + '#' + data.result.signature;
+        multiple = $(e.target).prop('multiple');
+        add_field = function() {
+          return $('<input/>').attr({
+            type: 'hidden',
+            name: data.cloudinaryField
+          }).val(upload_info).appendTo(data.form);
+        };
+        if (multiple) {
+          add_field();
+        } else {
+          field = $(data.form).find('input[name="' + data.cloudinaryField + '"]');
+          if (field.length > 0) {
+            field.val(upload_info);
+          } else {
+            add_field();
+          }
+        }
+      }
+      return $(e.target).trigger('cloudinarydone', data);
+    });
+    this.bind('fileuploadsend', function(e, data) {
+      return data.headers['X-Unique-Upload-Id'] = (Math.random() * 10000000000).toString(16);
+    });
+    this.bind('fileuploadstart', function(e) {
+      return $(e.target).trigger('cloudinarystart');
+    });
+    this.bind('fileuploadstop', function(e) {
+      return $(e.target).trigger('cloudinarystop');
+    });
+    this.bind('fileuploadprogress', function(e, data) {
+      return $(e.target).trigger('cloudinaryprogress', data);
+    });
+    this.bind('fileuploadprogressall', function(e, data) {
+      return $(e.target).trigger('cloudinaryprogressall', data);
+    });
+    this.bind('fileuploadfail', function(e, data) {
+      return $(e.target).trigger('cloudinaryfail', data);
+    });
+    this.bind('fileuploadalways', function(e, data) {
+      return $(e.target).trigger('cloudinaryalways', data);
+    });
+    if (!this.fileupload('option').url) {
+      cloud_name = options.cloud_name || $.cloudinary.config().cloud_name;
+      resource_type = options.resource_type || 'auto';
+      type = options.type || 'upload';
+      upload_url = 'https://api.cloudinary.com/v1_1/' + cloud_name + '/' + resource_type + '/' + type;
+      this.fileupload('option', 'url', upload_url);
+    }
+  }
+  return this;
+};
+
+$.fn.cloudinary_upload_url = function(remote_url) {
+  this.fileupload('option', 'formData').file = remote_url;
+  this.fileupload('add', {
+    files: [remote_url]
+  });
+  delete this.fileupload('option', 'formData').file;
+  return this;
+};
+
+$.fn.unsigned_cloudinary_upload = function(upload_preset, upload_params, options) {
+  var attr, attrs_to_move, html_options, i, key, value;
+  if (upload_params == null) {
+    upload_params = {};
+  }
+  if (options == null) {
+    options = {};
+  }
+  upload_params = _.cloneDeep(upload_params);
+  options = _.cloneDeep(options);
+  attrs_to_move = ['cloud_name', 'resource_type', 'type'];
+  i = 0;
+  while (i < attrs_to_move.length) {
+    attr = attrs_to_move[i];
+    if (upload_params[attr]) {
+      options[attr] = upload_params[attr];
+      delete upload_params[attr];
+    }
+    i++;
+  }
+  for (key in upload_params) {
+    value = upload_params[key];
+    if ($.isPlainObject(value)) {
+      upload_params[key] = $.map(value, function(v, k) {
+        return k + '=' + v;
+      }).join('|');
+    } else if ($.isArray(value)) {
+      if (value.length > 0 && $.isArray(value[0])) {
+        upload_params[key] = $.map(value, function(array_value) {
+          return array_value.join(',');
+        }).join('|');
+      } else {
+        upload_params[key] = value.join(',');
+      }
+    }
+  }
+  if (!upload_params.callback) {
+    upload_params.callback = '/cloudinary_cors.html';
+  }
+  upload_params.upload_preset = upload_preset;
+  options.formData = upload_params;
+  if (options.cloudinary_field) {
+    options.cloudinaryField = options.cloudinary_field;
+    delete options.cloudinary_field;
+  }
+  html_options = options.html || {};
+  html_options["class"] = _.trimRight("cloudinary_fileupload " + (html_options["class"] || ''));
+  if (options.multiple) {
+    html_options.multiple = true;
+  }
+  this.attr(html_options).cloudinary_fileupload(options);
+  return this;
+};
+
+$.cloudinary = new CloudinaryJQuery();
 
 
 }));

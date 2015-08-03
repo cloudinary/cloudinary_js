@@ -9,15 +9,16 @@
     if (typeof define === 'function' && define.amd) {
         // Register as an anonymous AMD module:
         define([
-            'lodash'
+            'lodash',
+            'jquery'
         ], factory);
     } else {
         // Browser globals:
-        factory(_);
+        factory(_, jQuery);
     }
-}(function (_) {
+}(function (_, $) {
 ;
-var ArrayParam, Cloudinary, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, VideoTag, cloudinary_config, config, crc32, exports, getAttribute, getData, global, html_attrs, process_video_params, ref, setAttribute, setData, toAttribute, utf8_encode,
+var ArrayParam, Cloudinary, CloudinaryJQuery, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, VideoTag, cloudinary_config, config, crc32, exports, getAttribute, getData, global, html_attrs, process_video_params, ref, setAttribute, setData, toAttribute, utf8_encode, webp,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -1771,6 +1772,161 @@ exports.Cloudinary.HtmlTag = HtmlTag;
 exports.Cloudinary.ImageTag = ImageTag;
 
 exports.Cloudinary.VideoTag = VideoTag;
+
+CloudinaryJQuery = (function(superClass) {
+  extend(CloudinaryJQuery, superClass);
+
+  function CloudinaryJQuery(options) {
+    CloudinaryJQuery.__super__.constructor.call(this, options);
+  }
+
+  CloudinaryJQuery.prototype.image = function(publicId, options) {
+    var i, url;
+    if (options == null) {
+      options = {};
+    }
+    i = CloudinaryJQuery.__super__.image.call(this, publicId, options);
+    url = i.getAttr('src');
+    i.setAttr('src', '');
+    return $(i.toHtml()).data('src-cache', url).attr(options).cloudinary_update(options);
+  };
+
+  CloudinaryJQuery.prototype.video = function(publicId, options) {
+    if (options == null) {
+      options = {};
+    }
+  };
+
+  return CloudinaryJQuery;
+
+})(Cloudinary);
+
+$.fn.cloudinary = function(options) {
+  this.filter('img').each(function() {
+    var img_options, public_id, url;
+    img_options = $.extend({
+      width: $(this).attr('width'),
+      height: $(this).attr('height'),
+      src: $(this).attr('src')
+    }, $(this).data(), options);
+    public_id = img_options.source || img_options.src;
+    delete img_options.source;
+    delete img_options.src;
+    url = $.cloudinary.url(public_id, img_options);
+    img_options = new Transformation(img_options).toHtmlAttributes();
+    return $(this).data('src-cache', url).attr({
+      width: img_options.width,
+      height: img_options.height
+    });
+  }).cloudinary_update(options);
+  return this;
+};
+
+
+/**
+ * Update hidpi (dpr_auto) and responsive (w_auto) fields according to the current container size and the device pixel ratio.
+ * Only images marked with the cld-responsive class have w_auto updated.
+ * options:
+ * - responsive_use_stoppoints:
+ *   - true - always use stoppoints for width
+ *   - "resize" - use exact width on first render and stoppoints on resize (default)
+ *   - false - always use exact width
+ * - responsive:
+ *   - true - enable responsive on this element. Can be done by adding cld-responsive.
+ *            Note that $.cloudinary.responsive() should be called once on the page.
+ * - responsive_preserve_height: if set to true, original css height is perserved. Should only be used if the transformation supports different aspect ratios.
+ */
+
+$.fn.cloudinary_update = function(options) {
+  var exact, ref1, ref2, responsive_use_stoppoints;
+  if (options == null) {
+    options = {};
+  }
+  responsive_use_stoppoints = (ref1 = (ref2 = options['responsive_use_stoppoints']) != null ? ref2 : $.cloudinary.config('responsive_use_stoppoints')) != null ? ref1 : 'resize';
+  exact = responsive_use_stoppoints === false || responsive_use_stoppoints === 'resize' && !options.resizing;
+  this.filter('img').each(function() {
+    var attrs, container, containerWidth, currentWidth, nthParent, parents, parentsLength, requestedWidth, responsive, src;
+    if (options.responsive) {
+      $(this).addClass('cld-responsive');
+    }
+    attrs = {};
+    src = $(this).data('src-cache') || $(this).data('src');
+    if (!src) {
+      return;
+    }
+    responsive = $(this).hasClass('cld-responsive') && src.match(/\bw_auto\b/);
+    if (responsive) {
+      parents = $(this).parents();
+      parentsLength = parents.length;
+      container = void 0;
+      containerWidth = 0;
+      nthParent = void 0;
+      nthParent = 0;
+      while (nthParent < parentsLength) {
+        container = parents[nthParent];
+        if (container && container.clientWidth) {
+          containerWidth = container.clientWidth;
+          break;
+        }
+        nthParent += 1;
+      }
+      if (containerWidth === 0) {
+        return;
+      }
+      requestedWidth = exact ? containerWidth : $.cloudinary.calc_stoppoint(this, containerWidth);
+      currentWidth = $(this).data('width') || 0;
+      if (requestedWidth > currentWidth) {
+        $(this).data('width', requestedWidth);
+      } else {
+        requestedWidth = currentWidth;
+      }
+      src = src.replace(/\bw_auto\b/g, 'w_' + requestedWidth);
+      attrs.width = null;
+      if (!options.responsive_preserve_height) {
+        attrs.height = null;
+      }
+    }
+    attrs.src = src.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + $.cloudinary.device_pixel_ratio());
+    return $(this).attr(attrs);
+  });
+  return this;
+};
+
+webp = null;
+
+$.fn.webpify = function(options, webp_options) {
+  var that, webp_canary;
+  if (options == null) {
+    options = {};
+  }
+  that = this;
+  webp_options = webp_options != null ? webp_options : options;
+  if (!webp) {
+    webp = $.Deferred();
+    webp_canary = new Image;
+    webp_canary.onerror = webp.reject;
+    webp_canary.onload = webp.resolve;
+    webp_canary.src = 'data:image/webp;base64,UklGRi4AAABXRUJQVlA4TCEAAAAvAUAAEB8wAiMwAgSSNtse/cXjxyCCmrYNWPwmHRH9jwMA';
+  }
+  $(function() {
+    return webp.done(function() {
+      return $(that).cloudinary($.extend({}, webp_options, {
+        format: 'webp'
+      }));
+    }).fail(function() {
+      return $(that).cloudinary(options);
+    });
+  });
+  return this;
+};
+
+$.fn.fetchify = function(options) {
+  return this.cloudinary($.extend(options, {
+    'type': 'fetch'
+  }));
+};
+
+$.cloudinary = new CloudinaryJQuery();
 
 
 }));

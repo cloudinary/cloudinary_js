@@ -45,11 +45,12 @@
   ],
   "dependencies": {
     "jquery": ">=1.6",
-    "lodash": "~3.9.x",
-    "blueimp-file-upload": ">=7.2.1"
+    "blueimp-file-upload": ">=7.2.1",
+    "lodash": "3.10.0",
+    "jquery.ui": "1.11.4"
   },
   "devDependencies": {
-    "jasmine": "~2.2.x"
+    "jasmine": "~2.3.x"
   },
   "ignore": [
     "/*.*",

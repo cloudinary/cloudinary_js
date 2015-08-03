@@ -279,7 +279,7 @@
     }
     params.sort();
 
-    var raw_transformation = option_consume(options, 'raw_transformation'); // REVIEW Raw must be at the end?
+    var raw_transformation = option_consume(options, 'raw_transformation');
     if (present(raw_transformation)) params.push(raw_transformation);
     var transformation = params.join(",");
     if (present(transformation)) base_transformations.push(transformation);
@@ -340,14 +340,13 @@
 
     var shared_domain = !private_cdn;
     if (secure) {
-      // TODO in NPM : if secure_distribution == null || ...
       if (!secure_distribution || secure_distribution == OLD_AKAMAI_SHARED_CDN) {
         secure_distribution = private_cdn ? cloud_name + "-res.cloudinary.com" : SHARED_CDN;
         // in NPM using wrong operator ?=
       }
       shared_domain = shared_domain || secure_distribution == SHARED_CDN;
       if (secure_cdn_subdomain == null && shared_domain) {
-        secure_cdn_subdomain = cdn_subdomain; // TODO same as setting true - value is not used
+        secure_cdn_subdomain = cdn_subdomain;
       }
       if (secure_cdn_subdomain) {
         secure_distribution = secure_distribution.replace('res.cloudinary.com', "res-" + ((crc32(public_id) % 5) + 1) + ".cloudinary.com");
@@ -401,7 +400,7 @@
   function cloudinary_url(public_id, options) {
     options = options || {};
     var type = option_consume(options, 'type', 'upload');
-    if (type == 'fetch') { // TODO what is the purpose? fetch_format is not in use
+    if (type == 'fetch') {
       options.fetch_format = options.fetch_format || option_consume(options, 'format');
     }
     var transformation = generate_transformation_string(options);

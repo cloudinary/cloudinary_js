@@ -8,6 +8,7 @@ module.exports = (grunt)->
         files:
           'js/cloudinary.js': [
             'src/header.coffee'
+            'src/utils.coffee'
             'src/cloudinary-main.coffee'
             'src/crc32.coffee'
             'src/utf8_encode.coffee'
@@ -16,18 +17,33 @@ module.exports = (grunt)->
             'src/transformation.coffee'
             'src/htmltag.coffee'
             'src/footer.coffee'
-          ],
-          'js/jquery.cloudinary.js': [
-            'src/header.coffee'
-            'src/jquery-extension'
+          ]
+          'js/jquery.noupload.cloudinary.js': [ # TODO name
+            'src/header-jquery.coffee'
+            'src/utils.coffee'
+            'src/cloudinary-main.coffee'
             'src/crc32.coffee'
             'src/utf8_encode.coffee'
             'src/config.coffee'
             'src/parameters.coffee'
             'src/transformation.coffee'
-            'src/cloudinary-main.coffee'
+            'src/htmltag.coffee'
+            'src/jquery-extension.coffee'
             'src/footer.coffee'
-
+          ]
+          'js/jquery.cloudinary.js': [
+            'src/header-jquery-upload.coffee'
+            'src/utils.coffee'
+            'src/cloudinary-main.coffee'
+            'src/crc32.coffee'
+            'src/utf8_encode.coffee'
+            'src/config.coffee'
+            'src/parameters.coffee'
+            'src/transformation.coffee'
+            'src/htmltag.coffee'
+            'src/jquery-extension.coffee'
+            'src/cloudinary-fileupload.coffee'
+            'src/footer.coffee'
           ]
       compile_test:
         expand: true
@@ -41,12 +57,12 @@ module.exports = (grunt)->
     concat:
       "js/cloudinary.coffee": [
         'src/header.coffee'
+        'src/cloudinary-main.coffee'
         'src/crc32.coffee'
         'src/utf8_encode.coffee'
         'src/config.coffee'
         'src/parameters.coffee'
         'src/transformation.coffee'
-        'src/cloudinary-main.coffee'
         'src/htmltag.coffee'
         'src/footer.coffee'
       ]

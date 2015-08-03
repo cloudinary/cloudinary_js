@@ -131,7 +131,6 @@
       split_size = size.split('x')
       options.width = split_size[0]
       options.height = split_size[1]
-    return
 
   process_html_dimensions = (options) ->
     width = options.width
@@ -147,7 +146,7 @@
     if !crop and !has_layer
       delete options.width
       delete options.height
-    return
+
 
   generate_transformation_string = (options) ->
     base_transformations = process_base_transformations(options)
@@ -364,7 +363,7 @@
         return param
       else
         return null
-    return
+
 
   join_pair = (key, value) ->
     if !value
@@ -476,7 +475,7 @@
         cloudinary_config = {}
         $('meta[name^="cloudinary_"]').each ->
           cloudinary_config[$(this).attr('name').replace('cloudinary_', '')] = $(this).attr('content')
-          return
+
       if typeof new_value != 'undefined'
         cloudinary_config[new_config] = new_value
       else if typeof new_config == 'string'
@@ -504,7 +503,7 @@
       img
     video_thumbnail: (public_id, options) ->
       image public_id, $.merge(DEFAULT_POSTER_OPTIONS, options)
-      return
+
     facebook_profile_image: (public_id, options) ->
       $.cloudinary.image public_id, $.extend({ type: 'facebook' }, options)
     twitter_profile_image: (public_id, options) ->
@@ -583,27 +582,27 @@
             if timeout
               clearTimeout timeout
               timeout = null
-            return
+
 
           run = ->
             $('img.cld-responsive').cloudinary_update responsive_config
-            return
+
 
           wait = ->
             reset()
             setTimeout (->
               reset()
               run()
-              return
+
             ), debounce
-            return
+
 
           if debounce
             wait()
           else
             run()
-          return
-      return
+
+
     calc_stoppoint: (element, width) ->
       stoppoints = $(element).data('stoppoints') or $.cloudinary.config().stoppoints or default_stoppoints
       if typeof stoppoints == 'function'
@@ -645,7 +644,7 @@
       $(this).data('src-cache', url).attr
         width: img_options.width
         height: img_options.height
-      return
+
     ).cloudinary_update options
     this
 
@@ -705,7 +704,7 @@
       # Update dpr according to the device's devicePixelRatio
       attrs.src = src.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + $.cloudinary.device_pixel_ratio())
       $(this).attr attrs
-      return
+
     this
 
   webp = null
@@ -722,11 +721,11 @@
     $ ->
       webp.done(->
         $(that).cloudinary $.extend({}, webp_options, format: 'webp')
-        return
+
       ).fail ->
         $(that).cloudinary options
-        return
-      return
+
+
     this
 
   $.fn.fetchify = (options) ->
@@ -781,7 +780,7 @@
             $('<input/>').attr(
               type: 'hidden'
               name: data.cloudinaryField).val(upload_info).appendTo data.form
-            return
+
 
           if multiple
             add_field()
@@ -792,29 +791,29 @@
             else
               add_field()
         $(e.target).trigger 'cloudinarydone', data
-        return
+
       @bind 'fileuploadsend', (e, data) ->
         # add a common unique ID to all chunks of the same uploaded file
         data.headers['X-Unique-Upload-Id'] = (Math.random() * 10000000000).toString(16)
-        return
+
       @bind 'fileuploadstart', (e) ->
         $(e.target).trigger 'cloudinarystart'
-        return
+
       @bind 'fileuploadstop', (e) ->
         $(e.target).trigger 'cloudinarystop'
-        return
+
       @bind 'fileuploadprogress', (e, data) ->
         $(e.target).trigger 'cloudinaryprogress', data
-        return
+
       @bind 'fileuploadprogressall', (e, data) ->
         $(e.target).trigger 'cloudinaryprogressall', data
-        return
+
       @bind 'fileuploadfail', (e, data) ->
         $(e.target).trigger 'cloudinaryfail', data
-        return
+
       @bind 'fileuploadalways', (e, data) ->
         $(e.target).trigger 'cloudinaryalways', data
-        return
+
       if !@fileupload('option').url
         cloud_name = options.cloud_name or $.cloudinary.config().cloud_name
         resource_type = options.resource_type or 'auto'
@@ -827,7 +826,7 @@
     @fileupload('option', 'formData').file = remote_url
     @fileupload 'add', files: [ remote_url ]
     delete @fileupload('option', 'formData').file
-    return
+
 
   $.fn.unsigned_cloudinary_upload = (upload_preset, upload_params = {}, options = {}) ->
     options = options or {}
@@ -877,5 +876,5 @@
       type: 'file'
       name: 'file').unsigned_cloudinary_upload upload_preset, upload_params, options
 
-  return
+
 )

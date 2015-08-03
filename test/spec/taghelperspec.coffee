@@ -19,6 +19,13 @@ describe "Cloudinary.HtmlTag", ->
       expect( -> new Cloudinary.HtmlTag( 'div', "publicId", {})).not.toThrow()
     it 'should create a new tag with 2 parameters', ->
       expect( -> new Cloudinary.HtmlTag( 'div', {})).not.toThrow()
+describe "Cloudinary.ImageTag", ->
+  DEFAULT_UPLOAD_PATH = "#{window.location.protocol}//res.cloudinary.com/test123/image/upload/"
+  options =
+    'cloud_name': 'test123'
+  it "should create an image tag", ()->
+    tag = new Cloudinary.ImageTag( 'image_id', options).toHtml()
+    expect(tag).toBe("<img src=\"#{DEFAULT_UPLOAD_PATH}image_id\">")
 
 describe "Cloudinary.VideoTag", ->
   VIDEO_UPLOAD_PATH = "#{window.location.protocol}//res.cloudinary.com/test123/video/upload/"

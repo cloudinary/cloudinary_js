@@ -73,7 +73,8 @@ class Configuration
     @configuration[name]
 
   merge: (config={})->
-    _.assign(@configuration, config)
+    _.assign(@configuration, _.cloneDeep(config))
+    this
 
   fromDocument: ->
     meta_elements = document?.getElementsByTagName("meta");
@@ -143,6 +144,8 @@ class Configuration
 
     ])
 
+  toOptions: ()->
+    @configuration
 
 unless module?.exports
   exports = window
