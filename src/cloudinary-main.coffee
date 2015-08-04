@@ -41,9 +41,9 @@ class Cloudinary
   responsiveConfig = {}
   responsiveResizeInitialized = true
   ###*
-  # Defaults values for parameters.
-  #
-  # (Previously defined using option_consume() )
+  * Defaults values for parameters.
+  *
+  * (Previously defined using option_consume() )
   ###
   DEFAULT_IMAGE_PARAMS ={
     resource_type: "image"
@@ -52,9 +52,9 @@ class Cloudinary
   }
 
   ###*
-  # Defaults values for parameters.
-  #
-  # (Previously defined using option_consume() )
+  * Defaults values for parameters.
+  *
+  * (Previously defined using option_consume() )
   ###
   DEFAULT_VIDEO_PARAMS ={
     fallback_content: ''
@@ -72,6 +72,8 @@ class Cloudinary
     @config= (newConfig, newValue) ->
       configuration.config(newConfig, newValue)
 
+  @new = (options)-> new @(options)
+
   ###*
    * Return the resource type and action type based on the given configuration
    * @param resource_type
@@ -79,7 +81,9 @@ class Cloudinary
    * @param url_suffix
    * @param use_root_path
    * @param shorten
-   * @returns {string} resource_type/type ###
+   * @returns {string} resource_type/type
+   *
+  ###
   finalizeResourceType = (resourceType,type,urlSuffix,useRootPath,shorten) ->
     if _.isPlainObject(resourceType)
       options = resourceType
@@ -383,10 +387,10 @@ class Cloudinary
       key + '="' + value + '"'
 
   ###*
-  # combine key and value from the `attr` to generate an HTML tag attributes string.
-  # `Transformation::toHtmlTagOptions` is used to filter out transformation and configuration keys.
-  # @param {Object} attr
-  # @return {String} the attributes in the format `'key1="value1" key2="value2"'`
+  * combine key and value from the `attr` to generate an HTML tag attributes string.
+  * `Transformation::toHtmlTagOptions` is used to filter out transformation and configuration keys.
+  * @param {Object} attr
+  * @return {String} the attributes in the format `'key1="value1" key2="value2"'`
   ###
   htmlAttrs = (attrs) ->
     pairs = _.map(attrs, (value, key) ->
@@ -399,8 +403,8 @@ class Cloudinary
 
 
   ###*
-  # similar to `$.fn.cloudinary`
-  # Finds all `img` tags under each node and sets it up to provide the image through Cloudinary
+  * similar to `$.fn.cloudinary`
+  * Finds all `img` tags under each node and sets it up to provide the image through Cloudinary
   ###
   processImageTags: (nodes, options = {}) ->
     options = _(options).cloneDeep().defaults(@config()).value()
@@ -424,8 +428,8 @@ class Cloudinary
     this
 
   ###*
-  # Provide a transformation object, initialized with own's options, for chaining purposes.
-  # @return {Transformation}
+  * Provide a transformation object, initialized with own's options, for chaining purposes.
+  * @return {Transformation}
   ###
   transformation: (options)->
     @config.merge( options)

@@ -3,9 +3,9 @@ config = config || -> {}
 
 
 ###*
-# Defaults values for parameters.
-#
-# (Previously defined using option_consume() )
+* Defaults values for parameters.
+*
+* (Previously defined using option_consume() )
 ###
 #default_transformation_params ={
 #  cdn_subdomain: config().cdn_subdomain
@@ -31,15 +31,11 @@ config = config || -> {}
 
 class Param
   constructor: (@name, @short, @process = _.identity)->
-    #console.log("setting up " + @name)
 
   set: (@value)->
-    #console.log("Set " + @name + "= " + @value)
     this
 
   flatten: ->
-    #console.log("flatten #{@value}")
-    #console.dir(this)
     val = @process(@value)
     if @short? && val?
       "#{@short }_#{val}"
@@ -108,12 +104,6 @@ class RangeParam extends Param
   constructor: (@name, @short, @process = @norm_range_value)->
     super(@name, @short, @process)
 
-#class FetchParam extends Param
-#  constructor: (@name = "fetch", @short = "f", @process = _.identity)->
-#    super(@name, @short, @process)
-#  flatten: ->
-#    "#{@short}/#{@value}"
-
 class RawParam extends Param
   constructor: (@name, @short, @process = _.identity)->
     super(@name, @short, @process)
@@ -122,12 +112,12 @@ class RawParam extends Param
 
 
 ###*
-# A video codec parameter can be either a String or a Hash.
-# @param {Object} param <code>vc_<codec>[ : <profile> : [<level>]]</code>
-#                       or <code>{ codec: 'h264', profile: 'basic', level: '3.1' }</code>
-# @return {String} <code><codec> : <profile> : [<level>]]</code> if a Hash was provided
-#                   or the param if a String was provided.
-#                   Returns null if param is not a Hash or String
+* A video codec parameter can be either a String or a Hash.
+* @param {Object} param <code>vc_<codec>[ : <profile> : [<level>]]</code>
+*                       or <code>{ codec: 'h264', profile: 'basic', level: '3.1' }</code>
+* @return {String} <code><codec> : <profile> : [<level>]]</code> if a Hash was provided
+*                   or the param if a String was provided.
+*                   Returns null if param is not a Hash or String
 ###
 process_video_params = (param) ->
   switch param.constructor

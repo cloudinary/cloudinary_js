@@ -17,7 +17,7 @@
     }
 }(function (_) {
 ;
-var ArrayParam, Cloudinary, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, VideoTag, cloudinary_config, config, crc32, exports, getAttribute, getData, global, html_attrs, process_video_params, ref, setAttribute, setData, toAttribute, utf8_encode,
+var ArrayParam, Cloudinary, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, VideoTag, config, crc32, exports, getAttribute, getData, global, html_attrs, process_video_params, ref, setAttribute, setData, toAttribute, utf8_encode,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -109,9 +109,9 @@ Cloudinary = (function() {
 
 
   /**
-   * Defaults values for parameters.
-   *
-   * (Previously defined using option_consume() )
+  * Defaults values for parameters.
+  *
+  * (Previously defined using option_consume() )
    */
 
   DEFAULT_IMAGE_PARAMS = {
@@ -122,9 +122,9 @@ Cloudinary = (function() {
 
 
   /**
-   * Defaults values for parameters.
-   *
-   * (Previously defined using option_consume() )
+  * Defaults values for parameters.
+  *
+  * (Previously defined using option_consume() )
    */
 
   DEFAULT_VIDEO_PARAMS = {
@@ -144,6 +144,10 @@ Cloudinary = (function() {
     };
   }
 
+  Cloudinary["new"] = function(options) {
+    return new this(options);
+  };
+
 
   /**
    * Return the resource type and action type based on the given configuration
@@ -153,6 +157,7 @@ Cloudinary = (function() {
    * @param use_root_path
    * @param shorten
    * @returns {string} resource_type/type
+   *
    */
 
   finalizeResourceType = function(resourceType, type, urlSuffix, useRootPath, shorten) {
@@ -518,10 +523,10 @@ Cloudinary = (function() {
 
 
   /**
-   * combine key and value from the `attr` to generate an HTML tag attributes string.
-   * `Transformation::toHtmlTagOptions` is used to filter out transformation and configuration keys.
-   * @param {Object} attr
-   * @return {String} the attributes in the format `'key1="value1" key2="value2"'`
+  * combine key and value from the `attr` to generate an HTML tag attributes string.
+  * `Transformation::toHtmlTagOptions` is used to filter out transformation and configuration keys.
+  * @param {Object} attr
+  * @return {String} the attributes in the format `'key1="value1" key2="value2"'`
    */
 
   htmlAttrs = function(attrs) {
@@ -537,8 +542,8 @@ Cloudinary = (function() {
 
 
   /**
-   * similar to `$.fn.cloudinary`
-   * Finds all `img` tags under each node and sets it up to provide the image through Cloudinary
+  * similar to `$.fn.cloudinary`
+  * Finds all `img` tags under each node and sets it up to provide the image through Cloudinary
    */
 
   Cloudinary.prototype.processImageTags = function(nodes, options) {
@@ -570,8 +575,8 @@ Cloudinary = (function() {
 
 
   /**
-   * Provide a transformation object, initialized with own's options, for chaining purposes.
-   * @return {Transformation}
+  * Provide a transformation object, initialized with own's options, for chaining purposes.
+  * @return {Transformation}
    */
 
   Cloudinary.prototype.transformation = function(options) {
@@ -664,14 +669,12 @@ if (typeof module !== "undefined" && module.exports) {
   window.utf8_encode = utf8_encode;
 }
 
-cloudinary_config = void 0;
-
 Configuration = (function() {
 
   /**
-   * Defaults configuration.
-   *
-   * (Previously defined using option_consume() )
+  * Defaults configuration.
+  *
+  * (Previously defined using option_consume() )
    */
   var DEFAULT_CONFIGURATION_PARAMS, ref1;
 
@@ -691,14 +694,16 @@ Configuration = (function() {
     _.defaults(this.configuration, DEFAULT_CONFIGURATION_PARAMS);
   }
 
-  Configuration.prototype.set = function(config, value) {
-    if (_.isUndefined(value)) {
-      if (_.isPlainObject(config)) {
-        this.merge(config);
-      }
-    } else {
-      this.config[config] = value;
-    }
+
+  /**
+   * Set a new configuration item
+   * @param {String} name - the name of the item to set
+   * @param value - the value to be set
+   *
+   */
+
+  Configuration.prototype.set = function(name, value) {
+    this.config[name] = value;
     return this;
   };
 
@@ -749,6 +754,18 @@ Configuration = (function() {
     return this;
   };
 
+
+  /**
+  * Create or modify the Cloudinary client configuration
+  *
+  * This is a backward compatibility method. For new code, use get(), merge() etc.
+  *
+  * @param {Hash|String|true} new_config
+  * @param {String} new_value
+  * @returns {*} configuration, or value
+  *
+   */
+
   Configuration.prototype.config = function(new_config, new_value) {
     if ((this.configuration == null) || new_config === true) {
       this.fromEnvironment();
@@ -797,9 +814,9 @@ config = config || function() {
 
 
 /**
- * Defaults values for parameters.
- *
- * (Previously defined using option_consume() )
+* Defaults values for parameters.
+*
+* (Previously defined using option_consume() )
  */
 
 Param = (function() {
@@ -989,12 +1006,12 @@ RawParam = (function(superClass) {
 
 
 /**
- * A video codec parameter can be either a String or a Hash.
- * @param {Object} param <code>vc_<codec>[ : <profile> : [<level>]]</code>
- *                       or <code>{ codec: 'h264', profile: 'basic', level: '3.1' }</code>
- * @return {String} <code><codec> : <profile> : [<level>]]</code> if a Hash was provided
- *                   or the param if a String was provided.
- *                   Returns null if param is not a Hash or String
+* A video codec parameter can be either a String or a Hash.
+* @param {Object} param <code>vc_<codec>[ : <profile> : [<level>]]</code>
+*                       or <code>{ codec: 'h264', profile: 'basic', level: '3.1' }</code>
+* @return {String} <code><codec> : <profile> : [<level>]]</code> if a Hash was provided
+*                   or the param if a String was provided.
+*                   Returns null if param is not a Hash or String
  */
 
 process_video_params = function(param) {
@@ -1528,10 +1545,10 @@ toAttribute = function(key, value) {
 
 
 /**
- * combine key and value from the `attr` to generate an HTML tag attributes string.
- * `Transformation::toHtmlTagOptions` is used to filter out transformation and configuration keys.
- * @param {Object} attr
- * @return {String} the attributes in the format `'key1="value1" key2="value2"'`
+* combine key and value from the `attr` to generate an HTML tag attributes string.
+* `Transformation::toHtmlTagOptions` is used to filter out transformation and configuration keys.
+* @param {Object} attr
+* @return {String} the attributes in the format `'key1="value1" key2="value2"'`
  */
 
 html_attrs = function(attrs) {
@@ -1547,9 +1564,9 @@ html_attrs = function(attrs) {
 
 
 /**
- * Represents an HTML (DOM) tag
- *
- * Usage: tag = new HtmlTag( 'div', { 'width': 10})
+* Represents an HTML (DOM) tag
+*
+* Usage: tag = new HtmlTag( 'div', { 'width': 10})
  */
 
 HtmlTag = (function() {
@@ -1573,6 +1590,15 @@ HtmlTag = (function() {
     };
   }
 
+
+  /**
+  * Convenience constructor
+   */
+
+  HtmlTag["new"] = function(name, public_id, options) {
+    return new this(name, public_id, options);
+  };
+
   HtmlTag.prototype.getOptions = function() {
     return this.options;
   };
@@ -1588,6 +1614,10 @@ HtmlTag = (function() {
 
   HtmlTag.prototype.getAttr = function(name) {
     return this.attributes()[name];
+  };
+
+  HtmlTag.prototype.removeAttr = function(name) {
+    return delete this.attributes()[name];
   };
 
   HtmlTag.prototype.content = function() {
@@ -1614,8 +1644,20 @@ HtmlTag = (function() {
 
 })();
 
+
+/**
+* Creates an HTML (DOM) Image tag using Cloudinary as the source.
+ */
+
 ImageTag = (function(superClass) {
   extend(ImageTag, superClass);
+
+
+  /**
+  * Creates an HTML (DOM) Image tag using Cloudinary as the source.
+  * @param {String} public_id
+  * @param {Object} [options]
+   */
 
   function ImageTag(public_id1, options) {
     this.public_id = public_id1;
@@ -1642,6 +1684,11 @@ ImageTag = (function(superClass) {
 
 })(HtmlTag);
 
+
+/**
+* Creates an HTML (DOM) Video tag using Cloudinary as the source.
+ */
+
 VideoTag = (function(superClass) {
   var DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_PARAMS, DEFAULT_VIDEO_SOURCE_TYPES, VIDEO_TAG_PARAMS;
 
@@ -1658,9 +1705,9 @@ VideoTag = (function(superClass) {
 
 
   /**
-   * Defaults values for parameters.
-   *
-   * (Previously defined using option_consume() )
+  * Defaults values for parameters.
+  *
+  * (Previously defined using option_consume() )
    */
 
   DEFAULT_VIDEO_PARAMS = {
@@ -1671,6 +1718,13 @@ VideoTag = (function(superClass) {
     transformation: [],
     type: 'upload'
   };
+
+
+  /**
+  * Creates an HTML (DOM) Video tag using Cloudinary as the source.
+  * @param {String} public_id
+  * @param {Object} [options]
+   */
 
   function VideoTag(publicId, options) {
     if (options == null) {

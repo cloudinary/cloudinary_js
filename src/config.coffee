@@ -1,13 +1,9 @@
-
-#_ = require("lodash")
-cloudinary_config = undefined
-
 class Configuration
 
   ###*
-  # Defaults configuration.
-  #
-  # (Previously defined using option_consume() )
+  * Defaults configuration.
+  *
+  * (Previously defined using option_consume() )
   ###
   DEFAULT_CONFIGURATION_PARAMS ={
     secure: window?.location?.protocol == 'https:'
@@ -60,13 +56,14 @@ class Configuration
     _.defaults( @configuration, DEFAULT_CONFIGURATION_PARAMS)
 
 
-  # Set or update the configuration
-  # @param {String|Object} config
-  set:(config, value)->
-    if _.isUndefined(value)
-      @merge(config) if _.isPlainObject(config)
-    else
-      @config[config] = value
+  ###*
+   * Set a new configuration item
+   * @param {String} name - the name of the item to set
+   * @param value - the value to be set
+   *
+  ###
+  set:(name, value)->
+    @config[name] = value
     this
 
   get: (name)->
@@ -97,16 +94,18 @@ class Configuration
         for k, v of uri.query
           cloudinary[k] = v
     this
-
-  # Create or modify the Cloudinary client configuration
-  #
-  # This is a backward compatibility method. For new code, use get(), merge() etc.
-  #
-  # @param {Hash|String|true} new_config
-  # @param {String} new_value
-  # @returns {*}
+  ###*
+  * Create or modify the Cloudinary client configuration
+  *
+  * This is a backward compatibility method. For new code, use get(), merge() etc.
+  *
+  * @param {Hash|String|true} new_config
+  * @param {String} new_value
+  * @returns {*} configuration, or value
+  *
+  ###
   config: (new_config, new_value) ->
-    if !@configuration? || new_config == true
+    if !@configuration? || new_config == true # REVIEW do we need/want this auto-initialization?
       @fromEnvironment()
       @fromDocument() unless @configuration
     unless _.isUndefined(new_value)

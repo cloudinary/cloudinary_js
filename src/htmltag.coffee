@@ -8,10 +8,10 @@ toAttribute = (key, value) ->
     "#{key}=\"#{value}\""
 
 ###*
-# combine key and value from the `attr` to generate an HTML tag attributes string.
-# `Transformation::toHtmlTagOptions` is used to filter out transformation and configuration keys.
-# @param {Object} attr
-# @return {String} the attributes in the format `'key1="value1" key2="value2"'`
+* combine key and value from the `attr` to generate an HTML tag attributes string.
+* `Transformation::toHtmlTagOptions` is used to filter out transformation and configuration keys.
+* @param {Object} attr
+* @return {String} the attributes in the format `'key1="value1" key2="value2"'`
 ###
 html_attrs = (attrs) ->
   pairs = _.map(attrs, (value, key) -> toAttribute( key, value))
@@ -21,9 +21,9 @@ html_attrs = (attrs) ->
               ).join ' '
 
 ###*
-# Represents an HTML (DOM) tag
-#
-# Usage: tag = new HtmlTag( 'div', { 'width': 10})
+* Represents an HTML (DOM) tag
+*
+* Usage: tag = new HtmlTag( 'div', { 'width': 10})
 ###
 class HtmlTag
 
@@ -41,6 +41,13 @@ class HtmlTag
     transformation.setParent(this)
     @transformation = ()->
       transformation
+
+  ###*
+  * Convenience constructor
+  ###
+  @new = (name, public_id, options)->
+    new @(name, public_id, options)
+
   # REVIEW options and transformation will become out of sync. consider having one dynamically retrieved from the other.
   getOptions: ()-> @options
 
@@ -53,6 +60,9 @@ class HtmlTag
 
   getAttr: (name)->
     @attributes()[name]
+
+  removeAttr: (name)->
+    delete @attributes()[name]
 
   content: ()->
     ""
@@ -69,8 +79,16 @@ class HtmlTag
   toHtml: ()->
     @openTag() + @content()+ @closeTag()
 
+###*
+* Creates an HTML (DOM) Image tag using Cloudinary as the source.
+###
 class ImageTag extends HtmlTag
 
+  ###*
+  * Creates an HTML (DOM) Image tag using Cloudinary as the source.
+  * @param {String} public_id
+  * @param {Object} [options]
+  ###
   constructor: (@public_id, options={})->
     super("img", @public_id, options)
 
@@ -82,6 +100,9 @@ class ImageTag extends HtmlTag
     attr['src'] ?= new Cloudinary(@options).url( @public_id)
     attr
 
+###*
+* Creates an HTML (DOM) Video tag using Cloudinary as the source.
+###
 class VideoTag extends HtmlTag
 
   VIDEO_TAG_PARAMS = ['source_types','source_transformation','fallback_content', 'poster']
@@ -89,9 +110,9 @@ class VideoTag extends HtmlTag
   DEFAULT_POSTER_OPTIONS = { format: 'jpg', resource_type: 'video' }
 
   ###*
-  # Defaults values for parameters.
-  #
-  # (Previously defined using option_consume() )
+  * Defaults values for parameters.
+  *
+  * (Previously defined using option_consume() )
   ###
   DEFAULT_VIDEO_PARAMS ={
     fallback_content: ''
@@ -101,6 +122,12 @@ class VideoTag extends HtmlTag
     transformation: []
     type: 'upload'
   }
+
+  ###*
+  * Creates an HTML (DOM) Video tag using Cloudinary as the source.
+  * @param {String} public_id
+  * @param {Object} [options]
+  ###
   constructor: (publicId, options={})->
     options = _.defaults(_.cloneDeep(options), DEFAULT_VIDEO_PARAMS)
 

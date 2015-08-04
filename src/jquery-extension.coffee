@@ -6,7 +6,7 @@ class CloudinaryJQuery extends Cloudinary
   image: (publicId, options={})->
     i = super(publicId, options)
     url= i.getAttr('src')
-    i.setAttr('src', '')
+    i.setAttr('src')
     $(i.toHtml()).data('src-cache', url).attr(options).cloudinary_update(options);
 
   video: (publicId, options = {})->
@@ -33,17 +33,17 @@ $.fn.cloudinary = (options) ->
 
 
 ###*
-# Update hidpi (dpr_auto) and responsive (w_auto) fields according to the current container size and the device pixel ratio.
-# Only images marked with the cld-responsive class have w_auto updated.
-# options:
-# - responsive_use_stoppoints:
-#   - true - always use stoppoints for width
-#   - "resize" - use exact width on first render and stoppoints on resize (default)
-#   - false - always use exact width
-# - responsive:
-#   - true - enable responsive on this element. Can be done by adding cld-responsive.
-#            Note that $.cloudinary.responsive() should be called once on the page.
-# - responsive_preserve_height: if set to true, original css height is perserved. Should only be used if the transformation supports different aspect ratios.
+* Update hidpi (dpr_auto) and responsive (w_auto) fields according to the current container size and the device pixel ratio.
+* Only images marked with the cld-responsive class have w_auto updated.
+* options:
+* - responsive_use_stoppoints:
+*   - true - always use stoppoints for width
+*   - "resize" - use exact width on first render and stoppoints on resize (default)
+*   - false - always use exact width
+* - responsive:
+*   - true - enable responsive on this element. Can be done by adding cld-responsive.
+*            Note that $.cloudinary.responsive() should be called once on the page.
+* - responsive_preserve_height: if set to true, original css height is perserved. Should only be used if the transformation supports different aspect ratios.
 ###
 
 $.fn.cloudinary_update = (options = {}) ->

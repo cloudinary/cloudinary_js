@@ -60,9 +60,9 @@ class Cloudinary
   responsiveConfig = {}
   responsiveResizeInitialized = true
   ###*
-  # Defaults values for parameters.
-  #
-  # (Previously defined using option_consume() )
+  * Defaults values for parameters.
+  *
+  * (Previously defined using option_consume() )
   ###
   DEFAULT_IMAGE_PARAMS ={
     resource_type: "image"
@@ -71,9 +71,9 @@ class Cloudinary
   }
 
   ###*
-  # Defaults values for parameters.
-  #
-  # (Previously defined using option_consume() )
+  * Defaults values for parameters.
+  *
+  * (Previously defined using option_consume() )
   ###
   DEFAULT_VIDEO_PARAMS ={
     fallback_content: ''
@@ -91,6 +91,8 @@ class Cloudinary
     @config= (newConfig, newValue) ->
       configuration.config(newConfig, newValue)
 
+  @new = (options)-> new @(options)
+
   ###*
    * Return the resource type and action type based on the given configuration
    * @param resource_type
@@ -98,7 +100,9 @@ class Cloudinary
    * @param url_suffix
    * @param use_root_path
    * @param shorten
-   * @returns {string} resource_type/type ###
+   * @returns {string} resource_type/type
+   *
+  ###
   finalizeResourceType = (resourceType,type,urlSuffix,useRootPath,shorten) ->
     if _.isPlainObject(resourceType)
       options = resourceType
@@ -402,10 +406,10 @@ class Cloudinary
       key + '="' + value + '"'
 
   ###*
-  # combine key and value from the `attr` to generate an HTML tag attributes string.
-  # `Transformation::toHtmlTagOptions` is used to filter out transformation and configuration keys.
-  # @param {Object} attr
-  # @return {String} the attributes in the format `'key1="value1" key2="value2"'`
+  * combine key and value from the `attr` to generate an HTML tag attributes string.
+  * `Transformation::toHtmlTagOptions` is used to filter out transformation and configuration keys.
+  * @param {Object} attr
+  * @return {String} the attributes in the format `'key1="value1" key2="value2"'`
   ###
   htmlAttrs = (attrs) ->
     pairs = _.map(attrs, (value, key) ->
@@ -418,8 +422,8 @@ class Cloudinary
 
 
   ###*
-  # similar to `$.fn.cloudinary`
-  # Finds all `img` tags under each node and sets it up to provide the image through Cloudinary
+  * similar to `$.fn.cloudinary`
+  * Finds all `img` tags under each node and sets it up to provide the image through Cloudinary
   ###
   processImageTags: (nodes, options = {}) ->
     options = _(options).cloneDeep().defaults(@config()).value()
@@ -443,8 +447,8 @@ class Cloudinary
     this
 
   ###*
-  # Provide a transformation object, initialized with own's options, for chaining purposes.
-  # @return {Transformation}
+  * Provide a transformation object, initialized with own's options, for chaining purposes.
+  * @return {Transformation}
   ###
   transformation: (options)->
     @config.merge( options)
@@ -543,16 +547,12 @@ else
 #On a client
   window.utf8_encode = utf8_encode
 
-
-#_ = require("lodash")
-cloudinary_config = undefined
-
 class Configuration
 
   ###*
-  # Defaults configuration.
-  #
-  # (Previously defined using option_consume() )
+  * Defaults configuration.
+  *
+  * (Previously defined using option_consume() )
   ###
   DEFAULT_CONFIGURATION_PARAMS ={
     secure: window?.location?.protocol == 'https:'
@@ -605,13 +605,14 @@ class Configuration
     _.defaults( @configuration, DEFAULT_CONFIGURATION_PARAMS)
 
 
-  # Set or update the configuration
-  # @param {String|Object} config
-  set:(config, value)->
-    if _.isUndefined(value)
-      @merge(config) if _.isPlainObject(config)
-    else
-      @config[config] = value
+  ###*
+   * Set a new configuration item
+   * @param {String} name - the name of the item to set
+   * @param value - the value to be set
+   *
+  ###
+  set:(name, value)->
+    @config[name] = value
     this
 
   get: (name)->
@@ -642,16 +643,18 @@ class Configuration
         for k, v of uri.query
           cloudinary[k] = v
     this
-
-  # Create or modify the Cloudinary client configuration
-  #
-  # This is a backward compatibility method. For new code, use get(), merge() etc.
-  #
-  # @param {Hash|String|true} new_config
-  # @param {String} new_value
-  # @returns {*}
+  ###*
+  * Create or modify the Cloudinary client configuration
+  *
+  * This is a backward compatibility method. For new code, use get(), merge() etc.
+  *
+  * @param {Hash|String|true} new_config
+  * @param {String} new_value
+  * @returns {*} configuration, or value
+  *
+  ###
   config: (new_config, new_value) ->
-    if !@configuration? || new_config == true
+    if !@configuration? || new_config == true # REVIEW do we need/want this auto-initialization?
       @fromEnvironment()
       @fromDocument() unless @configuration
     unless _.isUndefined(new_value)
@@ -703,9 +706,9 @@ config = config || -> {}
 
 
 ###*
-# Defaults values for parameters.
-#
-# (Previously defined using option_consume() )
+* Defaults values for parameters.
+*
+* (Previously defined using option_consume() )
 ###
 #default_transformation_params ={
 #  cdn_subdomain: config().cdn_subdomain
@@ -731,15 +734,11 @@ config = config || -> {}
 
 class Param
   constructor: (@name, @short, @process = _.identity)->
-    #console.log("setting up " + @name)
 
   set: (@value)->
-    #console.log("Set " + @name + "= " + @value)
     this
 
   flatten: ->
-    #console.log("flatten #{@value}")
-    #console.dir(this)
     val = @process(@value)
     if @short? && val?
       "#{@short }_#{val}"
@@ -808,12 +807,6 @@ class RangeParam extends Param
   constructor: (@name, @short, @process = @norm_range_value)->
     super(@name, @short, @process)
 
-#class FetchParam extends Param
-#  constructor: (@name = "fetch", @short = "f", @process = _.identity)->
-#    super(@name, @short, @process)
-#  flatten: ->
-#    "#{@short}/#{@value}"
-
 class RawParam extends Param
   constructor: (@name, @short, @process = _.identity)->
     super(@name, @short, @process)
@@ -822,12 +815,12 @@ class RawParam extends Param
 
 
 ###*
-# A video codec parameter can be either a String or a Hash.
-# @param {Object} param <code>vc_<codec>[ : <profile> : [<level>]]</code>
-#                       or <code>{ codec: 'h264', profile: 'basic', level: '3.1' }</code>
-# @return {String} <code><codec> : <profile> : [<level>]]</code> if a Hash was provided
-#                   or the param if a String was provided.
-#                   Returns null if param is not a Hash or String
+* A video codec parameter can be either a String or a Hash.
+* @param {Object} param <code>vc_<codec>[ : <profile> : [<level>]]</code>
+*                       or <code>{ codec: 'h264', profile: 'basic', level: '3.1' }</code>
+* @return {String} <code><codec> : <profile> : [<level>]]</code> if a Hash was provided
+*                   or the param if a String was provided.
+*                   Returns null if param is not a Hash or String
 ###
 process_video_params = (param) ->
   switch param.constructor
@@ -1167,10 +1160,10 @@ toAttribute = (key, value) ->
     "#{key}=\"#{value}\""
 
 ###*
-# combine key and value from the `attr` to generate an HTML tag attributes string.
-# `Transformation::toHtmlTagOptions` is used to filter out transformation and configuration keys.
-# @param {Object} attr
-# @return {String} the attributes in the format `'key1="value1" key2="value2"'`
+* combine key and value from the `attr` to generate an HTML tag attributes string.
+* `Transformation::toHtmlTagOptions` is used to filter out transformation and configuration keys.
+* @param {Object} attr
+* @return {String} the attributes in the format `'key1="value1" key2="value2"'`
 ###
 html_attrs = (attrs) ->
   pairs = _.map(attrs, (value, key) -> toAttribute( key, value))
@@ -1180,9 +1173,9 @@ html_attrs = (attrs) ->
               ).join ' '
 
 ###*
-# Represents an HTML (DOM) tag
-#
-# Usage: tag = new HtmlTag( 'div', { 'width': 10})
+* Represents an HTML (DOM) tag
+*
+* Usage: tag = new HtmlTag( 'div', { 'width': 10})
 ###
 class HtmlTag
 
@@ -1200,6 +1193,13 @@ class HtmlTag
     transformation.setParent(this)
     @transformation = ()->
       transformation
+
+  ###*
+  * Convenience constructor
+  ###
+  @new = (name, public_id, options)->
+    new @(name, public_id, options)
+
   # REVIEW options and transformation will become out of sync. consider having one dynamically retrieved from the other.
   getOptions: ()-> @options
 
@@ -1212,6 +1212,9 @@ class HtmlTag
 
   getAttr: (name)->
     @attributes()[name]
+
+  removeAttr: (name)->
+    delete @attributes()[name]
 
   content: ()->
     ""
@@ -1228,8 +1231,16 @@ class HtmlTag
   toHtml: ()->
     @openTag() + @content()+ @closeTag()
 
+###*
+* Creates an HTML (DOM) Image tag using Cloudinary as the source.
+###
 class ImageTag extends HtmlTag
 
+  ###*
+  * Creates an HTML (DOM) Image tag using Cloudinary as the source.
+  * @param {String} public_id
+  * @param {Object} [options]
+  ###
   constructor: (@public_id, options={})->
     super("img", @public_id, options)
 
@@ -1241,6 +1252,9 @@ class ImageTag extends HtmlTag
     attr['src'] ?= new Cloudinary(@options).url( @public_id)
     attr
 
+###*
+* Creates an HTML (DOM) Video tag using Cloudinary as the source.
+###
 class VideoTag extends HtmlTag
 
   VIDEO_TAG_PARAMS = ['source_types','source_transformation','fallback_content', 'poster']
@@ -1248,9 +1262,9 @@ class VideoTag extends HtmlTag
   DEFAULT_POSTER_OPTIONS = { format: 'jpg', resource_type: 'video' }
 
   ###*
-  # Defaults values for parameters.
-  #
-  # (Previously defined using option_consume() )
+  * Defaults values for parameters.
+  *
+  * (Previously defined using option_consume() )
   ###
   DEFAULT_VIDEO_PARAMS ={
     fallback_content: ''
@@ -1260,6 +1274,12 @@ class VideoTag extends HtmlTag
     transformation: []
     type: 'upload'
   }
+
+  ###*
+  * Creates an HTML (DOM) Video tag using Cloudinary as the source.
+  * @param {String} public_id
+  * @param {Object} [options]
+  ###
   constructor: (publicId, options={})->
     options = _.defaults(_.cloneDeep(options), DEFAULT_VIDEO_PARAMS)
 
