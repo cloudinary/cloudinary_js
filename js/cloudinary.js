@@ -17,39 +17,52 @@
     }
 }(function (_) {
 ;
-var ArrayParam, Cloudinary, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, VideoTag, config, crc32, exports, getAttribute, getData, global, html_attrs, process_video_params, ref, setAttribute, setData, toAttribute, utf8_encode,
+var ArrayParam, Cloudinary, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, VideoTag, config, crc32, exports, getAttribute, getData, global, hasClass, html_attrs, isJQuery, process_video_params, ref, setAttribute, setData, toAttribute, utf8_encode,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
+isJQuery = function() {
+  var ref;
+  return (typeof $ !== "undefined" && $ !== null ? (ref = $.fn) != null ? ref.jquery : void 0 : void 0) != null;
+};
+
 getData = function(element, name) {
-  if (_.isElement(element)) {
+  if (isJQuery()) {
+    return $(element).data(name);
+  } else if (_.isElement(element)) {
     return element.getAttribute("data-" + name);
-  } else if (element.jquery != null) {
-    return element.data(name);
   }
 };
 
 setData = function(element, name, value) {
-  if (_.isElement(element)) {
+  if (isJQuery()) {
+    return $(element).data(name, value);
+  } else if (_.isElement(element)) {
     return element.setAttribute("data-" + name, value);
-  } else if (element.jquery != null) {
-    return element.data(name, value);
   }
 };
 
 getAttribute = function(element, name) {
-  if (_.isElement(element)) {
+  if (isJQuery()) {
+    return $(element).attr(name);
+  } else if (_.isElement(element)) {
     return element.getAttribute(name);
-  } else if (element.jquery != null) {
-    return element.attr(name);
   }
 };
 
 setAttribute = function(element, name, value) {
-  if (_.isElement(element)) {
+  if (isJQuery()) {
+    return $(element).attr(name, value);
+  } else if (_.isElement(element)) {
     return element.setAttribute(name, value);
-  } else if (element.jquery != null) {
-    return element.attr(name, value);
+  }
+};
+
+hasClass = function(element, name) {
+  if (isJQuery()) {
+    return $(element).hasClass(name);
+  } else if (_.isElement(element)) {
+    return element.className.match(new RegExp("\b" + name(+"\b")));
   }
 };
 
@@ -105,7 +118,7 @@ Cloudinary = (function() {
 
   responsiveConfig = {};
 
-  responsiveResizeInitialized = true;
+  responsiveResizeInitialized = false;
 
 
   /**
@@ -393,31 +406,33 @@ Cloudinary = (function() {
     if (responsiveResize && !responsiveResizeInitialized) {
       responsiveConfig.resizing = responsiveResizeInitialized = true;
       timeout = null;
-      return $(window).on('resize', function() {
-        var debounce, reset, run, wait;
-        debounce = get_config('responsive_debounce', responsiveConfig, 100);
-        reset = function() {
-          if (timeout) {
-            clearTimeout(timeout);
-            return timeout = null;
+      return $(window).on('resize', (function(_this) {
+        return function() {
+          var debounce, ref2, ref3, reset, run, wait;
+          debounce = (ref2 = (ref3 = responsiveConfig['responsive_debounce']) != null ? ref3 : _this.config('responsive_debounce')) != null ? ref2 : 100;
+          reset = function() {
+            if (timeout) {
+              clearTimeout(timeout);
+              return timeout = null;
+            }
+          };
+          run = function() {
+            return $('img.cld-responsive').cloudinary_update(responsiveConfig);
+          };
+          wait = function() {
+            reset();
+            return setTimeout((function() {
+              reset();
+              return run();
+            }), debounce);
+          };
+          if (debounce) {
+            return wait();
+          } else {
+            return run();
           }
         };
-        run = function() {
-          return $('img.cld-responsive').cloudinary_update(responsiveConfig);
-        };
-        wait = function() {
-          reset();
-          return setTimeout((function() {
-            reset();
-            return run();
-          }), debounce);
-        };
-        if (debounce) {
-          return wait();
-        } else {
-          return run();
-        }
-      });
+      })(this));
     }
   };
 

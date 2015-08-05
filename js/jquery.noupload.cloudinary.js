@@ -18,39 +18,52 @@
     }
 }(function (_, $) {
 ;
-var ArrayParam, Cloudinary, CloudinaryJQuery, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, VideoTag, config, crc32, exports, getAttribute, getData, global, html_attrs, process_video_params, ref, setAttribute, setData, toAttribute, utf8_encode, webp,
+var ArrayParam, Cloudinary, CloudinaryJQuery, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, VideoTag, config, crc32, exports, getAttribute, getData, global, hasClass, html_attrs, isJQuery, process_video_params, ref, ref1, setAttribute, setData, toAttribute, utf8_encode, webp,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
+isJQuery = function() {
+  var ref;
+  return (typeof $ !== "undefined" && $ !== null ? (ref = $.fn) != null ? ref.jquery : void 0 : void 0) != null;
+};
+
 getData = function(element, name) {
-  if (_.isElement(element)) {
+  if (isJQuery()) {
+    return $(element).data(name);
+  } else if (_.isElement(element)) {
     return element.getAttribute("data-" + name);
-  } else if (element.jquery != null) {
-    return element.data(name);
   }
 };
 
 setData = function(element, name, value) {
-  if (_.isElement(element)) {
+  if (isJQuery()) {
+    return $(element).data(name, value);
+  } else if (_.isElement(element)) {
     return element.setAttribute("data-" + name, value);
-  } else if (element.jquery != null) {
-    return element.data(name, value);
   }
 };
 
 getAttribute = function(element, name) {
-  if (_.isElement(element)) {
+  if (isJQuery()) {
+    return $(element).attr(name);
+  } else if (_.isElement(element)) {
     return element.getAttribute(name);
-  } else if (element.jquery != null) {
-    return element.attr(name);
   }
 };
 
 setAttribute = function(element, name, value) {
-  if (_.isElement(element)) {
+  if (isJQuery()) {
+    return $(element).attr(name, value);
+  } else if (_.isElement(element)) {
     return element.setAttribute(name, value);
-  } else if (element.jquery != null) {
-    return element.attr(name, value);
+  }
+};
+
+hasClass = function(element, name) {
+  if (isJQuery()) {
+    return $(element).hasClass(name);
+  } else if (_.isElement(element)) {
+    return element.className.match(new RegExp("\b" + name(+"\b")));
   }
 };
 
@@ -106,7 +119,7 @@ Cloudinary = (function() {
 
   responsiveConfig = {};
 
-  responsiveResizeInitialized = true;
+  responsiveResizeInitialized = false;
 
 
   /**
@@ -394,31 +407,33 @@ Cloudinary = (function() {
     if (responsiveResize && !responsiveResizeInitialized) {
       responsiveConfig.resizing = responsiveResizeInitialized = true;
       timeout = null;
-      return $(window).on('resize', function() {
-        var debounce, reset, run, wait;
-        debounce = get_config('responsive_debounce', responsiveConfig, 100);
-        reset = function() {
-          if (timeout) {
-            clearTimeout(timeout);
-            return timeout = null;
+      return $(window).on('resize', (function(_this) {
+        return function() {
+          var debounce, ref2, ref3, reset, run, wait;
+          debounce = (ref2 = (ref3 = responsiveConfig['responsive_debounce']) != null ? ref3 : _this.config('responsive_debounce')) != null ? ref2 : 100;
+          reset = function() {
+            if (timeout) {
+              clearTimeout(timeout);
+              return timeout = null;
+            }
+          };
+          run = function() {
+            return $('img.cld-responsive').cloudinary_update(responsiveConfig);
+          };
+          wait = function() {
+            reset();
+            return setTimeout((function() {
+              reset();
+              return run();
+            }), debounce);
+          };
+          if (debounce) {
+            return wait();
+          } else {
+            return run();
           }
         };
-        run = function() {
-          return $('img.cld-responsive').cloudinary_update(responsiveConfig);
-        };
-        wait = function() {
-          reset();
-          return setTimeout((function() {
-            reset();
-            return run();
-          }), debounce);
-        };
-        if (debounce) {
-          return wait();
-        } else {
-          return run();
-        }
-      });
+      })(this));
     }
   };
 
@@ -1841,8 +1856,8 @@ CloudinaryJQuery = (function(superClass) {
     }
     i = CloudinaryJQuery.__super__.image.call(this, publicId, options);
     url = i.getAttr('src');
-    i.setAttr('src');
-    return $(i.toHtml()).data('src-cache', url).attr(options).cloudinary_update(options);
+    i.setAttr('src', '');
+    return $(i.toHtml()).removeAttr('src').data('src-cache', url).cloudinary_update(options);
   };
 
   CloudinaryJQuery.prototype.video = function(publicId, options) {
@@ -1897,33 +1912,29 @@ $.fn.cloudinary_update = function(options) {
     options = {};
   }
   responsive_use_stoppoints = (ref1 = (ref2 = options['responsive_use_stoppoints']) != null ? ref2 : $.cloudinary.config('responsive_use_stoppoints')) != null ? ref1 : 'resize';
-  exact = responsive_use_stoppoints === false || responsive_use_stoppoints === 'resize' && !options.resizing;
+  exact = !responsive_use_stoppoints || responsive_use_stoppoints === 'resize' && !options.resizing;
   this.filter('img').each(function() {
-    var attrs, container, containerWidth, currentWidth, nthParent, parents, parentsLength, requestedWidth, responsive, src;
+    var attrs, container, containerWidth, currentWidth, requestedWidth, responsive, src;
     if (options.responsive) {
-      $(this).addClass('cld-responsive');
+      if (!this.className.match(/\bcld-responsive\b/)) {
+        this.className = _.trim("this.className  " + 'cld-responsive');
+      }
     }
     attrs = {};
-    src = $(this).data('src-cache') || $(this).data('src');
+    src = getData(this, 'src-cache') || getData(this, 'src');
     if (!src) {
       return;
     }
-    responsive = $(this).hasClass('cld-responsive') && src.match(/\bw_auto\b/);
+    responsive = hasClass(this, 'cld-responsive') && src.match(/\bw_auto\b/);
     if (responsive) {
-      parents = $(this).parents();
-      parentsLength = parents.length;
-      container = void 0;
+      container = this.parentNode;
       containerWidth = 0;
-      nthParent = void 0;
-      nthParent = 0;
-      while (nthParent < parentsLength) {
-        container = parents[nthParent];
-        if (container && container.clientWidth) {
-          containerWidth = container.clientWidth;
-          break;
-        }
-        nthParent += 1;
+      while (container && containerWidth === 0) {
+        console.log("First container: %o", container);
+        containerWidth = container.clientWidth || 0;
+        container = container.parentNode;
       }
+      console.log("First width %s, second width %s", containerWidth, containerWidth);
       if (containerWidth === 0) {
         return;
       }
@@ -1979,6 +1990,10 @@ $.fn.fetchify = function(options) {
     'type': 'fetch'
   }));
 };
+
+global = (ref1 = typeof module !== "undefined" && module !== null ? module.exports : void 0) != null ? ref1 : window;
+
+global.Cloudinary.CloudinaryJQuery = CloudinaryJQuery;
 
 $.cloudinary = new CloudinaryJQuery();
 

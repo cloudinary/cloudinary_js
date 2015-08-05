@@ -2,11 +2,13 @@ describe("cloudinary", function() {
   var result,
       fixtureContainer;
   beforeEach(function() {
-    $.cloudinary.config({
+    $.cloudinary = new Cloudinary.CloudinaryJQuery({
       cloud_name: "test123"
     });
-    fixtureContainer = $('<div id="fixture">');
+
+    fixtureContainer = $('<div id="fixture" " >');
     fixtureContainer.appendTo('body');
+
   });
 
   afterEach(function() {
@@ -15,7 +17,7 @@ describe("cloudinary", function() {
 
   function test_cloudinary_url(public_id, options, expected_url, expected_options) {
     result = $.cloudinary.url(public_id, options);
-    //expect(options).toEqual(expected_options);
+    //expect(Cloudinary.Transformation.new(options).toHtmlAttributes()).toEqual(expected_options);
     expect(result).toEqual(expected_url);
   }
 
@@ -366,7 +368,7 @@ describe("cloudinary", function() {
     container = $('<div></div>').css({width: 101}).appendTo(fixtureContainer);
 
     img = $.cloudinary.image("sample.jpg", {width: "auto", dpr: "auto", crop: "scale", responsive: true}).appendTo(container);
-    expect(img.attr('src')).toEqual(null);
+    expect(img.attr('src')).toBeUndefined();
     $.cloudinary.responsive();
     expect(img.attr('src')).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/upload/c_scale,dpr_"+dpr+",w_101/sample.jpg");
     container.css('width', 111);

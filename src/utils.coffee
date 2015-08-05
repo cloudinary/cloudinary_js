@@ -1,24 +1,32 @@
-getData = ( element, name)->
-  if _.isElement(element)
-    element.getAttribute("data-#{name}")
-  else if element.jquery?
-    element.data(name)
+isJQuery = ->
+  $?.fn?.jquery?
 
+getData = ( element, name)->
+  if isJQuery()
+    $(element).data(name)
+  else if _.isElement(element)
+    element.getAttribute("data-#{name}")
 
 setData = (element, name, value)->
-  if _.isElement(element)
+  if isJQuery()
+    $(element).data(name, value)
+  else if _.isElement(element)
     element.setAttribute("data-#{name}", value)
-  else if element.jquery?
-    element.data(name, value)
 
 getAttribute = ( element, name)->
-  if _.isElement(element)
+  if isJQuery()
+    $(element).attr(name)
+  else if _.isElement(element)
     element.getAttribute(name)
-  else if element.jquery?
-    element.attr(name)
 
 setAttribute = (element, name, value)->
-  if _.isElement(element)
+  if isJQuery()
+    $(element).attr(name, value)
+  else if _.isElement(element)
     element.setAttribute(name, value)
-  else if element.jquery?
-    element.attr(name, value)
+
+hasClass = (element, name)->
+  if isJQuery()
+    $(element).hasClass(name)
+  else if _.isElement(element)
+    element.className.match(new RegExp("\b" + name +"\b"))

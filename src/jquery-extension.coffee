@@ -6,8 +6,8 @@ class CloudinaryJQuery extends Cloudinary
   image: (publicId, options={})->
     i = super(publicId, options)
     url= i.getAttr('src')
-    i.setAttr('src')
-    $(i.toHtml()).data('src-cache', url).attr(options).cloudinary_update(options);
+    i.setAttr('src', '')
+    $(i.toHtml()).removeAttr('src').data('src-cache', url).cloudinary_update(options);
 
   video: (publicId, options = {})->
     # TODO implement
@@ -48,28 +48,23 @@ $.fn.cloudinary = (options) ->
 
 $.fn.cloudinary_update = (options = {}) ->
   responsive_use_stoppoints = options['responsive_use_stoppoints'] ? $.cloudinary.config('responsive_use_stoppoints') ? 'resize'
-  exact = responsive_use_stoppoints == false or responsive_use_stoppoints == 'resize' and !options.resizing
+  exact = !responsive_use_stoppoints || responsive_use_stoppoints == 'resize' and !options.resizing
   @filter('img').each ->
     if options.responsive
-      $(this).addClass 'cld-responsive'
+      this.className = _.trim( "this.className  #{'cld-responsive'}") unless this.className.match( /\bcld-responsive\b/)
     attrs = {}
-    src = $(this).data('src-cache') or $(this).data('src')
+    src = getData(this, 'src-cache') or getData(this, 'src')
     if !src
       return
-    responsive = $(this).hasClass('cld-responsive') and src.match(/\bw_auto\b/)
+    responsive = hasClass(this, 'cld-responsive') and src.match(/\bw_auto\b/)
     if responsive
-      parents = $(this).parents()
-      parentsLength = parents.length
-      container = undefined
+      container = this.parentNode
       containerWidth = 0
-      nthParent = undefined
-      nthParent = 0
-      while nthParent < parentsLength
-        container = parents[nthParent]
-        if container and container.clientWidth
-          containerWidth = container.clientWidth
-          break
-        nthParent += 1
+      while container and containerWidth == 0
+        console.log( "First container: %o", container)
+        containerWidth = container.clientWidth || 0
+        container = container.parentNode
+      console.log( "First width %s, second width %s", containerWidth, containerWidth)
       if containerWidth == 0
         # container doesn't know the size yet. Usually because the image is hidden or outside the DOM.
         return
@@ -110,6 +105,11 @@ $.fn.webpify = (options = {}, webp_options) ->
 
 $.fn.fetchify = (options) ->
   @cloudinary $.extend(options, 'type': 'fetch')
+
+global = module?.exports ? window
+# Copy all previously defined object in the "Cloudinary" scope
+
+global.Cloudinary.CloudinaryJQuery = CloudinaryJQuery
 
 
 $.cloudinary = new CloudinaryJQuery()

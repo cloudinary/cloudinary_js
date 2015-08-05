@@ -58,7 +58,7 @@ class Cloudinary
 
   devicePixelRatioCache = {}
   responsiveConfig = {}
-  responsiveResizeInitialized = true
+  responsiveResizeInitialized = false
   ###*
   * Defaults values for parameters.
   *
@@ -285,8 +285,8 @@ class Cloudinary
     if responsiveResize and !responsiveResizeInitialized
       responsiveConfig.resizing = responsiveResizeInitialized = true
       timeout = null
-      $(window).on 'resize', ->
-        debounce = get_config('responsive_debounce', responsiveConfig, 100)
+      $(window).on 'resize', =>
+        debounce = responsiveConfig['responsive_debounce'] ? @config('responsive_debounce') ? 100
 
         reset = ->
           if timeout
