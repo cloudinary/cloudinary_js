@@ -471,12 +471,12 @@ Cloudinary = (function() {
   Cloudinary.prototype.responsive = function(options) {
     var ref, ref1, responsiveResize, timeout;
     responsiveConfig = _.merge(responsiveConfig || {}, options);
-    this.cloudinary_update(document.querySelectorAll('img.cld-responsive, img.cld-hidpi'), responsiveConfig);
+    this.cloudinary_update('img.cld-responsive, img.cld-hidpi', responsiveConfig);
     responsiveResize = (ref = (ref1 = responsiveConfig['responsive_resize']) != null ? ref1 : this.config('responsive_resize')) != null ? ref : true;
     if (responsiveResize && !responsiveResizeInitialized) {
       responsiveConfig.resizing = responsiveResizeInitialized = true;
       timeout = null;
-      return $(window).on('resize', (function(_this) {
+      return window.addEventListener('resize', (function(_this) {
         return function() {
           var debounce, ref2, ref3, reset, run, wait;
           debounce = (ref2 = (ref3 = responsiveConfig['responsive_debounce']) != null ? ref3 : _this.config('responsive_debounce')) != null ? ref2 : 100;
@@ -487,7 +487,7 @@ Cloudinary = (function() {
             }
           };
           run = function() {
-            return $('img.cld-responsive').cloudinary_update(responsiveConfig);
+            return this.cloudinary_update('img.cld-responsive', responsiveConfig);
           };
           wait = function() {
             reset();
@@ -645,7 +645,7 @@ Cloudinary = (function() {
         width: i.getAttribute('width'),
         height: i.getAttribute('height'),
         src: i.getAttribute('src')
-      }, options);
+      }, options, this.config());
       publicId = imgOptions['source'] || imgOptions['src'];
       delete imgOptions['source'];
       delete imgOptions['src'];
@@ -679,9 +679,18 @@ Cloudinary = (function() {
     if (options == null) {
       options = {};
     }
-    if (!(_.isArray(elements) || elements.constructor.name === "NodeList")) {
-      elements = [elements];
-    }
+    elements = (function() {
+      switch (elements) {
+        case _.isArray(elements):
+          return elements;
+        case elements.constructor.name === "NodeList":
+          return elements;
+        case _.isString(elements):
+          return document.querySelectorAll(elements);
+        case _.isElement(elements):
+          return [elements];
+      }
+    })();
     responsive_use_stoppoints = (ref = (ref1 = options['responsive_use_stoppoints']) != null ? ref1 : this.config('responsive_use_stoppoints')) != null ? ref : 'resize';
     exact = !responsive_use_stoppoints || responsive_use_stoppoints === 'resize' && !options.resizing;
     for (j = 0, len = elements.length; j < len; j++) {
@@ -737,7 +746,7 @@ Cloudinary = (function() {
 
   Cloudinary.prototype.transformation = function(options) {
     this.config.merge(options);
-    return Transformation["new"](this.config().toOptions()).setParent(this);
+    return Transformation["new"](this.config()).setParent(this);
   };
 
   return Cloudinary;
@@ -940,10 +949,6 @@ Configuration = (function() {
     } else {
       return this.configuration;
     }
-  };
-
-  Configuration.prototype.defaults = function() {
-    return _.pick(this.configuration, ["cdn_subdomain", "cloud_name", "cname", "dpr", "fallback_content", "private_cdn", "protocol", "resource_type", "responsive_width", "secure", "secure_cdn_subdomain", "secure_distribution", "shorten", "source_transformation", "source_types", "transformation", "type", "use_root_path"]);
   };
 
   Configuration.prototype.toOptions = function() {

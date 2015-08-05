@@ -61,7 +61,7 @@ class Param
 class ArrayParam extends Param
   constructor: (@name, @short, @sep = '.', @process = _.identity) ->
     super(@name, @short, @process)
-  flatten: -> #FIXME when to handle string?
+  flatten: ->
     if @short?
       flat = for t in @value
         if _.isFunction( t.flatten)
@@ -80,7 +80,7 @@ class ArrayParam extends Param
 class TransformationParam extends Param
   constructor: (@name, @short = "t", @sep = '.', @process = _.identity) ->
     super(@name, @short, @process)
-  flatten: -> #FIXME when to handle string?
+  flatten: ->
     result = if _.isEmpty(@value)
       null
     else if _.all(@value, _.isString)

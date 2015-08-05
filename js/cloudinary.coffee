@@ -208,7 +208,7 @@ class Cloudinary
 
   image: (publicId, options={}) ->
     options = _.defaults(_.cloneDeep(options),@config(), DEFAULT_IMAGE_PARAMS)
-    new ImageTag(publicId, options) # TODO need to call cloudinary_update
+    new ImageTag(publicId, options) # REVIEW need to call cloudinary_update
 
   video_thumbnail: (publicId, options) ->
     image publicId, _.extend( {}, DEFAULT_POSTER_OPTIONS, options)
@@ -282,12 +282,12 @@ class Cloudinary
 
   responsive: (options) ->
     responsiveConfig = _.merge(responsiveConfig or {}, options)
-    @cloudinary_update document.querySelectorAll('img.cld-responsive, img.cld-hidpi'), responsiveConfig
+    @cloudinary_update 'img.cld-responsive, img.cld-hidpi', responsiveConfig
     responsiveResize = responsiveConfig['responsive_resize'] ? @config('responsive_resize') ? true
     if responsiveResize and !responsiveResizeInitialized
       responsiveConfig.resizing = responsiveResizeInitialized = true
       timeout = null
-      $(window).on 'resize', =>
+      window.addEventListener 'resize', =>
         debounce = responsiveConfig['responsive_debounce'] ? @config('responsive_debounce') ? 100
 
         reset = ->
@@ -296,7 +296,7 @@ class Cloudinary
             timeout = null
 
         run = ->
-          $('img.cld-responsive').cloudinary_update responsiveConfig
+          @cloudinary_update 'img.cld-responsive', responsiveConfig
 
         wait = ->
           reset()
@@ -312,7 +312,7 @@ class Cloudinary
 
   calc_stoppoint: (element, width) ->
     stoppoints = getData(element,'stoppoints') or @config('stoppoints') or defaultStoppoints
-    if _.isFunction stoppoints  # REVIEW can 'stoppoints' have a function value or is this just for defaultStoppoints?
+    if _.isFunction stoppoints
       stoppoints(width)
     else
       if _.isString stoppoints
@@ -435,17 +435,17 @@ class Cloudinary
           width: i.getAttribute('width')
           height: i.getAttribute('height')
           src: i.getAttribute('src')
-        },  options)
+        },  options, @config())
         publicId = imgOptions['source'] || imgOptions['src']
         delete imgOptions['source']
         delete imgOptions['src']
         url = @url(publicId, imgOptions)
-        imgOptions = new Transformation(imgOptions).toHtmlAttributes() # FIXME include own config
+        imgOptions = new Transformation(imgOptions).toHtmlAttributes()
         setData(i, 'src-cache', url)
         i.setAttribute('width', imgOptions.width)
         i.setAttribute('height', imgOptions.height)
       ).value()
-    @cloudinary_update( images, options) # FIXME enable
+    @cloudinary_update( images, options)
     this
 
   ###*
@@ -463,7 +463,16 @@ class Cloudinary
   ###
 
   cloudinary_update: (elements, options = {}) ->
-    elements = [elements] unless _.isArray(elements) || elements.constructor.name == "NodeList"
+    elements = switch elements
+      when _.isArray(elements)
+        elements
+      when elements.constructor.name == "NodeList"
+        elements
+      when _.isString(elements)
+        document.querySelectorAll(elements)
+      when _.isElement(elements)
+        [elements]
+
     responsive_use_stoppoints = options['responsive_use_stoppoints'] ? @config('responsive_use_stoppoints') ? 'resize'
     exact = !responsive_use_stoppoints || responsive_use_stoppoints == 'resize' and !options.resizing
     for tag in elements when tag.tagName.match(/body/i)
@@ -506,7 +515,7 @@ class Cloudinary
   ###
   transformation: (options)->
     @config.merge( options)
-    Transformation.new( @config().toOptions()).setParent( this)
+    Transformation.new( @config()).setParent( this)
 
 global = module?.exports ? window
 # Copy all previously defined object in the "Cloudinary" scope
@@ -697,6 +706,7 @@ class Configuration
         for k, v of uri.query
           cloudinary[k] = v
     this
+
   ###*
   * Create or modify the Cloudinary client configuration
   *
@@ -721,30 +731,6 @@ class Configuration
       @configuration
     else
       @configuration
-
-  # Whitelisted default options
-  defaults: ()-> # TODO rename: this is not defaults but rather current config
-    _.pick(@configuration, [
-      "cdn_subdomain"
-      "cloud_name"
-      "cname"
-      "dpr"
-      "fallback_content"
-      "private_cdn"
-      "protocol"
-      "resource_type"
-      "responsive_width"
-      "secure"
-      "secure_cdn_subdomain"
-      "secure_distribution"
-      "shorten"
-      "source_transformation"
-      "source_types"
-      "transformation"
-      "type"
-      "use_root_path"
-
-    ])
 
   toOptions: ()->
     @configuration
@@ -818,7 +804,7 @@ class Param
 class ArrayParam extends Param
   constructor: (@name, @short, @sep = '.', @process = _.identity) ->
     super(@name, @short, @process)
-  flatten: -> #FIXME when to handle string?
+  flatten: ->
     if @short?
       flat = for t in @value
         if _.isFunction( t.flatten)
@@ -837,7 +823,7 @@ class ArrayParam extends Param
 class TransformationParam extends Param
   constructor: (@name, @short = "t", @sep = '.', @process = _.identity) ->
     super(@name, @short, @process)
-  flatten: -> #FIXME when to handle string?
+  flatten: ->
     result = if _.isEmpty(@value)
       null
     else if _.all(@value, _.isString)

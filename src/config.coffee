@@ -94,6 +94,7 @@ class Configuration
         for k, v of uri.query
           cloudinary[k] = v
     this
+
   ###*
   * Create or modify the Cloudinary client configuration
   *
@@ -118,30 +119,6 @@ class Configuration
       @configuration
     else
       @configuration
-
-  # Whitelisted default options
-  defaults: ()-> # TODO rename: this is not defaults but rather current config
-    _.pick(@configuration, [
-      "cdn_subdomain"
-      "cloud_name"
-      "cname"
-      "dpr"
-      "fallback_content"
-      "private_cdn"
-      "protocol"
-      "resource_type"
-      "responsive_width"
-      "secure"
-      "secure_cdn_subdomain"
-      "secure_distribution"
-      "shorten"
-      "source_transformation"
-      "source_types"
-      "transformation"
-      "type"
-      "use_root_path"
-
-    ])
 
   toOptions: ()->
     @configuration

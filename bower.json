@@ -54,6 +54,8 @@
   },
   "ignore": [
     "/*.*",
+    "node_modules",
+    "bower_components",
     "test",
     "js/jquery.fileupload*.js",
     "js/jquery.iframe-transport.js",
