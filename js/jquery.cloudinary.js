@@ -18,7 +18,14 @@
     }
 }(function (_, $) {
 ;
-var ArrayParam, Cloudinary, CloudinaryJQuery, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, VideoTag, config, crc32, exports, getAttribute, getData, global, hasClass, html_attrs, isJQuery, process_video_params, ref, ref1, setAttribute, setData, toAttribute, utf8_encode, webp,
+
+/**
+  * Verifies that the `$` (global) variable is jQuery.
+  *
+  * If it is not, assume that jQuery is not available. (We are ignoring the possible "no conflict" scenario.)
+  * @returns {boolean} true if `$` is a jQuery object
+ */
+var ArrayParam, Cloudinary, CloudinaryJQuery, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, VideoTag, config, crc32, exports, getAttribute, getData, global, hasClass, html_attrs, isJQuery, process_video_params, ref, ref1, setAttribute, setAttributes, setData, toAttribute, utf8_encode, webp,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -26,6 +33,17 @@ isJQuery = function() {
   var ref;
   return (typeof $ !== "undefined" && $ !== null ? (ref = $.fn) != null ? ref.jquery : void 0 : void 0) != null;
 };
+
+
+/**
+  * Get data from the DOM element.
+  *
+  * This method will use jQuery's `data()` method if it is available, otherwise it will get the `data-` attribute
+  * @param {Element} element - the element to get the data from
+  * @param {String} name - the name of the data item
+  * @returns the value associated with the `name`
+  *
+ */
 
 getData = function(element, name) {
   if (isJQuery()) {
@@ -35,6 +53,17 @@ getData = function(element, name) {
   }
 };
 
+
+/**
+  * Set data in the DOM element.
+  *
+  * This method will use jQuery's `data()` method if it is available, otherwise it will set the `data-` attribute
+  * @param {Element} element - the element to set the data in
+  * @param {String} name - the name of the data item
+  * @param {*} value - the value to be set
+  *
+ */
+
 setData = function(element, name, value) {
   if (isJQuery()) {
     return $(element).data(name, value);
@@ -42,6 +71,17 @@ setData = function(element, name, value) {
     return element.setAttribute("data-" + name, value);
   }
 };
+
+
+/**
+  * Get attribute from the DOM element.
+  *
+  * This method will use jQuery's `attr()` method if it is available, otherwise it will get the attribute directly
+  * @param {Element} element - the element to set the attribute for
+  * @param {String} name - the name of the attribute
+  * @returns {*} the value of the attribute
+  *
+ */
 
 getAttribute = function(element, name) {
   if (isJQuery()) {
@@ -51,11 +91,40 @@ getAttribute = function(element, name) {
   }
 };
 
+
+/**
+  * Set attribute in the DOM element.
+  *
+  * This method will use jQuery's `attr()` method if it is available, otherwise it will set the attribute directly
+  * @param {Element} element - the element to set the attribute for
+  * @param {String} name - the name of the attribute
+  * @param {*} value - the value to be set
+  *
+ */
+
 setAttribute = function(element, name, value) {
   if (isJQuery()) {
     return $(element).attr(name, value);
   } else if (_.isElement(element)) {
     return element.setAttribute(name, value);
+  }
+};
+
+setAttributes = function(element, attributes) {
+  var name, results, value;
+  if (isJQuery()) {
+    return $(element).attr(attributes);
+  } else {
+    results = [];
+    for (name in attributes) {
+      value = attributes[name];
+      if (value != null) {
+        results.push(setAttribute(element, name, value));
+      } else {
+        results.push(element.removeAttribute(name));
+      }
+    }
+    return results;
   }
 };
 
@@ -402,7 +471,7 @@ Cloudinary = (function() {
   Cloudinary.prototype.responsive = function(options) {
     var ref, ref1, responsiveResize, timeout;
     responsiveConfig = _.merge(responsiveConfig || {}, options);
-    $('img.cld-responsive, img.cld-hidpi').cloudinary_update(responsiveConfig);
+    this.cloudinary_update(document.querySelectorAll('img.cld-responsive, img.cld-hidpi'), responsiveConfig);
     responsiveResize = (ref = (ref1 = responsiveConfig['responsive_resize']) != null ? ref1 : this.config('responsive_resize')) != null ? ref : true;
     if (responsiveResize && !responsiveResizeInitialized) {
       responsiveConfig.resizing = responsiveResizeInitialized = true;
@@ -586,6 +655,77 @@ Cloudinary = (function() {
       i.setAttribute('width', imgOptions.width);
       return i.setAttribute('height', imgOptions.height);
     }).value();
+    this.cloudinary_update(images, options);
+    return this;
+  };
+
+
+  /**
+  * Update hidpi (dpr_auto) and responsive (w_auto) fields according to the current container size and the device pixel ratio.
+  * Only images marked with the cld-responsive class have w_auto updated.
+  * options:
+  * - responsive_use_stoppoints:
+  *   - true - always use stoppoints for width
+  *   - "resize" - use exact width on first render and stoppoints on resize (default)
+  *   - false - always use exact width
+  * - responsive:
+  *   - true - enable responsive on this element. Can be done by adding cld-responsive.
+  *            Note that $.cloudinary.responsive() should be called once on the page.
+  * - responsive_preserve_height: if set to true, original css height is perserved. Should only be used if the transformation supports different aspect ratios.
+   */
+
+  Cloudinary.prototype.cloudinary_update = function(elements, options) {
+    var attrs, container, containerWidth, currentWidth, exact, j, len, ref, ref1, requestedWidth, responsive, responsive_use_stoppoints, src, tag;
+    if (options == null) {
+      options = {};
+    }
+    if (!(_.isArray(elements) || elements.constructor.name === "NodeList")) {
+      elements = [elements];
+    }
+    responsive_use_stoppoints = (ref = (ref1 = options['responsive_use_stoppoints']) != null ? ref1 : this.config('responsive_use_stoppoints')) != null ? ref : 'resize';
+    exact = !responsive_use_stoppoints || responsive_use_stoppoints === 'resize' && !options.resizing;
+    for (j = 0, len = elements.length; j < len; j++) {
+      tag = elements[j];
+      if (!(tag.tagName.match(/body/i))) {
+        continue;
+      }
+      if (options.responsive) {
+        if (!tag.className.match(/\bcld-responsive\b/)) {
+          tag.className = _.trim(tag.className + " cld-responsive");
+        }
+      }
+      attrs = {};
+      src = getData(tag, 'src-cache') || getData(tag, 'src');
+      if (!src) {
+        return;
+      }
+      responsive = hasClass(tag, 'cld-responsive') && src.match(/\bw_auto\b/);
+      if (responsive) {
+        container = tag.parentNode;
+        containerWidth = 0;
+        while (container && containerWidth === 0) {
+          containerWidth = container.clientWidth || 0;
+          container = container.parentNode;
+        }
+        if (containerWidth === 0) {
+          return;
+        }
+        requestedWidth = exact ? containerWidth : this.calc_stoppoint(tag, containerWidth);
+        currentWidth = getData(tag, 'width') || 0;
+        if (requestedWidth > currentWidth) {
+          setData(tag, 'width', requestedWidth);
+        } else {
+          requestedWidth = currentWidth;
+        }
+        src = src.replace(/\bw_auto\b/g, 'w_' + requestedWidth);
+        attrs.width = null;
+        if (!options.responsive_preserve_height) {
+          attrs.height = null;
+        }
+      }
+      attrs.src = src.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + this.device_pixel_ratio());
+      setAttributes(tag, attrs);
+    }
     return this;
   };
 
@@ -1866,6 +2006,44 @@ CloudinaryJQuery = (function(superClass) {
     }
   };
 
+  CloudinaryJQuery.prototype.responsive = function(options) {
+    var ref1, ref2, responsiveConfig, responsiveResizeInitialized, responsive_resize, timeout;
+    responsiveConfig = $.extend(responsiveConfig || {}, options);
+    $('img.cld-responsive, img.cld-hidpi').cloudinary_update(responsiveConfig);
+    responsive_resize = (ref1 = (ref2 = responsiveConfig['responsive_resize']) != null ? ref2 : this.config('responsive_resize')) != null ? ref1 : true;
+    if (responsive_resize && !responsiveResizeInitialized) {
+      responsiveConfig.resizing = responsiveResizeInitialized = true;
+      timeout = null;
+      return $(window).on('resize', (function(_this) {
+        return function() {
+          var debounce, ref3, ref4, reset, run, wait;
+          debounce = (ref3 = (ref4 = responsiveConfig['responsive_debounce']) != null ? ref4 : _this.config('responsive_debounce')) != null ? ref3 : 100;
+          reset = function() {
+            if (timeout) {
+              clearTimeout(timeout);
+              return timeout = null;
+            }
+          };
+          run = function() {
+            return $('img.cld-responsive').cloudinary_update(responsiveConfig);
+          };
+          wait = function() {
+            reset();
+            return setTimeout((function() {
+              reset();
+              return run();
+            }), debounce);
+          };
+          if (debounce) {
+            return wait();
+          } else {
+            return run();
+          }
+        };
+      })(this));
+    }
+  };
+
   return CloudinaryJQuery;
 
 })(Cloudinary);
@@ -1916,9 +2094,7 @@ $.fn.cloudinary_update = function(options) {
   this.filter('img').each(function() {
     var attrs, container, containerWidth, currentWidth, requestedWidth, responsive, src;
     if (options.responsive) {
-      if (!this.className.match(/\bcld-responsive\b/)) {
-        this.className = _.trim("this.className  " + 'cld-responsive');
-      }
+      $(this).addClass('cld-responsive');
     }
     attrs = {};
     src = getData(this, 'src-cache') || getData(this, 'src');
@@ -1930,18 +2106,16 @@ $.fn.cloudinary_update = function(options) {
       container = this.parentNode;
       containerWidth = 0;
       while (container && containerWidth === 0) {
-        console.log("First container: %o", container);
         containerWidth = container.clientWidth || 0;
         container = container.parentNode;
       }
-      console.log("First width %s, second width %s", containerWidth, containerWidth);
       if (containerWidth === 0) {
         return;
       }
       requestedWidth = exact ? containerWidth : $.cloudinary.calc_stoppoint(this, containerWidth);
-      currentWidth = $(this).data('width') || 0;
+      currentWidth = getData(this, 'width') || 0;
       if (requestedWidth > currentWidth) {
-        $(this).data('width', requestedWidth);
+        setData(this, 'width', requestedWidth);
       } else {
         requestedWidth = currentWidth;
       }

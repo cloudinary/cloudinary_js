@@ -12,6 +12,37 @@ class CloudinaryJQuery extends Cloudinary
   video: (publicId, options = {})->
     # TODO implement
 
+  responsive: (options) ->
+    responsiveConfig = $.extend(responsiveConfig or {}, options)
+    $('img.cld-responsive, img.cld-hidpi').cloudinary_update responsiveConfig
+    responsive_resize = responsiveConfig['responsive_resize'] ? @config('responsive_resize') ? true
+    if responsive_resize and !responsiveResizeInitialized
+      responsiveConfig.resizing = responsiveResizeInitialized  = true
+      timeout = null
+      $(window).on 'resize', =>
+        debounce = responsiveConfig['responsive_debounce'] ? @config('responsive_debounce') ? 100
+
+        reset = ->
+          if timeout
+            clearTimeout timeout
+            timeout = null
+
+        run = ->
+          $('img.cld-responsive').cloudinary_update responsiveConfig
+
+        wait = ->
+          reset()
+          setTimeout (->
+            reset()
+            run()
+          ), debounce
+
+        if debounce
+          wait()
+        else
+          run()
+
+
 $.fn.cloudinary = (options) ->
   @filter('img').each(->
     img_options = $.extend({
@@ -51,7 +82,7 @@ $.fn.cloudinary_update = (options = {}) ->
   exact = !responsive_use_stoppoints || responsive_use_stoppoints == 'resize' and !options.resizing
   @filter('img').each ->
     if options.responsive
-      this.className = _.trim( "this.className  #{'cld-responsive'}") unless this.className.match( /\bcld-responsive\b/)
+        $(this).addClass 'cld-responsive'
     attrs = {}
     src = getData(this, 'src-cache') or getData(this, 'src')
     if !src
@@ -61,18 +92,16 @@ $.fn.cloudinary_update = (options = {}) ->
       container = this.parentNode
       containerWidth = 0
       while container and containerWidth == 0
-        console.log( "First container: %o", container)
         containerWidth = container.clientWidth || 0
         container = container.parentNode
-      console.log( "First width %s, second width %s", containerWidth, containerWidth)
       if containerWidth == 0
         # container doesn't know the size yet. Usually because the image is hidden or outside the DOM.
         return
       requestedWidth = if exact then containerWidth else $.cloudinary.calc_stoppoint(this, containerWidth)
-      currentWidth = $(this).data('width') or 0
+      currentWidth = getData(this, 'width') or 0
       if requestedWidth > currentWidth
         # requested width is larger, fetch new image
-        $(this).data 'width', requestedWidth
+        setData(this, 'width', requestedWidth)
       else
         # requested width is not larger - keep previous
         requestedWidth = currentWidth

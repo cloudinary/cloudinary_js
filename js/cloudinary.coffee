@@ -273,14 +273,16 @@ class Cloudinary
     html = html + fallback
     html = html + '</video>'
     html
+
   sprite_css: (publicId, options) ->
     options = _.merge({ type: 'sprite' }, options)
     if !publicId.match(/.css$/)
       options.format = 'css'
     @url publicId, options
+
   responsive: (options) ->
     responsiveConfig = _.merge(responsiveConfig or {}, options)
-    $('img.cld-responsive, img.cld-hidpi').cloudinary_update responsiveConfig
+    @cloudinary_update document.querySelectorAll('img.cld-responsive, img.cld-hidpi'), responsiveConfig
     responsiveResize = responsiveConfig['responsive_resize'] ? @config('responsive_resize') ? true
     if responsiveResize and !responsiveResizeInitialized
       responsiveConfig.resizing = responsiveResizeInitialized = true
@@ -443,7 +445,59 @@ class Cloudinary
         i.setAttribute('width', imgOptions.width)
         i.setAttribute('height', imgOptions.height)
       ).value()
-#    .cloudinary_update options # FIXME enable
+    @cloudinary_update( images, options) # FIXME enable
+    this
+
+  ###*
+  * Update hidpi (dpr_auto) and responsive (w_auto) fields according to the current container size and the device pixel ratio.
+  * Only images marked with the cld-responsive class have w_auto updated.
+  * options:
+  * - responsive_use_stoppoints:
+  *   - true - always use stoppoints for width
+  *   - "resize" - use exact width on first render and stoppoints on resize (default)
+  *   - false - always use exact width
+  * - responsive:
+  *   - true - enable responsive on this element. Can be done by adding cld-responsive.
+  *            Note that $.cloudinary.responsive() should be called once on the page.
+  * - responsive_preserve_height: if set to true, original css height is perserved. Should only be used if the transformation supports different aspect ratios.
+  ###
+
+  cloudinary_update: (elements, options = {}) ->
+    elements = [elements] unless _.isArray(elements) || elements.constructor.name == "NodeList"
+    responsive_use_stoppoints = options['responsive_use_stoppoints'] ? @config('responsive_use_stoppoints') ? 'resize'
+    exact = !responsive_use_stoppoints || responsive_use_stoppoints == 'resize' and !options.resizing
+    for tag in elements when tag.tagName.match(/body/i)
+      if options.responsive
+        tag.className = _.trim( "#{tag.className} cld-responsive") unless tag.className.match( /\bcld-responsive\b/)
+      attrs = {}
+      src = getData(tag, 'src-cache') or getData(tag, 'src')
+      if !src
+        return
+      responsive = hasClass(tag, 'cld-responsive') and src.match(/\bw_auto\b/)
+      if responsive
+        container = tag.parentNode
+        containerWidth = 0
+        while container and containerWidth == 0
+          containerWidth = container.clientWidth || 0
+          container = container.parentNode
+        if containerWidth == 0
+          # container doesn't know the size yet. Usually because the image is hidden or outside the DOM.
+          return
+        requestedWidth = if exact then containerWidth else @calc_stoppoint(tag, containerWidth)
+        currentWidth = getData(tag, 'width') or 0
+        if requestedWidth > currentWidth
+          # requested width is larger, fetch new image
+          setData(tag, 'width', requestedWidth)
+        else
+          # requested width is not larger - keep previous
+          requestedWidth = currentWidth
+        src = src.replace(/\bw_auto\b/g, 'w_' + requestedWidth)
+        attrs.width = null
+        if !options.responsive_preserve_height
+          attrs.height = null
+      # Update dpr according to the device's devicePixelRatio
+      attrs.src = src.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + @device_pixel_ratio())
+      setAttributes(tag, attrs)
     this
 
   ###*
