@@ -1,6 +1,6 @@
 
 
-###
+###*
   Main Cloudinary class
 
   Backward compatibility:
@@ -239,13 +239,13 @@ class Cloudinary
     if _.isArray(sourceTypes)
       i = 0
       while i < sourceTypes.length
-        source_type = sourceTypes[i]
-        transformation = sourceTransformation[source_type] or {}
+        srcType = sourceTypes[i]
+        transformation = sourceTransformation[srcType] or {}
         src = @url( "#{source }",
-            _.defaults({ resource_type: 'video', format: source_type},
+            _.defaults({ resource_type: 'video', format: srcType},
                       options,
                       transformation))
-        videoType = if source_type == 'ogv' then 'ogg' else source_type
+        videoType = if srcType == 'ogv' then 'ogg' else srcType
         mimeType = 'video/' + videoType
         html = html + '<source ' + htmlAttrs(
             src: src

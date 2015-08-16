@@ -21,19 +21,23 @@ html_attrs = (attrs) ->
               ).join ' '
 
 ###*
-* Represents an HTML (DOM) tag
-*
-* Usage: tag = new HtmlTag( 'div', { 'width': 10})
+  * Represents an HTML (DOM) tag
 ###
 class HtmlTag
-
-  constructor: (name, public_id, options)->
+  ###*
+    * Represents an HTML (DOM) tag
+    * Usage: tag = new HtmlTag( 'div', { 'width': 10})
+    * @param {String} name - the name of the tag
+    * @param {String} [publicId]
+    * @param {Object} options
+  ###
+  constructor: (name, publicId, options)->
     @name = name
-    @public_id = public_id
+    @publicId = publicId
     if !options?
-      if _.isPlainObject(public_id)
-        options = public_id
-        @public_id = undefined
+      if _.isPlainObject(publicId)
+        options = publicId
+        @publicId = undefined
       else
         options = {}
     @options = _.cloneDeep(options)
@@ -43,10 +47,15 @@ class HtmlTag
       transformation
 
   ###*
-  * Convenience constructor
+    * Convenience constructor
+    * Creates a new instance of an HTML (DOM) tag
+    * Usage: tag = HtmlTag.new( 'div', { 'width': 10})
+    * @param {String} name - the name of the tag
+    * @param {String} [publicId]
+    * @param {Object} options
   ###
-  @new = (name, public_id, options)->
-    new @(name, public_id, options)
+  @new = (name, publicId, options)->
+    new @(name, publicId, options)
 
   # REVIEW options and transformation will become out of sync. consider having one dynamically retrieved from the other.
   getOptions: ()-> @options
@@ -86,18 +95,18 @@ class ImageTag extends HtmlTag
 
   ###*
   * Creates an HTML (DOM) Image tag using Cloudinary as the source.
-  * @param {String} public_id
+  * @param {String} [publicId]
   * @param {Object} [options]
   ###
-  constructor: (@public_id, options={})->
-    super("img", @public_id, options)
+  constructor: (publicId, options={})->
+    super("img", publicId, options)
 
   closeTag: ()->
     ""
 
   attributes: ()->
     attr = super() || []
-    attr['src'] ?= new Cloudinary(@options).url( @public_id)
+    attr['src'] ?= new Cloudinary(@options).url( @publicId)
     attr
 
 ###*
@@ -125,7 +134,7 @@ class VideoTag extends HtmlTag
 
   ###*
   * Creates an HTML (DOM) Video tag using Cloudinary as the source.
-  * @param {String} public_id
+  * @param {String} [publicId]
   * @param {Object} [options]
   ###
   constructor: (publicId, options={})->
@@ -144,7 +153,9 @@ class VideoTag extends HtmlTag
     @sourceType = value
     this
 
-  setPoster: (value)-> @poster = value
+  setPoster: (value)->
+    @poster = value
+    this
 
   content: ()->
     sourceTypes = @options['source_types']
@@ -152,13 +163,13 @@ class VideoTag extends HtmlTag
     fallback = @options['fallback_content']
 
     if _.isArray(sourceTypes)
-      innerTags = for source_type in sourceTypes
-        transformation = sourceTransformation[source_type] or {}
-        src = new Cloudinary(@options).url( "#{@public_id }",
-                    _.defaults({ resource_type: 'video', format: source_type},
+      innerTags = for srcType in sourceTypes
+        transformation = sourceTransformation[srcType] or {}
+        src = new Cloudinary(@options).url( "#{@publicId }",
+                    _.defaults({ resource_type: 'video', format: srcType},
                                transformation,
                                @options))
-        videoType = if source_type == 'ogv' then 'ogg' else source_type
+        videoType = if srcType == 'ogv' then 'ogg' else srcType
         mimeType = 'video/' + videoType
         '<source ' + html_attrs(
           src: src
@@ -173,17 +184,17 @@ class VideoTag extends HtmlTag
 
     if poster?
       if _.isPlainObject(poster)
-        if poster.public_id?
+        if poster.publicId?
           poster = new Cloudinary(@options).url( "#{poster.public_id }", poster)
         else
-          poster = new Cloudinary(@options).url( this, @public_id, _.defaults( @options.poster, DEFAULT_POSTER_OPTIONS))
+          poster = new Cloudinary(@options).url( this, @publicId, _.defaults( @options.poster, DEFAULT_POSTER_OPTIONS))
     else
-      poster = new Cloudinary(@options).url(@public_id, _.defaults( @options, DEFAULT_POSTER_OPTIONS))
+      poster = new Cloudinary(@options).url(@publicId, _.defaults( @options, DEFAULT_POSTER_OPTIONS))
 
     attr = super() || []
     attr = _.omit(attr, VIDEO_TAG_PARAMS)
     unless  _.isArray(sourceTypes)
-      attr["src"] = new Cloudinary(@options).url("#{@public_id}",
+      attr["src"] = new Cloudinary(@options).url(@publicId,
                                                  _.defaults({ resource_type: 'video', format: sourceTypes},
                                                             @options))
     if poster?
