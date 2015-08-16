@@ -29,28 +29,6 @@ class Configuration
     "version"
   ]
 
-  @WHITELIST = [
-    "cdn_subdomain"
-    "cloud_name"
-    "cname"
-    "dpr"
-    "fallback_content"
-    "private_cdn"
-    "protocol"
-    "resource_type"
-    "responsive_width"
-    "secure"
-    "secure_cdn_subdomain"
-    "secure_distribution"
-    "shorten"
-    "source_transformation"
-    "source_types"
-    "transformation"
-    "type"
-    "use_root_path"
-
-  ]
-
   constructor: (options ={})->
     @configuration = _.cloneDeep(options)
     _.defaults( @configuration, DEFAULT_CONFIGURATION_PARAMS)
@@ -63,7 +41,7 @@ class Configuration
    *
   ###
   set:(name, value)->
-    @config[name] = value
+    @configuration[name] = value
     this
 
   get: (name)->
@@ -73,11 +51,11 @@ class Configuration
     _.assign(@configuration, _.cloneDeep(config))
     this
 
-  fromDocument: ->
+  fromDocument: -> #FIXME use querySelectorAll
     meta_elements = document?.getElementsByTagName("meta");
     if meta_elements
       for el in meta_elements
-        @cloudinary[el.getAttribute('name').replace('cloudinary_', '')] = el.getAttribute('content')
+        @configuration[el.getAttribute('name').replace('cloudinary_', '')] = el.getAttribute('content')
     this
 
   fromEnvironment: ->
