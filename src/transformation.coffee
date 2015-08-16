@@ -255,7 +255,7 @@ class Transformation extends TransformationBase
     this
 
   hasLayer: ()->
-    @getValue("overlay") || @getValue("underlay") || @getValue("angle")
+    @getValue("overlay") || @getValue("underlay")
 
   flatten: ->
     resultArray = []
@@ -286,7 +286,7 @@ class Transformation extends TransformationBase
       options[k.substr(5)] = v
       delete options[k]
 
-    unless @hasLayer() || _.contains( ["fit", "limit", "lfill"],@getValue("crop"))
+    unless @hasLayer()|| @getValue("angle") || _.contains( ["fit", "limit", "lfill"],@getValue("crop"))
       width = @getValue("width")
       height = @getValue("height")
       if parseFloat(width) >= 1.0

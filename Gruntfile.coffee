@@ -4,7 +4,9 @@ module.exports = (grunt)->
       compile:
         options:
           join: true
-          bare: true
+          joinExt: '.coffee'
+          bare: false
+          sourceMap: true
         files:
           'js/cloudinary.js': [
             'src/header.coffee'
@@ -54,18 +56,5 @@ module.exports = (grunt)->
 
 
 
-    concat:
-      "js/cloudinary.coffee": [
-        'src/header.coffee'
-        'src/cloudinary-main.coffee'
-        'src/crc32.coffee'
-        'src/utf8_encode.coffee'
-        'src/config.coffee'
-        'src/parameters.coffee'
-        'src/transformation.coffee'
-        'src/htmltag.coffee'
-        'src/footer.coffee'
-      ]
   grunt.loadNpmTasks('grunt-contrib-coffee')
-  grunt.loadNpmTasks('grunt-contrib-concat')
-  grunt.registerTask('default', ['concat', 'coffee'])
+  grunt.registerTask('default', ['coffee'])
