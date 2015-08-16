@@ -16,5 +16,5 @@
         // Browser globals:
         factory(_, jQuery);
     }
-}(function (_, $) {
+}(function (_, jQuery) {
 `

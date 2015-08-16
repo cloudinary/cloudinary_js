@@ -10,11 +10,11 @@
         // Register as an anonymous AMD module:
         define([
             'lodash',
-            'jquery'
+            'jquery' // FIXME add fileupload
         ], factory);
     } else {
         // Browser globals:
         factory(_, jQuery);
     }
-}(function (_, $) {
+}(function (_, jQuery) {
 `
