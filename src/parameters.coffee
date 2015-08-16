@@ -1,34 +1,4 @@
 
-config = config || -> {}
-
-
-###*
-* Defaults values for parameters.
-*
-* (Previously defined using option_consume() )
-###
-#default_transformation_params ={
-#  cdn_subdomain: config().cdn_subdomain
-#  cloud_name: config().cloud_name
-#  cname: config().cname
-#  dpr: config().dpr
-#  fallback_content: ''
-#  private_cdn: config().private_cdn
-#  protocol: config().protocol
-#  resource_type: "image"
-#  responsive_width: config().responsive_width
-#  secure: window.location.protocol == 'https:'
-#  secure_cdn_subdomain: config().secure_cdn_subdomain
-#  secure_distribution: config().secure_distribution
-#  shorten: config().shorten
-#  source_transformation: {}
-#  source_types: []
-#  transformation: []
-#  type: 'upload'
-#  use_root_path: config().use_root_path
-#
-#}
-
 class Param
   constructor: (@name, @short, @process = _.identity)->
 
