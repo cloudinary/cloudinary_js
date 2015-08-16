@@ -7,19 +7,19 @@ class CloudinaryJQuery extends Cloudinary
     i = super(publicId, options)
     url= i.getAttr('src')
     i.setAttr('src', '')
-    $(i.toHtml()).removeAttr('src').data('src-cache', url).cloudinary_update(options);
+    jQuery(i.toHtml()).removeAttr('src').data('src-cache', url).cloudinary_update(options);
 
   video: (publicId, options = {})->
     # TODO implement
 
   responsive: (options) ->
-    responsiveConfig = $.extend(responsiveConfig or {}, options)
-    $('img.cld-responsive, img.cld-hidpi').cloudinary_update responsiveConfig
+    responsiveConfig = jQuery.extend(responsiveConfig or {}, options)
+    jQuery('img.cld-responsive, img.cld-hidpi').cloudinary_update responsiveConfig
     responsive_resize = responsiveConfig['responsive_resize'] ? @config('responsive_resize') ? true
     if responsive_resize and !responsiveResizeInitialized
       responsiveConfig.resizing = responsiveResizeInitialized  = true
       timeout = null
-      $(window).on 'resize', =>
+      jQuery(window).on 'resize', =>
         debounce = responsiveConfig['responsive_debounce'] ? @config('responsive_debounce') ? 100
 
         reset = ->
@@ -28,7 +28,7 @@ class CloudinaryJQuery extends Cloudinary
             timeout = null
 
         run = ->
-          $('img.cld-responsive').cloudinary_update responsiveConfig
+          jQuery('img.cld-responsive').cloudinary_update responsiveConfig
 
         wait = ->
           reset()
@@ -43,19 +43,19 @@ class CloudinaryJQuery extends Cloudinary
           run()
 
 
-$.fn.cloudinary = (options) ->
+jQuery.fn.cloudinary = (options) ->
   @filter('img').each(->
-    img_options = $.extend({
-      width: $(this).attr('width')
-      height: $(this).attr('height')
-      src: $(this).attr('src')
-    }, $(this).data(), options)
+    img_options = jQuery.extend({
+      width: jQuery(this).attr('width')
+      height: jQuery(this).attr('height')
+      src: jQuery(this).attr('src')
+    }, jQuery(this).data(), options)
     public_id = img_options.source || img_options.src
     delete img_options.source
     delete img_options.src
-    url = $.cloudinary.url(public_id, img_options)
+    url = jQuery.cloudinary.url(public_id, img_options)
     img_options = new Transformation(img_options).toHtmlAttributes() # FIXME include own config
-    $(this).data('src-cache', url).attr
+    jQuery(this).data('src-cache', url).attr
       width: img_options.width
       height: img_options.height
     ).cloudinary_update options
@@ -73,16 +73,16 @@ $.fn.cloudinary = (options) ->
 *   - false - always use exact width
 * - responsive:
 *   - true - enable responsive on this element. Can be done by adding cld-responsive.
-*            Note that $.cloudinary.responsive() should be called once on the page.
+*            Note that jQuery.cloudinary.responsive() should be called once on the page.
 * - responsive_preserve_height: if set to true, original css height is perserved. Should only be used if the transformation supports different aspect ratios.
 ###
 
-$.fn.cloudinary_update = (options = {}) ->
-  responsive_use_stoppoints = options['responsive_use_stoppoints'] ? $.cloudinary.config('responsive_use_stoppoints') ? 'resize'
+jQuery.fn.cloudinary_update = (options = {}) ->
+  responsive_use_stoppoints = options['responsive_use_stoppoints'] ? jQuery.cloudinary.config('responsive_use_stoppoints') ? 'resize'
   exact = !responsive_use_stoppoints || responsive_use_stoppoints == 'resize' and !options.resizing
   @filter('img').each ->
     if options.responsive
-        $(this).addClass 'cld-responsive'
+        jQuery(this).addClass 'cld-responsive'
     attrs = {}
     src = getData(this, 'src-cache') or getData(this, 'src')
     if !src
@@ -97,7 +97,7 @@ $.fn.cloudinary_update = (options = {}) ->
       if containerWidth == 0
         # container doesn't know the size yet. Usually because the image is hidden or outside the DOM.
         return
-      requestedWidth = if exact then containerWidth else $.cloudinary.calc_stoppoint(this, containerWidth)
+      requestedWidth = if exact then containerWidth else jQuery.cloudinary.calc_stoppoint(this, containerWidth)
       currentWidth = getData(this, 'width') or 0
       if requestedWidth > currentWidth
         # requested width is larger, fetch new image
@@ -110,30 +110,30 @@ $.fn.cloudinary_update = (options = {}) ->
       if !options.responsive_preserve_height
         attrs.height = null
     # Update dpr according to the device's devicePixelRatio
-    attrs.src = src.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + $.cloudinary.device_pixel_ratio())
-    $(this).attr attrs
+    attrs.src = src.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + jQuery.cloudinary.device_pixel_ratio())
+    jQuery(this).attr attrs
   this
 
 webp = null
 
-$.fn.webpify = (options = {}, webp_options) ->
+jQuery.fn.webpify = (options = {}, webp_options) ->
   that = this
   webp_options = webp_options ? options
   if !webp
-    webp = $.Deferred()
+    webp = jQuery.Deferred()
     webp_canary = new Image
     webp_canary.onerror = webp.reject
     webp_canary.onload = webp.resolve
     webp_canary.src = 'data:image/webp;base64,UklGRi4AAABXRUJQVlA4TCEAAAAvAUAAEB8wAiMwAgSSNtse/cXjxyCCmrYNWPwmHRH9jwMA'
-  $ ->
+  jQuery ->
     webp.done(->
-      $(that).cloudinary $.extend({}, webp_options, format: 'webp')
+      jQuery(that).cloudinary jQuery.extend({}, webp_options, format: 'webp')
     ).fail ->
-      $(that).cloudinary options
+      jQuery(that).cloudinary options
   this
 
-$.fn.fetchify = (options) ->
-  @cloudinary $.extend(options, 'type': 'fetch')
+jQuery.fn.fetchify = (options) ->
+  @cloudinary jQuery.extend(options, 'type': 'fetch')
 
 global = module?.exports ? window
 # Copy all previously defined object in the "Cloudinary" scope
@@ -141,5 +141,5 @@ global = module?.exports ? window
 global.Cloudinary.CloudinaryJQuery = CloudinaryJQuery
 
 
-$.cloudinary = new CloudinaryJQuery()
+jQuery.cloudinary = new CloudinaryJQuery()
 
