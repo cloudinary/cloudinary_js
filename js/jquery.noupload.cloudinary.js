@@ -20,6 +20,10 @@
 }(function (_, jQuery) {
 ;
 
+  /*
+    Includes utility methods and lodash / jQuery shims
+   */
+
   /**
     * Verifies that the `$` (global) variable is jQuery.
     *

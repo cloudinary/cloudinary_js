@@ -20,7 +20,7 @@ module.exports = (grunt)->
             'src/htmltag.coffee'
             'src/footer.coffee'
           ]
-          'js/jquery.noupload.cloudinary.js': [ # TODO name
+          'js/jquery.noupload.cloudinary.js': [
             'src/header-jquery.coffee'
             'src/utils.coffee'
             'src/cloudinary-main.coffee'
@@ -54,7 +54,22 @@ module.exports = (grunt)->
         dest: 'test/spec'
         ext: '.js'
 
+    uglify:
+      dist:
+        options:
+          sourceMap: true
+        files: [
+          expand: true
+          cwd: 'js'
+          src: '*.js'
+          dest: 'js'
+          ext: '.min.js'
+          extDot: 'last'
+        ]
+
 
 
   grunt.loadNpmTasks('grunt-contrib-coffee')
+  grunt.loadNpmTasks('grunt-contrib-uglify')
   grunt.registerTask('default', ['coffee'])
+  grunt.registerTask('build', ['coffee', 'uglify'])
