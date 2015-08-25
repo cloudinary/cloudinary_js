@@ -332,38 +332,51 @@
         source_types: ['webm', 'mp4']
       })).toEqual(("<video poster=\"" + expected_url + ".jpg\" width=\"100\">") + ("<source src=\"" + expected_url + ".webm\" type=\"video/webm\">") + ("<source src=\"" + expected_mp4_url + ".mp4\" type=\"video/mp4\">") + "</video>");
     });
-    return it("should generate video tag with configurable poster", function() {
-      var expected_poster_url, expected_url;
+    return describe("poster", function() {
+      var expected_url;
       expected_url = VIDEO_UPLOAD_PATH + "movie";
-      expected_poster_url = 'http://image/somewhere.jpg';
-      expect(cloudinary.video("movie", {
-        poster: expected_poster_url,
-        source_types: "mp4"
-      })).toEqual("<video poster=\"" + expected_poster_url + "\" src=\"" + expected_url + ".mp4\"></video>");
-      expected_poster_url = VIDEO_UPLOAD_PATH + "g_north/movie.jpg";
-      expect(cloudinary.video("movie", {
-        poster: {
-          'gravity': 'north'
-        },
-        source_types: "mp4"
-      })).toEqual("<video poster=\"" + expected_poster_url + "\" src=\"" + expected_url + ".mp4\"></video>");
-      expected_poster_url = DEFAULT_UPLOAD_PATH + "g_north/my_poster.jpg";
-      expect(cloudinary.video("movie", {
-        poster: {
-          'gravity': 'north',
-          'public_id': 'my_poster',
-          'format': 'jpg'
-        },
-        source_types: "mp4"
-      })).toEqual("<video poster=\"" + expected_poster_url + "\" src=\"" + expected_url + ".mp4\"></video>");
-      expect(cloudinary.video("movie", {
-        poster: "",
-        source_types: "mp4"
-      })).toEqual("<video src=\"" + expected_url + ".mp4\"></video>");
-      return expect(cloudinary.video("movie", {
-        poster: false,
-        source_types: "mp4"
-      })).toEqual("<video src=\"" + expected_url + ".mp4\"></video>");
+      it("should accept a URL", function() {
+        var expected_poster_url;
+        expected_poster_url = 'http://image/somewhere.jpg';
+        return expect(cloudinary.video("movie", {
+          poster: expected_poster_url,
+          source_types: "mp4"
+        })).toEqual("<video poster=\"" + expected_poster_url + "\" src=\"" + expected_url + ".mp4\"></video>");
+      });
+      it("should accept an object", function() {
+        var expected_poster_url;
+        expected_poster_url = VIDEO_UPLOAD_PATH + "g_north/movie.jpg";
+        return expect(cloudinary.video("movie", {
+          poster: {
+            'gravity': 'north'
+          },
+          source_types: "mp4"
+        })).toEqual("<video poster=\"" + expected_poster_url + "\" src=\"" + expected_url + ".mp4\"></video>");
+      });
+      it("should accept a different public ID", function() {
+        var expected_poster_url;
+        expected_poster_url = DEFAULT_UPLOAD_PATH + "g_north/my_poster.jpg";
+        return expect(cloudinary.video("movie", {
+          poster: {
+            'gravity': 'north',
+            'public_id': 'my_poster',
+            'format': 'jpg'
+          },
+          source_types: "mp4"
+        })).toEqual("<video poster=\"" + expected_poster_url + "\" src=\"" + expected_url + ".mp4\"></video>");
+      });
+      it("should accept an empty string", function() {
+        return expect(cloudinary.video("movie", {
+          poster: "",
+          source_types: "mp4"
+        })).toEqual("<video src=\"" + expected_url + ".mp4\"></video>");
+      });
+      return it("should accept 'false'", function() {
+        return expect(cloudinary.video("movie", {
+          poster: false,
+          source_types: "mp4"
+        })).toEqual("<video src=\"" + expected_url + ".mp4\"></video>");
+      });
     });
   });
 

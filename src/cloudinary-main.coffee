@@ -41,22 +41,22 @@ class Cloudinary
   responsiveConfig = {}
   responsiveResizeInitialized = false
   ###*
-  * Defaults values for parameters.
+  * Defaults values for image parameters.
   *
   * (Previously defined using option_consume() )
   ###
-  DEFAULT_IMAGE_PARAMS ={
+  @DEFAULT_IMAGE_PARAMS: {
     resource_type: "image"
     transformation: []
     type: 'upload'
   }
 
   ###*
-  * Defaults values for parameters.
+  * Defaults values for video parameters.
   *
   * (Previously defined using option_consume() )
   ###
-  DEFAULT_VIDEO_PARAMS ={
+  @DEFAULT_VIDEO_PARAMS: {
     fallback_content: ''
     resource_type: "video"
     source_transformation: {}
@@ -125,8 +125,7 @@ class Cloudinary
     url
 
   url: (publicId, options = {}) ->
-    options = _.cloneDeep(options)
-    _.defaults(options, @config(), DEFAULT_IMAGE_PARAMS)
+    options = _.defaults({}, options, @config(), Cloudinary.DEFAULT_IMAGE_PARAMS)
     if options.type == 'fetch'
       options.fetch_format = options.fetch_format or options.format
       publicId = absolutize(publicId)
@@ -163,8 +162,6 @@ class Cloudinary
     resourceTypeAndType = finalizeResourceType(options.resource_type, options.type, options.url_suffix, options.use_root_path, options.shorten)
     version = if options.version then 'v' + options.version else ''
 
-#    transformation.toHtmlTagOptions(options) # backward compatibility - options is mutated
-
     url ||  _.filter([
       prefix
       resourceTypeAndType
@@ -184,15 +181,13 @@ class Cloudinary
     @url(publicId, options)
 
   transformation_string: (options) ->
-    options = _.cloneDeep( options)
     new Transformation( options).flatten()
 
   image: (publicId, options={}) ->
-    options = _.defaults(_.cloneDeep(options),@config(), DEFAULT_IMAGE_PARAMS)
-    new ImageTag(publicId, options) # REVIEW need to call cloudinary_update
+    @imageTag(publicId, options).toHtml() # REVIEW need to call cloudinary_update
 
   video_thumbnail: (publicId, options) ->
-    image publicId, _.extend( {}, DEFAULT_POSTER_OPTIONS, options)
+    @image publicId, _.extend( {}, DEFAULT_POSTER_OPTIONS, options)
 
   facebook_profile_image: (publicId, options) ->
     @image publicId, _.merge({type: 'facebook'}, options)
@@ -210,50 +205,7 @@ class Cloudinary
     @image publicId, _.merge({type: 'fetch'}, options)
 
   video: (publicId, options = {}) ->
-    options = _.defaults(_.cloneDeep(options),@config(), DEFAULT_VIDEO_PARAMS)
-    publicId = publicId.replace(/\.(mp4|ogv|webm)$/, '')
-
-    sourceTypes = options['source_types']
-    sourceTransformation = options['source_transformation']
-    fallback = options['fallback_content']
-
-    videoOptions = _.cloneDeep(options)
-    if videoOptions.hasOwnProperty('poster')
-      if _.isPlainObject(videoOptions.poster) # else assume it is a literal poster string or `false`
-        if videoOptions.poster.hasOwnProperty('public_id')
-          # poster is a regular image
-          videoOptions.poster = @url(videoOptions.poster.public_id, videoOptions.poster)
-        else # use the same publicId as the video, with video defaults
-          videoOptions.poster = @url(publicId, _.defaults( videoOptions.poster, DEFAULT_POSTER_OPTIONS))
-    else
-      videoOptions.poster = @url(publicId, _.defaults( options, DEFAULT_POSTER_OPTIONS))
-    if !videoOptions.poster
-      delete videoOptions.poster
-
-    source = publicId
-
-    unless  _.isArray(sourceTypes)
-      videoOptions.src = @url( "#{source}.#{sourceTypes}", videoOptions)
-    attributes = new Transformation(videoOptions).toHtmlAttributes()
-    html = '<video ' + htmlAttrs(attributes) + '>'
-    if _.isArray(sourceTypes)
-      i = 0
-      while i < sourceTypes.length
-        srcType = sourceTypes[i]
-        transformation = sourceTransformation[srcType] or {}
-        src = @url( "#{source }",
-            _.defaults({ resource_type: 'video', format: srcType},
-                      options,
-                      transformation))
-        videoType = if srcType == 'ogv' then 'ogg' else srcType
-        mimeType = 'video/' + videoType
-        html = html + '<source ' + htmlAttrs(
-            src: src
-            type: mimeType) + '>'
-        i++
-    html = html + fallback
-    html = html + '</video>'
-    html
+    @videoTag(publicId, options).toHtml()
 
   sprite_css: (publicId, options) ->
     options = _.merge({ type: 'sprite' }, options)
@@ -409,7 +361,7 @@ class Cloudinary
   * Finds all `img` tags under each node and sets it up to provide the image through Cloudinary
   ###
   processImageTags: (nodes, options = {}) ->
-    options = _(options).cloneDeep().defaults(@config()).value()
+    options = _.defaults({}, options, @config())
     images = _(nodes).filter( 'tagName': 'IMG')
       .forEach( (i) ->
         imgOptions = _.extend({
@@ -495,8 +447,7 @@ class Cloudinary
   * @return {Transformation}
   ###
   transformation: (options)->
-    @config.merge( options)
-    Transformation.new( @config()).setParent( this)
+    Transformation.new( @config(options)).setParent( this)
 
 global = module?.exports ? window
 # Copy all previously defined object in the "Cloudinary" scope

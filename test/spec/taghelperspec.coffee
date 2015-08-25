@@ -88,6 +88,7 @@ describe "Cloudinary.VideoTag", ->
     [videoTag, tag] = getTag(videoTag)
     expect(tag).toBe("<source src=\"#{expected_url}.ogv\" type=\"video/ogg\">")
 
+
   it "should generate video tag with various attributes", ->
     options2 = _.assign( options, {
       source_types: "mp4",

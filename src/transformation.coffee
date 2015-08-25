@@ -73,7 +73,7 @@ class TransformationBase
     @whitelist = _(TransformationBase.prototype).functions().map(_.snakeCase).value()
 
     @toOptions = ()->
-      _.mapValues(trans, (t)-> t.value)
+      _.merge(_.mapValues(trans, (t)-> t.value), @otherOptions)
 
     ###
     # Helper methods to create parameter methods
@@ -132,6 +132,9 @@ class TransformationBase
       hash[key] = trans[key].value for key of trans
       hash
 
+  ###
+    Transformation Parameters
+  ###
 
   angle: (value)->            @arrayParam value, "angle", "a", "."
   audioCodec: (value)->      @param value, "audio_codec", "ac"
@@ -161,6 +164,7 @@ class TransformationBase
       dpr
   effect: (value)->           @arrayParam value,  "effect", "e", ":"
   endOffset: (value)->       @rangeParam value,  "end_offset", "eo"
+  fallbackContent: (value)->     @param value,   "fallback_content"
   fetchFormat: (value)->     @param value,       "fetch_format", "f"
   format: (value)->           @param value,       "format"
   flags: (value)->            @arrayParam value,  "flags", "fl", "."
@@ -184,6 +188,7 @@ class TransformationBase
   opacity: (value)->          @param value, "opacity",  "o"
   overlay: (value)->          @param value, "overlay",  "l"
   page: (value)->             @param value, "page",     "pg"
+  poster: (value)->           @param value, "poster"
   prefix: (value)->           @param value, "prefix",   "p"
   quality: (value)->          @param value, "quality",  "q"
   radius: (value)->           @param value, "radius",   "r"
@@ -193,6 +198,8 @@ class TransformationBase
       [width, height] = value.split('x')
       @width(width)
       @height(height)
+  sourceTypes: (value)->          @param value, "source_types"
+  sourceTransformation: (value)->   @param value, "source_transformation"
   startOffset: (value)->     @rangeParam value, "start_offset", "so"
   transformation: (value)->   @transformationParam value, "transformation"
   underlay: (value)->         @param value, "underlay", "u"
@@ -241,8 +248,8 @@ class Transformation extends TransformationBase
   # Merge the provided options with own's options
   ###
   fromOptions: (options = {}) ->
-    options = _.cloneDeep(options)
     options = {transformation: options } if _.isString(options) || _.isArray(options)
+    options = _.cloneDeep(options)
     for key, opt of options
       @set key, opt
     this
@@ -299,7 +306,7 @@ class Transformation extends TransformationBase
     @whitelist.indexOf(name) >= 0
 
   toHtml: ()->
-    getParent()?.toHtml?()
+    @getParent()?.toHtml?()
 
 
 # unless running on server side, export to the windows object

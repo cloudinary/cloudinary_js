@@ -20,15 +20,14 @@
 }(function (_, jQuery) {
 ;
 
-  /*
-    Includes utility methods and lodash / jQuery shims
+  /**
+    * Includes utility methods and lodash / jQuery shims
    */
 
   /**
-    * Verifies that the `$` (global) variable is jQuery.
+    * Verifies that jQuery is present.
     *
-    * If it is not, assume that jQuery is not available. (We are ignoring the possible "no conflict" scenario.)
-    * @returns {boolean} true if `$` is a jQuery object
+    * @returns {boolean} true if jQuery is defined
    */
   var ArrayParam, Cloudinary, CloudinaryJQuery, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, VideoTag, augmentWidthOrHeight, contains, crc32, cssExpand, cssValue, curCSS, exports, getAttribute, getData, getStyles, getWidthOrHeight, global, hasClass, html_attrs, isJQuery, pnum, process_video_params, ref, ref1, rnumnonpx, setAttribute, setAttributes, setData, toAttribute, utf8_encode, webp,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -252,6 +251,41 @@
       val = parseFloat(val) || 0;
     }
     return val + augmentWidthOrHeight(elem, name, extra || (isBorderBox ? "border" : "content"), valueIsBorderBox, styles);
+
+    /*
+    The following lodash methods are used in this library.
+    TODO create a shim that will switch between jQuery and lodash
+    
+    _.all
+    _.any
+    _.assign
+    _.camelCase
+    _.cloneDeep
+    _.compact
+    _.contains
+    _.defaults
+    _.difference
+    _.extend
+    _.filter
+    _.identity
+    _.includes
+    _.isArray
+    _.isElement
+    _.isEmpty
+    _.isFunction
+    _.isObject
+    _.isPlainObject
+    _.isString
+    _.isUndefined
+    _.map
+    _.mapValues
+    _.merge
+    _.omit
+    _.parseInt
+    _.snakeCase
+    _.trim
+    _.trimRight
+     */
   };
 
   if (!(((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) || (typeof exports !== "undefined" && exports !== null))) {
@@ -295,7 +329,7 @@
    */
 
   Cloudinary = (function() {
-    var AKAMAI_SHARED_CDN, CF_SHARED_CDN, DEFAULT_IMAGE_PARAMS, DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_PARAMS, DEFAULT_VIDEO_SOURCE_TYPES, OLD_AKAMAI_SHARED_CDN, SHARED_CDN, absolutize, cdnSubdomainNumber, closestAbove, cloudinaryUrlPrefix, defaultStoppoints, devicePixelRatioCache, finalizeResourceType, htmlAttrs, joinPair, responsiveConfig, responsiveResizeInitialized;
+    var AKAMAI_SHARED_CDN, CF_SHARED_CDN, DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_SOURCE_TYPES, OLD_AKAMAI_SHARED_CDN, SHARED_CDN, absolutize, cdnSubdomainNumber, closestAbove, cloudinaryUrlPrefix, defaultStoppoints, devicePixelRatioCache, finalizeResourceType, htmlAttrs, joinPair, responsiveConfig, responsiveResizeInitialized;
 
     CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
 
@@ -320,12 +354,12 @@
 
 
     /**
-    * Defaults values for parameters.
+    * Defaults values for image parameters.
     *
     * (Previously defined using option_consume() )
      */
 
-    DEFAULT_IMAGE_PARAMS = {
+    Cloudinary.DEFAULT_IMAGE_PARAMS = {
       resource_type: "image",
       transformation: [],
       type: 'upload'
@@ -333,12 +367,12 @@
 
 
     /**
-    * Defaults values for parameters.
+    * Defaults values for video parameters.
     *
     * (Previously defined using option_consume() )
      */
 
-    DEFAULT_VIDEO_PARAMS = {
+    Cloudinary.DEFAULT_VIDEO_PARAMS = {
       fallback_content: '',
       resource_type: "video",
       source_transformation: {},
@@ -429,8 +463,7 @@
       if (options == null) {
         options = {};
       }
-      options = _.cloneDeep(options);
-      _.defaults(options, this.config(), DEFAULT_IMAGE_PARAMS);
+      options = _.defaults({}, options, this.config(), Cloudinary.DEFAULT_IMAGE_PARAMS);
       if (options.type === 'fetch') {
         options.fetch_format = options.fetch_format || options.format;
         publicId = absolutize(publicId);
@@ -486,7 +519,6 @@
     };
 
     Cloudinary.prototype.transformation_string = function(options) {
-      options = _.cloneDeep(options);
       return new Transformation(options).flatten();
     };
 
@@ -494,12 +526,11 @@
       if (options == null) {
         options = {};
       }
-      options = _.defaults(_.cloneDeep(options), this.config(), DEFAULT_IMAGE_PARAMS);
-      return new ImageTag(publicId, options);
+      return this.imageTag(publicId, options).toHtml();
     };
 
     Cloudinary.prototype.video_thumbnail = function(publicId, options) {
-      return image(publicId, _.extend({}, DEFAULT_POSTER_OPTIONS, options));
+      return this.image(publicId, _.extend({}, DEFAULT_POSTER_OPTIONS, options));
     };
 
     Cloudinary.prototype.facebook_profile_image = function(publicId, options) {
@@ -533,57 +564,10 @@
     };
 
     Cloudinary.prototype.video = function(publicId, options) {
-      var attributes, fallback, html, i, mimeType, source, sourceTransformation, sourceTypes, src, srcType, transformation, videoOptions, videoType;
       if (options == null) {
         options = {};
       }
-      options = _.defaults(_.cloneDeep(options), this.config(), DEFAULT_VIDEO_PARAMS);
-      publicId = publicId.replace(/\.(mp4|ogv|webm)$/, '');
-      sourceTypes = options['source_types'];
-      sourceTransformation = options['source_transformation'];
-      fallback = options['fallback_content'];
-      videoOptions = _.cloneDeep(options);
-      if (videoOptions.hasOwnProperty('poster')) {
-        if (_.isPlainObject(videoOptions.poster)) {
-          if (videoOptions.poster.hasOwnProperty('public_id')) {
-            videoOptions.poster = this.url(videoOptions.poster.public_id, videoOptions.poster);
-          } else {
-            videoOptions.poster = this.url(publicId, _.defaults(videoOptions.poster, DEFAULT_POSTER_OPTIONS));
-          }
-        }
-      } else {
-        videoOptions.poster = this.url(publicId, _.defaults(options, DEFAULT_POSTER_OPTIONS));
-      }
-      if (!videoOptions.poster) {
-        delete videoOptions.poster;
-      }
-      source = publicId;
-      if (!_.isArray(sourceTypes)) {
-        videoOptions.src = this.url(source + "." + sourceTypes, videoOptions);
-      }
-      attributes = new Transformation(videoOptions).toHtmlAttributes();
-      html = '<video ' + htmlAttrs(attributes) + '>';
-      if (_.isArray(sourceTypes)) {
-        i = 0;
-        while (i < sourceTypes.length) {
-          srcType = sourceTypes[i];
-          transformation = sourceTransformation[srcType] || {};
-          src = this.url("" + source, _.defaults({
-            resource_type: 'video',
-            format: srcType
-          }, options, transformation));
-          videoType = srcType === 'ogv' ? 'ogg' : srcType;
-          mimeType = 'video/' + videoType;
-          html = html + '<source ' + htmlAttrs({
-            src: src,
-            type: mimeType
-          }) + '>';
-          i++;
-        }
-      }
-      html = html + fallback;
-      html = html + '</video>';
-      return html;
+      return this.videoTag(publicId, options).toHtml();
     };
 
     Cloudinary.prototype.sprite_css = function(publicId, options) {
@@ -764,7 +748,7 @@
       if (options == null) {
         options = {};
       }
-      options = _(options).cloneDeep().defaults(this.config()).value();
+      options = _.defaults({}, options, this.config());
       images = _(nodes).filter({
         'tagName': 'IMG'
       }).forEach(function(i) {
@@ -873,8 +857,7 @@
      */
 
     Cloudinary.prototype.transformation = function(options) {
-      this.config.merge(options);
-      return Transformation["new"](this.config()).setParent(this);
+      return Transformation["new"](this.config(options)).setParent(this);
     };
 
     return Cloudinary;
@@ -1327,9 +1310,9 @@
       trans = {};
       this.whitelist = _(TransformationBase.prototype).functions().map(_.snakeCase).value();
       this.toOptions = function() {
-        return _.mapValues(trans, function(t) {
+        return _.merge(_.mapValues(trans, function(t) {
           return t.value;
-        });
+        }), this.otherOptions);
       };
 
       /*
@@ -1427,6 +1410,11 @@
       };
     }
 
+
+    /*
+      Transformation Parameters
+     */
+
     TransformationBase.prototype.angle = function(value) {
       return this.arrayParam(value, "angle", "a", ".");
     };
@@ -1510,6 +1498,10 @@
       return this.rangeParam(value, "end_offset", "eo");
     };
 
+    TransformationBase.prototype.fallbackContent = function(value) {
+      return this.param(value, "fallback_content");
+    };
+
     TransformationBase.prototype.fetchFormat = function(value) {
       return this.param(value, "fetch_format", "f");
     };
@@ -1569,6 +1561,10 @@
       return this.param(value, "page", "pg");
     };
 
+    TransformationBase.prototype.poster = function(value) {
+      return this.param(value, "poster");
+    };
+
     TransformationBase.prototype.prefix = function(value) {
       return this.param(value, "prefix", "p");
     };
@@ -1592,6 +1588,14 @@
         this.width(width);
         return this.height(height);
       }
+    };
+
+    TransformationBase.prototype.sourceTypes = function(value) {
+      return this.param(value, "source_types");
+    };
+
+    TransformationBase.prototype.sourceTransformation = function(value) {
+      return this.param(value, "source_transformation");
     };
 
     TransformationBase.prototype.startOffset = function(value) {
@@ -1691,12 +1695,12 @@
       if (options == null) {
         options = {};
       }
-      options = _.cloneDeep(options);
       if (_.isString(options) || _.isArray(options)) {
         options = {
           transformation: options
         };
       }
+      options = _.cloneDeep(options);
       for (key in options) {
         opt = options[key];
         this.set(key, opt);
@@ -1792,7 +1796,7 @@
 
     Transformation.prototype.toHtml = function() {
       var ref1;
-      return (ref1 = getParent()) != null ? typeof ref1.toHtml === "function" ? ref1.toHtml() : void 0 : void 0;
+      return (ref1 = this.getParent()) != null ? typeof ref1.toHtml === "function" ? ref1.toHtml() : void 0 : void 0;
     };
 
     return Transformation;
@@ -1864,7 +1868,6 @@
           options = {};
         }
       }
-      this.options = _.cloneDeep(options);
       transformation = new Transformation(options);
       transformation.setParent(this);
       this.transformation = function() {
@@ -1874,21 +1877,47 @@
 
 
     /**
-      * Convenience constructor
-      * Creates a new instance of an HTML (DOM) tag
-      * Usage: tag = HtmlTag.new( 'div', { 'width': 10})
-      * @param {String} name - the name of the tag
-      * @param {String} [publicId]
-      * @param {Object} options
+     * Convenience constructor
+     * Creates a new instance of an HTML (DOM) tag
+     * Usage: tag = HtmlTag.new( 'div', { 'width': 10})
+     * @param {String} name - the name of the tag
+     * @param {String} [publicId]
+     * @param {Object} options
      */
 
     HtmlTag["new"] = function(name, publicId, options) {
       return new this(name, publicId, options);
     };
 
+
+    /**
+     * Get all options related to this tag.
+     * @returns {Object} the options
+     *
+     */
+
     HtmlTag.prototype.getOptions = function() {
-      return this.options;
+      return this.transformation().toOptions();
     };
+
+
+    /**
+     * Get the value of option `name`
+     * @param {String} name - the name of the option
+     * @returns the value of the option
+     *
+     */
+
+    HtmlTag.prototype.getOption = function(name) {
+      return this.transformation().getValue(name);
+    };
+
+
+    /**
+     * Get the attributes of the tag.
+     * The attributes are be computed from the options every time this method is invoked.
+     * @returns {Object} attributes
+     */
 
     HtmlTag.prototype.attributes = function() {
       return this.transformation().toHtmlAttributes();
@@ -1961,7 +1990,7 @@
       var attr;
       attr = ImageTag.__super__.attributes.call(this) || [];
       if (attr['src'] == null) {
-        attr['src'] = new Cloudinary(this.options).url(this.publicId);
+        attr['src'] = new Cloudinary(this.getOptions()).url(this.publicId);
       }
       return attr;
     };
@@ -1976,7 +2005,7 @@
    */
 
   VideoTag = (function(superClass) {
-    var DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_PARAMS, DEFAULT_VIDEO_SOURCE_TYPES, VIDEO_TAG_PARAMS;
+    var DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_SOURCE_TYPES, VIDEO_TAG_PARAMS;
 
     extend(VideoTag, superClass);
 
@@ -1991,22 +2020,6 @@
 
 
     /**
-    * Defaults values for parameters.
-    *
-    * (Previously defined using option_consume() )
-     */
-
-    DEFAULT_VIDEO_PARAMS = {
-      fallback_content: '',
-      resource_type: "video",
-      source_transformation: {},
-      source_types: DEFAULT_VIDEO_SOURCE_TYPES,
-      transformation: [],
-      type: 'upload'
-    };
-
-
-    /**
     * Creates an HTML (DOM) Video tag using Cloudinary as the source.
     * @param {String} [publicId]
     * @param {Object} [options]
@@ -2016,47 +2029,53 @@
       if (options == null) {
         options = {};
       }
-      options = _.defaults(_.cloneDeep(options), DEFAULT_VIDEO_PARAMS);
+      options = _.defaults({}, options, Cloudinary.DEFAULT_VIDEO_PARAMS);
       VideoTag.__super__.constructor.call(this, "video", publicId.replace(/\.(mp4|ogv|webm)$/, ''), options);
     }
 
     VideoTag.prototype.setSourceTransformation = function(value) {
-      this.sourceTransformation = value;
+      this.transformation().sourceTransformation(value);
       return this;
     };
 
     VideoTag.prototype.setSourceTypes = function(value) {
-      this.sourceType = value;
+      this.transformation().sourceTypes(value);
       return this;
     };
 
     VideoTag.prototype.setPoster = function(value) {
-      this.poster = value;
+      this.transformation().poster(value);
+      return this;
+    };
+
+    VideoTag.prototype.setFallbackContent = function(value) {
+      this.transformation().fallbackContent(value);
       return this;
     };
 
     VideoTag.prototype.content = function() {
-      var fallback, innerTags, mimeType, sourceTransformation, sourceTypes, src, srcType, transformation, videoType;
-      sourceTypes = this.options['source_types'];
-      sourceTransformation = this.options['source_transformation'];
-      fallback = this.options['fallback_content'];
+      var cld, fallback, innerTags, mimeType, sourceTransformation, sourceTypes, src, srcType, transformation, videoType;
+      sourceTypes = this.transformation().getValue('source_types');
+      sourceTransformation = this.transformation().getValue('source_transformation');
+      fallback = this.transformation().getValue('fallback_content');
       if (_.isArray(sourceTypes)) {
+        cld = new Cloudinary(this.getOptions());
         innerTags = (function() {
           var j, len, results;
           results = [];
           for (j = 0, len = sourceTypes.length; j < len; j++) {
             srcType = sourceTypes[j];
             transformation = sourceTransformation[srcType] || {};
-            src = new Cloudinary(this.options).url("" + this.publicId, _.defaults({
+            src = cld.url("" + this.publicId, _.defaults({}, transformation, {
               resource_type: 'video',
               format: srcType
-            }, transformation, this.options));
+            }));
             videoType = srcType === 'ogv' ? 'ogg' : srcType;
             mimeType = 'video/' + videoType;
-            results.push('<source ' + html_attrs({
+            results.push("<source " + (html_attrs({
               src: src,
               type: mimeType
-            }) + '>');
+            })) + ">");
           }
           return results;
         }).call(this);
@@ -2068,26 +2087,26 @@
 
     VideoTag.prototype.attributes = function() {
       var attr, poster, sourceTypes;
-      sourceTypes = this.options['source_types'];
-      poster = this.options['poster'];
+      sourceTypes = this.getOption('source_types');
+      poster = this.getOption('poster');
       if (poster != null) {
         if (_.isPlainObject(poster)) {
-          if (poster.publicId != null) {
-            poster = new Cloudinary(this.options).url("" + poster.public_id, poster);
+          if (poster.public_id != null) {
+            poster = new Cloudinary(this.getOptions()).url("" + poster.public_id, _.defaults({}, poster, Cloudinary.DEFAULT_IMAGE_PARAMS));
           } else {
-            poster = new Cloudinary(this.options).url(this, this.publicId, _.defaults(this.options.poster, DEFAULT_POSTER_OPTIONS));
+            poster = new Cloudinary(this.getOptions()).url(this.publicId, _.defaults({}, poster, DEFAULT_POSTER_OPTIONS));
           }
         }
       } else {
-        poster = new Cloudinary(this.options).url(this.publicId, _.defaults(this.options, DEFAULT_POSTER_OPTIONS));
+        poster = new Cloudinary(this.getOptions()).url(this.publicId, DEFAULT_POSTER_OPTIONS);
       }
       attr = VideoTag.__super__.attributes.call(this) || [];
       attr = _.omit(attr, VIDEO_TAG_PARAMS);
       if (!_.isArray(sourceTypes)) {
-        attr["src"] = new Cloudinary(this.options).url(this.publicId, _.defaults({
+        attr["src"] = new Cloudinary(this.getOptions()).url(this.publicId, _.defaults({
           resource_type: 'video',
           format: sourceTypes
-        }, this.options));
+        }, this.getOptions()));
       }
       if (poster != null) {
         attr["poster"] = poster;
@@ -2106,6 +2125,16 @@
   if (exports.Cloudinary == null) {
     exports.Cloudinary = {};
   }
+
+  exports.Cloudinary.prototype.imageTag = function(publicId, options) {
+    options = _.defaults({}, options, this.config());
+    return new ImageTag(publicId, options);
+  };
+
+  exports.Cloudinary.prototype.videoTag = function(publicId, options) {
+    options = _.defaults({}, options, this.config());
+    return new VideoTag(publicId, options);
+  };
 
   exports.Cloudinary.HtmlTag = HtmlTag;
 

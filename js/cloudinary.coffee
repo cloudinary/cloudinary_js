@@ -1,5 +1,5 @@
 `/*
- * Cloudinary's jQuery library - v1.0.24
+ * Cloudinary's Javascript library - v1.0.24
  * Copyright Cloudinary
  * see https://github.com/cloudinary/cloudinary_js
  */
@@ -17,16 +17,15 @@
     }
 }(function (_) {
 `
-###
-  Includes utility methods and lodash / jQuery shims
+###*
+  * Includes utility methods and lodash / jQuery shims
 ###
 
 
 ###*
-  * Verifies that the `$` (global) variable is jQuery.
+  * Verifies that jQuery is present.
   *
-  * If it is not, assume that jQuery is not available. (We are ignoring the possible "no conflict" scenario.)
-  * @returns {boolean} true if `$` is a jQuery object
+  * @returns {boolean} true if jQuery is defined
 ###
 isJQuery = ->
   $?.fn?.jquery?
@@ -107,7 +106,8 @@ hasClass = (element, name)->
   else if _.isElement(element)
     element.className.match(new RegExp("\b" + name +"\b"))
 
-# From jQuery
+# The following code is taken from jQuery
+
 getStyles = (elem) ->
 # Support: IE<=11+, Firefox<=30+ (#15098, #14150)
 # IE throws on elements created in popups
@@ -222,6 +222,43 @@ getWidthOrHeight = (elem, name, extra) ->
   (val + augmentWidthOrHeight(elem, name, extra or ((if isBorderBox then "border" else "content")), valueIsBorderBox, styles))
 
 
+
+
+  ###
+  The following lodash methods are used in this library.
+  TODO create a shim that will switch between jQuery and lodash
+
+  _.all
+  _.any
+  _.assign
+  _.camelCase
+  _.cloneDeep
+  _.compact
+  _.contains
+  _.defaults
+  _.difference
+  _.extend
+  _.filter
+  _.identity
+  _.includes
+  _.isArray
+  _.isElement
+  _.isEmpty
+  _.isFunction
+  _.isObject
+  _.isPlainObject
+  _.isString
+  _.isUndefined
+  _.map
+  _.mapValues
+  _.merge
+  _.omit
+  _.parseInt
+  _.snakeCase
+  _.trim
+  _.trimRight
+
+  ###
 # unless running on server side, export to the windows object
 unless module?.exports? || exports?
   exports = window
@@ -272,22 +309,22 @@ class Cloudinary
   responsiveConfig = {}
   responsiveResizeInitialized = false
   ###*
-  * Defaults values for parameters.
+  * Defaults values for image parameters.
   *
   * (Previously defined using option_consume() )
   ###
-  DEFAULT_IMAGE_PARAMS ={
+  @DEFAULT_IMAGE_PARAMS: {
     resource_type: "image"
     transformation: []
     type: 'upload'
   }
 
   ###*
-  * Defaults values for parameters.
+  * Defaults values for video parameters.
   *
   * (Previously defined using option_consume() )
   ###
-  DEFAULT_VIDEO_PARAMS ={
+  @DEFAULT_VIDEO_PARAMS: {
     fallback_content: ''
     resource_type: "video"
     source_transformation: {}
@@ -356,8 +393,7 @@ class Cloudinary
     url
 
   url: (publicId, options = {}) ->
-    options = _.cloneDeep(options)
-    _.defaults(options, @config(), DEFAULT_IMAGE_PARAMS)
+    options = _.defaults({}, options, @config(), Cloudinary.DEFAULT_IMAGE_PARAMS)
     if options.type == 'fetch'
       options.fetch_format = options.fetch_format or options.format
       publicId = absolutize(publicId)
@@ -394,8 +430,6 @@ class Cloudinary
     resourceTypeAndType = finalizeResourceType(options.resource_type, options.type, options.url_suffix, options.use_root_path, options.shorten)
     version = if options.version then 'v' + options.version else ''
 
-#    transformation.toHtmlTagOptions(options) # backward compatibility - options is mutated
-
     url ||  _.filter([
       prefix
       resourceTypeAndType
@@ -415,15 +449,13 @@ class Cloudinary
     @url(publicId, options)
 
   transformation_string: (options) ->
-    options = _.cloneDeep( options)
     new Transformation( options).flatten()
 
   image: (publicId, options={}) ->
-    options = _.defaults(_.cloneDeep(options),@config(), DEFAULT_IMAGE_PARAMS)
-    new ImageTag(publicId, options) # REVIEW need to call cloudinary_update
+    @imageTag(publicId, options).toHtml() # REVIEW need to call cloudinary_update
 
   video_thumbnail: (publicId, options) ->
-    image publicId, _.extend( {}, DEFAULT_POSTER_OPTIONS, options)
+    @image publicId, _.extend( {}, DEFAULT_POSTER_OPTIONS, options)
 
   facebook_profile_image: (publicId, options) ->
     @image publicId, _.merge({type: 'facebook'}, options)
@@ -441,50 +473,7 @@ class Cloudinary
     @image publicId, _.merge({type: 'fetch'}, options)
 
   video: (publicId, options = {}) ->
-    options = _.defaults(_.cloneDeep(options),@config(), DEFAULT_VIDEO_PARAMS)
-    publicId = publicId.replace(/\.(mp4|ogv|webm)$/, '')
-
-    sourceTypes = options['source_types']
-    sourceTransformation = options['source_transformation']
-    fallback = options['fallback_content']
-
-    videoOptions = _.cloneDeep(options)
-    if videoOptions.hasOwnProperty('poster')
-      if _.isPlainObject(videoOptions.poster) # else assume it is a literal poster string or `false`
-        if videoOptions.poster.hasOwnProperty('public_id')
-          # poster is a regular image
-          videoOptions.poster = @url(videoOptions.poster.public_id, videoOptions.poster)
-        else # use the same publicId as the video, with video defaults
-          videoOptions.poster = @url(publicId, _.defaults( videoOptions.poster, DEFAULT_POSTER_OPTIONS))
-    else
-      videoOptions.poster = @url(publicId, _.defaults( options, DEFAULT_POSTER_OPTIONS))
-    if !videoOptions.poster
-      delete videoOptions.poster
-
-    source = publicId
-
-    unless  _.isArray(sourceTypes)
-      videoOptions.src = @url( "#{source}.#{sourceTypes}", videoOptions)
-    attributes = new Transformation(videoOptions).toHtmlAttributes()
-    html = '<video ' + htmlAttrs(attributes) + '>'
-    if _.isArray(sourceTypes)
-      i = 0
-      while i < sourceTypes.length
-        srcType = sourceTypes[i]
-        transformation = sourceTransformation[srcType] or {}
-        src = @url( "#{source }",
-            _.defaults({ resource_type: 'video', format: srcType},
-                      options,
-                      transformation))
-        videoType = if srcType == 'ogv' then 'ogg' else srcType
-        mimeType = 'video/' + videoType
-        html = html + '<source ' + htmlAttrs(
-            src: src
-            type: mimeType) + '>'
-        i++
-    html = html + fallback
-    html = html + '</video>'
-    html
+    @videoTag(publicId, options).toHtml()
 
   sprite_css: (publicId, options) ->
     options = _.merge({ type: 'sprite' }, options)
@@ -640,7 +629,7 @@ class Cloudinary
   * Finds all `img` tags under each node and sets it up to provide the image through Cloudinary
   ###
   processImageTags: (nodes, options = {}) ->
-    options = _(options).cloneDeep().defaults(@config()).value()
+    options = _.defaults({}, options, @config())
     images = _(nodes).filter( 'tagName': 'IMG')
       .forEach( (i) ->
         imgOptions = _.extend({
@@ -726,8 +715,7 @@ class Cloudinary
   * @return {Transformation}
   ###
   transformation: (options)->
-    @config.merge( options)
-    Transformation.new( @config()).setParent( this)
+    Transformation.new( @config(options)).setParent( this)
 
 global = module?.exports ? window
 # Copy all previously defined object in the "Cloudinary" scope
@@ -875,8 +863,8 @@ class Configuration
     _.assign(@configuration, _.cloneDeep(config))
     this
 
-  fromDocument: ->
-    meta_elements = document?.querySelectorAll('meta[name^="cloudinary_"]');
+  fromDocument: -> #FIXME use querySelectorAll
+    meta_elements = document?.getElementsByTagName("meta");
     if meta_elements
       for el in meta_elements
         @configuration[el.getAttribute('name').replace('cloudinary_', '')] = el.getAttribute('content')
@@ -1114,7 +1102,7 @@ class TransformationBase
     @whitelist = _(TransformationBase.prototype).functions().map(_.snakeCase).value()
 
     @toOptions = ()->
-      _.mapValues(trans, (t)-> t.value)
+      _.merge(_.mapValues(trans, (t)-> t.value), @otherOptions)
 
     ###
     # Helper methods to create parameter methods
@@ -1173,6 +1161,9 @@ class TransformationBase
       hash[key] = trans[key].value for key of trans
       hash
 
+  ###
+    Transformation Parameters
+  ###
 
   angle: (value)->            @arrayParam value, "angle", "a", "."
   audioCodec: (value)->      @param value, "audio_codec", "ac"
@@ -1202,6 +1193,7 @@ class TransformationBase
       dpr
   effect: (value)->           @arrayParam value,  "effect", "e", ":"
   endOffset: (value)->       @rangeParam value,  "end_offset", "eo"
+  fallbackContent: (value)->     @param value,   "fallback_content"
   fetchFormat: (value)->     @param value,       "fetch_format", "f"
   format: (value)->           @param value,       "format"
   flags: (value)->            @arrayParam value,  "flags", "fl", "."
@@ -1225,6 +1217,7 @@ class TransformationBase
   opacity: (value)->          @param value, "opacity",  "o"
   overlay: (value)->          @param value, "overlay",  "l"
   page: (value)->             @param value, "page",     "pg"
+  poster: (value)->           @param value, "poster"
   prefix: (value)->           @param value, "prefix",   "p"
   quality: (value)->          @param value, "quality",  "q"
   radius: (value)->           @param value, "radius",   "r"
@@ -1234,6 +1227,8 @@ class TransformationBase
       [width, height] = value.split('x')
       @width(width)
       @height(height)
+  sourceTypes: (value)->          @param value, "source_types"
+  sourceTransformation: (value)->   @param value, "source_transformation"
   startOffset: (value)->     @rangeParam value, "start_offset", "so"
   transformation: (value)->   @transformationParam value, "transformation"
   underlay: (value)->         @param value, "underlay", "u"
@@ -1282,8 +1277,8 @@ class Transformation extends TransformationBase
   # Merge the provided options with own's options
   ###
   fromOptions: (options = {}) ->
-    options = _.cloneDeep(options)
     options = {transformation: options } if _.isString(options) || _.isArray(options)
+    options = _.cloneDeep(options)
     for key, opt of options
       @set key, opt
     this
@@ -1340,7 +1335,7 @@ class Transformation extends TransformationBase
     @whitelist.indexOf(name) >= 0
 
   toHtml: ()->
-    getParent()?.toHtml?()
+    @getParent()?.toHtml?()
 
 
 # unless running on server side, export to the windows object
@@ -1392,26 +1387,42 @@ class HtmlTag
         @publicId = undefined
       else
         options = {}
-    @options = _.cloneDeep(options)
     transformation = new Transformation(options)
     transformation.setParent(this)
     @transformation = ()->
       transformation
 
   ###*
-    * Convenience constructor
-    * Creates a new instance of an HTML (DOM) tag
-    * Usage: tag = HtmlTag.new( 'div', { 'width': 10})
-    * @param {String} name - the name of the tag
-    * @param {String} [publicId]
-    * @param {Object} options
+   * Convenience constructor
+   * Creates a new instance of an HTML (DOM) tag
+   * Usage: tag = HtmlTag.new( 'div', { 'width': 10})
+   * @param {String} name - the name of the tag
+   * @param {String} [publicId]
+   * @param {Object} options
   ###
   @new = (name, publicId, options)->
     new @(name, publicId, options)
 
-  # REVIEW options and transformation will become out of sync. consider having one dynamically retrieved from the other.
-  getOptions: ()-> @options
+  ###*
+   * Get all options related to this tag.
+   * @returns {Object} the options
+   *
+  ###
+  getOptions: ()-> @transformation().toOptions()
 
+  ###*
+   * Get the value of option `name`
+   * @param {String} name - the name of the option
+   * @returns the value of the option
+   *
+  ###
+  getOption: (name)-> @transformation().getValue(name)
+
+  ###*
+   * Get the attributes of the tag.
+   * The attributes are be computed from the options every time this method is invoked.
+   * @returns {Object} attributes
+  ###
   attributes: ()->
     @transformation().toHtmlAttributes()
 
@@ -1458,7 +1469,7 @@ class ImageTag extends HtmlTag
 
   attributes: ()->
     attr = super() || []
-    attr['src'] ?= new Cloudinary(@options).url( @publicId)
+    attr['src'] ?= new Cloudinary(@getOptions()).url( @publicId)
     attr
 
 ###*
@@ -1470,19 +1481,6 @@ class VideoTag extends HtmlTag
   DEFAULT_VIDEO_SOURCE_TYPES = ['webm', 'mp4', 'ogv']
   DEFAULT_POSTER_OPTIONS = { format: 'jpg', resource_type: 'video' }
 
-  ###*
-  * Defaults values for parameters.
-  *
-  * (Previously defined using option_consume() )
-  ###
-  DEFAULT_VIDEO_PARAMS ={
-    fallback_content: ''
-    resource_type: "video"
-    source_transformation: {}
-    source_types: DEFAULT_VIDEO_SOURCE_TYPES
-    transformation: []
-    type: 'upload'
-  }
 
   ###*
   * Creates an HTML (DOM) Video tag using Cloudinary as the source.
@@ -1490,7 +1488,7 @@ class VideoTag extends HtmlTag
   * @param {Object} [options]
   ###
   constructor: (publicId, options={})->
-    options = _.defaults(_.cloneDeep(options), DEFAULT_VIDEO_PARAMS)
+    options = _.defaults({}, options, Cloudinary.DEFAULT_VIDEO_PARAMS)
 
     super("video", publicId.replace(/\.(mp4|ogv|webm)$/, ''), options)
 
@@ -1498,57 +1496,57 @@ class VideoTag extends HtmlTag
 #    @fromOptions(options)
 
   setSourceTransformation: (value)->
-    @sourceTransformation = value
+    @transformation().sourceTransformation(value)
     this
 
   setSourceTypes: (value)->
-    @sourceType = value
+    @transformation().sourceTypes(value)
     this
 
   setPoster: (value)->
-    @poster = value
+    @transformation().poster(value)
+    this
+
+  setFallbackContent: (value)->
+    @transformation().fallbackContent(value)
     this
 
   content: ()->
-    sourceTypes = @options['source_types']
-    sourceTransformation = @options['source_transformation']
-    fallback = @options['fallback_content']
+    sourceTypes = @transformation().getValue('source_types')
+    sourceTransformation = @transformation().getValue('source_transformation')
+    fallback = @transformation().getValue('fallback_content')
 
     if _.isArray(sourceTypes)
+      cld = new Cloudinary(@getOptions())
       innerTags = for srcType in sourceTypes
         transformation = sourceTransformation[srcType] or {}
-        src = new Cloudinary(@options).url( "#{@publicId }",
-                    _.defaults({ resource_type: 'video', format: srcType},
-                               transformation,
-                               @options))
+        src = cld.url( "#{@publicId }", _.defaults({}, transformation, { resource_type: 'video', format: srcType}))
         videoType = if srcType == 'ogv' then 'ogg' else srcType
         mimeType = 'video/' + videoType
-        '<source ' + html_attrs(
-          src: src
-          type: mimeType) + '>'
+        "<source #{html_attrs(src: src, type: mimeType)}>"
     else
       innerTags = []
     innerTags.join('') + fallback
 
   attributes: ()->
-    sourceTypes = @options['source_types']
-    poster = @options['poster']
+    sourceTypes = @getOption('source_types')
+    poster = @getOption('poster')
 
     if poster?
       if _.isPlainObject(poster)
-        if poster.publicId?
-          poster = new Cloudinary(@options).url( "#{poster.public_id }", poster)
+        if poster.public_id?
+          poster = new Cloudinary(@getOptions()).url( "#{poster.public_id }", _.defaults({}, poster, Cloudinary.DEFAULT_IMAGE_PARAMS))
         else
-          poster = new Cloudinary(@options).url( this, @publicId, _.defaults( @options.poster, DEFAULT_POSTER_OPTIONS))
+          poster = new Cloudinary(@getOptions()).url( @publicId, _.defaults( {}, poster, DEFAULT_POSTER_OPTIONS))
     else
-      poster = new Cloudinary(@options).url(@publicId, _.defaults( @options, DEFAULT_POSTER_OPTIONS))
+      poster = new Cloudinary(@getOptions()).url(@publicId, DEFAULT_POSTER_OPTIONS)
 
     attr = super() || []
     attr = _.omit(attr, VIDEO_TAG_PARAMS)
     unless  _.isArray(sourceTypes)
-      attr["src"] = new Cloudinary(@options).url(@publicId,
+      attr["src"] = new Cloudinary(@getOptions()).url(@publicId,
                                                  _.defaults({ resource_type: 'video', format: sourceTypes},
-                                                            @options))
+                                                            @getOptions()))
     if poster?
       attr["poster"] = poster
     attr
@@ -1558,6 +1556,13 @@ unless module?.exports? || exports?
   exports = window
 
 exports.Cloudinary ?= {}
+exports.Cloudinary::imageTag = (publicId, options)->
+  options = _.defaults({}, options, @config())
+  new ImageTag(publicId, options)
+exports.Cloudinary::videoTag = (publicId, options)->
+  options = _.defaults({}, options, @config())
+  new VideoTag(publicId, options)
+
 exports.Cloudinary.HtmlTag = HtmlTag
 exports.Cloudinary.ImageTag = ImageTag
 exports.Cloudinary.VideoTag = VideoTag

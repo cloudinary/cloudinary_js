@@ -1,13 +1,12 @@
-###
-  Includes utility methods and lodash / jQuery shims
+###*
+  * Includes utility methods and lodash / jQuery shims
 ###
 
 
 ###*
-  * Verifies that the `$` (global) variable is jQuery.
+  * Verifies that jQuery is present.
   *
-  * If it is not, assume that jQuery is not available. (We are ignoring the possible "no conflict" scenario.)
-  * @returns {boolean} true if `$` is a jQuery object
+  * @returns {boolean} true if jQuery is defined
 ###
 isJQuery = ->
   $?.fn?.jquery?
@@ -88,7 +87,8 @@ hasClass = (element, name)->
   else if _.isElement(element)
     element.className.match(new RegExp("\b" + name +"\b"))
 
-# From jQuery
+# The following code is taken from jQuery
+
 getStyles = (elem) ->
 # Support: IE<=11+, Firefox<=30+ (#15098, #14150)
 # IE throws on elements created in popups
@@ -203,6 +203,43 @@ getWidthOrHeight = (elem, name, extra) ->
   (val + augmentWidthOrHeight(elem, name, extra or ((if isBorderBox then "border" else "content")), valueIsBorderBox, styles))
 
 
+
+
+  ###
+  The following lodash methods are used in this library.
+  TODO create a shim that will switch between jQuery and lodash
+
+  _.all
+  _.any
+  _.assign
+  _.camelCase
+  _.cloneDeep
+  _.compact
+  _.contains
+  _.defaults
+  _.difference
+  _.extend
+  _.filter
+  _.identity
+  _.includes
+  _.isArray
+  _.isElement
+  _.isEmpty
+  _.isFunction
+  _.isObject
+  _.isPlainObject
+  _.isString
+  _.isUndefined
+  _.map
+  _.mapValues
+  _.merge
+  _.omit
+  _.parseInt
+  _.snakeCase
+  _.trim
+  _.trimRight
+
+  ###
 # unless running on server side, export to the windows object
 unless module?.exports? || exports?
   exports = window
