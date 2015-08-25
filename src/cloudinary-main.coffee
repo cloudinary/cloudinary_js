@@ -184,7 +184,7 @@ class Cloudinary
     new Transformation( options).flatten()
 
   image: (publicId, options={}) ->
-    @imageTag(publicId, options).toHtml() # REVIEW need to call cloudinary_update
+    @imageTag(publicId, options).toHtml() # TODO need to call cloudinary_update
 
   video_thumbnail: (publicId, options) ->
     @image publicId, _.extend( {}, DEFAULT_POSTER_OPTIONS, options)

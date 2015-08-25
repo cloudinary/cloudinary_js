@@ -51,8 +51,8 @@ class Configuration
     _.assign(@configuration, _.cloneDeep(config))
     this
 
-  fromDocument: -> #FIXME use querySelectorAll
-    meta_elements = document?.getElementsByTagName("meta");
+  fromDocument: ->
+    meta_elements = document?.querySelectorAll('meta[name^="cloudinary_"]');
     if meta_elements
       for el in meta_elements
         @configuration[el.getAttribute('name').replace('cloudinary_', '')] = el.getAttribute('content')

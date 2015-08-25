@@ -4,13 +4,10 @@ class CloudinaryJQuery extends Cloudinary
 
 
   image: (publicId, options={})->
-    i = super(publicId, options)
+    i = @imageTag(publicId, options)
     url= i.getAttr('src')
     i.setAttr('src', '')
     jQuery(i.toHtml()).removeAttr('src').data('src-cache', url).cloudinary_update(options);
-
-  video: (publicId, options = {})->
-    # TODO implement
 
   responsive: (options) ->
     responsiveConfig = jQuery.extend(responsiveConfig or {}, options)
@@ -54,7 +51,7 @@ jQuery.fn.cloudinary = (options) ->
     delete img_options.source
     delete img_options.src
     url = jQuery.cloudinary.url(public_id, img_options)
-    img_options = new Transformation(img_options).toHtmlAttributes() # FIXME include own config
+    img_options = new Transformation(img_options).toHtmlAttributes()
     jQuery(this).data('src-cache', url).attr
       width: img_options.width
       height: img_options.height

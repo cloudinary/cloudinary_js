@@ -11,7 +11,7 @@
         // Register as an anonymous AMD module:
         define([
             'lodash',
-            'jquery' // FIXME add fileupload
+            'jquery'
         ], factory);
     } else {
         // Browser globals:
@@ -29,7 +29,7 @@
     *
     * @returns {boolean} true if jQuery is defined
    */
-  var ArrayParam, Cloudinary, CloudinaryJQuery, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, VideoTag, augmentWidthOrHeight, contains, crc32, cssExpand, cssValue, curCSS, exports, getAttribute, getData, getStyles, getWidthOrHeight, global, hasClass, html_attrs, isJQuery, pnum, process_video_params, ref, ref1, rnumnonpx, setAttribute, setAttributes, setData, toAttribute, utf8_encode, webp,
+  var ArrayParam, Cloudinary, CloudinaryJQuery, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, VideoTag, augmentWidthOrHeight, contains, crc32, cssExpand, cssValue, curCSS, exports, getAttribute, getData, getStyles, getWidthOrHeight, global, hasClass, isJQuery, pnum, process_video_params, ref, ref1, rnumnonpx, setAttribute, setAttributes, setData, utf8_encode, webp,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
@@ -995,7 +995,7 @@
 
     Configuration.prototype.fromDocument = function() {
       var el, j, len, meta_elements;
-      meta_elements = typeof document !== "undefined" && document !== null ? document.getElementsByTagName("meta") : void 0;
+      meta_elements = typeof document !== "undefined" && document !== null ? document.querySelectorAll('meta[name^="cloudinary_"]') : void 0;
       if (meta_elements) {
         for (j = 0, len = meta_elements.length; j < len; j++) {
           el = meta_elements[j];
@@ -1813,35 +1813,6 @@
 
   exports.Cloudinary.Transformation = Transformation;
 
-  toAttribute = function(key, value) {
-    if (!value) {
-      return void 0;
-    } else if (value === true) {
-      return key;
-    } else {
-      return key + "=\"" + value + "\"";
-    }
-  };
-
-
-  /**
-  * combine key and value from the `attr` to generate an HTML tag attributes string.
-  * `Transformation::toHtmlTagOptions` is used to filter out transformation and configuration keys.
-  * @param {Object} attr
-  * @return {String} the attributes in the format `'key1="value1" key2="value2"'`
-   */
-
-  html_attrs = function(attrs) {
-    var pairs;
-    pairs = _.map(attrs, function(value, key) {
-      return toAttribute(key, value);
-    });
-    pairs.sort();
-    return pairs.filter(function(pair) {
-      return pair;
-    }).join(' ');
-  };
-
 
   /**
     * Represents an HTML (DOM) tag
@@ -1850,12 +1821,14 @@
   HtmlTag = (function() {
 
     /**
-      * Represents an HTML (DOM) tag
-      * Usage: tag = new HtmlTag( 'div', { 'width': 10})
-      * @param {String} name - the name of the tag
-      * @param {String} [publicId]
-      * @param {Object} options
+     * Represents an HTML (DOM) tag
+     * Usage: tag = new HtmlTag( 'div', { 'width': 10})
+     * @param {String} name - the name of the tag
+     * @param {String} [publicId]
+     * @param {Object} options
      */
+    var toAttribute;
+
     function HtmlTag(name, publicId, options) {
       var transformation;
       this.name = name;
@@ -1887,6 +1860,44 @@
 
     HtmlTag["new"] = function(name, publicId, options) {
       return new this(name, publicId, options);
+    };
+
+
+    /**
+     * Represent the given key and value as an HTML attribute.
+     * @param {String} key - attribute name
+     * @param {*|boolean} value - the value of the attribute. If the value is boolean `true`, return the key only.
+     * @returns {String} the attribute
+     *
+     */
+
+    toAttribute = function(key, value) {
+      if (!value) {
+        return void 0;
+      } else if (value === true) {
+        return key;
+      } else {
+        return key + "=\"" + value + "\"";
+      }
+    };
+
+
+    /**
+     * combine key and value from the `attr` to generate an HTML tag attributes string.
+     * `Transformation::toHtmlTagOptions` is used to filter out transformation and configuration keys.
+     * @param {Object} attr
+     * @return {String} the attributes in the format `'key1="value1" key2="value2"'`
+     */
+
+    HtmlTag.prototype.html_attrs = function(attrs) {
+      var pairs;
+      pairs = _.map(attrs, function(value, key) {
+        return toAttribute(key, value);
+      });
+      pairs.sort();
+      return pairs.filter(function(pair) {
+        return pair;
+      }).join(' ');
     };
 
 
@@ -1941,7 +1952,7 @@
     };
 
     HtmlTag.prototype.openTag = function() {
-      return "<" + this.name + " " + (html_attrs(this.attributes())) + ">";
+      return "<" + this.name + " " + (this.html_attrs(this.attributes())) + ">";
     };
 
     HtmlTag.prototype.closeTag = function() {
@@ -1960,6 +1971,16 @@
 
   })();
 
+  if (!(((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) || (exports != null))) {
+    exports = window;
+  }
+
+  if (exports.Cloudinary == null) {
+    exports.Cloudinary = {};
+  }
+
+  exports.Cloudinary.HtmlTag = HtmlTag;
+
 
   /**
   * Creates an HTML (DOM) Image tag using Cloudinary as the source.
@@ -1970,9 +1991,9 @@
 
 
     /**
-    * Creates an HTML (DOM) Image tag using Cloudinary as the source.
-    * @param {String} [publicId]
-    * @param {Object} [options]
+     * Creates an HTML (DOM) Image tag using Cloudinary as the source.
+     * @param {String} [publicId]
+     * @param {Object} [options]
      */
 
     function ImageTag(publicId, options) {
@@ -1999,6 +2020,21 @@
 
   })(HtmlTag);
 
+  if (!(((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) || (exports != null))) {
+    exports = window;
+  }
+
+  if (exports.Cloudinary == null) {
+    exports.Cloudinary = {};
+  }
+
+  exports.Cloudinary.prototype.imageTag = function(publicId, options) {
+    options = _.defaults({}, options, this.config());
+    return new ImageTag(publicId, options);
+  };
+
+  exports.Cloudinary.ImageTag = ImageTag;
+
 
   /**
   * Creates an HTML (DOM) Video tag using Cloudinary as the source.
@@ -2020,9 +2056,9 @@
 
 
     /**
-    * Creates an HTML (DOM) Video tag using Cloudinary as the source.
-    * @param {String} [publicId]
-    * @param {Object} [options]
+     * Creates an HTML (DOM) Video tag using Cloudinary as the source.
+     * @param {String} [publicId]
+     * @param {Object} [options]
      */
 
     function VideoTag(publicId, options) {
@@ -2072,7 +2108,7 @@
             }));
             videoType = srcType === 'ogv' ? 'ogg' : srcType;
             mimeType = 'video/' + videoType;
-            results.push("<source " + (html_attrs({
+            results.push("<source " + (this.html_attrs({
               src: src,
               type: mimeType
             })) + ">");
@@ -2086,27 +2122,20 @@
     };
 
     VideoTag.prototype.attributes = function() {
-      var attr, poster, sourceTypes;
+      var attr, defaults, poster, ref1, ref2, sourceTypes;
       sourceTypes = this.getOption('source_types');
-      poster = this.getOption('poster');
-      if (poster != null) {
-        if (_.isPlainObject(poster)) {
-          if (poster.public_id != null) {
-            poster = new Cloudinary(this.getOptions()).url("" + poster.public_id, _.defaults({}, poster, Cloudinary.DEFAULT_IMAGE_PARAMS));
-          } else {
-            poster = new Cloudinary(this.getOptions()).url(this.publicId, _.defaults({}, poster, DEFAULT_POSTER_OPTIONS));
-          }
-        }
-      } else {
-        poster = new Cloudinary(this.getOptions()).url(this.publicId, DEFAULT_POSTER_OPTIONS);
+      poster = (ref1 = this.getOption('poster')) != null ? ref1 : {};
+      if (_.isPlainObject(poster)) {
+        defaults = poster.public_id != null ? Cloudinary.DEFAULT_IMAGE_PARAMS : DEFAULT_POSTER_OPTIONS;
+        poster = new Cloudinary(this.getOptions()).url((ref2 = poster.public_id) != null ? ref2 : this.publicId, _.defaults({}, poster, defaults));
       }
       attr = VideoTag.__super__.attributes.call(this) || [];
       attr = _.omit(attr, VIDEO_TAG_PARAMS);
       if (!_.isArray(sourceTypes)) {
-        attr["src"] = new Cloudinary(this.getOptions()).url(this.publicId, _.defaults({
+        attr["src"] = new Cloudinary(this.getOptions()).url(this.publicId, {
           resource_type: 'video',
           format: sourceTypes
-        }, this.getOptions()));
+        });
       }
       if (poster != null) {
         attr["poster"] = poster;
@@ -2126,19 +2155,10 @@
     exports.Cloudinary = {};
   }
 
-  exports.Cloudinary.prototype.imageTag = function(publicId, options) {
-    options = _.defaults({}, options, this.config());
-    return new ImageTag(publicId, options);
-  };
-
   exports.Cloudinary.prototype.videoTag = function(publicId, options) {
     options = _.defaults({}, options, this.config());
     return new VideoTag(publicId, options);
   };
-
-  exports.Cloudinary.HtmlTag = HtmlTag;
-
-  exports.Cloudinary.ImageTag = ImageTag;
 
   exports.Cloudinary.VideoTag = VideoTag;
 
@@ -2154,16 +2174,10 @@
       if (options == null) {
         options = {};
       }
-      i = CloudinaryJQuery.__super__.image.call(this, publicId, options);
+      i = this.imageTag(publicId, options);
       url = i.getAttr('src');
       i.setAttr('src', '');
       return jQuery(i.toHtml()).removeAttr('src').data('src-cache', url).cloudinary_update(options);
-    };
-
-    CloudinaryJQuery.prototype.video = function(publicId, options) {
-      if (options == null) {
-        options = {};
-      }
     };
 
     CloudinaryJQuery.prototype.responsive = function(options) {

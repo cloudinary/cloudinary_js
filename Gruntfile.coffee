@@ -17,7 +17,9 @@ module.exports = (grunt)->
             'src/config.coffee'
             'src/parameters.coffee'
             'src/transformation.coffee'
-            'src/htmltag.coffee'
+            'src/tags/htmltag.coffee'
+            'src/tags/imagetag.coffee'
+            'src/tags/videotag.coffee'
             'src/footer.coffee'
           ]
           'js/jquery.noupload.cloudinary.js': [
@@ -29,7 +31,9 @@ module.exports = (grunt)->
             'src/config.coffee'
             'src/parameters.coffee'
             'src/transformation.coffee'
-            'src/htmltag.coffee'
+            'src/tags/htmltag.coffee'
+            'src/tags/imagetag.coffee'
+            'src/tags/videotag.coffee'
             'src/jquery-extension.coffee'
             'src/footer.coffee'
           ]
@@ -42,7 +46,9 @@ module.exports = (grunt)->
             'src/config.coffee'
             'src/parameters.coffee'
             'src/transformation.coffee'
-            'src/htmltag.coffee'
+            'src/tags/htmltag.coffee'
+            'src/tags/imagetag.coffee'
+            'src/tags/videotag.coffee'
             'src/jquery-extension.coffee'
             'src/cloudinary-fileupload.coffee'
             'src/footer.coffee'

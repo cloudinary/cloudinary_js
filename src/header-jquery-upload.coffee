@@ -10,7 +10,7 @@
         // Register as an anonymous AMD module:
         define([
             'lodash',
-            'jquery' // FIXME add fileupload
+            'jquery'
         ], factory);
     } else {
         // Browser globals:
@@ -18,3 +18,4 @@
     }
 }(function (_, jQuery) {
 `
+#  FIXME add fileupload dependency

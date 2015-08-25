@@ -10,7 +10,7 @@
         // Register as an anonymous AMD module:
         define([
             'lodash',
-            'jquery' // FIXME add fileupload
+            'jquery'
         ], factory);
     } else {
         // Browser globals:
@@ -18,6 +18,7 @@
     }
 }(function (_, jQuery) {
 `
+#  FIXME add fileupload dependency
 ###*
   * Includes utility methods and lodash / jQuery shims
 ###
@@ -453,7 +454,7 @@ class Cloudinary
     new Transformation( options).flatten()
 
   image: (publicId, options={}) ->
-    @imageTag(publicId, options).toHtml() # REVIEW need to call cloudinary_update
+    @imageTag(publicId, options).toHtml() # TODO need to call cloudinary_update
 
   video_thumbnail: (publicId, options) ->
     @image publicId, _.extend( {}, DEFAULT_POSTER_OPTIONS, options)
@@ -864,8 +865,8 @@ class Configuration
     _.assign(@configuration, _.cloneDeep(config))
     this
 
-  fromDocument: -> #FIXME use querySelectorAll
-    meta_elements = document?.getElementsByTagName("meta");
+  fromDocument: ->
+    meta_elements = document?.querySelectorAll('meta[name^="cloudinary_"]');
     if meta_elements
       for el in meta_elements
         @configuration[el.getAttribute('name').replace('cloudinary_', '')] = el.getAttribute('content')
@@ -1347,37 +1348,16 @@ exports.Cloudinary ?= {}
 exports.Cloudinary.Transformation = Transformation
 
 
-toAttribute = (key, value) ->
-  if !value
-    undefined
-  else if value == true
-    key
-  else
-    "#{key}=\"#{value}\""
-
-###*
-* combine key and value from the `attr` to generate an HTML tag attributes string.
-* `Transformation::toHtmlTagOptions` is used to filter out transformation and configuration keys.
-* @param {Object} attr
-* @return {String} the attributes in the format `'key1="value1" key2="value2"'`
-###
-html_attrs = (attrs) ->
-  pairs = _.map(attrs, (value, key) -> toAttribute( key, value))
-  pairs.sort()
-  pairs.filter((pair) ->
-                 pair
-              ).join ' '
-
 ###*
   * Represents an HTML (DOM) tag
 ###
 class HtmlTag
   ###*
-    * Represents an HTML (DOM) tag
-    * Usage: tag = new HtmlTag( 'div', { 'width': 10})
-    * @param {String} name - the name of the tag
-    * @param {String} [publicId]
-    * @param {Object} options
+   * Represents an HTML (DOM) tag
+   * Usage: tag = new HtmlTag( 'div', { 'width': 10})
+   * @param {String} name - the name of the tag
+   * @param {String} [publicId]
+   * @param {Object} options
   ###
   constructor: (name, publicId, options)->
     @name = name
@@ -1403,6 +1383,35 @@ class HtmlTag
   ###
   @new = (name, publicId, options)->
     new @(name, publicId, options)
+
+
+  ###*
+   * Represent the given key and value as an HTML attribute.
+   * @param {String} key - attribute name
+   * @param {*|boolean} value - the value of the attribute. If the value is boolean `true`, return the key only.
+   * @returns {String} the attribute
+   *
+  ###
+  toAttribute = (key, value) ->
+    if !value
+      undefined
+    else if value == true
+      key
+    else
+      "#{key}=\"#{value}\""
+
+  ###*
+   * combine key and value from the `attr` to generate an HTML tag attributes string.
+   * `Transformation::toHtmlTagOptions` is used to filter out transformation and configuration keys.
+   * @param {Object} attr
+   * @return {String} the attributes in the format `'key1="value1" key2="value2"'`
+  ###
+  html_attrs: (attrs) ->
+    pairs = _.map(attrs, (value, key) -> toAttribute( key, value))
+    pairs.sort()
+    pairs.filter((pair) ->
+                   pair
+                ).join ' '
 
   ###*
    * Get all options related to this tag.
@@ -1441,7 +1450,7 @@ class HtmlTag
     ""
 
   openTag: ()->
-    "<#{@name} #{html_attrs(@attributes())}>"
+    "<#{@name} #{@html_attrs(@attributes())}>"
 
   closeTag:()->
     "</#{@name}>"
@@ -1452,15 +1461,24 @@ class HtmlTag
   toHtml: ()->
     @openTag() + @content()+ @closeTag()
 
+# unless running on server side, export to the windows object
+unless module?.exports? || exports?
+  exports = window
+
+exports.Cloudinary ?= {}
+
+exports.Cloudinary.HtmlTag = HtmlTag
+
+
 ###*
 * Creates an HTML (DOM) Image tag using Cloudinary as the source.
 ###
 class ImageTag extends HtmlTag
 
   ###*
-  * Creates an HTML (DOM) Image tag using Cloudinary as the source.
-  * @param {String} [publicId]
-  * @param {Object} [options]
+   * Creates an HTML (DOM) Image tag using Cloudinary as the source.
+   * @param {String} [publicId]
+   * @param {Object} [options]
   ###
   constructor: (publicId, options={})->
     super("img", publicId, options)
@@ -1473,6 +1491,18 @@ class ImageTag extends HtmlTag
     attr['src'] ?= new Cloudinary(@getOptions()).url( @publicId)
     attr
 
+# unless running on server side, export to the windows object
+unless module?.exports? || exports?
+  exports = window
+
+exports.Cloudinary ?= {}
+exports.Cloudinary::imageTag = (publicId, options)->
+  options = _.defaults({}, options, @config())
+  new ImageTag(publicId, options)
+
+exports.Cloudinary.ImageTag = ImageTag
+
+
 ###*
 * Creates an HTML (DOM) Video tag using Cloudinary as the source.
 ###
@@ -1484,17 +1514,13 @@ class VideoTag extends HtmlTag
 
 
   ###*
-  * Creates an HTML (DOM) Video tag using Cloudinary as the source.
-  * @param {String} [publicId]
-  * @param {Object} [options]
+   * Creates an HTML (DOM) Video tag using Cloudinary as the source.
+   * @param {String} [publicId]
+   * @param {Object} [options]
   ###
   constructor: (publicId, options={})->
     options = _.defaults({}, options, Cloudinary.DEFAULT_VIDEO_PARAMS)
-
     super("video", publicId.replace(/\.(mp4|ogv|webm)$/, ''), options)
-
-#    @whitelist.push("source_transformation", "source_types", "poster")
-#    @fromOptions(options)
 
   setSourceTransformation: (value)->
     @transformation().sourceTransformation(value)
@@ -1524,30 +1550,26 @@ class VideoTag extends HtmlTag
         src = cld.url( "#{@publicId }", _.defaults({}, transformation, { resource_type: 'video', format: srcType}))
         videoType = if srcType == 'ogv' then 'ogg' else srcType
         mimeType = 'video/' + videoType
-        "<source #{html_attrs(src: src, type: mimeType)}>"
+        "<source #{@html_attrs(src: src, type: mimeType)}>"
     else
       innerTags = []
     innerTags.join('') + fallback
 
   attributes: ()->
     sourceTypes = @getOption('source_types')
-    poster = @getOption('poster')
+    poster = @getOption('poster') ? {}
 
-    if poster?
-      if _.isPlainObject(poster)
-        if poster.public_id?
-          poster = new Cloudinary(@getOptions()).url( "#{poster.public_id }", _.defaults({}, poster, Cloudinary.DEFAULT_IMAGE_PARAMS))
-        else
-          poster = new Cloudinary(@getOptions()).url( @publicId, _.defaults( {}, poster, DEFAULT_POSTER_OPTIONS))
-    else
-      poster = new Cloudinary(@getOptions()).url(@publicId, DEFAULT_POSTER_OPTIONS)
+    if _.isPlainObject(poster)
+      defaults = if poster.public_id? then Cloudinary.DEFAULT_IMAGE_PARAMS else DEFAULT_POSTER_OPTIONS
+      poster = new Cloudinary(@getOptions()).url(
+        poster.public_id ? @publicId,
+        _.defaults({}, poster, defaults))
 
     attr = super() || []
     attr = _.omit(attr, VIDEO_TAG_PARAMS)
     unless  _.isArray(sourceTypes)
-      attr["src"] = new Cloudinary(@getOptions()).url(@publicId,
-                                                 _.defaults({ resource_type: 'video', format: sourceTypes},
-                                                            @getOptions()))
+      attr["src"] = new Cloudinary(@getOptions())
+        .url(@publicId, {resource_type: 'video', format: sourceTypes})
     if poster?
       attr["poster"] = poster
     attr
@@ -1557,15 +1579,10 @@ unless module?.exports? || exports?
   exports = window
 
 exports.Cloudinary ?= {}
-exports.Cloudinary::imageTag = (publicId, options)->
-  options = _.defaults({}, options, @config())
-  new ImageTag(publicId, options)
 exports.Cloudinary::videoTag = (publicId, options)->
   options = _.defaults({}, options, @config())
   new VideoTag(publicId, options)
 
-exports.Cloudinary.HtmlTag = HtmlTag
-exports.Cloudinary.ImageTag = ImageTag
 exports.Cloudinary.VideoTag = VideoTag
 
 class CloudinaryJQuery extends Cloudinary
@@ -1574,13 +1591,10 @@ class CloudinaryJQuery extends Cloudinary
 
 
   image: (publicId, options={})->
-    i = super(publicId, options)
+    i = @imageTag(publicId, options)
     url= i.getAttr('src')
     i.setAttr('src', '')
     jQuery(i.toHtml()).removeAttr('src').data('src-cache', url).cloudinary_update(options);
-
-  video: (publicId, options = {})->
-    # TODO implement
 
   responsive: (options) ->
     responsiveConfig = jQuery.extend(responsiveConfig or {}, options)
@@ -1624,7 +1638,7 @@ jQuery.fn.cloudinary = (options) ->
     delete img_options.source
     delete img_options.src
     url = jQuery.cloudinary.url(public_id, img_options)
-    img_options = new Transformation(img_options).toHtmlAttributes() # FIXME include own config
+    img_options = new Transformation(img_options).toHtmlAttributes()
     jQuery(this).data('src-cache', url).attr
       width: img_options.width
       height: img_options.height
