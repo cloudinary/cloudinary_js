@@ -328,7 +328,7 @@
    */
 
   Cloudinary = (function() {
-    var AKAMAI_SHARED_CDN, CF_SHARED_CDN, DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_SOURCE_TYPES, OLD_AKAMAI_SHARED_CDN, SHARED_CDN, absolutize, cdnSubdomainNumber, closestAbove, cloudinaryUrlPrefix, defaultStoppoints, devicePixelRatioCache, finalizeResourceType, htmlAttrs, joinPair, responsiveConfig, responsiveResizeInitialized;
+    var AKAMAI_SHARED_CDN, CF_SHARED_CDN, DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_SOURCE_TYPES, OLD_AKAMAI_SHARED_CDN, SHARED_CDN, absolutize, cdnSubdomainNumber, closestAbove, cloudinaryUrlPrefix, defaultStoppoints, devicePixelRatioCache, finalizeResourceType, responsiveConfig, responsiveResizeInitialized;
 
     CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
 
@@ -707,35 +707,6 @@
       return [protocol, cdnPart, subdomain, host, path].join("");
     };
 
-    joinPair = function(key, value) {
-      if (!value) {
-        return void 0;
-      } else if (value === true) {
-        return key;
-      } else {
-        return key + '="' + value + '"';
-      }
-    };
-
-
-    /**
-    * combine key and value from the `attr` to generate an HTML tag attributes string.
-    * `Transformation::toHtmlTagOptions` is used to filter out transformation and configuration keys.
-    * @param {Object} attr
-    * @return {String} the attributes in the format `'key1="value1" key2="value2"'`
-     */
-
-    htmlAttrs = function(attrs) {
-      var pairs;
-      pairs = _.map(attrs, function(value, key) {
-        return joinPair(key, value);
-      });
-      pairs.sort();
-      return pairs.filter(function(pair) {
-        return pair;
-      }).join(' ');
-    };
-
 
     /**
     * similar to `$.fn.cloudinary`
@@ -806,7 +777,7 @@
       exact = !responsive_use_stoppoints || responsive_use_stoppoints === 'resize' && !options.resizing;
       for (j = 0, len = elements.length; j < len; j++) {
         tag = elements[j];
-        if (!(tag.tagName.match(/body/i))) {
+        if (!(tag.tagName.match(/img/i))) {
           continue;
         }
         if (options.responsive) {
@@ -1888,7 +1859,7 @@
      * @return {String} the attributes in the format `'key1="value1" key2="value2"'`
      */
 
-    HtmlTag.prototype.html_attrs = function(attrs) {
+    HtmlTag.prototype.htmlAttrs = function(attrs) {
       var pairs;
       pairs = _.map(attrs, function(value, key) {
         return toAttribute(key, value);
@@ -1951,7 +1922,7 @@
     };
 
     HtmlTag.prototype.openTag = function() {
-      return "<" + this.name + " " + (this.html_attrs(this.attributes())) + ">";
+      return "<" + this.name + " " + (this.htmlAttrs(this.attributes())) + ">";
     };
 
     HtmlTag.prototype.closeTag = function() {
@@ -2107,7 +2078,7 @@
             }));
             videoType = srcType === 'ogv' ? 'ogg' : srcType;
             mimeType = 'video/' + videoType;
-            results.push("<source " + (this.html_attrs({
+            results.push("<source " + (this.htmlAttrs({
               src: src,
               type: mimeType
             })) + ">");

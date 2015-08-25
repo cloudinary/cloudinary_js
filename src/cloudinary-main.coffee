@@ -332,29 +332,6 @@ class Cloudinary
 
     [protocol, cdnPart, subdomain, host, path].join("")
 
-  joinPair = (key, value) ->
-    if !value
-      undefined
-    else if value == true
-      key
-    else
-      key + '="' + value + '"'
-
-  ###*
-  * combine key and value from the `attr` to generate an HTML tag attributes string.
-  * `Transformation::toHtmlTagOptions` is used to filter out transformation and configuration keys.
-  * @param {Object} attr
-  * @return {String} the attributes in the format `'key1="value1" key2="value2"'`
-  ###
-  htmlAttrs = (attrs) ->
-    pairs = _.map(attrs, (value, key) ->
-      joinPair key, value
-    )
-    pairs.sort()
-    pairs.filter((pair) ->
-      pair
-    ).join ' '
-
 
   ###*
   * similar to `$.fn.cloudinary`
@@ -408,7 +385,7 @@ class Cloudinary
 
     responsive_use_stoppoints = options['responsive_use_stoppoints'] ? @config('responsive_use_stoppoints') ? 'resize'
     exact = !responsive_use_stoppoints || responsive_use_stoppoints == 'resize' and !options.resizing
-    for tag in elements when tag.tagName.match(/body/i)
+    for tag in elements when tag.tagName.match(/img/i)
       if options.responsive
         tag.className = _.trim( "#{tag.className} cld-responsive") unless tag.className.match( /\bcld-responsive\b/)
       attrs = {}

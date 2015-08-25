@@ -57,7 +57,7 @@ class HtmlTag
    * @param {Object} attr
    * @return {String} the attributes in the format `'key1="value1" key2="value2"'`
   ###
-  html_attrs: (attrs) ->
+  htmlAttrs: (attrs) ->
     pairs = _.map(attrs, (value, key) -> toAttribute( key, value))
     pairs.sort()
     pairs.filter((pair) ->
@@ -101,7 +101,7 @@ class HtmlTag
     ""
 
   openTag: ()->
-    "<#{@name} #{@html_attrs(@attributes())}>"
+    "<#{@name} #{@htmlAttrs(@attributes())}>"
 
   closeTag:()->
     "</#{@name}>"

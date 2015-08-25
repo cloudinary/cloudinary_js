@@ -46,7 +46,7 @@ class VideoTag extends HtmlTag
         src = cld.url( "#{@publicId }", _.defaults({}, transformation, { resource_type: 'video', format: srcType}))
         videoType = if srcType == 'ogv' then 'ogg' else srcType
         mimeType = 'video/' + videoType
-        "<source #{@html_attrs(src: src, type: mimeType)}>"
+        "<source #{@htmlAttrs(src: src, type: mimeType)}>"
     else
       innerTags = []
     innerTags.join('') + fallback
