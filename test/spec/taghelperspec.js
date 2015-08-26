@@ -195,7 +195,7 @@
         source_types: ['webm', 'mp4']
       })).toEqual(("<video poster=\"" + expected_url + ".jpg\" width=\"100\">") + ("<source src=\"" + expected_url + ".webm\" type=\"video/webm\">") + ("<source src=\"" + expected_mp4_url + ".mp4\" type=\"video/mp4\">") + "</video>");
     });
-    return it("should generate video tag with configurable poster", function() {
+    it("should generate video tag with configurable poster", function() {
       var expected_poster_url, expected_url;
       expected_url = VIDEO_UPLOAD_PATH + "movie";
       expected_poster_url = 'http://image/somewhere.jpg';
@@ -227,6 +227,18 @@
         poster: false,
         source_types: "mp4"
       })).toEqual("<video src=\"" + expected_url + ".mp4\"></video>");
+    });
+    return describe("attributes", function() {
+      var tag;
+      tag = Cloudinary.HtmlTag["new"]("div", {
+        id: "foobar"
+      });
+      return describe("removeAttr()", function() {
+        tag.removeAttr("id");
+        return it("should remove that attribute from the tag", function() {
+          return expect(_.keys(tag.attributes())).not.toContain("id");
+        });
+      });
     });
   });
 

@@ -70,6 +70,7 @@ class TransformationBase
     ]
 
     trans = {}
+    @otherOptions = {}
     @whitelist = _(TransformationBase.prototype).functions().map(_.snakeCase).value()
 
     @toOptions = ()->
@@ -120,9 +121,18 @@ class TransformationBase
       trans[name]
 
     @remove = (name)->
-      temp = trans[name]
-      delete trans[name]
-      temp
+      switch
+        when trans[name]?
+          temp = trans[name]
+          delete trans[name]
+          temp
+        when @otherOptions[name]?
+          temp = @otherOptions[name]
+          delete @otherOptions[name]
+          temp
+        else
+          null
+
 
     @keys = ()->
       _(trans).keys().map(_.snakeCase).value().sort()
@@ -231,7 +241,7 @@ class Transformation extends TransformationBase
 
   constructor: (options = {}) ->
     parent = undefined
-    @otherOptions = {}
+
 
     super(options)
     @fromOptions(options)

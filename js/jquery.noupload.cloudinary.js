@@ -1279,6 +1279,7 @@
        */
       this.PARAM_NAMES = ["angle", "api_key", "api_secret", "audio_codec", "audio_frequency", "background", "bit_rate", "border", "cdn_subdomain", "cloud_name", "cname", "color", "color_space", "crop", "default_image", "delay", "density", "dpr", "duration", "effect", "end_offset", "fallback_content", "fetch_format", "format", "flags", "gravity", "height", "offset", "opacity", "overlay", "page", "prefix", "private_cdn", "protocol", "quality", "radius", "raw_transformation", "resource_type", "responsive_width", "secure", "secure_cdn_subdomain", "secure_distribution", "shorten", "size", "source_transformation", "source_types", "start_offset", "transformation", "type", "underlay", "url_suffix", "use_root_path", "version", "video_codec", "video_sampling", "width", "x", "y", "zoom"];
       trans = {};
+      this.otherOptions = {};
       this.whitelist = _(TransformationBase.prototype).functions().map(_.snakeCase).value();
       this.toOptions = function() {
         return _.merge(_.mapValues(trans, function(t) {
@@ -1364,9 +1365,18 @@
       };
       this.remove = function(name) {
         var temp;
-        temp = trans[name];
-        delete trans[name];
-        return temp;
+        switch (false) {
+          case trans[name] == null:
+            temp = trans[name];
+            delete trans[name];
+            return temp;
+          case this.otherOptions[name] == null:
+            temp = this.otherOptions[name];
+            delete this.otherOptions[name];
+            return temp;
+          default:
+            return null;
+        }
       };
       this.keys = function() {
         return _(trans).keys().map(_.snakeCase).value().sort();
@@ -1643,7 +1653,6 @@
         options = {};
       }
       parent = void 0;
-      this.otherOptions = {};
       Transformation.__super__.constructor.call(this, options);
       this.fromOptions(options);
       this.setParent = function(object) {
@@ -1915,7 +1924,7 @@
     };
 
     HtmlTag.prototype.removeAttr = function(name) {
-      return delete this.attributes()[name];
+      return this.transformation().remove(name);
     };
 
     HtmlTag.prototype.content = function() {

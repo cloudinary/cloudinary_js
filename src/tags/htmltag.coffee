@@ -95,7 +95,7 @@ class HtmlTag
     @attributes()[name]
 
   removeAttr: (name)->
-    delete @attributes()[name]
+    @transformation().remove(name)
 
   content: ()->
     ""

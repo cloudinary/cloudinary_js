@@ -191,4 +191,11 @@ describe "Cloudinary.VideoTag", ->
 
     expect(cloudinary.video("movie", poster: false, source_types: "mp4")).toEqual(
       "<video src=\"#{expected_url}.mp4\"></video>")
+  describe "attributes", ->
+    tag = Cloudinary.HtmlTag.new("div", { id: "foobar"})
+    describe "removeAttr()", ->
+      tag.removeAttr("id")
+      it "should remove that attribute from the tag", ->
+        expect(_.keys(tag.attributes())).not.toContain("id")
+
 
