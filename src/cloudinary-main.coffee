@@ -345,7 +345,7 @@ class Cloudinary
           width: i.getAttribute('width')
           height: i.getAttribute('height')
           src: i.getAttribute('src')
-        },  options, @config())
+        }, options)
         publicId = imgOptions['source'] || imgOptions['src']
         delete imgOptions['source']
         delete imgOptions['src']

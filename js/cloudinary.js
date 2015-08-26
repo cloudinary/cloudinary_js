@@ -727,7 +727,7 @@
           width: i.getAttribute('width'),
           height: i.getAttribute('height'),
           src: i.getAttribute('src')
-        }, options, this.config());
+        }, options);
         publicId = imgOptions['source'] || imgOptions['src'];
         delete imgOptions['source'];
         delete imgOptions['src'];
@@ -1002,6 +1002,8 @@
     /**
     * Create or modify the Cloudinary client configuration
     *
+    * Warning: `config()` returns the actual internal configuration object. modifying it will change the configuration.
+    *
     * This is a backward compatibility method. For new code, use get(), merge() etc.
     *
     * @param {Hash|String|true} new_config
@@ -1017,21 +1019,28 @@
           this.fromDocument();
         }
       }
-      if (!_.isUndefined(new_value)) {
-        this.set(new_config, new_value);
-        return this.configuration;
-      } else if (_.isString(new_config)) {
-        return this.get(new_config);
-      } else if (_.isObject(new_config)) {
-        this.merge(new_config);
-        return this.configuration;
-      } else {
-        return this.configuration;
+      switch (false) {
+        case new_value === void 0:
+          this.set(new_config, new_value);
+          return this.configuration;
+        case !_.isString(new_config):
+          return this.get(new_config);
+        case !_.isObject(new_config):
+          this.merge(new_config);
+          return this.configuration;
+        default:
+          return this.configuration;
       }
     };
 
+
+    /**
+     * Returns a copy of the configuration parameters
+     * @returns {Object} a key:value collection of the configuration parameters
+     */
+
     Configuration.prototype.toOptions = function() {
-      return this.configuration;
+      return _.cloneDeep(this.configuration);
     };
 
     return Configuration;

@@ -8,7 +8,7 @@ class Param
   flatten: ->
     val = @process(@value)
     if @short? && val?
-      "#{@short }_#{val}"
+      "#{@short}_#{val}"
     else
       null
 

@@ -614,7 +614,7 @@ class Cloudinary
           width: i.getAttribute('width')
           height: i.getAttribute('height')
           src: i.getAttribute('src')
-        },  options, @config())
+        }, options)
         publicId = imgOptions['source'] || imgOptions['src']
         delete imgOptions['source']
         delete imgOptions['src']
@@ -866,6 +866,8 @@ class Configuration
   ###*
   * Create or modify the Cloudinary client configuration
   *
+  * Warning: `config()` returns the actual internal configuration object. modifying it will change the configuration.
+  *
   * This is a backward compatibility method. For new code, use get(), merge() etc.
   *
   * @param {Hash|String|true} new_config
@@ -877,19 +879,25 @@ class Configuration
     if !@configuration? || new_config == true # REVIEW do we need/want this auto-initialization?
       @fromEnvironment()
       @fromDocument() unless @configuration
-    unless _.isUndefined(new_value)
-      @set(new_config, new_value)
-      @configuration
-    else if _.isString(new_config)
-      @get(new_config)
-    else if _.isObject(new_config)
-      @merge(new_config)
-      @configuration
-    else
-      @configuration
 
+    switch
+      when new_value != undefined
+        @set(new_config, new_value)
+        @configuration
+      when _.isString(new_config)
+        @get(new_config)
+      when _.isObject(new_config)
+        @merge(new_config)
+        @configuration
+      else
+        @configuration
+
+  ###*
+   * Returns a copy of the configuration parameters
+   * @returns {Object} a key:value collection of the configuration parameters
+  ###
   toOptions: ()->
-    @configuration
+    _.cloneDeep(@configuration)
 
 unless module?.exports
   exports = window
@@ -907,7 +915,7 @@ class Param
   flatten: ->
     val = @process(@value)
     if @short? && val?
-      "#{@short }_#{val}"
+      "#{@short}_#{val}"
     else
       null
 
