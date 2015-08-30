@@ -9,7 +9,7 @@
   * @returns {boolean} true if jQuery is defined
 ###
 isJQuery = ->
-  $?.fn?.jquery?
+  jQuery?
 
 ###*
   * Get data from the DOM element.
@@ -22,7 +22,7 @@ isJQuery = ->
 ###
 getData = ( element, name)->
   if isJQuery()
-    $(element).data(name)
+    jQuery(element).data(name)
   else if _.isElement(element)
     element.getAttribute("data-#{name}")
 
@@ -37,7 +37,7 @@ getData = ( element, name)->
 ###
 setData = (element, name, value)->
   if isJQuery()
-    $(element).data(name, value)
+    jQuery(element).data(name, value)
   else if _.isElement(element)
     element.setAttribute("data-#{name}", value)
 
@@ -52,7 +52,7 @@ setData = (element, name, value)->
 ###
 getAttribute = ( element, name)->
   if isJQuery()
-    $(element).attr(name)
+    jQuery(element).attr(name)
   else if _.isElement(element)
     element.getAttribute(name)
 
@@ -67,13 +67,13 @@ getAttribute = ( element, name)->
 ###
 setAttribute = (element, name, value)->
   if isJQuery()
-    $(element).attr(name, value)
+    jQuery(element).attr(name, value)
   else if _.isElement(element)
     element.setAttribute(name, value)
 
 setAttributes = (element, attributes)->
   if isJQuery()
-    $(element).attr(attributes)
+    jQuery(element).attr(attributes)
   else
     for name, value of attributes
       if value?
@@ -83,7 +83,7 @@ setAttributes = (element, attributes)->
 
 hasClass = (element, name)->
   if isJQuery()
-    $(element).hasClass(name)
+    jQuery(element).hasClass(name)
   else if _.isElement(element)
     element.className.match(new RegExp("\b" + name +"\b"))
 

@@ -33,8 +33,7 @@
     hasProp = {}.hasOwnProperty;
 
   isJQuery = function() {
-    var ref;
-    return (typeof $ !== "undefined" && $ !== null ? (ref = $.fn) != null ? ref.jquery : void 0 : void 0) != null;
+    return typeof jQuery !== "undefined" && jQuery !== null;
   };
 
 
@@ -50,7 +49,7 @@
 
   getData = function(element, name) {
     if (isJQuery()) {
-      return $(element).data(name);
+      return jQuery(element).data(name);
     } else if (_.isElement(element)) {
       return element.getAttribute("data-" + name);
     }
@@ -69,7 +68,7 @@
 
   setData = function(element, name, value) {
     if (isJQuery()) {
-      return $(element).data(name, value);
+      return jQuery(element).data(name, value);
     } else if (_.isElement(element)) {
       return element.setAttribute("data-" + name, value);
     }
@@ -88,7 +87,7 @@
 
   getAttribute = function(element, name) {
     if (isJQuery()) {
-      return $(element).attr(name);
+      return jQuery(element).attr(name);
     } else if (_.isElement(element)) {
       return element.getAttribute(name);
     }
@@ -107,7 +106,7 @@
 
   setAttribute = function(element, name, value) {
     if (isJQuery()) {
-      return $(element).attr(name, value);
+      return jQuery(element).attr(name, value);
     } else if (_.isElement(element)) {
       return element.setAttribute(name, value);
     }
@@ -116,7 +115,7 @@
   setAttributes = function(element, attributes) {
     var name, results, value;
     if (isJQuery()) {
-      return $(element).attr(attributes);
+      return jQuery(element).attr(attributes);
     } else {
       results = [];
       for (name in attributes) {
@@ -133,7 +132,7 @@
 
   hasClass = function(element, name) {
     if (isJQuery()) {
-      return $(element).hasClass(name);
+      return jQuery(element).hasClass(name);
     } else if (_.isElement(element)) {
       return element.className.match(new RegExp("\b" + name(+"\b")));
     }
