@@ -1589,6 +1589,7 @@ class CloudinaryJQuery extends Cloudinary
     i = @imageTag(publicId, options)
     url= i.getAttr('src')
     i.setAttr('src', '')
+    # REVIEW the jQuery library returns a different value than the "clean" one
     jQuery(i.toHtml()).removeAttr('src').data('src-cache', url).cloudinary_update(options);
 
   responsive: (options) ->

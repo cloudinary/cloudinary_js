@@ -24,6 +24,7 @@ module.exports = (config) ->
     # list of files to exclude
     exclude: [
       'test/spec/cloudinary-jquery-spec.js'
+      'test/spec/cloudinary-jquery-upload-spec.js'
     ]
 
 
