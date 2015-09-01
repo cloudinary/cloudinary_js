@@ -1592,7 +1592,7 @@
     };
 
     TransformationBase.prototype.transformation = function(value) {
-      return this.transformationParam(value, "transformation");
+      return this.transformationParam(value, "transformation", "t");
     };
 
     TransformationBase.prototype.underlay = function(value) {

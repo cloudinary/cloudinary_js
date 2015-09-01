@@ -211,7 +211,7 @@ class TransformationBase
   sourceTypes: (value)->          @param value, "source_types"
   sourceTransformation: (value)->   @param value, "source_transformation"
   startOffset: (value)->     @rangeParam value, "start_offset", "so"
-  transformation: (value)->   @transformationParam value, "transformation"
+  transformation: (value)->   @transformationParam value, "transformation", "t"
   underlay: (value)->         @param value, "underlay", "u"
   videoCodec: (value)->      @param value, "video_codec", "vc", process_video_params
   videoSampling: (value)->   @param value, "video_sampling", "vs"
@@ -236,7 +236,7 @@ class TransformationBase
 #      t = new Transformation( {angle: 20, crop: "scale", width: "auto"});
 ###
 class Transformation extends TransformationBase
-
+# TODO add chains (slashes)
   @new = (args)-> new Transformation(args)
 
   constructor: (options = {}) ->

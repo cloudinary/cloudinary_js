@@ -32,7 +32,7 @@ class ArrayParam extends Param
   constructor: (@name, @short, @sep = '.', @process = _.identity) ->
     super(@name, @short, @process)
   flatten: ->
-    if @short?
+    if @short? # FIXME call process
       flat = for t in @value
         if _.isFunction( t.flatten)
           t.flatten() # Param or Transformation
@@ -48,6 +48,7 @@ class ArrayParam extends Param
       super([@value])
 
 class TransformationParam extends Param
+  # TODO maybe use regular param with "transformation" process?
   constructor: (@name, @short = "t", @sep = '.', @process = _.identity) ->
     super(@name, @short, @process)
   flatten: ->
@@ -71,7 +72,7 @@ class TransformationParam extends Param
       super([@value])
 
 class RangeParam extends Param
-  constructor: (@name, @short, @process = @norm_range_value)->
+  constructor: (@name, @short, @process = @norm_range_value)-> # FIXME overrun by identity in transformation?
     super(@name, @short, @process)
 
 class RawParam extends Param

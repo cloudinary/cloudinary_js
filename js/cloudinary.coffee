@@ -938,7 +938,7 @@ class ArrayParam extends Param
   constructor: (@name, @short, @sep = '.', @process = _.identity) ->
     super(@name, @short, @process)
   flatten: ->
-    if @short?
+    if @short? # FIXME call process
       flat = for t in @value
         if _.isFunction( t.flatten)
           t.flatten() # Param or Transformation
@@ -954,6 +954,7 @@ class ArrayParam extends Param
       super([@value])
 
 class TransformationParam extends Param
+  # TODO maybe use regular param with "transformation" process?
   constructor: (@name, @short = "t", @sep = '.', @process = _.identity) ->
     super(@name, @short, @process)
   flatten: ->
@@ -977,7 +978,7 @@ class TransformationParam extends Param
       super([@value])
 
 class RangeParam extends Param
-  constructor: (@name, @short, @process = @norm_range_value)->
+  constructor: (@name, @short, @process = @norm_range_value)-> # FIXME overrun by identity in transformation?
     super(@name, @short, @process)
 
 class RawParam extends Param
@@ -1225,7 +1226,7 @@ class TransformationBase
   sourceTypes: (value)->          @param value, "source_types"
   sourceTransformation: (value)->   @param value, "source_transformation"
   startOffset: (value)->     @rangeParam value, "start_offset", "so"
-  transformation: (value)->   @transformationParam value, "transformation"
+  transformation: (value)->   @transformationParam value, "transformation", "t"
   underlay: (value)->         @param value, "underlay", "u"
   videoCodec: (value)->      @param value, "video_codec", "vc", process_video_params
   videoSampling: (value)->   @param value, "video_sampling", "vs"
@@ -1250,7 +1251,7 @@ class TransformationBase
 #      t = new Transformation( {angle: 20, crop: "scale", width: "auto"});
 ###
 class Transformation extends TransformationBase
-
+# TODO add chains (slashes)
   @new = (args)-> new Transformation(args)
 
   constructor: (options = {}) ->
