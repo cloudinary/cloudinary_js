@@ -83,7 +83,8 @@ Also, add the following javascript:
         imageMaxWidth: 800,
         imageMaxHeight: 600,
         acceptFileTypes: /(\.|\/)(gif|jpe?g|png|bmp|ico)$/i,
-        maxFileSize: 20000000 // 20MB
+        maxFileSize: 20000000, // 20MB
+        loadImageMaxFileSize: 20000000 // default limit is 10MB
       });
     });
 
