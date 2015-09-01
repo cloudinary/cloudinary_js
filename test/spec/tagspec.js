@@ -228,7 +228,7 @@
         source_types: "mp4"
       })).toEqual("<video src=\"" + expected_url + ".mp4\"></video>");
     });
-    return describe("attributes", function() {
+    describe("attributes", function() {
       var tag;
       tag = Cloudinary.HtmlTag["new"]("div", {
         id: "foobar"
@@ -238,6 +238,14 @@
         return it("should remove that attribute from the tag", function() {
           return expect(_.keys(tag.attributes())).not.toContain("id");
         });
+      });
+    });
+    return describe("toDOM", function() {
+      var element;
+      element = Cloudinary.HtmlTag["new"]("div").toDOM();
+      return it("should generate a DOM Element", function() {
+        expect(_.isElement(element)).toBeTruthy();
+        return expect(element.tagName).toMatch(/div/i);
       });
     });
   });

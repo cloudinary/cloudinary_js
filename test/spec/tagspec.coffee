@@ -199,3 +199,10 @@ describe "Cloudinary.VideoTag", ->
         expect(_.keys(tag.attributes())).not.toContain("id")
 
 
+  describe "toDOM", ->
+    element = Cloudinary.HtmlTag.new("div").toDOM()
+    it "should generate a DOM Element", ->
+      expect(_.isElement(element)).toBeTruthy()
+      expect(element.tagName).toMatch /div/i
+
+  

@@ -112,6 +112,14 @@ class HtmlTag
   toHtml: ()->
     @openTag() + @content()+ @closeTag()
 
+  toDOM: ()->
+    throw "Can't create DOM if document is not present!" unless _.isFunction( document?.createElement)
+    element = document.createElement(@name)
+    element[name] = value for name, value of @attributes()
+    element
+
+
+
 # unless running on server side, export to the windows object
 unless module?.exports? || exports?
   exports = window
