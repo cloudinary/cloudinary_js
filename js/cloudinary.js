@@ -1273,26 +1273,46 @@
     }
   };
 
+
+  /**
+   *  A single transformation.
+   *
+   *  Usage:
+   *
+   *      t = new Transformation();
+   *      t.angle(20).crop("scale").width("auto");
+   *
+   *  or
+   *      t = new Transformation( {angle: 20, crop: "scale", width: "auto"});
+   */
+
   TransformationBase = (function() {
     function TransformationBase(options) {
-      var trans;
+      var chainedTo, trans;
       if (options == null) {
         options = {};
       }
+      chainedTo = void 0;
+      trans = {};
+      this.toOptions = function() {
+        return _.merge(_.mapValues(trans, function(t) {
+          return t.value;
+        }), this.otherOptions);
+      };
+      this.setParent = function(object) {
+        chainedTo = object;
+        this.fromOptions(typeof object.toOptions === "function" ? object.toOptions() : void 0);
+        return this;
+      };
+      this.getParent = function() {
+        return chainedTo;
+      };
 
       /**
        * Parameters that are filtered out before passing the options to an HTML tag
        * @see TransformationBase::toHtmlAttributes
        */
       this.PARAM_NAMES = ["angle", "api_key", "api_secret", "audio_codec", "audio_frequency", "background", "bit_rate", "border", "cdn_subdomain", "cloud_name", "cname", "color", "color_space", "crop", "default_image", "delay", "density", "dpr", "duration", "effect", "end_offset", "fallback_content", "fetch_format", "format", "flags", "gravity", "height", "offset", "opacity", "overlay", "page", "prefix", "private_cdn", "protocol", "quality", "radius", "raw_transformation", "resource_type", "responsive_width", "secure", "secure_cdn_subdomain", "secure_distribution", "shorten", "size", "source_transformation", "source_types", "start_offset", "transformation", "type", "underlay", "url_suffix", "use_root_path", "version", "video_codec", "video_sampling", "width", "x", "y", "zoom"];
-      trans = {};
-      this.otherOptions = {};
-      this.whitelist = _(TransformationBase.prototype).functions().map(_.snakeCase).value();
-      this.toOptions = function() {
-        return _.merge(_.mapValues(trans, function(t) {
-          return t.value;
-        }), this.otherOptions);
-      };
 
       /*
        * Helper methods to create parameter methods
@@ -1396,280 +1416,9 @@
         }
         return hash;
       };
-    }
-
-
-    /*
-      Transformation Parameters
-     */
-
-    TransformationBase.prototype.angle = function(value) {
-      return this.arrayParam(value, "angle", "a", ".");
-    };
-
-    TransformationBase.prototype.audioCodec = function(value) {
-      return this.param(value, "audio_codec", "ac");
-    };
-
-    TransformationBase.prototype.audioFrequency = function(value) {
-      return this.param(value, "audio_frequency", "af");
-    };
-
-    TransformationBase.prototype.background = function(value) {
-      return this.param(value, "background", "b", Param.norm_color);
-    };
-
-    TransformationBase.prototype.bitRate = function(value) {
-      return this.param(value, "bit_rate", "br");
-    };
-
-    TransformationBase.prototype.border = function(value) {
-      return this.param(value, "border", "bo", function(border) {
-        if (_.isPlainObject(border)) {
-          border = _.assign({}, {
-            color: "black",
-            width: 2
-          }, border);
-          return border.width + "px_solid_" + (Param.norm_color(border.color));
-        } else {
-          return border;
-        }
-      });
-    };
-
-    TransformationBase.prototype.color = function(value) {
-      return this.param(value, "color", "co", Param.norm_color);
-    };
-
-    TransformationBase.prototype.colorSpace = function(value) {
-      return this.param(value, "color_space", "cs");
-    };
-
-    TransformationBase.prototype.crop = function(value) {
-      return this.param(value, "crop", "c");
-    };
-
-    TransformationBase.prototype.defaultImage = function(value) {
-      return this.param(value, "default_image", "d");
-    };
-
-    TransformationBase.prototype.delay = function(value) {
-      return this.param(value, "delay", "l");
-    };
-
-    TransformationBase.prototype.density = function(value) {
-      return this.param(value, "density", "dn");
-    };
-
-    TransformationBase.prototype.duration = function(value) {
-      return this.rangeParam(value, "duration", "du");
-    };
-
-    TransformationBase.prototype.dpr = function(value) {
-      return this.param(value, "dpr", "dpr", function(dpr) {
-        dpr = dpr.toString();
-        if (dpr === "auto") {
-          return "1.0";
-        } else if (dpr != null ? dpr.match(/^\d+$/) : void 0) {
-          return dpr + ".0";
-        } else {
-          return dpr;
-        }
-      });
-    };
-
-    TransformationBase.prototype.effect = function(value) {
-      return this.arrayParam(value, "effect", "e", ":");
-    };
-
-    TransformationBase.prototype.endOffset = function(value) {
-      return this.rangeParam(value, "end_offset", "eo");
-    };
-
-    TransformationBase.prototype.fallbackContent = function(value) {
-      return this.param(value, "fallback_content");
-    };
-
-    TransformationBase.prototype.fetchFormat = function(value) {
-      return this.param(value, "fetch_format", "f");
-    };
-
-    TransformationBase.prototype.format = function(value) {
-      return this.param(value, "format");
-    };
-
-    TransformationBase.prototype.flags = function(value) {
-      return this.arrayParam(value, "flags", "fl", ".");
-    };
-
-    TransformationBase.prototype.gravity = function(value) {
-      return this.param(value, "gravity", "g");
-    };
-
-    TransformationBase.prototype.height = function(value) {
-      return this.param(value, "height", "h", (function(_this) {
-        return function() {
-          if (_.any([_this.getValue("crop"), _this.getValue("overlay"), _this.getValue("underlay")])) {
-            return value;
-          } else {
-            return null;
-          }
-        };
-      })(this));
-    };
-
-    TransformationBase.prototype.htmlHeight = function(value) {
-      return this.param(value, "html_height");
-    };
-
-    TransformationBase.prototype.htmlWidth = function(value) {
-      return this.param(value, "html_width");
-    };
-
-    TransformationBase.prototype.offset = function(value) {
-      var end_o, ref1, start_o;
-      ref1 = _.isFunction(value != null ? value.split : void 0) ? value.split('..') : _.isArray(value) ? value : [null, null], start_o = ref1[0], end_o = ref1[1];
-      if (start_o != null) {
-        this.startOffset(start_o);
-      }
-      if (end_o != null) {
-        return this.endOffset(end_o);
-      }
-    };
-
-    TransformationBase.prototype.opacity = function(value) {
-      return this.param(value, "opacity", "o");
-    };
-
-    TransformationBase.prototype.overlay = function(value) {
-      return this.param(value, "overlay", "l");
-    };
-
-    TransformationBase.prototype.page = function(value) {
-      return this.param(value, "page", "pg");
-    };
-
-    TransformationBase.prototype.poster = function(value) {
-      return this.param(value, "poster");
-    };
-
-    TransformationBase.prototype.prefix = function(value) {
-      return this.param(value, "prefix", "p");
-    };
-
-    TransformationBase.prototype.quality = function(value) {
-      return this.param(value, "quality", "q");
-    };
-
-    TransformationBase.prototype.radius = function(value) {
-      return this.param(value, "radius", "r");
-    };
-
-    TransformationBase.prototype.rawTransformation = function(value) {
-      return this.rawParam(value, "raw_transformation");
-    };
-
-    TransformationBase.prototype.size = function(value) {
-      var height, ref1, width;
-      if (_.isFunction(value != null ? value.split : void 0)) {
-        ref1 = value.split('x'), width = ref1[0], height = ref1[1];
-        this.width(width);
-        return this.height(height);
-      }
-    };
-
-    TransformationBase.prototype.sourceTypes = function(value) {
-      return this.param(value, "source_types");
-    };
-
-    TransformationBase.prototype.sourceTransformation = function(value) {
-      return this.param(value, "source_transformation");
-    };
-
-    TransformationBase.prototype.startOffset = function(value) {
-      return this.rangeParam(value, "start_offset", "so");
-    };
-
-    TransformationBase.prototype.transformation = function(value) {
-      return this.transformationParam(value, "transformation", "t");
-    };
-
-    TransformationBase.prototype.underlay = function(value) {
-      return this.param(value, "underlay", "u");
-    };
-
-    TransformationBase.prototype.videoCodec = function(value) {
-      return this.param(value, "video_codec", "vc", process_video_params);
-    };
-
-    TransformationBase.prototype.videoSampling = function(value) {
-      return this.param(value, "video_sampling", "vs");
-    };
-
-    TransformationBase.prototype.width = function(value) {
-      return this.param(value, "width", "w", (function(_this) {
-        return function() {
-          if (_.any([_this.getValue("crop"), _this.getValue("overlay"), _this.getValue("underlay")])) {
-            return value;
-          } else {
-            return null;
-          }
-        };
-      })(this));
-    };
-
-    TransformationBase.prototype.x = function(value) {
-      return this.param(value, "x", "x");
-    };
-
-    TransformationBase.prototype.y = function(value) {
-      return this.param(value, "y", "y");
-    };
-
-    TransformationBase.prototype.zoom = function(value) {
-      return this.param(value, "zoom", "z");
-    };
-
-    return TransformationBase;
-
-  })();
-
-
-  /**
-   *  A single transformation.
-   *
-   *  Usage:
-   *
-   *      t = new Transformation();
-   *      t.angle(20).crop("scale").width("auto");
-   *
-   *  or
-   *      t = new Transformation( {angle: 20, crop: "scale", width: "auto"});
-   */
-
-  Transformation = (function(superClass) {
-    extend(Transformation, superClass);
-
-    Transformation["new"] = function(args) {
-      return new Transformation(args);
-    };
-
-    function Transformation(options) {
-      var parent;
-      if (options == null) {
-        options = {};
-      }
-      parent = void 0;
-      Transformation.__super__.constructor.call(this, options);
+      this.otherOptions = {};
+      this.whitelist = _(Transformation.prototype).functions().map(_.snakeCase).value();
       this.fromOptions(options);
-      this.setParent = function(object) {
-        this.parent = object;
-        this.fromOptions(typeof object.toOptions === "function" ? object.toOptions() : void 0);
-        return this;
-      };
-      this.getParent = function() {
-        return this.parent;
-      };
     }
 
 
@@ -1677,7 +1426,7 @@
      * Merge the provided options with own's options
      */
 
-    Transformation.prototype.fromOptions = function(options) {
+    TransformationBase.prototype.fromOptions = function(options) {
       var key, opt;
       if (options == null) {
         options = {};
@@ -1695,7 +1444,7 @@
       return this;
     };
 
-    Transformation.prototype.set = function(key, value) {
+    TransformationBase.prototype.set = function(key, value) {
       if (_.includes(this.whitelist, key)) {
         this[_.camelCase(key)](value);
       } else {
@@ -1704,11 +1453,11 @@
       return this;
     };
 
-    Transformation.prototype.hasLayer = function() {
+    TransformationBase.prototype.hasLayer = function() {
       return this.getValue("overlay") || this.getValue("underlay");
     };
 
-    Transformation.prototype.flatten = function() {
+    TransformationBase.prototype.flatten = function() {
       var resultArray, t, transformationString, transformations;
       resultArray = [];
       transformations = this.remove("transformation");
@@ -1734,7 +1483,7 @@
       return _.compact(resultArray).join('/');
     };
 
-    Transformation.prototype.listNames = function() {
+    TransformationBase.prototype.listNames = function() {
       return this.whitelist;
     };
 
@@ -1744,7 +1493,7 @@
      * @return PlainObject
      */
 
-    Transformation.prototype.toHtmlAttributes = function() {
+    TransformationBase.prototype.toHtmlAttributes = function() {
       var height, j, k, key, len, options, ref1, v, width;
       options = _.omit(this.otherOptions, this.PARAM_NAMES);
       ref1 = _.difference(this.keys(), this.PARAM_NAMES);
@@ -1777,13 +1526,263 @@
       return options;
     };
 
-    Transformation.prototype.isValidParamName = function(name) {
+    TransformationBase.prototype.isValidParamName = function(name) {
       return this.whitelist.indexOf(name) >= 0;
     };
 
-    Transformation.prototype.toHtml = function() {
+    TransformationBase.prototype.toHtml = function() {
       var ref1;
       return (ref1 = this.getParent()) != null ? typeof ref1.toHtml === "function" ? ref1.toHtml() : void 0 : void 0;
+    };
+
+    return TransformationBase;
+
+  })();
+
+  Transformation = (function(superClass) {
+    extend(Transformation, superClass);
+
+    Transformation["new"] = function(args) {
+      return new Transformation(args);
+    };
+
+    function Transformation(options) {
+      if (options == null) {
+        options = {};
+      }
+      Transformation.__super__.constructor.call(this, options);
+    }
+
+
+    /*
+      Transformation Parameters
+     */
+
+    Transformation.prototype.angle = function(value) {
+      return this.arrayParam(value, "angle", "a", ".");
+    };
+
+    Transformation.prototype.audioCodec = function(value) {
+      return this.param(value, "audio_codec", "ac");
+    };
+
+    Transformation.prototype.audioFrequency = function(value) {
+      return this.param(value, "audio_frequency", "af");
+    };
+
+    Transformation.prototype.background = function(value) {
+      return this.param(value, "background", "b", Param.norm_color);
+    };
+
+    Transformation.prototype.bitRate = function(value) {
+      return this.param(value, "bit_rate", "br");
+    };
+
+    Transformation.prototype.border = function(value) {
+      return this.param(value, "border", "bo", function(border) {
+        if (_.isPlainObject(border)) {
+          border = _.assign({}, {
+            color: "black",
+            width: 2
+          }, border);
+          return border.width + "px_solid_" + (Param.norm_color(border.color));
+        } else {
+          return border;
+        }
+      });
+    };
+
+    Transformation.prototype.color = function(value) {
+      return this.param(value, "color", "co", Param.norm_color);
+    };
+
+    Transformation.prototype.colorSpace = function(value) {
+      return this.param(value, "color_space", "cs");
+    };
+
+    Transformation.prototype.crop = function(value) {
+      return this.param(value, "crop", "c");
+    };
+
+    Transformation.prototype.defaultImage = function(value) {
+      return this.param(value, "default_image", "d");
+    };
+
+    Transformation.prototype.delay = function(value) {
+      return this.param(value, "delay", "l");
+    };
+
+    Transformation.prototype.density = function(value) {
+      return this.param(value, "density", "dn");
+    };
+
+    Transformation.prototype.duration = function(value) {
+      return this.rangeParam(value, "duration", "du");
+    };
+
+    Transformation.prototype.dpr = function(value) {
+      return this.param(value, "dpr", "dpr", function(dpr) {
+        dpr = dpr.toString();
+        if (dpr === "auto") {
+          return "1.0";
+        } else if (dpr != null ? dpr.match(/^\d+$/) : void 0) {
+          return dpr + ".0";
+        } else {
+          return dpr;
+        }
+      });
+    };
+
+    Transformation.prototype.effect = function(value) {
+      return this.arrayParam(value, "effect", "e", ":");
+    };
+
+    Transformation.prototype.endOffset = function(value) {
+      return this.rangeParam(value, "end_offset", "eo");
+    };
+
+    Transformation.prototype.fallbackContent = function(value) {
+      return this.param(value, "fallback_content");
+    };
+
+    Transformation.prototype.fetchFormat = function(value) {
+      return this.param(value, "fetch_format", "f");
+    };
+
+    Transformation.prototype.format = function(value) {
+      return this.param(value, "format");
+    };
+
+    Transformation.prototype.flags = function(value) {
+      return this.arrayParam(value, "flags", "fl", ".");
+    };
+
+    Transformation.prototype.gravity = function(value) {
+      return this.param(value, "gravity", "g");
+    };
+
+    Transformation.prototype.height = function(value) {
+      return this.param(value, "height", "h", (function(_this) {
+        return function() {
+          if (_.any([_this.getValue("crop"), _this.getValue("overlay"), _this.getValue("underlay")])) {
+            return value;
+          } else {
+            return null;
+          }
+        };
+      })(this));
+    };
+
+    Transformation.prototype.htmlHeight = function(value) {
+      return this.param(value, "html_height");
+    };
+
+    Transformation.prototype.htmlWidth = function(value) {
+      return this.param(value, "html_width");
+    };
+
+    Transformation.prototype.offset = function(value) {
+      var end_o, ref1, start_o;
+      ref1 = _.isFunction(value != null ? value.split : void 0) ? value.split('..') : _.isArray(value) ? value : [null, null], start_o = ref1[0], end_o = ref1[1];
+      if (start_o != null) {
+        this.startOffset(start_o);
+      }
+      if (end_o != null) {
+        return this.endOffset(end_o);
+      }
+    };
+
+    Transformation.prototype.opacity = function(value) {
+      return this.param(value, "opacity", "o");
+    };
+
+    Transformation.prototype.overlay = function(value) {
+      return this.param(value, "overlay", "l");
+    };
+
+    Transformation.prototype.page = function(value) {
+      return this.param(value, "page", "pg");
+    };
+
+    Transformation.prototype.poster = function(value) {
+      return this.param(value, "poster");
+    };
+
+    Transformation.prototype.prefix = function(value) {
+      return this.param(value, "prefix", "p");
+    };
+
+    Transformation.prototype.quality = function(value) {
+      return this.param(value, "quality", "q");
+    };
+
+    Transformation.prototype.radius = function(value) {
+      return this.param(value, "radius", "r");
+    };
+
+    Transformation.prototype.rawTransformation = function(value) {
+      return this.rawParam(value, "raw_transformation");
+    };
+
+    Transformation.prototype.size = function(value) {
+      var height, ref1, width;
+      if (_.isFunction(value != null ? value.split : void 0)) {
+        ref1 = value.split('x'), width = ref1[0], height = ref1[1];
+        this.width(width);
+        return this.height(height);
+      }
+    };
+
+    Transformation.prototype.sourceTypes = function(value) {
+      return this.param(value, "source_types");
+    };
+
+    Transformation.prototype.sourceTransformation = function(value) {
+      return this.param(value, "source_transformation");
+    };
+
+    Transformation.prototype.startOffset = function(value) {
+      return this.rangeParam(value, "start_offset", "so");
+    };
+
+    Transformation.prototype.transformation = function(value) {
+      return this.transformationParam(value, "transformation", "t");
+    };
+
+    Transformation.prototype.underlay = function(value) {
+      return this.param(value, "underlay", "u");
+    };
+
+    Transformation.prototype.videoCodec = function(value) {
+      return this.param(value, "video_codec", "vc", process_video_params);
+    };
+
+    Transformation.prototype.videoSampling = function(value) {
+      return this.param(value, "video_sampling", "vs");
+    };
+
+    Transformation.prototype.width = function(value) {
+      return this.param(value, "width", "w", (function(_this) {
+        return function() {
+          if (_.any([_this.getValue("crop"), _this.getValue("overlay"), _this.getValue("underlay")])) {
+            return value;
+          } else {
+            return null;
+          }
+        };
+      })(this));
+    };
+
+    Transformation.prototype.x = function(value) {
+      return this.param(value, "x", "x");
+    };
+
+    Transformation.prototype.y = function(value) {
+      return this.param(value, "y", "y");
+    };
+
+    Transformation.prototype.zoom = function(value) {
+      return this.param(value, "zoom", "z");
     };
 
     return Transformation;
@@ -1952,6 +1951,20 @@
 
     HtmlTag.prototype.toHtml = function() {
       return this.openTag() + this.content() + this.closeTag();
+    };
+
+    HtmlTag.prototype.toDOM = function() {
+      var element, name, ref1, value;
+      if (!_.isFunction(typeof document !== "undefined" && document !== null ? document.createElement : void 0)) {
+        throw "Can't create DOM if document is not present!";
+      }
+      element = document.createElement(this.name);
+      ref1 = this.attributes();
+      for (name in ref1) {
+        value = ref1[name];
+        element[name] = value;
+      }
+      return element;
     };
 
     return HtmlTag;

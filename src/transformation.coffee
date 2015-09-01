@@ -1,7 +1,32 @@
 
+###*
+#  A single transformation.
+#
+#  Usage:
+#
+#      t = new Transformation();
+#      t.angle(20).crop("scale").width("auto");
+#
+#  or
+#      t = new Transformation( {angle: 20, crop: "scale", width: "auto"});
+###
 class TransformationBase
+  # TODO add chains (slashes)
 
-  constructor: (options = {})->
+  constructor: (options = {}) ->
+    chainedTo = undefined
+    trans = {}
+
+    @toOptions = ()->
+      _.merge(_.mapValues(trans, (t)-> t.value), @otherOptions)
+
+    @setParent = (object)->
+      chainedTo = object
+      @fromOptions( object.toOptions?())
+      this
+
+    @getParent = ()->
+      chainedTo
 
     ###*
     # Parameters that are filtered out before passing the options to an HTML tag
@@ -69,12 +94,6 @@ class TransformationBase
       "zoom"
     ]
 
-    trans = {}
-    @otherOptions = {}
-    @whitelist = _(TransformationBase.prototype).functions().map(_.snakeCase).value()
-
-    @toOptions = ()->
-      _.merge(_.mapValues(trans, (t)-> t.value), @otherOptions)
 
     ###
     # Helper methods to create parameter methods
@@ -141,6 +160,82 @@ class TransformationBase
       hash = {}
       hash[key] = trans[key].value for key of trans
       hash
+
+    @otherOptions = {}
+    @whitelist = _(Transformation.prototype).functions().map(_.snakeCase).value()
+    @fromOptions(options)
+
+
+  ###*
+  # Merge the provided options with own's options
+  ###
+  fromOptions: (options = {}) ->
+    options = {transformation: options } if _.isString(options) || _.isArray(options)
+    options = _.cloneDeep(options)
+    for key, opt of options
+      @set key, opt
+    this
+
+  set: (key, value)->
+    if _.includes( @whitelist, key)
+      this[_.camelCase(key)](value)
+    else
+      @otherOptions[key] = value
+    this
+
+  hasLayer: ()->
+    @getValue("overlay") || @getValue("underlay")
+
+  flatten: ->
+    resultArray = []
+    transformations = @remove("transformation");
+    if transformations
+      resultArray = resultArray.concat( transformations.flatten())
+
+    transformationString = (@get(t)?.flatten() for t in @keys() )
+    transformationString = _.filter(transformationString, (value)->
+      _.isArray(value) &&!_.isEmpty(value) || !_.isArray(value) && value
+    ).join(',')
+    resultArray.push(transformationString) unless _.isEmpty(transformationString)
+    _.compact(resultArray).join('/')
+
+  listNames: ->
+    @whitelist
+
+
+  ###*
+  # Returns attributes for an HTML tag.
+  # @return PlainObject
+  ###
+  toHtmlAttributes: ()->
+    options = _.omit( @otherOptions, @PARAM_NAMES)
+    options[key] = @get(key).value for key in _.difference(@keys(), @PARAM_NAMES)
+    # convert all "html_key" to "key" with the same value
+    for k,v of options when /^html_/.exec(k)
+      options[k.substr(5)] = v
+      delete options[k]
+
+    unless @hasLayer()|| @getValue("angle") || _.contains( ["fit", "limit", "lfill"],@getValue("crop"))
+      width = @getValue("width")
+      height = @getValue("height")
+      if parseFloat(width) >= 1.0
+        options['width'] ?= width
+      if parseFloat(height) >= 1.0
+        options['height'] ?= height
+    options
+
+  isValidParamName: (name) ->
+    @whitelist.indexOf(name) >= 0
+
+  toHtml: ()->
+    @getParent()?.toHtml?()
+
+class Transformation  extends TransformationBase
+
+  @new = (args)-> new Transformation(args)
+
+  constructor: (options = {})->
+    super(options)
 
   ###
     Transformation Parameters
@@ -223,100 +318,6 @@ class TransformationBase
   x: (value)->                @param value, "x", "x"
   y: (value)->                @param value, "y", "y"
   zoom: (value)->             @param value, "zoom", "z"
-
-###*
-#  A single transformation.
-#
-#  Usage:
-#
-#      t = new Transformation();
-#      t.angle(20).crop("scale").width("auto");
-#
-#  or
-#      t = new Transformation( {angle: 20, crop: "scale", width: "auto"});
-###
-class Transformation extends TransformationBase
-# TODO add chains (slashes)
-  @new = (args)-> new Transformation(args)
-
-  constructor: (options = {}) ->
-    parent = undefined
-
-
-    super(options)
-    @fromOptions(options)
-
-    @setParent = (object)->
-      @parent = object
-      @fromOptions( object.toOptions?())
-      this
-
-    @getParent = ()->
-      @parent
-
-  ###*
-  # Merge the provided options with own's options
-  ###
-  fromOptions: (options = {}) ->
-    options = {transformation: options } if _.isString(options) || _.isArray(options)
-    options = _.cloneDeep(options)
-    for key, opt of options
-      @set key, opt
-    this
-
-  set: (key, value)->
-    if _.includes( @whitelist, key)
-      this[_.camelCase(key)](value)
-    else
-      @otherOptions[key] = value
-    this
-
-  hasLayer: ()->
-    @getValue("overlay") || @getValue("underlay")
-
-  flatten: ->
-    resultArray = []
-    transformations = @remove("transformation");
-    if transformations
-      resultArray = resultArray.concat( transformations.flatten())
-
-    transformationString = (@get(t)?.flatten() for t in @keys() )
-    transformationString = _.filter(transformationString, (value)->
-      _.isArray(value) &&!_.isEmpty(value) || !_.isArray(value) && value
-    ).join(',')
-    resultArray.push(transformationString) unless _.isEmpty(transformationString)
-    _.compact(resultArray).join('/')
-
-  listNames: ->
-    @whitelist
-
-
-  ###*
-  # Returns attributes for an HTML tag.
-  # @return PlainObject
-  ###
-  toHtmlAttributes: ()->
-    options = _.omit( @otherOptions, @PARAM_NAMES)
-    options[key] = @get(key).value for key in _.difference(@keys(), @PARAM_NAMES)
-    # convert all "html_key" to "key" with the same value
-    for k,v of options when /^html_/.exec(k)
-      options[k.substr(5)] = v
-      delete options[k]
-
-    unless @hasLayer()|| @getValue("angle") || _.contains( ["fit", "limit", "lfill"],@getValue("crop"))
-      width = @getValue("width")
-      height = @getValue("height")
-      if parseFloat(width) >= 1.0
-        options['width'] ?= width
-      if parseFloat(height) >= 1.0
-        options['height'] ?= height
-    options
-
-  isValidParamName: (name) ->
-    @whitelist.indexOf(name) >= 0
-
-  toHtml: ()->
-    @getParent()?.toHtml?()
 
 
 # unless running on server side, export to the windows object

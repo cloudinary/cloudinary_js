@@ -32,6 +32,8 @@ class Configuration
   constructor: (options ={})->
     @configuration = _.cloneDeep(options)
     _.defaults( @configuration, DEFAULT_CONFIGURATION_PARAMS)
+#    @whitelist = _(Transformation.prototype).functions().map(_.snakeCase).value()
+
 
 
   ###*
