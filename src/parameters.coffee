@@ -2,15 +2,18 @@
 class Param
   constructor: (@name, @short, @process = _.identity)->
 
-  set: (@value)->
+  set: (@origValue)->
     this
 
   flatten: ->
-    val = @process(@value)
+    val = @process(@origValue)
     if @short? && val?
       "#{@short}_#{val}"
     else
       null
+
+  value: ->
+    @process(@origValue)
 
   @norm_range_value: (value) ->
     offset = String(value).match(new RegExp('^' + offset_any_pattern + '$'))
@@ -33,7 +36,7 @@ class ArrayParam extends Param
     super(@name, @short, @process)
   flatten: ->
     if @short? # FIXME call process
-      flat = for t in @value
+      flat = for t in @value()
         if _.isFunction( t.flatten)
           t.flatten() # Param or Transformation
         else
@@ -41,35 +44,36 @@ class ArrayParam extends Param
       "#{@short}_#{flat.join(@sep)}"
     else
       null
-  set: (@value)->
-    if _.isArray(@value)
-      super(@value)
+  set: (@origValue)->
+    if _.isArray(@origValue)
+      super(@origValue)
     else
-      super([@value])
+      super([@origValue])
 
 class TransformationParam extends Param
+  # FIXME chain, join with slashes
   # TODO maybe use regular param with "transformation" process?
   constructor: (@name, @short = "t", @sep = '.', @process = _.identity) ->
     super(@name, @short, @process)
   flatten: ->
-    result = if _.isEmpty(@value)
+    if _.isEmpty(@value())
       null
-    else if _.all(@value, _.isString)
-      ["#{@short}_#{@value.join(@sep)}"]
+    else if _.all(@value(), _.isString)
+      "#{@short}_#{@value().join(@sep)}"
     else
-      for t in @value when t?
+      result = for t in @value() when t?
         if _.isString( t)
           "#{@short}_#{t}"
         else if _.isFunction( t.flatten)
           t.flatten()
         else if _.isPlainObject(t)
           new Transformation(t).flatten()
-    _.compact(result)
-  set: (@value)->
-    if _.isArray(@value)
-      super(@value)
+      _.compact(result)
+  set: (@origValue)->
+    if _.isArray(@origValue)
+      super(@origValue)
     else
-      super([@value])
+      super([@origValue])
 
 class RangeParam extends Param
   constructor: (@name, @short, @process = @norm_range_value)-> # FIXME overrun by identity in transformation?
@@ -79,16 +83,19 @@ class RawParam extends Param
   constructor: (@name, @short, @process = _.identity)->
     super(@name, @short, @process)
   flatten: ->
-    @value
+    @value()
 
 
 ###*
-* A video codec parameter can be either a String or a Hash.
-* @param {Object} param <code>vc_<codec>[ : <profile> : [<level>]]</code>
-*                       or <code>{ codec: 'h264', profile: 'basic', level: '3.1' }</code>
-* @return {String} <code><codec> : <profile> : [<level>]]</code> if a Hash was provided
-*                   or the param if a String was provided.
-*                   Returns null if param is not a Hash or String
+* Covert value to video codec string.
+*
+* If the parameter is an object,
+* @param {(string|Object)} param - the video codec as either a String or a Hash
+* @return {string} the video codec string in the format codec:profile:level
+* @example
+* vc_[ :profile : [level]]
+* or
+  { codec: 'h264', profile: 'basic', level: '3.1' }
 ###
 process_video_params = (param) ->
   switch param.constructor

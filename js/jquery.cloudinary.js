@@ -1064,19 +1064,23 @@
       this.process = process1 != null ? process1 : _.identity;
     }
 
-    Param.prototype.set = function(value1) {
-      this.value = value1;
+    Param.prototype.set = function(origValue) {
+      this.origValue = origValue;
       return this;
     };
 
     Param.prototype.flatten = function() {
       var val;
-      val = this.process(this.value);
+      val = this.process(this.origValue);
       if ((this.short != null) && (val != null)) {
         return this.short + "_" + val;
       } else {
         return null;
       }
+    };
+
+    Param.prototype.value = function() {
+      return this.process(this.origValue);
     };
 
     Param.norm_range_value = function(value) {
@@ -1124,7 +1128,7 @@
       if (this.short != null) {
         flat = (function() {
           var j, len, ref1, results;
-          ref1 = this.value;
+          ref1 = this.value();
           results = [];
           for (j = 0, len = ref1.length; j < len; j++) {
             t = ref1[j];
@@ -1142,12 +1146,12 @@
       }
     };
 
-    ArrayParam.prototype.set = function(value1) {
-      this.value = value1;
-      if (_.isArray(this.value)) {
-        return ArrayParam.__super__.set.call(this, this.value);
+    ArrayParam.prototype.set = function(origValue) {
+      this.origValue = origValue;
+      if (_.isArray(this.origValue)) {
+        return ArrayParam.__super__.set.call(this, this.origValue);
       } else {
-        return ArrayParam.__super__.set.call(this, [this.value]);
+        return ArrayParam.__super__.set.call(this, [this.origValue]);
       }
     };
 
@@ -1168,14 +1172,14 @@
 
     TransformationParam.prototype.flatten = function() {
       var result, t;
-      result = (function() {
-        var j, len, ref1, results;
-        if (_.isEmpty(this.value)) {
-          return null;
-        } else if (_.all(this.value, _.isString)) {
-          return [this.short + "_" + (this.value.join(this.sep))];
-        } else {
-          ref1 = this.value;
+      if (_.isEmpty(this.value())) {
+        return null;
+      } else if (_.all(this.value(), _.isString)) {
+        return this.short + "_" + (this.value().join(this.sep));
+      } else {
+        result = (function() {
+          var j, len, ref1, results;
+          ref1 = this.value();
           results = [];
           for (j = 0, len = ref1.length; j < len; j++) {
             t = ref1[j];
@@ -1192,17 +1196,17 @@
             }
           }
           return results;
-        }
-      }).call(this);
-      return _.compact(result);
+        }).call(this);
+        return _.compact(result);
+      }
     };
 
-    TransformationParam.prototype.set = function(value1) {
-      this.value = value1;
-      if (_.isArray(this.value)) {
-        return TransformationParam.__super__.set.call(this, this.value);
+    TransformationParam.prototype.set = function(origValue) {
+      this.origValue = origValue;
+      if (_.isArray(this.origValue)) {
+        return TransformationParam.__super__.set.call(this, this.origValue);
       } else {
-        return TransformationParam.__super__.set.call(this, [this.value]);
+        return TransformationParam.__super__.set.call(this, [this.origValue]);
       }
     };
 
@@ -1235,7 +1239,7 @@
     }
 
     RawParam.prototype.flatten = function() {
-      return this.value;
+      return this.value();
     };
 
     return RawParam;
@@ -1244,12 +1248,15 @@
 
 
   /**
-  * A video codec parameter can be either a String or a Hash.
-  * @param {Object} param <code>vc_<codec>[ : <profile> : [<level>]]</code>
-  *                       or <code>{ codec: 'h264', profile: 'basic', level: '3.1' }</code>
-  * @return {String} <code><codec> : <profile> : [<level>]]</code> if a Hash was provided
-  *                   or the param if a String was provided.
-  *                   Returns null if param is not a Hash or String
+  * Covert value to video codec string.
+  *
+  * If the parameter is an object,
+  * @param {(string|Object)} param - the video codec as either a String or a Hash
+  * @return {string} the video codec string in the format codec:profile:level
+  * @example
+  * vc_[ :profile : [level]]
+  * or
+    { codec: 'h264', profile: 'basic', level: '3.1' }
    */
 
   process_video_params = function(param) {
@@ -1278,13 +1285,14 @@
   /**
    *  A single transformation.
    *
-   *  Usage:
+   *  @example
+   *  t = new Transformation();
+   *  t.angle(20).crop("scale").width("auto");
    *
-   *      t = new Transformation();
-   *      t.angle(20).crop("scale").width("auto");
+   *  // or
    *
-   *  or
-   *      t = new Transformation( {angle: 20, crop: "scale", width: "auto"});
+   *  t = new Transformation( {angle: 20, crop: "scale", width: "auto"});
+   *  @class
    */
 
   TransformationBase = (function() {
@@ -1295,25 +1303,35 @@
       }
       chainedTo = void 0;
       trans = {};
+
+      /**
+       * Return an options object that can be used to create an identical Transformation
+       * @return {Object} a plain object representing this transformation
+       */
       this.toOptions = function() {
         return _.merge(_.mapValues(trans, function(t) {
-          return t.value;
+          return t.origValue;
         }), this.otherOptions);
       };
+
+      /**
+       * Set a parent for this object for chaining purposes.
+       * @param {Object} object - the parent to be assigned to
+       * @returns {Transformation} - returns this instance for chaining purposes.
+       */
       this.setParent = function(object) {
         chainedTo = object;
         this.fromOptions(typeof object.toOptions === "function" ? object.toOptions() : void 0);
         return this;
       };
+
+      /**
+       * Returns the parent of this object in the chain
+       * @return {Object} the parent of this object if any
+       */
       this.getParent = function() {
         return chainedTo;
       };
-
-      /**
-       * Parameters that are filtered out before passing the options to an HTML tag
-       * @see TransformationBase::toHtmlAttributes
-       */
-      this.PARAM_NAMES = ["angle", "api_key", "api_secret", "audio_codec", "audio_frequency", "background", "bit_rate", "border", "cdn_subdomain", "cloud_name", "cname", "color", "color_space", "crop", "default_image", "delay", "density", "dpr", "duration", "effect", "end_offset", "fallback_content", "fetch_format", "format", "flags", "gravity", "height", "offset", "opacity", "overlay", "page", "prefix", "private_cdn", "protocol", "quality", "radius", "raw_transformation", "resource_type", "responsive_width", "secure", "secure_cdn_subdomain", "secure_distribution", "shorten", "size", "source_transformation", "source_types", "start_offset", "transformation", "type", "underlay", "url_suffix", "use_root_path", "version", "video_codec", "video_sampling", "width", "x", "y", "zoom"];
 
       /*
        * Helper methods to create parameter methods
@@ -1378,9 +1396,16 @@
         trans[name] = new TransformationParam(name, abbr, sep, process).set(value);
         return this;
       };
+
+      /**
+       * Get the value associated with the given name.
+       * @param {string} name - the name of the parameter
+       * @return {*} the processed value associated with the given name
+       * @description Use {@link get}.origValue for the value originally provided for the parameter
+       */
       this.getValue = function(name) {
-        var ref1;
-        return (ref1 = trans[name]) != null ? ref1.value : void 0;
+        var ref1, ref2;
+        return (ref1 = (ref2 = trans[name]) != null ? ref2.value() : void 0) != null ? ref1 : this.otherOptions[name];
       };
 
       /**
@@ -1413,31 +1438,63 @@
         var hash, key;
         hash = {};
         for (key in trans) {
-          hash[key] = trans[key].value;
+          hash[key] = trans[key].value();
         }
         return hash;
       };
+      this.chain = function() {
+        var tr;
+        tr = new this.constructor(this.toOptions());
+        trans = [];
+        this.otherOptions = {};
+        return this.set("transformation", tr);
+      };
       this.otherOptions = {};
-      this.whitelist = _(Transformation.prototype).functions().map(_.snakeCase).value();
-      this.fromOptions(options);
+
+      /**
+       * Transformation Class methods.
+       * This is a list of the parameters defined in Transformation.
+       * Values are camelCased.
+       * @type {Array<String>}
+       */
+      this.methods = _.difference(_.functions(Transformation.prototype), _.functions(TransformationBase.prototype));
+
+      /**
+       * Parameters that are filtered out before passing the options to an HTML tag.
+       * The list of parameters is `Transformation::methods` and `Configuration::CONFIG_PARAMS`
+       * @type {Array<string>}
+       * @see toHtmlAttributes
+       */
+      this.PARAM_NAMES = _.map(this.methods, _.snakeCase).concat(Cloudinary.Configuration.CONFIG_PARAMS);
+
+      /*
+        Finished constructing the instance, now process the options
+       */
+      if (!_.isEmpty(options)) {
+        this.fromOptions(options);
+      }
     }
 
 
     /**
      * Merge the provided options with own's options
+     * @param {Object} [options={}] key-value list of options
+     * @returns {Transformation} this instance for chaining
      */
 
     TransformationBase.prototype.fromOptions = function(options) {
       var key, opt;
-      if (options == null) {
-        options = {};
-      }
+      options || (options = {});
       if (_.isString(options) || _.isArray(options)) {
         options = {
           transformation: options
         };
       }
-      options = _.cloneDeep(options);
+      options = _.cloneDeep(options, function(value) {
+        if (value instanceof Transformation) {
+          return new value.constructor(value.toOptions());
+        }
+      });
       for (key in options) {
         opt = options[key];
         this.set(key, opt);
@@ -1445,9 +1502,20 @@
       return this;
     };
 
+
+    /**
+     * Set a parameter.
+     * The parameter name `key` is converted to
+     * @param {String} key - the name of the parameter
+     * @param {*} value - the value of the parameter
+     * @returns {Transformation} this instance for chaining
+     */
+
     TransformationBase.prototype.set = function(key, value) {
-      if (_.includes(this.whitelist, key)) {
-        this[_.camelCase(key)](value);
+      var camelKey;
+      camelKey = _.camelCase(key);
+      if (_.includes(this.methods, camelKey)) {
+        this[camelKey](value);
       } else {
         this.otherOptions[key] = value;
       }
@@ -1459,25 +1527,30 @@
     };
 
     TransformationBase.prototype.flatten = function() {
-      var resultArray, t, transformationString, transformations;
+      var paramList, ref1, resultArray, t, transformationList, transformationString, transformations;
       resultArray = [];
-      transformations = this.remove("transformation");
-      if (transformations) {
-        resultArray = resultArray.concat(transformations.flatten());
-      }
-      transformationString = (function() {
-        var j, len, ref1, ref2, results;
-        ref1 = this.keys();
+      paramList = this.keys();
+      transformations = (ref1 = this.get("transformation")) != null ? ref1.flatten() : void 0;
+      paramList = _.without(paramList, "transformation");
+      transformationList = (function() {
+        var j, len, ref2, results;
         results = [];
-        for (j = 0, len = ref1.length; j < len; j++) {
-          t = ref1[j];
+        for (j = 0, len = paramList.length; j < len; j++) {
+          t = paramList[j];
           results.push((ref2 = this.get(t)) != null ? ref2.flatten() : void 0);
         }
         return results;
       }).call(this);
-      transformationString = _.filter(transformationString, function(value) {
+      switch (false) {
+        case !_.isString(transformations):
+          transformationList.push(transformations);
+          break;
+        case !_.isArray(transformations):
+          resultArray = transformations;
+      }
+      transformationString = _.filter(transformationList, function(value) {
         return _.isArray(value) && !_.isEmpty(value) || !_.isArray(value) && value;
-      }).join(',');
+      }).sort().join(',');
       if (!_.isEmpty(transformationString)) {
         resultArray.push(transformationString);
       }
@@ -1485,7 +1558,7 @@
     };
 
     TransformationBase.prototype.listNames = function() {
-      return this.whitelist;
+      return this.methods;
     };
 
 
@@ -1495,24 +1568,23 @@
      */
 
     TransformationBase.prototype.toHtmlAttributes = function() {
-      var height, j, k, key, len, options, ref1, v, width;
+      var height, j, k, key, l, len, len1, options, ref1, ref2, ref3, ref4, width;
       options = _.omit(this.otherOptions, this.PARAM_NAMES);
       ref1 = _.difference(this.keys(), this.PARAM_NAMES);
       for (j = 0, len = ref1.length; j < len; j++) {
         key = ref1[j];
         options[key] = this.get(key).value;
       }
-      for (k in options) {
-        v = options[k];
-        if (!(/^html_/.exec(k))) {
-          continue;
+      ref2 = this.keys();
+      for (l = 0, len1 = ref2.length; l < len1; l++) {
+        k = ref2[l];
+        if (/^html_/.exec(k)) {
+          options[k.substr(5)] = this.getValue(k);
         }
-        options[k.substr(5)] = v;
-        delete options[k];
       }
       if (!(this.hasLayer() || this.getValue("angle") || _.contains(["fit", "limit", "lfill"], this.getValue("crop")))) {
-        width = this.getValue("width");
-        height = this.getValue("height");
+        width = (ref3 = this.get("width")) != null ? ref3.origValue : void 0;
+        height = (ref4 = this.get("height")) != null ? ref4.origValue : void 0;
         if (parseFloat(width) >= 1.0) {
           if (options['width'] == null) {
             options['width'] = width;
@@ -1528,7 +1600,7 @@
     };
 
     TransformationBase.prototype.isValidParamName = function(name) {
-      return this.whitelist.indexOf(name) >= 0;
+      return this.methods.indexOf(_.camelCase(name)) >= 0;
     };
 
     TransformationBase.prototype.toHtml = function() {
@@ -1799,6 +1871,8 @@
   }
 
   exports.Cloudinary.Transformation = Transformation;
+
+  exports.Cloudinary.TransformationBase = TransformationBase;
 
 
   /**

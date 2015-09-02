@@ -339,7 +339,8 @@ class Cloudinary
   ###
   processImageTags: (nodes, options = {}) ->
     options = _.defaults({}, options, @config())
-    images = _(nodes).filter( 'tagName': 'IMG')
+    images = _(nodes)
+      .filter( 'tagName': 'IMG')
       .forEach( (i) ->
         imgOptions = _.extend({
           width: i.getAttribute('width')

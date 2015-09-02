@@ -607,7 +607,8 @@ class Cloudinary
   ###
   processImageTags: (nodes, options = {}) ->
     options = _.defaults({}, options, @config())
-    images = _(nodes).filter( 'tagName': 'IMG')
+    images = _(nodes)
+      .filter( 'tagName': 'IMG')
       .forEach( (i) ->
         imgOptions = _.extend({
           width: i.getAttribute('width')
@@ -910,15 +911,18 @@ exports.Cloudinary.Configuration = Configuration
 class Param
   constructor: (@name, @short, @process = _.identity)->
 
-  set: (@value)->
+  set: (@origValue)->
     this
 
   flatten: ->
-    val = @process(@value)
+    val = @process(@origValue)
     if @short? && val?
       "#{@short}_#{val}"
     else
       null
+
+  value: ->
+    @process(@origValue)
 
   @norm_range_value: (value) ->
     offset = String(value).match(new RegExp('^' + offset_any_pattern + '$'))
@@ -941,7 +945,7 @@ class ArrayParam extends Param
     super(@name, @short, @process)
   flatten: ->
     if @short? # FIXME call process
-      flat = for t in @value
+      flat = for t in @value()
         if _.isFunction( t.flatten)
           t.flatten() # Param or Transformation
         else
@@ -949,35 +953,36 @@ class ArrayParam extends Param
       "#{@short}_#{flat.join(@sep)}"
     else
       null
-  set: (@value)->
-    if _.isArray(@value)
-      super(@value)
+  set: (@origValue)->
+    if _.isArray(@origValue)
+      super(@origValue)
     else
-      super([@value])
+      super([@origValue])
 
 class TransformationParam extends Param
+  # FIXME chain, join with slashes
   # TODO maybe use regular param with "transformation" process?
   constructor: (@name, @short = "t", @sep = '.', @process = _.identity) ->
     super(@name, @short, @process)
   flatten: ->
-    result = if _.isEmpty(@value)
+    if _.isEmpty(@value())
       null
-    else if _.all(@value, _.isString)
-      ["#{@short}_#{@value.join(@sep)}"]
+    else if _.all(@value(), _.isString)
+      "#{@short}_#{@value().join(@sep)}"
     else
-      for t in @value when t?
+      result = for t in @value() when t?
         if _.isString( t)
           "#{@short}_#{t}"
         else if _.isFunction( t.flatten)
           t.flatten()
         else if _.isPlainObject(t)
           new Transformation(t).flatten()
-    _.compact(result)
-  set: (@value)->
-    if _.isArray(@value)
-      super(@value)
+      _.compact(result)
+  set: (@origValue)->
+    if _.isArray(@origValue)
+      super(@origValue)
     else
-      super([@value])
+      super([@origValue])
 
 class RangeParam extends Param
   constructor: (@name, @short, @process = @norm_range_value)-> # FIXME overrun by identity in transformation?
@@ -987,16 +992,19 @@ class RawParam extends Param
   constructor: (@name, @short, @process = _.identity)->
     super(@name, @short, @process)
   flatten: ->
-    @value
+    @value()
 
 
 ###*
-* A video codec parameter can be either a String or a Hash.
-* @param {Object} param <code>vc_<codec>[ : <profile> : [<level>]]</code>
-*                       or <code>{ codec: 'h264', profile: 'basic', level: '3.1' }</code>
-* @return {String} <code><codec> : <profile> : [<level>]]</code> if a Hash was provided
-*                   or the param if a String was provided.
-*                   Returns null if param is not a Hash or String
+* Covert value to video codec string.
+*
+* If the parameter is an object,
+* @param {(string|Object)} param - the video codec as either a String or a Hash
+* @return {string} the video codec string in the format codec:profile:level
+* @example
+* vc_[ :profile : [level]]
+* or
+  { codec: 'h264', profile: 'basic', level: '3.1' }
 ###
 process_video_params = (param) ->
   switch param.constructor
@@ -1017,15 +1025,16 @@ process_video_params = (param) ->
 
 
 ###*
-#  A single transformation.
-#
-#  Usage:
-#
-#      t = new Transformation();
-#      t.angle(20).crop("scale").width("auto");
-#
-#  or
-#      t = new Transformation( {angle: 20, crop: "scale", width: "auto"});
+ *  A single transformation.
+ *
+ *  @example
+ *  t = new Transformation();
+ *  t.angle(20).crop("scale").width("auto");
+ *
+ *  // or
+ *
+ *  t = new Transformation( {angle: 20, crop: "scale", width: "auto"});
+ *  @class
 ###
 class TransformationBase
   # TODO add chains (slashes)
@@ -1034,83 +1043,29 @@ class TransformationBase
     chainedTo = undefined
     trans = {}
 
+    ###*
+     * Return an options object that can be used to create an identical Transformation
+     * @return {Object} a plain object representing this transformation
+    ###
     @toOptions = ()->
-      _.merge(_.mapValues(trans, (t)-> t.value), @otherOptions)
+      _.merge(_.mapValues(trans, (t)-> t.origValue), @otherOptions)
 
+    ###*
+     * Set a parent for this object for chaining purposes.
+     * @param {Object} object - the parent to be assigned to
+     * @returns {Transformation} - returns this instance for chaining purposes.
+    ###
     @setParent = (object)->
       chainedTo = object
       @fromOptions( object.toOptions?())
       this
 
+    ###*
+     * Returns the parent of this object in the chain
+     * @return {Object} the parent of this object if any
+    ###
     @getParent = ()->
       chainedTo
-
-    ###*
-    # Parameters that are filtered out before passing the options to an HTML tag
-    # @see TransformationBase::toHtmlAttributes
-    ###
-    @PARAM_NAMES = [
-      "angle"
-      "api_key"
-      "api_secret"
-      "audio_codec"
-      "audio_frequency"
-      "background"
-      "bit_rate"
-      "border"
-      "cdn_subdomain"
-      "cloud_name"
-      "cname"
-      "color"
-      "color_space"
-      "crop"
-      "default_image"
-      "delay"
-      "density"
-      "dpr"
-      "duration"
-      "effect"
-      "end_offset"
-      "fallback_content"
-      "fetch_format"
-      "format"
-      "flags"
-      "gravity"
-      "height"
-      "offset"
-      "opacity"
-      "overlay"
-      "page"
-      "prefix"
-      "private_cdn"
-      "protocol"
-      "quality"
-      "radius"
-      "raw_transformation"
-      "resource_type"
-      "responsive_width"
-      "secure"
-      "secure_cdn_subdomain"
-      "secure_distribution"
-      "shorten"
-      "size"
-      "source_transformation"
-      "source_types"
-      "start_offset"
-      "transformation"
-      "type"
-      "underlay"
-      "url_suffix"
-      "use_root_path"
-      "version"
-      "video_codec"
-      "video_sampling"
-      "width"
-      "x"
-      "y"
-      "zoom"
-    ]
-
 
     ###
     # Helper methods to create parameter methods
@@ -1145,13 +1100,19 @@ class TransformationBase
       trans[name] = new TransformationParam(name, abbr, sep, process).set(value)
       @
 
+    ###*
+     * Get the value associated with the given name.
+     * @param {string} name - the name of the parameter
+     * @return {*} the processed value associated with the given name
+     * @description Use {@link get}.origValue for the value originally provided for the parameter
+    ###
     @getValue = (name)->
-      trans[name]?.value
+      trans[name]?.value() ? @otherOptions[name]
 
     ###*
-    # Get the parameter object for the given parameter name
-    # @param {String} name the name of the transformation parameter
-    # @returns {Param} the param object for the given name, or undefined
+     * Get the parameter object for the given parameter name
+     * @param {String} name the name of the transformation parameter
+     * @returns {Param} the param object for the given name, or undefined
     ###
     @get = (name)->
       trans[name]
@@ -1173,29 +1134,77 @@ class TransformationBase
     @keys = ()->
       _(trans).keys().map(_.snakeCase).value().sort()
 
-    @toPlainObject = ()->
+    @toPlainObject = ()-> # FIXME recursive
       hash = {}
-      hash[key] = trans[key].value for key of trans
+      hash[key] = trans[key].value() for key of trans
       hash
 
+    @chain = ()->
+      tr = new @constructor( @toOptions())
+      trans = []
+      @otherOptions = {}
+      @set("transformation", tr)
+
     @otherOptions = {}
-    @whitelist = _(Transformation.prototype).functions().map(_.snakeCase).value()
-    @fromOptions(options)
+
+    ###*
+     * Transformation Class methods.
+     * This is a list of the parameters defined in Transformation.
+     * Values are camelCased.
+     * @type {Array<String>}
+    ###
+    @methods = _.difference(
+      _.functions(Transformation.prototype),
+      _.functions(TransformationBase.prototype)
+    )
+
+    ###*
+     * Parameters that are filtered out before passing the options to an HTML tag.
+     * The list of parameters is `Transformation::methods` and `Configuration::CONFIG_PARAMS`
+     * @type {Array<string>}
+     * @see toHtmlAttributes
+    ###
+    @PARAM_NAMES = _.map(
+      @methods, _.snakeCase).concat( Cloudinary.Configuration.CONFIG_PARAMS)
+
+
+    ###
+      Finished constructing the instance, now process the options
+    ###
+
+
+    @fromOptions(options) unless _.isEmpty(options)
+
+
 
 
   ###*
-  # Merge the provided options with own's options
+   * Merge the provided options with own's options
+   * @param {Object} [options={}] key-value list of options
+   * @returns {Transformation} this instance for chaining
   ###
-  fromOptions: (options = {}) ->
+  fromOptions: (options) ->
+    options or= {}
     options = {transformation: options } if _.isString(options) || _.isArray(options)
-    options = _.cloneDeep(options)
+    options = _.cloneDeep(options, (value) ->
+      if value instanceof Transformation
+        new value.constructor( value.toOptions())
+    )
     for key, opt of options
       @set key, opt
     this
 
+  ###*
+   * Set a parameter.
+   * The parameter name `key` is converted to
+   * @param {String} key - the name of the parameter
+   * @param {*} value - the value of the parameter
+   * @returns {Transformation} this instance for chaining
+  ###
   set: (key, value)->
-    if _.includes( @whitelist, key)
-      this[_.camelCase(key)](value)
+    camelKey = _.camelCase( key)
+    if _.includes( @methods, camelKey)
+      this[camelKey](value)
     else
       @otherOptions[key] = value
     this
@@ -1205,36 +1214,39 @@ class TransformationBase
 
   flatten: ->
     resultArray = []
-    transformations = @remove("transformation");
-    if transformations
-      resultArray = resultArray.concat( transformations.flatten())
-
-    transformationString = (@get(t)?.flatten() for t in @keys() )
-    transformationString = _.filter(transformationString, (value)->
+    paramList = @keys()
+    transformations = @get("transformation")?.flatten()
+    paramList = _.without(paramList, "transformation")
+    transformationList = (@get(t)?.flatten() for t in paramList )
+    switch
+      when _.isString(transformations)
+        transformationList.push( transformations)
+      when _.isArray( transformations)
+        resultArray = (transformations)
+    transformationString = _.filter(transformationList, (value)->
       _.isArray(value) &&!_.isEmpty(value) || !_.isArray(value) && value
-    ).join(',')
+    ).sort().join(',')
     resultArray.push(transformationString) unless _.isEmpty(transformationString)
     _.compact(resultArray).join('/')
 
   listNames: ->
-    @whitelist
+    @methods
 
 
   ###*
-  # Returns attributes for an HTML tag.
-  # @return PlainObject
+   * Returns attributes for an HTML tag.
+   * @return PlainObject
   ###
   toHtmlAttributes: ()->
     options = _.omit( @otherOptions, @PARAM_NAMES)
     options[key] = @get(key).value for key in _.difference(@keys(), @PARAM_NAMES)
     # convert all "html_key" to "key" with the same value
-    for k,v of options when /^html_/.exec(k)
-      options[k.substr(5)] = v
-      delete options[k]
+    for k in @keys() when /^html_/.exec(k)
+      options[k.substr(5)] = @getValue(k)
 
     unless @hasLayer()|| @getValue("angle") || _.contains( ["fit", "limit", "lfill"],@getValue("crop"))
-      width = @getValue("width")
-      height = @getValue("height")
+      width = @get("width")?.origValue
+      height = @get("height")?.origValue
       if parseFloat(width) >= 1.0
         options['width'] ?= width
       if parseFloat(height) >= 1.0
@@ -1242,7 +1254,7 @@ class TransformationBase
     options
 
   isValidParamName: (name) ->
-    @whitelist.indexOf(name) >= 0
+    @methods.indexOf(_.camelCase(name)) >= 0
 
   toHtml: ()->
     @getParent()?.toHtml?()
@@ -1343,6 +1355,7 @@ unless module?.exports? || exports?
 
 exports.Cloudinary ?= {}
 exports.Cloudinary.Transformation = Transformation
+exports.Cloudinary.TransformationBase = TransformationBase
 
 
 ###*
