@@ -72,10 +72,55 @@ module.exports = (grunt)->
           ext: '.min.js'
           extDot: 'last'
         ]
+    karma: # TODO complete karma configuration
+      options:
+        configFile: 'karma.conf.coffee'
+      cloudinary:
+        files:
+          src: [
+            'bower_components/lodash/lodash.js',
+            'js/cloudinary.js',
+            'test/spec/*spec.js'
+          ]
+        exclude: [
+          'test/spec/cloudinary-jquery-spec.js'
+          'test/spec/cloudinary-jquery-upload-spec.js'
+        ]
+      jqueryCloudinaryNoupload:
+        files:
+          src: [
+            'bower_components/lodash/lodash.js',
+            'bower_components/jquery/dist/jquery.js',
+            'js/jquery.noupload.cloudinary.js',
+            'test/spec/*spec.js'
+          ]
+        exclude: [
+          'test/spec/cloudinary-spec.js'
+          'test/spec/cloudinary-jquery-upload-spec.js'
+        ]
+      jqueryCloudinary:
+        files:
+          src: [
+            'bower_components/jquery/dist/jquery.js'
+            'bower_components/jquery.ui/ui/widget.js'
+            'bower_components/lodash/lodash.js'
+            'bower_components/blueimp-file-upload/js/jquery.fileupload.js'
+            'bower_components/blueimp-file-upload/js/jquery.fileupload-process.js'
+            'bower_components/blueimp-file-upload/js/jquery.iframe-transport.js'
+            'bower_components/blueimp-file-upload/js/jquery.fileupload-image.js'
+            "js/jquery.cloudinary.js"
+            'test/spec/*spec.js'
+          ]
+        exclude: [
+          'test/spec/cloudinary-spec.js'
+        ]
+
+
 
 
 
   grunt.loadNpmTasks('grunt-contrib-coffee')
   grunt.loadNpmTasks('grunt-contrib-uglify')
+  grunt.loadNpmTasks('grunt-karma')
   grunt.registerTask('default', ['coffee'])
   grunt.registerTask('build', ['coffee', 'uglify'])

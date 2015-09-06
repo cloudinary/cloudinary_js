@@ -693,7 +693,7 @@ class Cloudinary
   * @return {Transformation}
   ###
   transformation: (options)->
-    Transformation.new( @config(options)).setParent( this)
+    Transformation.new( @config()).fromOptions(options).setParent( this)
 
 global = module?.exports ? window
 # Copy all previously defined object in the "Cloudinary" scope
@@ -1185,7 +1185,7 @@ class TransformationBase
   ###
   fromOptions: (options) ->
     options or= {}
-    options = {transformation: options } if _.isString(options) || _.isArray(options)
+    options = {transformation: options } if _.isString(options) || _.isArray(options) || options instanceof Transformation
     options = _.cloneDeep(options, (value) ->
       if value instanceof Transformation
         new value.constructor( value.toOptions())
@@ -1258,6 +1258,9 @@ class TransformationBase
 
   toHtml: ()->
     @getParent()?.toHtml?()
+
+  toString: ()->
+    @flatten()
 
 class Transformation  extends TransformationBase
 

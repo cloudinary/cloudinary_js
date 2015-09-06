@@ -425,7 +425,7 @@ class Cloudinary
   * @return {Transformation}
   ###
   transformation: (options)->
-    Transformation.new( @config(options)).setParent( this)
+    Transformation.new( @config()).fromOptions(options).setParent( this)
 
 global = module?.exports ? window
 # Copy all previously defined object in the "Cloudinary" scope

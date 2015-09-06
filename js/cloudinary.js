@@ -826,7 +826,7 @@
      */
 
     Cloudinary.prototype.transformation = function(options) {
-      return Transformation["new"](this.config(options)).setParent(this);
+      return Transformation["new"](this.config()).fromOptions(options).setParent(this);
     };
 
     return Cloudinary;
@@ -1484,7 +1484,7 @@
     TransformationBase.prototype.fromOptions = function(options) {
       var key, opt;
       options || (options = {});
-      if (_.isString(options) || _.isArray(options)) {
+      if (_.isString(options) || _.isArray(options) || options instanceof Transformation) {
         options = {
           transformation: options
         };
@@ -1605,6 +1605,10 @@
     TransformationBase.prototype.toHtml = function() {
       var ref1;
       return (ref1 = this.getParent()) != null ? typeof ref1.toHtml === "function" ? ref1.toHtml() : void 0 : void 0;
+    };
+
+    TransformationBase.prototype.toString = function() {
+      return this.flatten();
     };
 
     return TransformationBase;
