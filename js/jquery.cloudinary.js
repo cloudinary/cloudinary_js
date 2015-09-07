@@ -434,7 +434,7 @@
         public_id = public_id + "/" + url_suffix;
       }
       if (format) {
-        if (!trust_public_id) public_id = public_id.replace(/\.(jpg|png|gif|webp)$/, '');
+        if (!trust_public_id) public_id = public_id.replace(/\.(jpg|jpeg|png|gif|webp)$/, '');
         public_id = public_id + "." + format;
       }
     }
