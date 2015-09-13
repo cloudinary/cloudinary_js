@@ -44,6 +44,7 @@ class TransformationBase
 
     ###
     # Helper methods to create parameter methods
+    # These methods are required because `trans` is a private member of `TransformationBase`
     ###
 
     @param = (value, name, abbr, defaultValue, process) ->
@@ -187,12 +188,12 @@ class TransformationBase
   hasLayer: ()->
     @getValue("overlay") || @getValue("underlay")
 
-  flatten: ->
+  serialize: ->
     resultArray = []
     paramList = @keys()
-    transformations = @get("transformation")?.flatten()
+    transformations = @get("transformation")?.serialize()
     paramList = _.without(paramList, "transformation")
-    transformationList = (@get(t)?.flatten() for t in paramList )
+    transformationList = (@get(t)?.serialize() for t in paramList )
     switch
       when _.isString(transformations)
         transformationList.push( transformations)
@@ -235,7 +236,7 @@ class TransformationBase
     @getParent()?.toHtml?()
 
   toString: ()->
-    @flatten()
+    @serialize()
 
 class Transformation  extends TransformationBase
 

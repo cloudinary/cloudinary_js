@@ -468,7 +468,7 @@
         publicId = absolutize(publicId);
       }
       transformation = new Transformation(options);
-      transformationString = transformation.flatten();
+      transformationString = transformation.serialize();
       if (!options.cloud_name) {
         throw 'Unknown cloud_name';
       }
@@ -518,14 +518,24 @@
     };
 
     Cloudinary.prototype.transformation_string = function(options) {
-      return new Transformation(options).flatten();
+      return new Transformation(options).serialize();
     };
 
+
+    /**
+     * Generate an image tag.
+     * @param {string} publicId - the public ID of the image
+     * @param {Object} [options] - options for the tag and transformations
+     * @return {HTMLImageElement} an image tag element
+     */
+
     Cloudinary.prototype.image = function(publicId, options) {
+      var img;
       if (options == null) {
         options = {};
       }
-      return this.imageTag(publicId, options).toHtml();
+      img = this.imageTag(publicId, options).toDOM();
+      return this.cloudinary_update(img, options);
     };
 
     Cloudinary.prototype.video_thumbnail = function(publicId, options) {
@@ -1057,19 +1067,62 @@
 
   exports.Cloudinary.Configuration = Configuration;
 
+
+  /**
+   * @class Represents a single parameter
+   */
+
   Param = (function() {
-    function Param(name1, short, process1) {
-      this.name = name1;
+
+    /**
+     * Create a new Parameter
+     * @param {string} name - The name of the parameter in snake_case
+     * @param {string short - The name of the serialized form of the parameter
+     * @param {function} [process=_.identity ] - Manipulate origValue when value is called
+     */
+    function Param(name, short, process) {
+      if (process == null) {
+        process = _.identity;
+      }
+
+      /**
+       * The name of the parameter in snake_case
+       * @type {string}
+       */
+      this.name = name;
+
+      /**
+       * The name of the serialized form of the parameter
+       * @type {string}
+       */
       this.short = short;
-      this.process = process1 != null ? process1 : _.identity;
+
+      /**
+       * Manipulate origValue when value is called
+       * @type {function}
+       */
+      this.process = process;
     }
+
+
+    /**
+     * Set a (unprocessed) value for this parameter
+     * @param {*} origValue - the value of the parameter
+     * @return {Param} self for chaining
+     */
 
     Param.prototype.set = function(origValue) {
       this.origValue = origValue;
       return this;
     };
 
-    Param.prototype.flatten = function() {
+
+    /**
+     * Generate the serialized form of the parameter
+     * @return {string} the serialized form of the parameter
+     */
+
+    Param.prototype.serialize = function() {
       var val;
       val = this.process(this.origValue);
       if ((this.short != null) && (val != null)) {
@@ -1079,18 +1132,13 @@
       }
     };
 
+
+    /**
+     * Return the processed value of the parameter
+     */
+
     Param.prototype.value = function() {
       return this.process(this.origValue);
-    };
-
-    Param.norm_range_value = function(value) {
-      var modifier, offset;
-      offset = String(value).match(new RegExp('^' + offset_any_pattern + '$'));
-      if (offset) {
-        modifier = offset[5] != null ? 'p' : '';
-        value = (offset[1] || offset[4]) + modifier;
-      }
-      return value;
     };
 
     Param.norm_color = function(value) {
@@ -1115,15 +1163,15 @@
   ArrayParam = (function(superClass) {
     extend(ArrayParam, superClass);
 
-    function ArrayParam(name1, short, sep1, process1) {
-      this.name = name1;
-      this.short = short;
-      this.sep = sep1 != null ? sep1 : '.';
-      this.process = process1 != null ? process1 : _.identity;
-      ArrayParam.__super__.constructor.call(this, this.name, this.short, this.process);
+    function ArrayParam(name, short, sep, process) {
+      if (sep == null) {
+        sep = '.';
+      }
+      this.sep = sep;
+      ArrayParam.__super__.constructor.call(this, name, short, process);
     }
 
-    ArrayParam.prototype.flatten = function() {
+    ArrayParam.prototype.serialize = function() {
       var flat, t;
       if (this.short != null) {
         flat = (function() {
@@ -1132,8 +1180,8 @@
           results = [];
           for (j = 0, len = ref1.length; j < len; j++) {
             t = ref1[j];
-            if (_.isFunction(t.flatten)) {
-              results.push(t.flatten());
+            if (_.isFunction(t.serialize)) {
+              results.push(t.serialize());
             } else {
               results.push(t);
             }
@@ -1162,15 +1210,18 @@
   TransformationParam = (function(superClass) {
     extend(TransformationParam, superClass);
 
-    function TransformationParam(name1, short, sep1, process1) {
-      this.name = name1;
-      this.short = short != null ? short : "t";
-      this.sep = sep1 != null ? sep1 : '.';
-      this.process = process1 != null ? process1 : _.identity;
-      TransformationParam.__super__.constructor.call(this, this.name, this.short, this.process);
+    function TransformationParam(name, short, sep, process) {
+      if (short == null) {
+        short = "t";
+      }
+      if (sep == null) {
+        sep = '.';
+      }
+      this.sep = sep;
+      TransformationParam.__super__.constructor.call(this, name, short, process);
     }
 
-    TransformationParam.prototype.flatten = function() {
+    TransformationParam.prototype.serialize = function() {
       var result, t;
       if (_.isEmpty(this.value())) {
         return null;
@@ -1186,10 +1237,10 @@
             if (t != null) {
               if (_.isString(t)) {
                 results.push(this.short + "_" + t);
-              } else if (_.isFunction(t.flatten)) {
-                results.push(t.flatten());
+              } else if (_.isFunction(t.serialize)) {
+                results.push(t.serialize());
               } else if (_.isPlainObject(t)) {
-                results.push(new Transformation(t).flatten());
+                results.push(new Transformation(t).serialize());
               } else {
                 results.push(void 0);
               }
@@ -1217,12 +1268,22 @@
   RangeParam = (function(superClass) {
     extend(RangeParam, superClass);
 
-    function RangeParam(name1, short, process1) {
-      this.name = name1;
-      this.short = short;
-      this.process = process1 != null ? process1 : this.norm_range_value;
-      RangeParam.__super__.constructor.call(this, this.name, this.short, this.process);
+    function RangeParam(name, short, process) {
+      if (process == null) {
+        process = this.norm_range_value;
+      }
+      RangeParam.__super__.constructor.call(this, name, short, process);
     }
+
+    RangeParam.norm_range_value = function(value) {
+      var modifier, offset;
+      offset = String(value).match(new RegExp('^' + offset_any_pattern + '$'));
+      if (offset) {
+        modifier = offset[5] != null ? 'p' : '';
+        value = (offset[1] || offset[4]) + modifier;
+      }
+      return value;
+    };
 
     return RangeParam;
 
@@ -1231,14 +1292,14 @@
   RawParam = (function(superClass) {
     extend(RawParam, superClass);
 
-    function RawParam(name1, short, process1) {
-      this.name = name1;
-      this.short = short;
-      this.process = process1 != null ? process1 : _.identity;
-      RawParam.__super__.constructor.call(this, this.name, this.short, this.process);
+    function RawParam(name, short, process) {
+      if (process == null) {
+        process = _.identity;
+      }
+      RawParam.__super__.constructor.call(this, name, short, process);
     }
 
-    RawParam.prototype.flatten = function() {
+    RawParam.prototype.serialize = function() {
       return this.value();
     };
 
@@ -1335,6 +1396,7 @@
 
       /*
        * Helper methods to create parameter methods
+       * These methods are required because `trans` is a private member of `TransformationBase`
        */
       this.param = function(value, name, abbr, defaultValue, process) {
         if (process == null) {
@@ -1526,18 +1588,18 @@
       return this.getValue("overlay") || this.getValue("underlay");
     };
 
-    TransformationBase.prototype.flatten = function() {
+    TransformationBase.prototype.serialize = function() {
       var paramList, ref1, resultArray, t, transformationList, transformationString, transformations;
       resultArray = [];
       paramList = this.keys();
-      transformations = (ref1 = this.get("transformation")) != null ? ref1.flatten() : void 0;
+      transformations = (ref1 = this.get("transformation")) != null ? ref1.serialize() : void 0;
       paramList = _.without(paramList, "transformation");
       transformationList = (function() {
         var j, len, ref2, results;
         results = [];
         for (j = 0, len = paramList.length; j < len; j++) {
           t = paramList[j];
-          results.push((ref2 = this.get(t)) != null ? ref2.flatten() : void 0);
+          results.push((ref2 = this.get(t)) != null ? ref2.serialize() : void 0);
         }
         return results;
       }).call(this);
@@ -1609,7 +1671,7 @@
     };
 
     TransformationBase.prototype.toString = function() {
-      return this.flatten();
+      return this.serialize();
     };
 
     return TransformationBase;

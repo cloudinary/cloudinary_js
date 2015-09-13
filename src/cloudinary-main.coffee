@@ -131,7 +131,7 @@ class Cloudinary
       publicId = absolutize(publicId)
 
     transformation = new Transformation(options)
-    transformationString = transformation.flatten()
+    transformationString = transformation.serialize()
 
     throw 'Unknown cloud_name' unless options.cloud_name
 
@@ -181,10 +181,17 @@ class Cloudinary
     @url(publicId, options)
 
   transformation_string: (options) ->
-    new Transformation( options).flatten()
+    new Transformation( options).serialize()
 
+  ###*
+   * Generate an image tag.
+   * @param {string} publicId - the public ID of the image
+   * @param {Object} [options] - options for the tag and transformations
+   * @return {HTMLImageElement} an image tag element
+  ###
   image: (publicId, options={}) ->
-    @imageTag(publicId, options).toHtml() # TODO need to call cloudinary_update
+    img = @imageTag(publicId, options).toDOM()
+    @cloudinary_update(img, options)
 
   video_thumbnail: (publicId, options) ->
     @image publicId, _.extend( {}, DEFAULT_POSTER_OPTIONS, options)

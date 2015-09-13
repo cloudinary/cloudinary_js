@@ -10,7 +10,10 @@
         // Register as an anonymous AMD module:
         define([
             'lodash',
-            'jquery'
+            'jquery',
+            'tmpl',
+            'load-image',
+            'canvas'
         ], factory);
     } else {
         // Browser globals:
@@ -401,7 +404,7 @@ class Cloudinary
       publicId = absolutize(publicId)
 
     transformation = new Transformation(options)
-    transformationString = transformation.flatten()
+    transformationString = transformation.serialize()
 
     throw 'Unknown cloud_name' unless options.cloud_name
 
@@ -451,10 +454,17 @@ class Cloudinary
     @url(publicId, options)
 
   transformation_string: (options) ->
-    new Transformation( options).flatten()
+    new Transformation( options).serialize()
 
+  ###*
+   * Generate an image tag.
+   * @param {string} publicId - the public ID of the image
+   * @param {Object} [options] - options for the tag and transformations
+   * @return {HTMLImageElement} an image tag element
+  ###
   image: (publicId, options={}) ->
-    @imageTag(publicId, options).toHtml() # TODO need to call cloudinary_update
+    img = @imageTag(publicId, options).toDOM()
+    @cloudinary_update(img, options)
 
   video_thumbnail: (publicId, options) ->
     @image publicId, _.extend( {}, DEFAULT_POSTER_OPTIONS, options)
@@ -909,29 +919,57 @@ unless module?.exports
 exports.Cloudinary ?= {}
 exports.Cloudinary.Configuration = Configuration
 
-
+###*
+ * @class Represents a single parameter
+###
 class Param
-  constructor: (@name, @short, @process = _.identity)->
+  ###*
+   * Create a new Parameter
+   * @param {string} name - The name of the parameter in snake_case
+   * @param {string short - The name of the serialized form of the parameter
+   * @param {function} [process=_.identity ] - Manipulate origValue when value is called
+  ###
+  constructor: (name, short, process = _.identity)->
+    ###*
+     * The name of the parameter in snake_case
+     * @type {string}
+    ###
+    @name = name
+    ###*
+     * The name of the serialized form of the parameter
+     * @type {string}
+    ###
+    @short = short
+    ###*
+     * Manipulate origValue when value is called
+     * @type {function}
+    ###
+    @process = process
 
+  ###*
+   * Set a (unprocessed) value for this parameter
+   * @param {*} origValue - the value of the parameter
+   * @return {Param} self for chaining
+  ###
   set: (@origValue)->
     this
 
-  flatten: ->
+  ###*
+   * Generate the serialized form of the parameter
+   * @return {string} the serialized form of the parameter
+  ###
+  serialize: ->
     val = @process(@origValue)
     if @short? && val?
       "#{@short}_#{val}"
     else
       null
 
+  ###*
+   * Return the processed value of the parameter
+  ###
   value: ->
     @process(@origValue)
-
-  @norm_range_value: (value) ->
-    offset = String(value).match(new RegExp('^' + offset_any_pattern + '$'))
-    if offset
-      modifier = if offset[5]? then 'p' else ''
-      value = (offset[1] or offset[4]) + modifier
-    value
 
   @norm_color: (value) -> value?.replace(/^#/, 'rgb:')
 
@@ -943,13 +981,14 @@ class Param
 
 
 class ArrayParam extends Param
-  constructor: (@name, @short, @sep = '.', @process = _.identity) ->
-    super(@name, @short, @process)
-  flatten: ->
-    if @short? # FIXME call process
+  constructor: (name, short, sep = '.', process) ->
+    @sep = sep
+    super(name, short, process)
+  serialize: ->
+    if @short?
       flat = for t in @value()
-        if _.isFunction( t.flatten)
-          t.flatten() # Param or Transformation
+        if _.isFunction( t.serialize)
+          t.serialize() # Param or Transformation
         else
           t
       "#{@short}_#{flat.join(@sep)}"
@@ -964,9 +1003,10 @@ class ArrayParam extends Param
 class TransformationParam extends Param
   # FIXME chain, join with slashes
   # TODO maybe use regular param with "transformation" process?
-  constructor: (@name, @short = "t", @sep = '.', @process = _.identity) ->
-    super(@name, @short, @process)
-  flatten: ->
+  constructor: (name, short = "t", sep = '.', process) ->
+    @sep = sep
+    super(name, short, process)
+  serialize: ->
     if _.isEmpty(@value())
       null
     else if _.all(@value(), _.isString)
@@ -975,10 +1015,10 @@ class TransformationParam extends Param
       result = for t in @value() when t?
         if _.isString( t)
           "#{@short}_#{t}"
-        else if _.isFunction( t.flatten)
-          t.flatten()
+        else if _.isFunction( t.serialize)
+          t.serialize()
         else if _.isPlainObject(t)
-          new Transformation(t).flatten()
+          new Transformation(t).serialize()
       _.compact(result)
   set: (@origValue)->
     if _.isArray(@origValue)
@@ -987,13 +1027,20 @@ class TransformationParam extends Param
       super([@origValue])
 
 class RangeParam extends Param
-  constructor: (@name, @short, @process = @norm_range_value)-> # FIXME overrun by identity in transformation?
-    super(@name, @short, @process)
+  constructor: (name, short, process = @norm_range_value)-> # FIXME overrun by identity in transformation?
+    super(name, short, process)
+
+  @norm_range_value: (value) ->
+    offset = String(value).match(new RegExp('^' + offset_any_pattern + '$'))
+    if offset
+      modifier = if offset[5]? then 'p' else ''
+      value = (offset[1] or offset[4]) + modifier
+    value
 
 class RawParam extends Param
-  constructor: (@name, @short, @process = _.identity)->
-    super(@name, @short, @process)
-  flatten: ->
+  constructor: (name, short, process = _.identity)->
+    super(name, short, process)
+  serialize: ->
     @value()
 
 
@@ -1071,6 +1118,7 @@ class TransformationBase
 
     ###
     # Helper methods to create parameter methods
+    # These methods are required because `trans` is a private member of `TransformationBase`
     ###
 
     @param = (value, name, abbr, defaultValue, process) ->
@@ -1214,12 +1262,12 @@ class TransformationBase
   hasLayer: ()->
     @getValue("overlay") || @getValue("underlay")
 
-  flatten: ->
+  serialize: ->
     resultArray = []
     paramList = @keys()
-    transformations = @get("transformation")?.flatten()
+    transformations = @get("transformation")?.serialize()
     paramList = _.without(paramList, "transformation")
-    transformationList = (@get(t)?.flatten() for t in paramList )
+    transformationList = (@get(t)?.serialize() for t in paramList )
     switch
       when _.isString(transformations)
         transformationList.push( transformations)
@@ -1262,7 +1310,7 @@ class TransformationBase
     @getParent()?.toHtml?()
 
   toString: ()->
-    @flatten()
+    @serialize()
 
 class Transformation  extends TransformationBase
 

@@ -10,7 +10,10 @@
         // Register as an anonymous AMD module:
         define([
             'lodash',
-            'jquery'
+            'jquery',
+            'tmpl',
+            'load-image',
+            'canvas'
         ], factory);
     } else {
         // Browser globals:

@@ -16,20 +16,23 @@ module.exports = (config) ->
     # list of files / patterns to load in the browser
     files: [
       'bower_components/lodash/lodash.js'
-      'bower_components/jquery/dist/jquery.js'
-      'bower_components/jquery.ui/ui/widget.js'
-      'bower_components/blueimp-file-upload/js/jquery.fileupload.js'
-      'bower_components/blueimp-file-upload/js/jquery.fileupload-process.js'
-      'bower_components/blueimp-file-upload/js/jquery.iframe-transport.js'
-      'bower_components/blueimp-file-upload/js/jquery.fileupload-image.js'
-      'js/jquery.cloudinary.js'
+#      'bower_components/jquery/dist/jquery.js'
+#      'bower_components/jquery.ui/ui/widget.js'
+#      'bower_components/blueimp-file-upload/js/jquery.fileupload.js'
+#      'bower_components/blueimp-file-upload/js/jquery.fileupload-process.js'
+#      'bower_components/blueimp-file-upload/js/jquery.iframe-transport.js'
+#      'bower_components/blueimp-file-upload/js/jquery.fileupload-image.js'
+#      'js/jquery.cloudinary.js'
+      'js/cloudinary.js'
       'test/spec/*spec.js'
     ]
 
 
     # list of files to exclude
     exclude: [
-      'test/spec/cloudinary-spec.js'
+#      'test/spec/cloudinary-spec.js'
+      'test/spec/cloudinary-jquery-spec.js'
+      'test/spec/cloudinary-jquery-upload-spec.js'
     ]
 
 
