@@ -194,7 +194,7 @@ class Cloudinary
     tag_options = _.merge( {src: ''}, options)
     img = @imageTag(publicId, tag_options).toDOM()
     # cache the image src
-    setData(img, 'src-cache', @url(publicId, options))
+    Util.setData(img, 'src-cache', @url(publicId, options))
     # set image src taking responsiveness in account
     @cloudinary_update(img, options)
     img
@@ -241,7 +241,7 @@ class Cloudinary
             clearTimeout timeout
             timeout = null
 
-        run = ->
+        run = =>
           @cloudinary_update 'img.cld-responsive', responsiveConfig
 
         wait = ->
@@ -257,7 +257,7 @@ class Cloudinary
           run()
 
   calc_stoppoint: (element, width) ->
-    stoppoints = getData(element,'stoppoints') or @config('stoppoints') or defaultStoppoints
+    stoppoints = Util.getData(element,'stoppoints') or @config('stoppoints') or defaultStoppoints
     if _.isFunction stoppoints
       stoppoints(width)
     else
@@ -365,7 +365,7 @@ class Cloudinary
         delete imgOptions['src']
         url = @url(publicId, imgOptions)
         imgOptions = new Transformation(imgOptions).toHtmlAttributes()
-        setData(i, 'src-cache', url)
+        Util.setData(i, 'src-cache', url)
         i.setAttribute('width', imgOptions.width)
         i.setAttribute('height', imgOptions.height)
       ).value()
@@ -387,7 +387,7 @@ class Cloudinary
   ###
 
   cloudinary_update: (elements, options = {}) ->
-    elements = switch elements
+    elements = switch
       when _.isArray(elements)
         elements
       when elements.constructor.name == "NodeList"
@@ -401,26 +401,26 @@ class Cloudinary
     exact = !responsive_use_stoppoints || responsive_use_stoppoints == 'resize' and !options.resizing
     for tag in elements when tag.tagName?.match(/img/i)
       if options.responsive
-        addClass(tag, "cld-responsive")
+        Util.addClass(tag, "cld-responsive")
       attrs = {}
-      src = getData(tag, 'src-cache') or getData(tag, 'src')
+      src = Util.getData(tag, 'src-cache') or Util.getData(tag, 'src')
       if !src
         return
-      responsive = hasClass(tag, 'cld-responsive') and src.match(/\bw_auto\b/)
+      responsive = Util.hasClass(tag, 'cld-responsive') and src.match(/\bw_auto\b/)
       if responsive
         container = tag.parentNode
         containerWidth = 0
         while container and containerWidth == 0
-          containerWidth = container.clientWidth || 0
+          containerWidth = Util.width(container)
           container = container.parentNode
         if containerWidth == 0
           # container doesn't know the size yet. Usually because the image is hidden or outside the DOM.
           return
         requestedWidth = if exact then containerWidth else @calc_stoppoint(tag, containerWidth)
-        currentWidth = getData(tag, 'width') or 0
+        currentWidth = Util.getData(tag, 'width') or 0
         if requestedWidth > currentWidth
           # requested width is larger, fetch new image
-          setData(tag, 'width', requestedWidth)
+          Util.setData(tag, 'width', requestedWidth)
         else
           # requested width is not larger - keep previous
           requestedWidth = currentWidth
@@ -430,7 +430,7 @@ class Cloudinary
           attrs.height = null
       # Update dpr according to the device's devicePixelRatio
       attrs.src = src.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + @device_pixel_ratio())
-      setAttributes(tag, attrs)
+      Util.setAttributes(tag, attrs)
     this
 
   ###*

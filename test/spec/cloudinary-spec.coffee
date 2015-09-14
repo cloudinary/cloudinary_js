@@ -289,12 +289,6 @@ describe 'cloudinary', ->
       result = cloudinary.image('test', options)
       expect(result.getAttribute( 'src')).toBe window.location.protocol + '//res.cloudinary.com/test123/image/upload/dpr_2.0/test'
 
-    xit 'should update dpr when creating an image tag using $(\'<img/>\').attr(\'data-src\', \'test\').cloudinary(options)', ->
-      result = document.createElement('img')
-      result.setAttribute( 'data-src', 'test')
-      result.cloudinary(options)
-      expect(result.getAttribute('src')).toEqual window.location.protocol + '//res.cloudinary.com/test123/image/upload/dpr_2.0/test'
-
   it 'should add version if public_id contains /', ->
     test_cloudinary_url 'folder/test', {}, window.location.protocol + '//res.cloudinary.com/test123/image/upload/v1/folder/test', {}
     test_cloudinary_url 'folder/test', { version: 123 }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/v123/folder/test', {}
@@ -505,7 +499,7 @@ describe 'cloudinary', ->
     img = undefined
     dpr = cloudinary.device_pixel_ratio()
     container = document.createElement('div')
-    container.style.width = 101
+    container.style.width = "101px"
     fixtureContainer.appendChild(container)
     img = cloudinary.image('sample.jpg',
       width: 'auto'
@@ -516,13 +510,13 @@ describe 'cloudinary', ->
     expect(img.getAttribute('src')).toBeFalsy()
     cloudinary.responsive()
     expect(img.getAttribute('src')).toEqual window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_scale,dpr_' + dpr + ',w_101/sample.jpg'
-    container.style.width = 111
+    container.style.width = "111px"
     expect(img.getAttribute('src')).toEqual window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_scale,dpr_' + dpr + ',w_101/sample.jpg'
     window.dispatchEvent(new Event('resize'))
     window.setTimeout (->
       # wait(200)
       expect(img.getAttribute('src')).toEqual window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_scale,dpr_' + dpr + ',w_120/sample.jpg'
-      container.style.width = 101
+      container.style.width = "101px"
       window.setTimeout (->
         # wait(200)
         expect(img.getAttribute('src')).toEqual window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_scale,dpr_' + dpr + ',w_120/sample.jpg'

@@ -373,15 +373,9 @@
       afterEach(function() {
         return window.devicePixelRatio = dpr;
       });
-      it('should update dpr when creating an image tag using $.cloudinary.image()', function() {
+      return it('should update dpr when creating an image tag using $.cloudinary.image()', function() {
         result = cloudinary.image('test', options);
         return expect(result.getAttribute('src')).toBe(window.location.protocol + '//res.cloudinary.com/test123/image/upload/dpr_2.0/test');
-      });
-      return xit('should update dpr when creating an image tag using $(\'<img/>\').attr(\'data-src\', \'test\').cloudinary(options)', function() {
-        result = document.createElement('img');
-        result.setAttribute('data-src', 'test');
-        result.cloudinary(options);
-        return expect(result.getAttribute('src')).toEqual(window.location.protocol + '//res.cloudinary.com/test123/image/upload/dpr_2.0/test');
       });
     });
     it('should add version if public_id contains /', function() {
@@ -604,7 +598,7 @@
       img = void 0;
       dpr = cloudinary.device_pixel_ratio();
       container = document.createElement('div');
-      container.style.width = 101;
+      container.style.width = "101px";
       fixtureContainer.appendChild(container);
       img = cloudinary.image('sample.jpg', {
         width: 'auto',
@@ -616,12 +610,12 @@
       expect(img.getAttribute('src')).toBeFalsy();
       cloudinary.responsive();
       expect(img.getAttribute('src')).toEqual(window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_scale,dpr_' + dpr + ',w_101/sample.jpg');
-      container.style.width = 111;
+      container.style.width = "111px";
       expect(img.getAttribute('src')).toEqual(window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_scale,dpr_' + dpr + ',w_101/sample.jpg');
       window.dispatchEvent(new Event('resize'));
       return window.setTimeout((function() {
         expect(img.getAttribute('src')).toEqual(window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_scale,dpr_' + dpr + ',w_120/sample.jpg');
-        container.style.width = 101;
+        container.style.width = "101px";
         return window.setTimeout((function() {
           expect(img.getAttribute('src')).toEqual(window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_scale,dpr_' + dpr + ',w_120/sample.jpg');
           return done();

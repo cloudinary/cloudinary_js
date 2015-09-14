@@ -29,7 +29,7 @@
     *
     * @returns {boolean} true if jQuery is defined
    */
-  var ArrayParam, Cloudinary, CloudinaryJQuery, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, VideoTag, addClass, augmentWidthOrHeight, contains, crc32, cssExpand, cssValue, curCSS, exports, getAttribute, getData, getStyles, getWidthOrHeight, global, hasClass, isJQuery, pnum, process_video_params, ref, ref1, rnumnonpx, setAttribute, setAttributes, setData, utf8_encode, webp,
+  var ArrayParam, Cloudinary, CloudinaryJQuery, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, augmentWidthOrHeight, contains, crc32, cssExpand, cssValue, curCSS, exports, getAttribute, getData, getStyles, getWidthOrHeight, global, hasClass, isJQuery, pnum, process_video_params, ref, ref1, rnumnonpx, setAttribute, setAttributes, setData, utf8_encode, webp, width,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
@@ -256,6 +256,10 @@
       val = parseFloat(val) || 0;
     }
     return val + augmentWidthOrHeight(elem, name, extra || (isBorderBox ? "border" : "content"), valueIsBorderBox, styles);
+  };
+
+  width = function(element) {
+    return getWidthOrHeight(element, "width", "content");
 
     /*
     The following lodash methods are used in this library.
@@ -293,15 +297,16 @@
      */
   };
 
-  if (!(((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) || (typeof exports !== "undefined" && exports !== null))) {
-    exports = window;
-  }
-
-  if (exports.Cloudinary == null) {
-    exports.Cloudinary = {};
-  }
-
-  exports.Cloudinary.getWidthOrHeight = getWidthOrHeight;
+  Util = {
+    hasClass: hasClass,
+    addClass: addClass,
+    getAttribute: getAttribute,
+    setAttribute: setAttribute,
+    setAttributes: setAttributes,
+    getData: getData,
+    setData: setData,
+    width: width
+  };
 
 
   /**
@@ -544,7 +549,7 @@
         src: ''
       }, options);
       img = this.imageTag(publicId, tag_options).toDOM();
-      setData(img, 'src-cache', this.url(publicId, options));
+      Util.setData(img, 'src-cache', this.url(publicId, options));
       this.cloudinary_update(img, options);
       return img;
     };
@@ -619,7 +624,7 @@
               }
             };
             run = function() {
-              return this.cloudinary_update('img.cld-responsive', responsiveConfig);
+              return _this.cloudinary_update('img.cld-responsive', responsiveConfig);
             };
             wait = function() {
               reset();
@@ -640,7 +645,7 @@
 
     Cloudinary.prototype.calc_stoppoint = function(element, width) {
       var stoppoints;
-      stoppoints = getData(element, 'stoppoints') || this.config('stoppoints') || defaultStoppoints;
+      stoppoints = Util.getData(element, 'stoppoints') || this.config('stoppoints') || defaultStoppoints;
       if (_.isFunction(stoppoints)) {
         return stoppoints(width);
       } else {
@@ -754,7 +759,7 @@
         delete imgOptions['src'];
         url = this.url(publicId, imgOptions);
         imgOptions = new Transformation(imgOptions).toHtmlAttributes();
-        setData(i, 'src-cache', url);
+        Util.setData(i, 'src-cache', url);
         i.setAttribute('width', imgOptions.width);
         return i.setAttribute('height', imgOptions.height);
       }).value();
@@ -783,12 +788,12 @@
         options = {};
       }
       elements = (function() {
-        switch (elements) {
-          case _.isArray(elements):
+        switch (false) {
+          case !_.isArray(elements):
             return elements;
-          case elements.constructor.name === "NodeList":
+          case elements.constructor.name !== "NodeList":
             return elements;
-          case _.isString(elements):
+          case !_.isString(elements):
             return document.querySelectorAll(elements);
           default:
             return [elements];
@@ -802,28 +807,28 @@
           continue;
         }
         if (options.responsive) {
-          addClass(tag, "cld-responsive");
+          Util.addClass(tag, "cld-responsive");
         }
         attrs = {};
-        src = getData(tag, 'src-cache') || getData(tag, 'src');
+        src = Util.getData(tag, 'src-cache') || Util.getData(tag, 'src');
         if (!src) {
           return;
         }
-        responsive = hasClass(tag, 'cld-responsive') && src.match(/\bw_auto\b/);
+        responsive = Util.hasClass(tag, 'cld-responsive') && src.match(/\bw_auto\b/);
         if (responsive) {
           container = tag.parentNode;
           containerWidth = 0;
           while (container && containerWidth === 0) {
-            containerWidth = container.clientWidth || 0;
+            containerWidth = Util.width(container);
             container = container.parentNode;
           }
           if (containerWidth === 0) {
             return;
           }
           requestedWidth = exact ? containerWidth : this.calc_stoppoint(tag, containerWidth);
-          currentWidth = getData(tag, 'width') || 0;
+          currentWidth = Util.getData(tag, 'width') || 0;
           if (requestedWidth > currentWidth) {
-            setData(tag, 'width', requestedWidth);
+            Util.setData(tag, 'width', requestedWidth);
           } else {
             requestedWidth = currentWidth;
           }
@@ -834,7 +839,7 @@
           }
         }
         attrs.src = src.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + this.device_pixel_ratio());
-        setAttributes(tag, attrs);
+        Util.setAttributes(tag, attrs);
       }
       return this;
     };
@@ -1639,7 +1644,7 @@
      */
 
     TransformationBase.prototype.toHtmlAttributes = function() {
-      var height, j, k, key, l, len, len1, options, ref1, ref2, ref3, ref4, width;
+      var height, j, k, key, l, len, len1, options, ref1, ref2, ref3, ref4;
       options = _.omit(this.otherOptions, this.PARAM_NAMES);
       ref1 = _.difference(this.keys(), this.PARAM_NAMES);
       for (j = 0, len = ref1.length; j < len; j++) {
@@ -1873,7 +1878,7 @@
     };
 
     Transformation.prototype.size = function(value) {
-      var height, ref1, width;
+      var height, ref1;
       if (_.isFunction(value != null ? value.split : void 0)) {
         ref1 = value.split('x'), width = ref1[0], height = ref1[1];
         this.width(width);

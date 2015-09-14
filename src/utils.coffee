@@ -204,7 +204,8 @@ getWidthOrHeight = (elem, name, extra) ->
   # Use the active box-sizing model to add/subtract irrelevant styles
   (val + augmentWidthOrHeight(elem, name, extra or ((if isBorderBox then "border" else "content")), valueIsBorderBox, styles))
 
-#width = (element)
+width = (element)->
+  getWidthOrHeight(element, "width", "content")
 
 
   ###
@@ -242,9 +243,15 @@ getWidthOrHeight = (elem, name, extra) ->
   _.trimRight
 
   ###
-# unless running on server side, export to the windows object
-unless module?.exports? || exports?
-  exports = window
 
-exports.Cloudinary ?= {}
-exports.Cloudinary.getWidthOrHeight = getWidthOrHeight
+
+Util =
+  hasClass: hasClass
+  addClass: addClass
+  getAttribute: getAttribute
+  setAttribute: setAttribute
+  setAttributes: setAttributes
+  getData: getData
+  setData: setData
+  width: width
+
