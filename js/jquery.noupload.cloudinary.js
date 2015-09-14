@@ -29,7 +29,7 @@
     *
     * @returns {boolean} true if jQuery is defined
    */
-  var ArrayParam, Cloudinary, CloudinaryJQuery, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, VideoTag, augmentWidthOrHeight, contains, crc32, cssExpand, cssValue, curCSS, exports, getAttribute, getData, getStyles, getWidthOrHeight, global, hasClass, isJQuery, pnum, process_video_params, ref, ref1, rnumnonpx, setAttribute, setAttributes, setData, utf8_encode, webp,
+  var ArrayParam, Cloudinary, CloudinaryJQuery, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, VideoTag, addClass, augmentWidthOrHeight, contains, crc32, cssExpand, cssValue, curCSS, exports, getAttribute, getData, getStyles, getWidthOrHeight, global, hasClass, isJQuery, pnum, process_video_params, ref, ref1, rnumnonpx, setAttribute, setAttributes, setData, utf8_encode, webp,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
@@ -135,7 +135,13 @@
     if (isJQuery()) {
       return jQuery(element).hasClass(name);
     } else if (_.isElement(element)) {
-      return element.className.match(new RegExp("\b" + name(+"\b")));
+      return element.className.match(new RegExp("\\b" + name + "\\b"));
+    }
+  };
+
+  addClass = function(element, name) {
+    if (!element.className.match(new RegExp("\\b" + name + "\\b"))) {
+      return element.className = _.trim(element.className + " " + name);
     }
   };
 
@@ -530,12 +536,17 @@
      */
 
     Cloudinary.prototype.image = function(publicId, options) {
-      var img;
+      var img, tag_options;
       if (options == null) {
         options = {};
       }
-      img = this.imageTag(publicId, options).toDOM();
-      return this.cloudinary_update(img, options);
+      tag_options = _.merge({
+        src: ''
+      }, options);
+      img = this.imageTag(publicId, tag_options).toDOM();
+      setData(img, 'src-cache', this.url(publicId, options));
+      this.cloudinary_update(img, options);
+      return img;
     };
 
     Cloudinary.prototype.video_thumbnail = function(publicId, options) {
@@ -767,7 +778,7 @@
      */
 
     Cloudinary.prototype.cloudinary_update = function(elements, options) {
-      var attrs, container, containerWidth, currentWidth, exact, j, len, ref, ref1, requestedWidth, responsive, responsive_use_stoppoints, src, tag;
+      var attrs, container, containerWidth, currentWidth, exact, j, len, ref, ref1, ref2, requestedWidth, responsive, responsive_use_stoppoints, src, tag;
       if (options == null) {
         options = {};
       }
@@ -779,7 +790,7 @@
             return elements;
           case _.isString(elements):
             return document.querySelectorAll(elements);
-          case _.isElement(elements):
+          default:
             return [elements];
         }
       })();
@@ -787,13 +798,11 @@
       exact = !responsive_use_stoppoints || responsive_use_stoppoints === 'resize' && !options.resizing;
       for (j = 0, len = elements.length; j < len; j++) {
         tag = elements[j];
-        if (!(tag.tagName.match(/img/i))) {
+        if (!((ref2 = tag.tagName) != null ? ref2.match(/img/i) : void 0)) {
           continue;
         }
         if (options.responsive) {
-          if (!tag.className.match(/\bcld-responsive\b/)) {
-            tag.className = _.trim(tag.className + " cld-responsive");
-          }
+          addClass(tag, "cld-responsive");
         }
         attrs = {};
         src = getData(tag, 'src-cache') || getData(tag, 'src');
@@ -2491,5 +2500,3 @@
 ;
 
 }).call(this);
-
-//# sourceMappingURL=jquery.noupload.cloudinary.js.map

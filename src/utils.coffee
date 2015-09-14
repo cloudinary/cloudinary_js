@@ -85,8 +85,10 @@ hasClass = (element, name)->
   if isJQuery()
     jQuery(element).hasClass(name)
   else if _.isElement(element)
-    element.className.match(new RegExp("\b" + name +"\b"))
+    element.className.match(new RegExp("\\b#{name}\\b"))
 
+addClass = (element, name)->
+  element.className = _.trim( "#{element.className} #{name}") unless element.className.match( new RegExp("\\b#{name}\\b"))
 # The following code is taken from jQuery
 
 getStyles = (elem) ->
@@ -202,7 +204,7 @@ getWidthOrHeight = (elem, name, extra) ->
   # Use the active box-sizing model to add/subtract irrelevant styles
   (val + augmentWidthOrHeight(elem, name, extra or ((if isBorderBox then "border" else "content")), valueIsBorderBox, styles))
 
-
+#width = (element)
 
 
   ###

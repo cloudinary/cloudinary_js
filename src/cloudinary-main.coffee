@@ -190,8 +190,14 @@ class Cloudinary
    * @return {HTMLImageElement} an image tag element
   ###
   image: (publicId, options={}) ->
-    img = @imageTag(publicId, options).toDOM()
+    # generate a tag without the image src
+    tag_options = _.merge( {src: ''}, options)
+    img = @imageTag(publicId, tag_options).toDOM()
+    # cache the image src
+    setData(img, 'src-cache', @url(publicId, options))
+    # set image src taking responsiveness in account
     @cloudinary_update(img, options)
+    img
 
   video_thumbnail: (publicId, options) ->
     @image publicId, _.extend( {}, DEFAULT_POSTER_OPTIONS, options)
@@ -335,7 +341,7 @@ class Cloudinary
       cdnPart = ""
       subdomain = if options.cdn_subdomain then 'a'+((crc32(publicId)%5)+1)+'.' else ''
       host = options.cname
-#      path = ""
+      #      path = ""
 
     [protocol, cdnPart, subdomain, host, path].join("")
 
@@ -388,14 +394,14 @@ class Cloudinary
         elements
       when _.isString(elements)
         document.querySelectorAll(elements)
-      when _.isElement(elements)
+      else
         [elements]
 
     responsive_use_stoppoints = options['responsive_use_stoppoints'] ? @config('responsive_use_stoppoints') ? 'resize'
     exact = !responsive_use_stoppoints || responsive_use_stoppoints == 'resize' and !options.resizing
-    for tag in elements when tag.tagName.match(/img/i)
+    for tag in elements when tag.tagName?.match(/img/i)
       if options.responsive
-        tag.className = _.trim( "#{tag.className} cld-responsive") unless tag.className.match( /\bcld-responsive\b/)
+        addClass(tag, "cld-responsive")
       attrs = {}
       src = getData(tag, 'src-cache') or getData(tag, 'src')
       if !src

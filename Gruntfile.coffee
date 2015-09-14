@@ -6,7 +6,7 @@ module.exports = (grunt)->
           join: true
           joinExt: '.coffee'
           bare: false
-          sourceMap: true
+          sourceMap: false
         files:
           'js/cloudinary.js': [
             'src/header.coffee'

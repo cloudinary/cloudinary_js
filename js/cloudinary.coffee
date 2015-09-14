@@ -104,7 +104,7 @@ hasClass = (element, name)->
   if isJQuery()
     jQuery(element).hasClass(name)
   else if _.isElement(element)
-    element.className.match(new RegExp("\b" + name +"\b"))
+    element.className.match(new RegExp("\b#{name}\b"))
 
 # The following code is taken from jQuery
 
@@ -221,7 +221,7 @@ getWidthOrHeight = (elem, name, extra) ->
   # Use the active box-sizing model to add/subtract irrelevant styles
   (val + augmentWidthOrHeight(elem, name, extra or ((if isBorderBox then "border" else "content")), valueIsBorderBox, styles))
 
-
+width = (element)
 
 
   ###
@@ -458,8 +458,14 @@ class Cloudinary
    * @return {HTMLImageElement} an image tag element
   ###
   image: (publicId, options={}) ->
-    img = @imageTag(publicId, options).toDOM()
+    # generate a tag without the image src
+    tag_options = _.merge( {src: ''}, options)
+    img = @imageTag(publicId, tag_options).toDOM()
+    # cache the image src
+    setData(img, 'src-cache', @url(options))
+    # set image src taking responsiveness in account
     @cloudinary_update(img, options)
+    img
 
   video_thumbnail: (publicId, options) ->
     @image publicId, _.extend( {}, DEFAULT_POSTER_OPTIONS, options)
@@ -656,12 +662,12 @@ class Cloudinary
         elements
       when _.isString(elements)
         document.querySelectorAll(elements)
-      when _.isElement(elements)
+      else
         [elements]
 
     responsive_use_stoppoints = options['responsive_use_stoppoints'] ? @config('responsive_use_stoppoints') ? 'resize'
     exact = !responsive_use_stoppoints || responsive_use_stoppoints == 'resize' and !options.resizing
-    for tag in elements when tag.tagName.match(/img/i)
+    for tag in elements when tag.tagName?.match(/img/i)
       if options.responsive
         tag.className = _.trim( "#{tag.className} cld-responsive") unless tag.className.match( /\bcld-responsive\b/)
       attrs = {}
