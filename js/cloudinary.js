@@ -280,7 +280,8 @@
     merge: _.merge,
     camelCase: _.camelCase,
     snakeCase: _.snakeCase,
-    cloneDeep: _.cloneDeep
+    cloneDeep: _.cloneDeep,
+    compact: _.compact
   };
 
 
@@ -1237,7 +1238,7 @@
           }
           return results;
         }).call(this);
-        return _.compact(result);
+        return Util.compact(result);
       }
     };
 
@@ -1605,7 +1606,7 @@
       if (!Util.isEmpty(transformationString)) {
         resultArray.push(transformationString);
       }
-      return _.compact(resultArray).join('/');
+      return Util.compact(resultArray).join('/');
     };
 
     TransformationBase.prototype.listNames = function() {

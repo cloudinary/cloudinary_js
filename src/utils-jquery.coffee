@@ -108,6 +108,15 @@ snakeCase = (source)->
     word.toLocaleLowerCase()
   words.join('_')
 
+compact = (arr)->
+  for item in arr when item
+    item
+
+cloneDeep = ()->
+  args = jQuery.makeArray(arguments)
+  args.unshift({}) # add "fresh" destination
+  args.unshift(true) # deep
+  jQuery.extend.apply(this, args)
 
 #  The following lodash methods are used in this library.
 #  TODO create a shim that will switch between jQuery and lodash
@@ -166,4 +175,5 @@ Util =
   merge: merge
   camelCase: camelCase
   snakeCase: snakeCase
-  cloneDeep: jQuery.clone
+  cloneDeep: cloneDeep
+  compact: compact

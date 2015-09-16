@@ -255,3 +255,5 @@ Util =
   camelCase: _.camelCase
   snakeCase: _.snakeCase
   cloneDeep: _.cloneDeep
+  compact: _.compact
+

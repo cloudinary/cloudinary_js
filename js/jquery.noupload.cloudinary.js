@@ -33,7 +33,7 @@
     * @returns the value associated with the `name`
     *
    */
-  var ArrayParam, Cloudinary, CloudinaryJQuery, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, camelCase, crc32, exports, getAttribute, getData, global, hasClass, isEmpty, isString, merge, process_video_params, reWords, ref, ref1, setAttribute, setAttributes, setData, snakeCase, utf8_encode, webp, width,
+  var ArrayParam, Cloudinary, CloudinaryJQuery, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, camelCase, cloneDeep, compact, crc32, exports, getAttribute, getData, global, hasClass, isEmpty, isString, merge, process_video_params, reWords, ref, ref1, setAttribute, setAttributes, setData, snakeCase, utf8_encode, webp, width,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
@@ -171,6 +171,26 @@
     return words.join('_');
   };
 
+  compact = function(arr) {
+    var item, j, len, results;
+    results = [];
+    for (j = 0, len = arr.length; j < len; j++) {
+      item = arr[j];
+      if (item) {
+        results.push(item);
+      }
+    }
+    return results;
+  };
+
+  cloneDeep = function() {
+    var args;
+    args = jQuery.makeArray(arguments);
+    args.unshift({});
+    args.unshift(true);
+    return jQuery.extend.apply(this, args);
+  };
+
   Util = {
     hasClass: hasClass,
     addClass: addClass,
@@ -199,7 +219,8 @@
     merge: merge,
     camelCase: camelCase,
     snakeCase: snakeCase,
-    cloneDeep: jQuery.clone
+    cloneDeep: cloneDeep,
+    compact: compact
   };
 
 
@@ -1156,7 +1177,7 @@
           }
           return results;
         }).call(this);
-        return _.compact(result);
+        return Util.compact(result);
       }
     };
 
@@ -1524,7 +1545,7 @@
       if (!Util.isEmpty(transformationString)) {
         resultArray.push(transformationString);
       }
-      return _.compact(resultArray).join('/');
+      return Util.compact(resultArray).join('/');
     };
 
     TransformationBase.prototype.listNames = function() {

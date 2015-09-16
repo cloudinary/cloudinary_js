@@ -203,7 +203,7 @@ class TransformationBase
       Util.isArray(value) &&!Util.isEmpty(value) || !Util.isArray(value) && value
     ).sort().join(',')
     resultArray.push(transformationString) unless Util.isEmpty(transformationString)
-    _.compact(resultArray).join('/')
+    Util.compact(resultArray).join('/')
 
   listNames: ->
     @methods

@@ -98,7 +98,7 @@ class TransformationParam extends Param
           t.serialize()
         else if _.isPlainObject(t)
           new Transformation(t).serialize()
-      _.compact(result)
+      Util.compact(result)
   set: (@origValue)->
     if Util.isArray(@origValue)
       super(@origValue)
