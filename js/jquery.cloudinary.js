@@ -36,7 +36,7 @@
     * @returns the value associated with the `name`
     *
    */
-  var ArrayParam, Cloudinary, CloudinaryJQuery, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, crc32, exports, getAttribute, getData, global, hasClass, isEmpty, isString, merge, process_video_params, ref, ref1, setAttribute, setAttributes, setData, utf8_encode, webp, width,
+  var ArrayParam, Cloudinary, CloudinaryJQuery, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, camelCase, crc32, exports, getAttribute, getData, global, hasClass, isEmpty, isString, merge, process_video_params, reWords, ref, ref1, setAttribute, setAttributes, setData, snakeCase, utf8_encode, webp, width,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
@@ -129,6 +129,51 @@
     return jQuery.extend.apply(this, arguments);
   };
 
+
+  /** Used to match words to create compound words. */
+
+  reWords = (function() {
+    var lower, upper;
+    upper = '[A-Z\\xc0-\\xd6\\xd8-\\xde]';
+    lower = '[a-z\\xdf-\\xf6\\xf8-\\xff]+';
+    return RegExp(upper + '+(?=' + upper + lower + ')|' + upper + '?' + lower + '|' + upper + '+|[0-9]+', 'g');
+  })();
+
+  camelCase = function(source) {
+    var i, word, words;
+    words = source.match(reWords);
+    words = (function() {
+      var j, len, results;
+      results = [];
+      for (i = j = 0, len = words.length; j < len; i = ++j) {
+        word = words[i];
+        word = word.toLocaleLowerCase();
+        if (i) {
+          results.push(word.charAt(0).toLocaleUpperCase() + word.slice(1));
+        } else {
+          results.push(word);
+        }
+      }
+      return results;
+    })();
+    return words.join('');
+  };
+
+  snakeCase = function(source) {
+    var i, word, words;
+    words = source.match(reWords);
+    words = (function() {
+      var j, len, results;
+      results = [];
+      for (i = j = 0, len = words.length; j < len; i = ++j) {
+        word = words[i];
+        results.push(word.toLocaleLowerCase());
+      }
+      return results;
+    })();
+    return words.join('_');
+  };
+
   Util = {
     hasClass: hasClass,
     addClass: addClass,
@@ -154,7 +199,9 @@
      * @param {object} destination - the
      * @param {...object} [sources] The source objects.
      */
-    merge: merge
+    merge: merge,
+    camelCase: camelCase,
+    snakeCase: snakeCase
   };
 
 
@@ -1357,7 +1404,7 @@
         }
       };
       this.keys = function() {
-        return _(trans).keys().map(_.snakeCase).value().sort();
+        return _(trans).keys().map(Util.snakeCase).value().sort();
       };
       this.toPlainObject = function() {
         var hash, key;
@@ -1390,7 +1437,7 @@
        * @type {Array<string>}
        * @see toHtmlAttributes
        */
-      this.PARAM_NAMES = _.map(this.methods, _.snakeCase).concat(Cloudinary.Configuration.CONFIG_PARAMS);
+      this.PARAM_NAMES = _.map(this.methods, Util.snakeCase).concat(Cloudinary.Configuration.CONFIG_PARAMS);
 
       /*
         Finished constructing the instance, now process the options
@@ -1438,7 +1485,7 @@
 
     TransformationBase.prototype.set = function(key, value) {
       var camelKey;
-      camelKey = _.camelCase(key);
+      camelKey = Util.camelCase(key);
       if (_.includes(this.methods, camelKey)) {
         this[camelKey](value);
       } else {
@@ -1525,7 +1572,7 @@
     };
 
     TransformationBase.prototype.isValidParamName = function(name) {
-      return this.methods.indexOf(_.camelCase(name)) >= 0;
+      return this.methods.indexOf(Util.camelCase(name)) >= 0;
     };
 
     TransformationBase.prototype.toHtml = function() {
@@ -1766,7 +1813,7 @@
     Transformation.prototype.width = function(value) {
       return this.param(value, "width", "w", (function(_this) {
         return function() {
-          if (_.any([_this.getValue("crop"), _this.getValue("overlay"), _this.getValue("underlay")])) {
+          if (_this.getValue("crop") || _this.getValue("overlay") || _this.getValue("underlay")) {
             return value;
           } else {
             return null;

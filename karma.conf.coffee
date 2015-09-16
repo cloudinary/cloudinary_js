@@ -24,16 +24,15 @@ module.exports = (config) ->
 #      'bower_components/blueimp-file-upload/js/jquery.fileupload-image.js'
 #      'js/jquery.cloudinary.js'
       'js/cloudinary.js'
-      'test/spec/*spec.js'
+      'test/spec/cloudinary-spec.js'
+#      'test/spec/cloudinary-jquery-spec.js'
+#      'test/spec/cloudinary-jquery-upload-spec.js'
+      'test/spec/tagspec.js'
+      'test/spec/videourlspec.js'
+      'test/spec/chaining-spec.js'
     ]
 
 
-    # list of files to exclude
-    exclude: [
-#      'test/spec/cloudinary-spec.js'
-      'test/spec/cloudinary-jquery-spec.js'
-      'test/spec/cloudinary-jquery-upload-spec.js'
-    ]
 
 
     # preprocess matching files before serving them to the browser

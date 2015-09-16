@@ -108,7 +108,7 @@ class TransformationBase
 
 
     @keys = ()->
-      _(trans).keys().map(_.snakeCase).value().sort()
+      _(trans).keys().map(Util.snakeCase).value().sort()
 
     @toPlainObject = ()-> # FIXME recursive
       hash = {}
@@ -141,7 +141,7 @@ class TransformationBase
      * @see toHtmlAttributes
     ###
     @PARAM_NAMES = _.map(
-      @methods, _.snakeCase).concat( Cloudinary.Configuration.CONFIG_PARAMS)
+      @methods, Util.snakeCase).concat( Cloudinary.Configuration.CONFIG_PARAMS)
 
 
     ###
@@ -178,7 +178,7 @@ class TransformationBase
    * @returns {Transformation} this instance for chaining
   ###
   set: (key, value)->
-    camelKey = _.camelCase( key)
+    camelKey = Util.camelCase( key)
     if _.includes( @methods, camelKey)
       this[camelKey](value)
     else
@@ -230,7 +230,7 @@ class TransformationBase
     options
 
   isValidParamName: (name) ->
-    @methods.indexOf(_.camelCase(name)) >= 0
+    @methods.indexOf(Util.camelCase(name)) >= 0
 
   toHtml: ()->
     @getParent()?.toHtml?()
@@ -319,7 +319,7 @@ class Transformation  extends TransformationBase
   videoCodec: (value)->      @param value, "video_codec", "vc", process_video_params
   videoSampling: (value)->   @param value, "video_sampling", "vs"
   width: (value)->            @param value, "width", "w", =>
-    if _.any([ @getValue("crop"), @getValue("overlay"), @getValue("underlay")])
+    if ( @getValue("crop") || @getValue("overlay") || @getValue("underlay"))
       value
     else
       null

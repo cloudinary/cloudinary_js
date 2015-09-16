@@ -194,28 +194,21 @@ allStrings = (list)->
 #  The following lodash methods are used in this library.
 #  TODO create a shim that will switch between jQuery and lodash
 #
-  #_.all
-  #_.any
-#_.assign
 #_.camelCase
 #_.cloneDeep
 #_.compact
 #_.contains
 #_.defaults
 #_.difference
-#_.extend
 #_.filter
 #_.forEach
 #_.functions
 #_.identity
 #_.includes
-#_.isArray
 #_.isElement
-#_.isEmpty
 #_.isFunction
 #_.isObject
 #_.isPlainObject
-  #_.isString
 #_.isUndefined
 #_.keys
 #_.map
@@ -259,3 +252,5 @@ Util =
   * @param {object} destination - the object to assign to
   ###
   merge: _.merge
+  camelCase: _.camelCase
+  snakeCase: _.snakeCase

@@ -80,24 +80,22 @@ module.exports = (grunt)->
           src: [
             'bower_components/lodash/lodash.js',
             'js/cloudinary.js',
-            'test/spec/*spec.js'
+            'test/spec/cloudinary-spec.js'
+            'test/spec/tagspec.js'
+            'test/spec/videourlspec.js'
+            'test/spec/chaining-spec.js'
           ]
-        exclude: [
-          'test/spec/cloudinary-jquery-spec.js'
-          'test/spec/cloudinary-jquery-upload-spec.js'
-        ]
       jqueryCloudinaryNoupload:
         files:
           src: [
             'bower_components/lodash/lodash.js',
             'bower_components/jquery/dist/jquery.js',
             'js/jquery.noupload.cloudinary.js',
-            'test/spec/*spec.js'
+            'test/spec/cloudinary-jquery-spec.js'
+            'test/spec/tagspec.js'
+            'test/spec/videourlspec.js'
+            'test/spec/chaining-spec.js'
           ]
-        exclude: [
-          'test/spec/cloudinary-spec.js'
-          'test/spec/cloudinary-jquery-upload-spec.js'
-        ]
       jqueryCloudinary:
         files:
           src: [
@@ -108,12 +106,13 @@ module.exports = (grunt)->
             'bower_components/blueimp-file-upload/js/jquery.fileupload-process.js'
             'bower_components/blueimp-file-upload/js/jquery.iframe-transport.js'
             'bower_components/blueimp-file-upload/js/jquery.fileupload-image.js'
-            "js/jquery.cloudinary.js"
-            'test/spec/*spec.js'
+            'js/jquery.cloudinary.js'
+            'test/spec/cloudinary-jquery-spec.js'
+            'test/spec/cloudinary-jquery-upload-spec.js'
+            'test/spec/tagspec.js'
+            'test/spec/videourlspec.js'
+            'test/spec/chaining-spec.js'
           ]
-        exclude: [
-          'test/spec/cloudinary-spec.js'
-        ]
 
 
 

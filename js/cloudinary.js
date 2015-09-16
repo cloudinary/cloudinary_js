@@ -277,7 +277,9 @@
     * Recursively assign source properties to destination
     * @param {object} destination - the object to assign to
      */
-    merge: _.merge
+    merge: _.merge,
+    camelCase: _.camelCase,
+    snakeCase: _.snakeCase
   };
 
 
@@ -1480,7 +1482,7 @@
         }
       };
       this.keys = function() {
-        return _(trans).keys().map(_.snakeCase).value().sort();
+        return _(trans).keys().map(Util.snakeCase).value().sort();
       };
       this.toPlainObject = function() {
         var hash, key;
@@ -1513,7 +1515,7 @@
        * @type {Array<string>}
        * @see toHtmlAttributes
        */
-      this.PARAM_NAMES = _.map(this.methods, _.snakeCase).concat(Cloudinary.Configuration.CONFIG_PARAMS);
+      this.PARAM_NAMES = _.map(this.methods, Util.snakeCase).concat(Cloudinary.Configuration.CONFIG_PARAMS);
 
       /*
         Finished constructing the instance, now process the options
@@ -1561,7 +1563,7 @@
 
     TransformationBase.prototype.set = function(key, value) {
       var camelKey;
-      camelKey = _.camelCase(key);
+      camelKey = Util.camelCase(key);
       if (_.includes(this.methods, camelKey)) {
         this[camelKey](value);
       } else {
@@ -1648,7 +1650,7 @@
     };
 
     TransformationBase.prototype.isValidParamName = function(name) {
-      return this.methods.indexOf(_.camelCase(name)) >= 0;
+      return this.methods.indexOf(Util.camelCase(name)) >= 0;
     };
 
     TransformationBase.prototype.toHtml = function() {
@@ -1889,7 +1891,7 @@
     Transformation.prototype.width = function(value) {
       return this.param(value, "width", "w", (function(_this) {
         return function() {
-          if (_.any([_this.getValue("crop"), _this.getValue("overlay"), _this.getValue("underlay")])) {
+          if (_this.getValue("crop") || _this.getValue("overlay") || _this.getValue("underlay")) {
             return value;
           } else {
             return null;

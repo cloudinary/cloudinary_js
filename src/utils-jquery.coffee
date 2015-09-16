@@ -1,7 +1,16 @@
 ###*
   * Includes utility methods and lodash / jQuery shims
 ###
-
+#/**
+# * @license
+# * lodash 3.10.0 (Custom Build) <https://lodash.com/>
+#* Build: `lodash modern -o ./lodash.js`
+#* Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
+#* Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+#* Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+#* Available under MIT license <https://lodash.com/license>
+#*/
+# For
 ###*
   * Get data from the DOM element.
   *
@@ -79,6 +88,27 @@ merge = ()->
   arguments.unshift(true) # deep extend
   jQuery.extend.apply(this, arguments )
 
+###* Used to match words to create compound words. ###
+
+reWords = do ->
+  upper = '[A-Z\\xc0-\\xd6\\xd8-\\xde]'
+  lower = '[a-z\\xdf-\\xf6\\xf8-\\xff]+'
+  RegExp upper + '+(?=' + upper + lower + ')|' + upper + '?' + lower + '|' + upper + '+|[0-9]+', 'g'
+
+camelCase = (source)->
+  words = source.match(reWords)
+  words = for word, i in words
+    word = word.toLocaleLowerCase()
+    if i then word.charAt(0).toLocaleUpperCase() + word.slice(1) else word
+  words.join('')
+
+snakeCase = (source)->
+  words = source.match(reWords)
+  words = for word, i in words
+    word.toLocaleLowerCase()
+  words.join('_')
+
+
 #  The following lodash methods are used in this library.
 #  TODO create a shim that will switch between jQuery and lodash
 #
@@ -135,4 +165,5 @@ Util =
    * @param {...object} [sources] The source objects.
   ###
   merge: merge
-
+  camelCase: camelCase
+  snakeCase: snakeCase
