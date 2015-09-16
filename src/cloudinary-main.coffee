@@ -162,13 +162,13 @@ class Cloudinary
     resourceTypeAndType = finalizeResourceType(options.resource_type, options.type, options.url_suffix, options.use_root_path, options.shorten)
     version = if options.version then 'v' + options.version else ''
 
-    url ||  _.filter([
+    url ||  Util.compact([
       prefix
       resourceTypeAndType
       transformationString
       version
       publicId
-    ], null).join('/').replace(/([^:])\/+/g, '$1/')
+    ]).join('/').replace(/([^:])\/+/g, '$1/')
 
 
 

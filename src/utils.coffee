@@ -194,7 +194,6 @@ allStrings = (list)->
 #  The following lodash methods are used in this library.
 #  TODO create a shim that will switch between jQuery and lodash
 #
-#_.difference
 #_.filter
 #_.forEach
 #_.functions

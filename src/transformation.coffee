@@ -199,8 +199,9 @@ class TransformationBase
         transformationList.push( transformations)
       when Util.isArray( transformations)
         resultArray = (transformations)
-    transformationString = _.filter(transformationList, (value)->
-      Util.isArray(value) &&!Util.isEmpty(value) || !Util.isArray(value) && value
+    transformationString = (
+      for value in transformationList when Util.isArray(value) &&!Util.isEmpty(value) || !Util.isArray(value) && value
+        value
     ).sort().join(',')
     resultArray.push(transformationString) unless Util.isEmpty(transformationString)
     Util.compact(resultArray).join('/')

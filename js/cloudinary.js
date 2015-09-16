@@ -538,7 +538,7 @@
       prefix = cloudinaryUrlPrefix(publicId, options);
       resourceTypeAndType = finalizeResourceType(options.resource_type, options.type, options.url_suffix, options.use_root_path, options.shorten);
       version = options.version ? 'v' + options.version : '';
-      return url || _.filter([prefix, resourceTypeAndType, transformationString, version, publicId], null).join('/').replace(/([^:])\/+/g, '$1/');
+      return url || Util.compact([prefix, resourceTypeAndType, transformationString, version, publicId]).join('/').replace(/([^:])\/+/g, '$1/');
     };
 
     Cloudinary.prototype.video_url = function(publicId, options) {
@@ -1628,7 +1628,7 @@
     };
 
     TransformationBase.prototype.serialize = function() {
-      var paramList, ref1, resultArray, t, transformationList, transformationString, transformations;
+      var paramList, ref1, resultArray, t, transformationList, transformationString, transformations, value;
       resultArray = [];
       paramList = this.keys();
       transformations = (ref1 = this.get("transformation")) != null ? ref1.serialize() : void 0;
@@ -1649,9 +1649,17 @@
         case !Util.isArray(transformations):
           resultArray = transformations;
       }
-      transformationString = _.filter(transformationList, function(value) {
-        return Util.isArray(value) && !Util.isEmpty(value) || !Util.isArray(value) && value;
-      }).sort().join(',');
+      transformationString = ((function() {
+        var j, len, results;
+        results = [];
+        for (j = 0, len = transformationList.length; j < len; j++) {
+          value = transformationList[j];
+          if (Util.isArray(value) && !Util.isEmpty(value) || !Util.isArray(value) && value) {
+            results.push(value);
+          }
+        }
+        return results;
+      })()).sort().join(',');
       if (!Util.isEmpty(transformationString)) {
         resultArray.push(transformationString);
       }
