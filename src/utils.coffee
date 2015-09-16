@@ -194,11 +194,6 @@ allStrings = (list)->
 #  The following lodash methods are used in this library.
 #  TODO create a shim that will switch between jQuery and lodash
 #
-#_.camelCase
-#_.cloneDeep
-#_.compact
-#_.contains
-#_.defaults
 #_.difference
 #_.filter
 #_.forEach
@@ -291,3 +286,10 @@ Util =
   * @return {object} destination after it was modified
   ###
   defaults: _.defaults
+  ###*
+   * Returns values in the given array that are not included in the other array
+   * @param {Array} arr - the array to select from
+   * @param {Array} values - values to filter from arr
+   * @return {Array} the filtered values
+  ###
+  difference: _.difference

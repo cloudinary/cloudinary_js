@@ -322,7 +322,15 @@
     * @param {...object} source - the source object(s) to assign defaults from
     * @return {object} destination after it was modified
      */
-    defaults: _.defaults
+    defaults: _.defaults,
+
+    /**
+     * Returns values in the given array that are not included in the other array
+     * @param {Array} arr - the array to select from
+     * @param {Array} values - values to filter from arr
+     * @return {Array} the filtered values
+     */
+    difference: _.difference
   };
 
 
@@ -1550,7 +1558,7 @@
        * Values are camelCased.
        * @type {Array<String>}
        */
-      this.methods = _.difference(_.functions(Transformation.prototype), _.functions(TransformationBase.prototype));
+      this.methods = Util.difference(_.functions(Transformation.prototype), _.functions(TransformationBase.prototype));
 
       /**
        * Parameters that are filtered out before passing the options to an HTML tag.
@@ -1663,7 +1671,7 @@
     TransformationBase.prototype.toHtmlAttributes = function() {
       var height, j, k, key, l, len, len1, options, ref1, ref2, ref3, ref4;
       options = _.omit(this.otherOptions, this.PARAM_NAMES);
-      ref1 = _.difference(this.keys(), this.PARAM_NAMES);
+      ref1 = Util.difference(this.keys(), this.PARAM_NAMES);
       for (j = 0, len = ref1.length; j < len; j++) {
         key = ref1[j];
         options[key] = this.get(key).value;

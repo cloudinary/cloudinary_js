@@ -129,7 +129,7 @@ class TransformationBase
      * Values are camelCased.
      * @type {Array<String>}
     ###
-    @methods = _.difference(
+    @methods = Util.difference(
       _.functions(Transformation.prototype),
       _.functions(TransformationBase.prototype)
     )
@@ -215,7 +215,7 @@ class TransformationBase
   ###
   toHtmlAttributes: ()->
     options = _.omit( @otherOptions, @PARAM_NAMES)
-    options[key] = @get(key).value for key in _.difference(@keys(), @PARAM_NAMES)
+    options[key] = @get(key).value for key in Util.difference(@keys(), @PARAM_NAMES)
     # convert all "html_key" to "key" with the same value
     for k in @keys() when /^html_/.exec(k)
       options[k.substr(5)] = @getValue(k)

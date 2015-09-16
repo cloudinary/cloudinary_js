@@ -36,7 +36,7 @@
     * @returns the value associated with the `name`
     *
    */
-  var ArrayParam, Cloudinary, CloudinaryJQuery, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, camelCase, cloneDeep, compact, contains, crc32, defaults, exports, getAttribute, getData, global, hasClass, isEmpty, isString, merge, process_video_params, reWords, ref, ref1, setAttribute, setAttributes, setData, snakeCase, utf8_encode, webp, width,
+  var ArrayParam, Cloudinary, CloudinaryJQuery, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, camelCase, cloneDeep, compact, contains, crc32, defaults, difference, exports, getAttribute, getData, global, hasClass, isEmpty, isString, merge, process_video_params, reWords, ref, ref1, setAttribute, setAttributes, setData, snakeCase, utf8_encode, webp, width,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
@@ -220,6 +220,18 @@
     return jQuery.extend.apply(this, args);
   };
 
+  difference = function(arr, values) {
+    var item, j, len, results;
+    results = [];
+    for (j = 0, len = arr.length; j < len; j++) {
+      item = arr[j];
+      if (!contains(values, item)) {
+        results.push(item);
+      }
+    }
+    return results;
+  };
+
   Util = {
     hasClass: hasClass,
     addClass: addClass,
@@ -296,7 +308,15 @@
      * @param {...object} source - the source object(s) to assign defaults from
      * @return {object} destination after it was modified
      */
-    defaults: defaults
+    defaults: defaults,
+
+    /**
+     * Returns values in the given array that are not included in the other array
+     * @param {Array} arr - the array to select from
+     * @param {Array} values - values to filter from arr
+     * @return {Array} the filtered values
+     */
+    difference: difference
   };
 
 
@@ -1524,7 +1544,7 @@
        * Values are camelCased.
        * @type {Array<String>}
        */
-      this.methods = _.difference(_.functions(Transformation.prototype), _.functions(TransformationBase.prototype));
+      this.methods = Util.difference(_.functions(Transformation.prototype), _.functions(TransformationBase.prototype));
 
       /**
        * Parameters that are filtered out before passing the options to an HTML tag.
@@ -1637,7 +1657,7 @@
     TransformationBase.prototype.toHtmlAttributes = function() {
       var height, j, k, key, l, len, len1, options, ref1, ref2, ref3, ref4;
       options = _.omit(this.otherOptions, this.PARAM_NAMES);
-      ref1 = _.difference(this.keys(), this.PARAM_NAMES);
+      ref1 = Util.difference(this.keys(), this.PARAM_NAMES);
       for (j = 0, len = ref1.length; j < len; j++) {
         key = ref1[j];
         options[key] = this.get(key).value;
