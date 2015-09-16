@@ -36,7 +36,7 @@
     * @returns the value associated with the `name`
     *
    */
-  var ArrayParam, Cloudinary, CloudinaryJQuery, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, camelCase, cloneDeep, compact, contains, crc32, exports, getAttribute, getData, global, hasClass, isEmpty, isString, merge, process_video_params, reWords, ref, ref1, setAttribute, setAttributes, setData, snakeCase, utf8_encode, webp, width,
+  var ArrayParam, Cloudinary, CloudinaryJQuery, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, camelCase, cloneDeep, compact, contains, crc32, defaults, exports, getAttribute, getData, global, hasClass, isEmpty, isString, merge, process_video_params, reWords, ref, ref1, setAttribute, setAttributes, setData, snakeCase, utf8_encode, webp, width,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
@@ -205,6 +205,21 @@
     return false;
   };
 
+  defaults = function() {
+    var a, args, first, j, len;
+    args = [];
+    if (arguments.length === 1) {
+      return arguments[0];
+    }
+    for (j = 0, len = arguments.length; j < len; j++) {
+      a = arguments[j];
+      args.unshift(a);
+    }
+    first = args.pop();
+    args.unshift(first);
+    return jQuery.extend.apply(this, args);
+  };
+
   Util = {
     hasClass: hasClass,
     addClass: addClass,
@@ -272,7 +287,16 @@
      * @param {*} item - the item to search for
      * @return {boolean} true if the item is included in the array
      */
-    contains: contains
+    contains: contains,
+
+    /**
+     * Assign values from sources if they are not defined in the destination.
+     * Once a value is set it does not change
+     * @param {object} destination - the object to assign defaults to
+     * @param {...object} source - the source object(s) to assign defaults from
+     * @return {object} destination after it was modified
+     */
+    defaults: defaults
   };
 
 
@@ -440,7 +464,7 @@
       if (options == null) {
         options = {};
       }
-      options = _.defaults({}, options, this.config(), Cloudinary.DEFAULT_IMAGE_PARAMS);
+      options = Util.defaults({}, options, this.config(), Cloudinary.DEFAULT_IMAGE_PARAMS);
       if (options.type === 'fetch') {
         options.fetch_format = options.fetch_format || options.format;
         publicId = absolutize(publicId);
@@ -711,7 +735,7 @@
       if (options == null) {
         options = {};
       }
-      options = _.defaults({}, options, this.config());
+      options = Util.defaults({}, options, this.config());
       images = _(nodes).filter({
         'tagName': 'IMG'
       }).forEach(function(i) {
@@ -926,7 +950,7 @@
         options = {};
       }
       this.configuration = Util.cloneDeep(options);
-      _.defaults(this.configuration, DEFAULT_CONFIGURATION_PARAMS);
+      Util.defaults(this.configuration, DEFAULT_CONFIGURATION_PARAMS);
     }
 
 
@@ -2151,7 +2175,7 @@
   }
 
   exports.Cloudinary.prototype.imageTag = function(publicId, options) {
-    options = _.defaults({}, options, this.config());
+    options = Util.defaults({}, options, this.config());
     return new ImageTag(publicId, options);
   };
 
@@ -2187,7 +2211,7 @@
       if (options == null) {
         options = {};
       }
-      options = _.defaults({}, options, Cloudinary.DEFAULT_VIDEO_PARAMS);
+      options = Util.defaults({}, options, Cloudinary.DEFAULT_VIDEO_PARAMS);
       VideoTag.__super__.constructor.call(this, "video", publicId.replace(/\.(mp4|ogv|webm)$/, ''), options);
     }
 
@@ -2224,7 +2248,7 @@
           for (j = 0, len = sourceTypes.length; j < len; j++) {
             srcType = sourceTypes[j];
             transformation = sourceTransformation[srcType] || {};
-            src = cld.url("" + this.publicId, _.defaults({}, transformation, {
+            src = cld.url("" + this.publicId, Util.defaults({}, transformation, {
               resource_type: 'video',
               format: srcType
             }));
@@ -2244,12 +2268,12 @@
     };
 
     VideoTag.prototype.attributes = function() {
-      var attr, defaults, poster, ref1, ref2, sourceTypes;
+      var attr, poster, ref1, ref2, sourceTypes;
       sourceTypes = this.getOption('source_types');
       poster = (ref1 = this.getOption('poster')) != null ? ref1 : {};
       if (_.isPlainObject(poster)) {
         defaults = poster.public_id != null ? Cloudinary.DEFAULT_IMAGE_PARAMS : DEFAULT_POSTER_OPTIONS;
-        poster = new Cloudinary(this.getOptions()).url((ref2 = poster.public_id) != null ? ref2 : this.publicId, _.defaults({}, poster, defaults));
+        poster = new Cloudinary(this.getOptions()).url((ref2 = poster.public_id) != null ? ref2 : this.publicId, Util.defaults({}, poster, defaults));
       }
       attr = VideoTag.__super__.attributes.call(this) || [];
       attr = _.omit(attr, VIDEO_TAG_PARAMS);
@@ -2278,7 +2302,7 @@
   }
 
   exports.Cloudinary.prototype.videoTag = function(publicId, options) {
-    options = _.defaults({}, options, this.config());
+    options = Util.defaults({}, options, this.config());
     return new VideoTag(publicId, options);
   };
 

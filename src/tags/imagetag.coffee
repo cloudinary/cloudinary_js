@@ -26,7 +26,7 @@ unless module?.exports? || exports?
 
 exports.Cloudinary ?= {}
 exports.Cloudinary::imageTag = (publicId, options)->
-  options = _.defaults({}, options, @config())
+  options = Util.defaults({}, options, @config())
   new ImageTag(publicId, options)
 
 exports.Cloudinary.ImageTag = ImageTag

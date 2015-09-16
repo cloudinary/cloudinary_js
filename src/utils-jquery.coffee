@@ -123,6 +123,15 @@ contains = (arr, item)->
     return true
   return false
 
+defaults = ()->
+  args = []
+  return arguments[0] if arguments.length == 1
+  for a in arguments
+    args.unshift(a)
+  first = args.pop()
+  args.unshift(first)
+  jQuery.extend.apply(this, args)
+
 #  The following lodash methods are used in this library.
 #  TODO create a shim that will switch between jQuery and lodash
 #
@@ -214,3 +223,11 @@ Util =
    * @return {boolean} true if the item is included in the array
   ###
   contains: contains
+  ###*
+   * Assign values from sources if they are not defined in the destination.
+   * Once a value is set it does not change
+   * @param {object} destination - the object to assign defaults to
+   * @param {...object} source - the source object(s) to assign defaults from
+   * @return {object} destination after it was modified
+  ###
+  defaults: defaults

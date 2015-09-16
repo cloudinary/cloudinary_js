@@ -31,7 +31,7 @@ class Configuration
 
   constructor: (options ={})->
     @configuration = Util.cloneDeep(options)
-    _.defaults( @configuration, DEFAULT_CONFIGURATION_PARAMS)
+    Util.defaults( @configuration, DEFAULT_CONFIGURATION_PARAMS)
 
 
 

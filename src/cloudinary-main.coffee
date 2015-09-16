@@ -125,7 +125,7 @@ class Cloudinary
     url
 
   url: (publicId, options = {}) ->
-    options = _.defaults({}, options, @config(), Cloudinary.DEFAULT_IMAGE_PARAMS)
+    options = Util.defaults({}, options, @config(), Cloudinary.DEFAULT_IMAGE_PARAMS)
     if options.type == 'fetch'
       options.fetch_format = options.fetch_format or options.format
       publicId = absolutize(publicId)
@@ -351,7 +351,7 @@ class Cloudinary
   * Finds all `img` tags under each node and sets it up to provide the image through Cloudinary
   ###
   processImageTags: (nodes, options = {}) ->
-    options = _.defaults({}, options, @config())
+    options = Util.defaults({}, options, @config())
     images = _(nodes)
       .filter( 'tagName': 'IMG')
       .forEach( (i) ->

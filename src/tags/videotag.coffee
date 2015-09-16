@@ -15,7 +15,7 @@ class VideoTag extends HtmlTag
    * @param {Object} [options]
   ###
   constructor: (publicId, options={})->
-    options = _.defaults({}, options, Cloudinary.DEFAULT_VIDEO_PARAMS)
+    options = Util.defaults({}, options, Cloudinary.DEFAULT_VIDEO_PARAMS)
     super("video", publicId.replace(/\.(mp4|ogv|webm)$/, ''), options)
 
   setSourceTransformation: (value)->
@@ -43,7 +43,7 @@ class VideoTag extends HtmlTag
       cld = new Cloudinary(@getOptions())
       innerTags = for srcType in sourceTypes
         transformation = sourceTransformation[srcType] or {}
-        src = cld.url( "#{@publicId }", _.defaults({}, transformation, { resource_type: 'video', format: srcType}))
+        src = cld.url( "#{@publicId }", Util.defaults({}, transformation, { resource_type: 'video', format: srcType}))
         videoType = if srcType == 'ogv' then 'ogg' else srcType
         mimeType = 'video/' + videoType
         "<source #{@htmlAttrs(src: src, type: mimeType)}>"
@@ -59,7 +59,7 @@ class VideoTag extends HtmlTag
       defaults = if poster.public_id? then Cloudinary.DEFAULT_IMAGE_PARAMS else DEFAULT_POSTER_OPTIONS
       poster = new Cloudinary(@getOptions()).url(
         poster.public_id ? @publicId,
-        _.defaults({}, poster, defaults))
+        Util.defaults({}, poster, defaults))
 
     attr = super() || []
     attr = _.omit(attr, VIDEO_TAG_PARAMS)
@@ -76,7 +76,7 @@ unless module?.exports? || exports?
 
 exports.Cloudinary ?= {}
 exports.Cloudinary::videoTag = (publicId, options)->
-  options = _.defaults({}, options, @config())
+  options = Util.defaults({}, options, @config())
   new VideoTag(publicId, options)
 
 exports.Cloudinary.VideoTag = VideoTag

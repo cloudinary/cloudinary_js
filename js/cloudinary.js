@@ -313,7 +313,16 @@
      * @param {*} item - the item to search for
      * @return {boolean} true if the item is included in the array
      */
-    contains: _.contains
+    contains: _.contains,
+
+    /**
+    * Assign values from sources if they are not defined in the destination.
+    * Once a value is set it does not change
+    * @param {object} destination - the object to assign defaults to
+    * @param {...object} source - the source object(s) to assign defaults from
+    * @return {object} destination after it was modified
+     */
+    defaults: _.defaults
   };
 
 
@@ -481,7 +490,7 @@
       if (options == null) {
         options = {};
       }
-      options = _.defaults({}, options, this.config(), Cloudinary.DEFAULT_IMAGE_PARAMS);
+      options = Util.defaults({}, options, this.config(), Cloudinary.DEFAULT_IMAGE_PARAMS);
       if (options.type === 'fetch') {
         options.fetch_format = options.fetch_format || options.format;
         publicId = absolutize(publicId);
@@ -752,7 +761,7 @@
       if (options == null) {
         options = {};
       }
-      options = _.defaults({}, options, this.config());
+      options = Util.defaults({}, options, this.config());
       images = _(nodes).filter({
         'tagName': 'IMG'
       }).forEach(function(i) {
@@ -967,7 +976,7 @@
         options = {};
       }
       this.configuration = Util.cloneDeep(options);
-      _.defaults(this.configuration, DEFAULT_CONFIGURATION_PARAMS);
+      Util.defaults(this.configuration, DEFAULT_CONFIGURATION_PARAMS);
     }
 
 
@@ -2192,7 +2201,7 @@
   }
 
   exports.Cloudinary.prototype.imageTag = function(publicId, options) {
-    options = _.defaults({}, options, this.config());
+    options = Util.defaults({}, options, this.config());
     return new ImageTag(publicId, options);
   };
 
@@ -2228,7 +2237,7 @@
       if (options == null) {
         options = {};
       }
-      options = _.defaults({}, options, Cloudinary.DEFAULT_VIDEO_PARAMS);
+      options = Util.defaults({}, options, Cloudinary.DEFAULT_VIDEO_PARAMS);
       VideoTag.__super__.constructor.call(this, "video", publicId.replace(/\.(mp4|ogv|webm)$/, ''), options);
     }
 
@@ -2265,7 +2274,7 @@
           for (j = 0, len = sourceTypes.length; j < len; j++) {
             srcType = sourceTypes[j];
             transformation = sourceTransformation[srcType] || {};
-            src = cld.url("" + this.publicId, _.defaults({}, transformation, {
+            src = cld.url("" + this.publicId, Util.defaults({}, transformation, {
               resource_type: 'video',
               format: srcType
             }));
@@ -2290,7 +2299,7 @@
       poster = (ref1 = this.getOption('poster')) != null ? ref1 : {};
       if (_.isPlainObject(poster)) {
         defaults = poster.public_id != null ? Cloudinary.DEFAULT_IMAGE_PARAMS : DEFAULT_POSTER_OPTIONS;
-        poster = new Cloudinary(this.getOptions()).url((ref2 = poster.public_id) != null ? ref2 : this.publicId, _.defaults({}, poster, defaults));
+        poster = new Cloudinary(this.getOptions()).url((ref2 = poster.public_id) != null ? ref2 : this.publicId, Util.defaults({}, poster, defaults));
       }
       attr = VideoTag.__super__.attributes.call(this) || [];
       attr = _.omit(attr, VIDEO_TAG_PARAMS);
@@ -2319,7 +2328,7 @@
   }
 
   exports.Cloudinary.prototype.videoTag = function(publicId, options) {
-    options = _.defaults({}, options, this.config());
+    options = Util.defaults({}, options, this.config());
     return new VideoTag(publicId, options);
   };
 

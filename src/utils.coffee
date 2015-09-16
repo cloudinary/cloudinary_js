@@ -283,3 +283,11 @@ Util =
    * @return {boolean} true if the item is included in the array
   ###
   contains: _.contains
+  ###*
+  * Assign values from sources if they are not defined in the destination.
+  * Once a value is set it does not change
+  * @param {object} destination - the object to assign defaults to
+  * @param {...object} source - the source object(s) to assign defaults from
+  * @return {object} destination after it was modified
+  ###
+  defaults: _.defaults

@@ -72,7 +72,7 @@ module.exports = (grunt)->
           ext: '.min.js'
           extDot: 'last'
         ]
-    karma: # TODO complete karma configuration
+    karma:
       options:
         configFile: 'karma.conf.coffee'
       cloudinary:
