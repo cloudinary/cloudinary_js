@@ -748,29 +748,35 @@
      */
 
     Cloudinary.prototype.processImageTags = function(nodes, options) {
-      var images;
+      var images, imgOptions, node, publicId, url;
       if (options == null) {
         options = {};
       }
       options = Util.defaults({}, options, this.config());
-      images = _(nodes).filter({
-        'tagName': 'IMG'
-      }).forEach(function(i) {
-        var imgOptions, publicId, url;
-        imgOptions = Util.assign({
-          width: i.getAttribute('width'),
-          height: i.getAttribute('height'),
-          src: i.getAttribute('src')
-        }, options);
-        publicId = imgOptions['source'] || imgOptions['src'];
-        delete imgOptions['source'];
-        delete imgOptions['src'];
-        url = this.url(publicId, imgOptions);
-        imgOptions = new Transformation(imgOptions).toHtmlAttributes();
-        Util.setData(i, 'src-cache', url);
-        i.setAttribute('width', imgOptions.width);
-        return i.setAttribute('height', imgOptions.height);
-      }).value();
+      images = (function() {
+        var j, len, ref, results;
+        results = [];
+        for (j = 0, len = nodes.length; j < len; j++) {
+          node = nodes[j];
+          if (!(((ref = node.tagName) != null ? ref.toUpperCase() : void 0) === 'IMG')) {
+            continue;
+          }
+          imgOptions = Util.assign({
+            width: node.getAttribute('width'),
+            height: node.getAttribute('height'),
+            src: node.getAttribute('src')
+          }, options);
+          publicId = imgOptions['source'] || imgOptions['src'];
+          delete imgOptions['source'];
+          delete imgOptions['src'];
+          url = this.url(publicId, imgOptions);
+          imgOptions = new Transformation(imgOptions).toHtmlAttributes();
+          Util.setData(node, 'src-cache', url);
+          node.setAttribute('width', imgOptions.width);
+          results.push(node.setAttribute('height', imgOptions.height));
+        }
+        return results;
+      }).call(this);
       this.cloudinary_update(images, options);
       return this;
     };

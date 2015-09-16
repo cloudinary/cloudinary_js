@@ -352,23 +352,21 @@ class Cloudinary
   ###
   processImageTags: (nodes, options = {}) ->
     options = Util.defaults({}, options, @config())
-    images = _(nodes)
-      .filter( 'tagName': 'IMG')
-      .forEach( (i) ->
+    images = for node in nodes when node.tagName?.toUpperCase() == 'IMG'
         imgOptions = Util.assign({
-          width: i.getAttribute('width')
-          height: i.getAttribute('height')
-          src: i.getAttribute('src')
+          width: node.getAttribute('width')
+          height: node.getAttribute('height')
+          src: node.getAttribute('src')
         }, options)
         publicId = imgOptions['source'] || imgOptions['src']
         delete imgOptions['source']
         delete imgOptions['src']
         url = @url(publicId, imgOptions)
         imgOptions = new Transformation(imgOptions).toHtmlAttributes()
-        Util.setData(i, 'src-cache', url)
-        i.setAttribute('width', imgOptions.width)
-        i.setAttribute('height', imgOptions.height)
-      ).value()
+        Util.setData(node, 'src-cache', url)
+        node.setAttribute('width', imgOptions.width)
+        node.setAttribute('height', imgOptions.height)
+
     @cloudinary_update( images, options)
     this
 
