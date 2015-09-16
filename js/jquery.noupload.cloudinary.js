@@ -33,7 +33,7 @@
     * @returns the value associated with the `name`
     *
    */
-  var ArrayParam, Cloudinary, CloudinaryJQuery, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, camelCase, cloneDeep, compact, crc32, exports, getAttribute, getData, global, hasClass, isEmpty, isString, merge, process_video_params, reWords, ref, ref1, setAttribute, setAttributes, setData, snakeCase, utf8_encode, webp, width,
+  var ArrayParam, Cloudinary, CloudinaryJQuery, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, camelCase, cloneDeep, compact, contains, crc32, exports, getAttribute, getData, global, hasClass, isEmpty, isString, merge, process_video_params, reWords, ref, ref1, setAttribute, setAttributes, setData, snakeCase, utf8_encode, webp, width,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
@@ -191,6 +191,17 @@
     return jQuery.extend.apply(this, args);
   };
 
+  contains = function(arr, item) {
+    var i, j, len;
+    for (j = 0, len = arr.length; j < len; j++) {
+      i = arr[j];
+      if (i === item) {
+        return true;
+      }
+    }
+    return false;
+  };
+
   Util = {
     hasClass: hasClass,
     addClass: addClass,
@@ -209,18 +220,56 @@
     isString: isString,
     isArray: jQuery.isArray,
     isEmpty: isEmpty,
+
+    /**
+     * Assign source properties to destination.
+     * If the property is an object it is assigned as a whole, overriding the destination object.
+     * @param {object} destination - the object to assign to
+     */
     assign: jQuery.extend,
 
     /**
      * Recursively assign source properties to destination
-     * @param {object} destination - the
+    * @param {object} destination - the object to assign to
      * @param {...object} [sources] The source objects.
      */
     merge: merge,
+
+    /**
+     * Convert string to camelCase
+     * @param {string} string - the string to convert
+     * @return {string} in camelCase format
+     */
     camelCase: camelCase,
+
+    /**
+     * Convert string to snake_case
+     * @param {string} string - the string to convert
+     * @return {string} in snake_case format
+     */
     snakeCase: snakeCase,
+
+    /**
+     * Create a new copy of the given object, including all internal objects.
+     * @param {object} value - the object to clone
+     * @return {object} a new deep copy of the object
+     */
     cloneDeep: cloneDeep,
-    compact: compact
+
+    /**
+     * Creates a new array from the parameter with "falsey" values removed
+     * @param {Array} array - the array to remove values from
+     * @return {Array} a new array without falsey values
+     */
+    compact: compact,
+
+    /**
+     * Check if a given item is included in the given array
+     * @param {Array} array - the array to search in
+     * @param {*} item - the item to search for
+     * @return {boolean} true if the item is included in the array
+     */
+    contains: contains
   };
 
 

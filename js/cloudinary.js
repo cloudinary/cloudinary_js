@@ -278,10 +278,42 @@
     * @param {object} destination - the object to assign to
      */
     merge: _.merge,
+
+    /**
+     * Convert string to camelCase
+     * @param {string} string - the string to convert
+     * @return {string} in camelCase format
+     */
     camelCase: _.camelCase,
+
+    /**
+     * Convert string to snake_case
+     * @param {string} string - the string to convert
+     * @return {string} in snake_case format
+     */
     snakeCase: _.snakeCase,
+
+    /**
+     * Create a new copy of the given object, including all internal objects.
+     * @param {object} value - the object to clone
+     * @return {object} a new deep copy of the object
+     */
     cloneDeep: _.cloneDeep,
-    compact: _.compact
+
+    /**
+     * Creates a new array from the parameter with "falsey" values removed
+     * @param {Array} array - the array to remove values from
+     * @return {Array} a new array without falsey values
+     */
+    compact: _.compact,
+
+    /**
+     * Check if a given item is included in the given array
+     * @param {Array} array - the array to search in
+     * @param {*} item - the item to search for
+     * @return {boolean} true if the item is included in the array
+     */
+    contains: _.contains
   };
 
 

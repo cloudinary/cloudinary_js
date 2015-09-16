@@ -118,6 +118,11 @@ cloneDeep = ()->
   args.unshift(true) # deep
   jQuery.extend.apply(this, args)
 
+contains = (arr, item)->
+  for i in arr when i == item
+    return true
+  return false
+
 #  The following lodash methods are used in this library.
 #  TODO create a shim that will switch between jQuery and lodash
 #
@@ -166,14 +171,46 @@ Util =
   isString: isString
   isArray: jQuery.isArray
   isEmpty: isEmpty
+  ###*
+   * Assign source properties to destination.
+   * If the property is an object it is assigned as a whole, overriding the destination object.
+   * @param {object} destination - the object to assign to
+  ###
   assign: jQuery.extend
   ###*
    * Recursively assign source properties to destination
-   * @param {object} destination - the
+  * @param {object} destination - the object to assign to
    * @param {...object} [sources] The source objects.
   ###
   merge: merge
+  ###*
+   * Convert string to camelCase
+   * @param {string} string - the string to convert
+   * @return {string} in camelCase format
+  ###
   camelCase: camelCase
+  ###*
+   * Convert string to snake_case
+   * @param {string} string - the string to convert
+   * @return {string} in snake_case format
+  ###
   snakeCase: snakeCase
+  ###*
+   * Create a new copy of the given object, including all internal objects.
+   * @param {object} value - the object to clone
+   * @return {object} a new deep copy of the object
+  ###
   cloneDeep: cloneDeep
+  ###*
+   * Creates a new array from the parameter with "falsey" values removed
+   * @param {Array} array - the array to remove values from
+   * @return {Array} a new array without falsey values
+  ###
   compact: compact
+  ###*
+   * Check if a given item is included in the given array
+   * @param {Array} array - the array to search in
+   * @param {*} item - the item to search for
+   * @return {boolean} true if the item is included in the array
+  ###
+  contains: contains
