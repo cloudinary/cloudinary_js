@@ -24,7 +24,7 @@ module.exports = (grunt)->
           ]
           'js/jquery.noupload.cloudinary.js': [
             'src/header-jquery.coffee'
-            'src/utils.coffee'
+            'src/utils-jquery.coffee'
             'src/cloudinary-main.coffee'
             'src/crc32.coffee'
             'src/utf8_encode.coffee'
@@ -39,7 +39,7 @@ module.exports = (grunt)->
           ]
           'js/jquery.cloudinary.js': [
             'src/header-jquery-upload.coffee'
-            'src/utils.coffee'
+            'src/utils-jquery.coffee'
             'src/cloudinary-main.coffee'
             'src/crc32.coffee'
             'src/utf8_encode.coffee'

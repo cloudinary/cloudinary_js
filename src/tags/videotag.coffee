@@ -39,7 +39,7 @@ class VideoTag extends HtmlTag
     sourceTransformation = @transformation().getValue('source_transformation')
     fallback = @transformation().getValue('fallback_content')
 
-    if _.isArray(sourceTypes)
+    if Util.isArray(sourceTypes)
       cld = new Cloudinary(@getOptions())
       innerTags = for srcType in sourceTypes
         transformation = sourceTransformation[srcType] or {}
@@ -63,7 +63,7 @@ class VideoTag extends HtmlTag
 
     attr = super() || []
     attr = _.omit(attr, VIDEO_TAG_PARAMS)
-    unless  _.isArray(sourceTypes)
+    unless  Util.isArray(sourceTypes)
       attr["src"] = new Cloudinary(@getOptions())
         .url(@publicId, {resource_type: 'video', format: sourceTypes})
     if poster?

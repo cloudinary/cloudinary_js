@@ -149,7 +149,7 @@ class TransformationBase
     ###
 
 
-    @fromOptions(options) unless _.isEmpty(options)
+    @fromOptions(options) unless Util.isEmpty(options)
 
 
 
@@ -161,7 +161,7 @@ class TransformationBase
   ###
   fromOptions: (options) ->
     options or= {}
-    options = {transformation: options } if _.isString(options) || _.isArray(options) || options instanceof Transformation
+    options = {transformation: options } if Util.isString(options) || Util.isArray(options) || options instanceof Transformation
     options = _.cloneDeep(options, (value) ->
       if value instanceof Transformation
         new value.constructor( value.toOptions())
@@ -195,14 +195,14 @@ class TransformationBase
     paramList = _.without(paramList, "transformation")
     transformationList = (@get(t)?.serialize() for t in paramList )
     switch
-      when _.isString(transformations)
+      when Util.isString(transformations)
         transformationList.push( transformations)
-      when _.isArray( transformations)
+      when Util.isArray( transformations)
         resultArray = (transformations)
     transformationString = _.filter(transformationList, (value)->
-      _.isArray(value) &&!_.isEmpty(value) || !_.isArray(value) && value
+      Util.isArray(value) &&!Util.isEmpty(value) || !Util.isArray(value) && value
     ).sort().join(',')
-    resultArray.push(transformationString) unless _.isEmpty(transformationString)
+    resultArray.push(transformationString) unless Util.isEmpty(transformationString)
     _.compact(resultArray).join('/')
 
   listNames: ->
@@ -256,7 +256,7 @@ class Transformation  extends TransformationBase
   bitRate: (value)->         @param value, "bit_rate", "br"
   border: (value)->           @param value, "border", "bo", (border) ->
     if (_.isPlainObject(border))
-      border = _.assign({}, {color: "black", width: 2}, border)
+      border = Util.assign({}, {color: "black", width: 2}, border)
       "#{border.width}px_solid_#{Param.norm_color(border.color)}"
     else
       border
@@ -283,7 +283,7 @@ class Transformation  extends TransformationBase
   flags: (value)->            @arrayParam value,  "flags", "fl", "."
   gravity: (value)->          @param value,       "gravity", "g"
   height: (value)->           @param value,       "height", "h", =>
-    if _.any([ @getValue("crop"), @getValue("overlay"), @getValue("underlay")])
+    if ( @getValue("crop") || @getValue("overlay") || @getValue("underlay"))
       value
     else
       null
@@ -292,7 +292,7 @@ class Transformation  extends TransformationBase
   offset: (value)->
     [start_o, end_o] = if( _.isFunction(value?.split))
       value.split('..')
-    else if _.isArray(value)
+    else if Util.isArray(value)
       value
     else
       [null,null]

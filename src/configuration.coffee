@@ -32,7 +32,6 @@ class Configuration
   constructor: (options ={})->
     @configuration = _.cloneDeep(options)
     _.defaults( @configuration, DEFAULT_CONFIGURATION_PARAMS)
-#    @whitelist = _(Transformation.prototype).functions().map(_.snakeCase).value()
 
 
 
@@ -50,7 +49,7 @@ class Configuration
     @configuration[name]
 
   merge: (config={})->
-    _.assign(@configuration, _.cloneDeep(config))
+    Util.assign(@configuration, _.cloneDeep(config))
     this
 
   fromDocument: ->
@@ -96,7 +95,7 @@ class Configuration
       when new_value != undefined
         @set(new_config, new_value)
         @configuration
-      when _.isString(new_config)
+      when Util.isString(new_config)
         @get(new_config)
       when _.isObject(new_config)
         @merge(new_config)

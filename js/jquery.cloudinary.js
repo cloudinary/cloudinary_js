@@ -28,20 +28,6 @@
    */
 
   /**
-    * Verifies that jQuery is present.
-    *
-    * @returns {boolean} true if jQuery is defined
-   */
-  var ArrayParam, Cloudinary, CloudinaryJQuery, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, augmentWidthOrHeight, contains, crc32, cssExpand, cssValue, curCSS, exports, getAttribute, getData, getStyles, getWidthOrHeight, global, hasClass, isJQuery, pnum, process_video_params, ref, ref1, rnumnonpx, setAttribute, setAttributes, setData, utf8_encode, webp, width,
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
-
-  isJQuery = function() {
-    return typeof jQuery !== "undefined" && jQuery !== null;
-  };
-
-
-  /**
     * Get data from the DOM element.
     *
     * This method will use jQuery's `data()` method if it is available, otherwise it will get the `data-` attribute
@@ -50,13 +36,12 @@
     * @returns the value associated with the `name`
     *
    */
+  var ArrayParam, Cloudinary, CloudinaryJQuery, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, crc32, exports, getAttribute, getData, global, hasClass, isEmpty, isString, merge, process_video_params, ref, ref1, setAttribute, setAttributes, setData, utf8_encode, webp, width,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   getData = function(element, name) {
-    if (isJQuery()) {
-      return jQuery(element).data(name);
-    } else if (_.isElement(element)) {
-      return element.getAttribute("data-" + name);
-    }
+    return jQuery(element).data(name);
   };
 
 
@@ -71,11 +56,7 @@
    */
 
   setData = function(element, name, value) {
-    if (isJQuery()) {
-      return jQuery(element).data(name, value);
-    } else if (_.isElement(element)) {
-      return element.setAttribute("data-" + name, value);
-    }
+    return jQuery(element).data(name, value);
   };
 
 
@@ -90,11 +71,7 @@
    */
 
   getAttribute = function(element, name) {
-    if (isJQuery()) {
-      return jQuery(element).attr(name);
-    } else if (_.isElement(element)) {
-      return element.getAttribute(name);
-    }
+    return jQuery(element).attr(name);
   };
 
 
@@ -109,195 +86,47 @@
    */
 
   setAttribute = function(element, name, value) {
-    if (isJQuery()) {
-      return jQuery(element).attr(name, value);
-    } else if (_.isElement(element)) {
-      return element.setAttribute(name, value);
-    }
+    return jQuery(element).attr(name, value);
   };
 
   setAttributes = function(element, attributes) {
-    var name, results, value;
-    if (isJQuery()) {
-      return jQuery(element).attr(attributes);
-    } else {
-      results = [];
-      for (name in attributes) {
-        value = attributes[name];
-        if (value != null) {
-          results.push(setAttribute(element, name, value));
-        } else {
-          results.push(element.removeAttribute(name));
-        }
-      }
-      return results;
-    }
+    return jQuery(element).attr(attributes);
   };
 
   hasClass = function(element, name) {
-    if (isJQuery()) {
-      return jQuery(element).hasClass(name);
-    } else if (_.isElement(element)) {
-      return element.className.match(new RegExp("\\b" + name + "\\b"));
-    }
+    return jQuery(element).hasClass(name);
   };
 
   addClass = function(element, name) {
-    if (!element.className.match(new RegExp("\\b" + name + "\\b"))) {
-      return element.className = _.trim(element.className + " " + name);
-    }
-  };
-
-  getStyles = function(elem) {
-    if (elem.ownerDocument.defaultView.opener) {
-      return elem.ownerDocument.defaultView.getComputedStyle(elem, null);
-    }
-    return window.getComputedStyle(elem, null);
-  };
-
-  cssExpand = ["Top", "Right", "Bottom", "Left"];
-
-  contains = function(a, b) {
-    var adown, bup;
-    adown = (a.nodeType === 9 ? a.documentElement : a);
-    bup = b && b.parentNode;
-    return a === bup || !!(bup && bup.nodeType === 1 && adown.contains(bup));
-  };
-
-  curCSS = function(elem, name, computed) {
-    var maxWidth, minWidth, ret, style, width;
-    width = void 0;
-    minWidth = void 0;
-    maxWidth = void 0;
-    ret = void 0;
-    style = elem.style;
-    computed = computed || getStyles(elem);
-    if (computed) {
-      ret = computed.getPropertyValue(name) || computed[name];
-    }
-    if (computed) {
-      if (ret === "" && !contains(elem.ownerDocument, elem)) {
-        ret = jQuery.style(elem, name);
-      }
-      if (rnumnonpx.test(ret) && rmargin.test(name)) {
-        width = style.width;
-        minWidth = style.minWidth;
-        maxWidth = style.maxWidth;
-        style.minWidth = style.maxWidth = style.width = ret;
-        ret = computed.width;
-        style.width = width;
-        style.minWidth = minWidth;
-        style.maxWidth = maxWidth;
-      }
-    }
-    if (ret !== undefined) {
-      return ret + "";
-    } else {
-      return ret;
-    }
-  };
-
-  cssValue = function(elem, name, convert, styles) {
-    var val;
-    val = curCSS(elem, name, styles);
-    if (convert) {
-      return parseFloat(val);
-    } else {
-      return val;
-    }
-  };
-
-  augmentWidthOrHeight = function(elem, name, extra, isBorderBox, styles) {
-    var j, len, side, sides, val;
-    if (extra === (isBorderBox ? "border" : "content")) {
-      return 0;
-    } else {
-      sides = name === "width" ? ["Right", "Left"] : ["Top", "Bottom"];
-      val = 0;
-      for (j = 0, len = sides.length; j < len; j++) {
-        side = sides[j];
-        if (extra === "margin") {
-          val += cssValue(elem, extra + side, true, styles);
-        }
-        if (isBorderBox) {
-          if (extra === "content") {
-            val -= cssValue(elem, "padding" + side, true, styles);
-          }
-          if (extra !== "margin") {
-            val -= cssValue(elem, "border" + side + "Width", true, styles);
-          }
-        } else {
-          val += cssValue(elem, "padding" + side, true, styles);
-          if (extra !== "padding") {
-            val += cssValue(elem, "border" + side + "Width", true, styles);
-          }
-        }
-      }
-      return val;
-    }
-  };
-
-  pnum = /[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/.source;
-
-  rnumnonpx = new RegExp("^(" + pnum + ")(?!px)[a-z%]+$", "i");
-
-  getWidthOrHeight = function(elem, name, extra) {
-    var isBorderBox, styles, val, valueIsBorderBox;
-    valueIsBorderBox = true;
-    val = (name === "width" ? elem.offsetWidth : elem.offsetHeight);
-    styles = getStyles(elem);
-    isBorderBox = cssValue(elem, "boxSizing", false, styles) === "border-box";
-    if (val <= 0 || (val == null)) {
-      val = curCSS(elem, name, styles);
-      if (val < 0 || (val == null)) {
-        val = elem.style[name];
-      }
-      if (rnumnonpx.test(val)) {
-        return val;
-      }
-      valueIsBorderBox = isBorderBox && (support.boxSizingReliable() || val === elem.style[name]);
-      val = parseFloat(val) || 0;
-    }
-    return val + augmentWidthOrHeight(elem, name, extra || (isBorderBox ? "border" : "content"), valueIsBorderBox, styles);
+    return jQuery(element).addClass(name);
   };
 
   width = function(element) {
-    return getWidthOrHeight(element, "width", "content");
+    return jQuery(element).width();
+  };
 
-    /*
-    The following lodash methods are used in this library.
-    TODO create a shim that will switch between jQuery and lodash
-    
-    _.all
-    _.any
-    _.assign
-    _.camelCase
-    _.cloneDeep
-    _.compact
-    _.contains
-    _.defaults
-    _.difference
-    _.extend
-    _.filter
-    _.identity
-    _.includes
-    _.isArray
-    _.isElement
-    _.isEmpty
-    _.isFunction
-    _.isObject
-    _.isPlainObject
-    _.isString
-    _.isUndefined
-    _.map
-    _.mapValues
-    _.merge
-    _.omit
-    _.parseInt
-    _.snakeCase
-    _.trim
-    _.trimRight
-     */
+  isEmpty = function(item) {
+    return (jQuery.isArray(item) || Util.isString(item)) && item.length === 0 || (jQuery.isPlainObject(item) && jQuery.isEmptyObject(item));
+  };
+
+  allStrings = function(list) {
+    var item, j, len;
+    for (j = 0, len = list.length; j < len; j++) {
+      item = list[j];
+      if (!Util.isString(item)) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  isString = function(item) {
+    return typeof item === 'string' || (item != null ? item.toString() : void 0) === '[object String]';
+  };
+
+  merge = function() {
+    arguments.unshift(true);
+    return jQuery.extend.apply(this, arguments);
   };
 
   Util = {
@@ -308,7 +137,24 @@
     setAttributes: setAttributes,
     getData: getData,
     setData: setData,
-    width: width
+    width: width,
+
+    /**
+     * Return true if all items in list are strings
+     * @param {array} list - an array of items
+     */
+    allStrings: allStrings,
+    isString: isString,
+    isArray: jQuery.isArray,
+    isEmpty: isEmpty,
+    assign: jQuery.extend,
+
+    /**
+     * Recursively assign source properties to destination
+     * @param {object} destination - the
+     * @param {...object} [sources] The source objects.
+     */
+    merge: merge
   };
 
 
@@ -520,14 +366,14 @@
     };
 
     Cloudinary.prototype.video_url = function(publicId, options) {
-      options = _.merge({
+      options = Util.assign({
         resource_type: 'video'
       }, options);
       return this.url(publicId, options);
     };
 
     Cloudinary.prototype.video_thumbnail_url = function(publicId, options) {
-      options = _.merge({}, DEFAULT_POSTER_OPTIONS, options);
+      options = Util.assign({}, DEFAULT_POSTER_OPTIONS, options);
       return this.url(publicId, options);
     };
 
@@ -548,7 +394,7 @@
       if (options == null) {
         options = {};
       }
-      tag_options = _.merge({
+      tag_options = Util.assign({
         src: ''
       }, options);
       img = this.imageTag(publicId, tag_options).toDOM();
@@ -558,35 +404,35 @@
     };
 
     Cloudinary.prototype.video_thumbnail = function(publicId, options) {
-      return this.image(publicId, _.extend({}, DEFAULT_POSTER_OPTIONS, options));
+      return this.image(publicId, Util.merge({}, DEFAULT_POSTER_OPTIONS, options));
     };
 
     Cloudinary.prototype.facebook_profile_image = function(publicId, options) {
-      return this.image(publicId, _.merge({
+      return this.image(publicId, Util.assign({
         type: 'facebook'
       }, options));
     };
 
     Cloudinary.prototype.twitter_profile_image = function(publicId, options) {
-      return this.image(publicId, _.merge({
+      return this.image(publicId, Util.assign({
         type: 'twitter'
       }, options));
     };
 
     Cloudinary.prototype.twitter_name_profile_image = function(publicId, options) {
-      return this.image(publicId, _.merge({
+      return this.image(publicId, Util.assign({
         type: 'twitter_name'
       }, options));
     };
 
     Cloudinary.prototype.gravatar_image = function(publicId, options) {
-      return this.image(publicId, _.merge({
+      return this.image(publicId, Util.assign({
         type: 'gravatar'
       }, options));
     };
 
     Cloudinary.prototype.fetch_image = function(publicId, options) {
-      return this.image(publicId, _.merge({
+      return this.image(publicId, Util.assign({
         type: 'fetch'
       }, options));
     };
@@ -599,7 +445,7 @@
     };
 
     Cloudinary.prototype.sprite_css = function(publicId, options) {
-      options = _.merge({
+      options = Util.assign({
         type: 'sprite'
       }, options);
       if (!publicId.match(/.css$/)) {
@@ -610,7 +456,7 @@
 
     Cloudinary.prototype.responsive = function(options) {
       var ref, ref1, responsiveResize, timeout;
-      responsiveConfig = _.merge(responsiveConfig || {}, options);
+      responsiveConfig = Util.merge(responsiveConfig || {}, options);
       this.cloudinary_update('img.cld-responsive, img.cld-hidpi', responsiveConfig);
       responsiveResize = (ref = (ref1 = responsiveConfig['responsive_resize']) != null ? ref1 : this.config('responsive_resize')) != null ? ref : true;
       if (responsiveResize && !responsiveResizeInitialized) {
@@ -652,7 +498,7 @@
       if (_.isFunction(stoppoints)) {
         return stoppoints(width);
       } else {
-        if (_.isString(stoppoints)) {
+        if (Util.isString(stoppoints)) {
           stoppoints = _.map(stoppoints.split(','), _.parseInt).sort(function(a, b) {
             return a - b;
           });
@@ -752,7 +598,7 @@
         'tagName': 'IMG'
       }).forEach(function(i) {
         var imgOptions, publicId, url;
-        imgOptions = _.extend({
+        imgOptions = Util.assign({
           width: i.getAttribute('width'),
           height: i.getAttribute('height'),
           src: i.getAttribute('src')
@@ -792,11 +638,11 @@
       }
       elements = (function() {
         switch (false) {
-          case !_.isArray(elements):
+          case !Util.isArray(elements):
             return elements;
           case elements.constructor.name !== "NodeList":
             return elements;
-          case !_.isString(elements):
+          case !Util.isString(elements):
             return document.querySelectorAll(elements);
           default:
             return [elements];
@@ -864,7 +710,7 @@
   global = (ref = typeof module !== "undefined" && module !== null ? module.exports : void 0) != null ? ref : window;
 
   if (global.Cloudinary) {
-    _.extend(Cloudinary, global.Cloudinary);
+    Util.assign(Cloudinary, global.Cloudinary);
   }
 
   global.Cloudinary = Cloudinary;
@@ -986,7 +832,7 @@
       if (config == null) {
         config = {};
       }
-      _.assign(this.configuration, _.cloneDeep(config));
+      Util.assign(this.configuration, _.cloneDeep(config));
       return this;
     };
 
@@ -1050,7 +896,7 @@
         case new_value === void 0:
           this.set(new_config, new_value);
           return this.configuration;
-        case !_.isString(new_config):
+        case !Util.isString(new_config):
           return this.get(new_config);
         case !_.isObject(new_config):
           this.merge(new_config);
@@ -1141,7 +987,7 @@
 
     Param.prototype.serialize = function() {
       var val;
-      val = this.process(this.origValue);
+      val = this.value();
       if ((this.short != null) && (val != null)) {
         return this.short + "_" + val;
       } else {
@@ -1166,7 +1012,7 @@
       if (arg == null) {
         arg = [];
       }
-      if (_.isArray(arg)) {
+      if (Util.isArray(arg)) {
         return arg;
       } else {
         return [arg];
@@ -1213,7 +1059,7 @@
 
     ArrayParam.prototype.set = function(origValue) {
       this.origValue = origValue;
-      if (_.isArray(this.origValue)) {
+      if (Util.isArray(this.origValue)) {
         return ArrayParam.__super__.set.call(this, this.origValue);
       } else {
         return ArrayParam.__super__.set.call(this, [this.origValue]);
@@ -1240,9 +1086,9 @@
 
     TransformationParam.prototype.serialize = function() {
       var result, t;
-      if (_.isEmpty(this.value())) {
+      if (Util.isEmpty(this.value())) {
         return null;
-      } else if (_.all(this.value(), _.isString)) {
+      } else if (Util.allStrings(this.value())) {
         return this.short + "_" + (this.value().join(this.sep));
       } else {
         result = (function() {
@@ -1252,7 +1098,7 @@
           for (j = 0, len = ref1.length; j < len; j++) {
             t = ref1[j];
             if (t != null) {
-              if (_.isString(t)) {
+              if (Util.isString(t)) {
                 results.push(this.short + "_" + t);
               } else if (_.isFunction(t.serialize)) {
                 results.push(t.serialize());
@@ -1271,7 +1117,7 @@
 
     TransformationParam.prototype.set = function(origValue) {
       this.origValue = origValue;
-      if (_.isArray(this.origValue)) {
+      if (Util.isArray(this.origValue)) {
         return TransformationParam.__super__.set.call(this, this.origValue);
       } else {
         return TransformationParam.__super__.set.call(this, [this.origValue]);
@@ -1549,7 +1395,7 @@
       /*
         Finished constructing the instance, now process the options
        */
-      if (!_.isEmpty(options)) {
+      if (!Util.isEmpty(options)) {
         this.fromOptions(options);
       }
     }
@@ -1564,7 +1410,7 @@
     TransformationBase.prototype.fromOptions = function(options) {
       var key, opt;
       options || (options = {});
-      if (_.isString(options) || _.isArray(options) || options instanceof Transformation) {
+      if (Util.isString(options) || Util.isArray(options) || options instanceof Transformation) {
         options = {
           transformation: options
         };
@@ -1621,16 +1467,16 @@
         return results;
       }).call(this);
       switch (false) {
-        case !_.isString(transformations):
+        case !Util.isString(transformations):
           transformationList.push(transformations);
           break;
-        case !_.isArray(transformations):
+        case !Util.isArray(transformations):
           resultArray = transformations;
       }
       transformationString = _.filter(transformationList, function(value) {
-        return _.isArray(value) && !_.isEmpty(value) || !_.isArray(value) && value;
+        return Util.isArray(value) && !Util.isEmpty(value) || !Util.isArray(value) && value;
       }).sort().join(',');
-      if (!_.isEmpty(transformationString)) {
+      if (!Util.isEmpty(transformationString)) {
         resultArray.push(transformationString);
       }
       return _.compact(resultArray).join('/');
@@ -1737,7 +1583,7 @@
     Transformation.prototype.border = function(value) {
       return this.param(value, "border", "bo", function(border) {
         if (_.isPlainObject(border)) {
-          border = _.assign({}, {
+          border = Util.assign({}, {
             color: "black",
             width: 2
           }, border);
@@ -1820,7 +1666,7 @@
     Transformation.prototype.height = function(value) {
       return this.param(value, "height", "h", (function(_this) {
         return function() {
-          if (_.any([_this.getValue("crop"), _this.getValue("overlay"), _this.getValue("underlay")])) {
+          if (_this.getValue("crop") || _this.getValue("overlay") || _this.getValue("underlay")) {
             return value;
           } else {
             return null;
@@ -1839,7 +1685,7 @@
 
     Transformation.prototype.offset = function(value) {
       var end_o, ref1, start_o;
-      ref1 = _.isFunction(value != null ? value.split : void 0) ? value.split('..') : _.isArray(value) ? value : [null, null], start_o = ref1[0], end_o = ref1[1];
+      ref1 = _.isFunction(value != null ? value.split : void 0) ? value.split('..') : Util.isArray(value) ? value : [null, null], start_o = ref1[0], end_o = ref1[1];
       if (start_o != null) {
         this.startOffset(start_o);
       }
@@ -2252,7 +2098,7 @@
       sourceTypes = this.transformation().getValue('source_types');
       sourceTransformation = this.transformation().getValue('source_transformation');
       fallback = this.transformation().getValue('fallback_content');
-      if (_.isArray(sourceTypes)) {
+      if (Util.isArray(sourceTypes)) {
         cld = new Cloudinary(this.getOptions());
         innerTags = (function() {
           var j, len, results;
@@ -2289,7 +2135,7 @@
       }
       attr = VideoTag.__super__.attributes.call(this) || [];
       attr = _.omit(attr, VIDEO_TAG_PARAMS);
-      if (!_.isArray(sourceTypes)) {
+      if (!Util.isArray(sourceTypes)) {
         attr["src"] = new Cloudinary(this.getOptions()).url(this.publicId, {
           resource_type: 'video',
           format: sourceTypes
@@ -2328,14 +2174,16 @@
     }
 
     CloudinaryJQuery.prototype.image = function(publicId, options) {
-      var i, url;
+      var img, tag_options, url;
       if (options == null) {
         options = {};
       }
-      i = this.imageTag(publicId, options);
-      url = i.getAttr('src');
-      i.setAttr('src', '');
-      return jQuery(i.toHtml()).removeAttr('src').data('src-cache', url).cloudinary_update(options);
+      tag_options = _.merge({
+        src: ''
+      }, options);
+      img = this.imageTag(publicId, tag_options).toHtml();
+      url = this.url(publicId, options);
+      return jQuery(img).data('src-cache', url).cloudinary_update(options);
     };
 
     CloudinaryJQuery.prototype.responsive = function(options) {

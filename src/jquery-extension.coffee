@@ -4,10 +4,13 @@ class CloudinaryJQuery extends Cloudinary
 
 
   image: (publicId, options={})->
-    i = @imageTag(publicId, options)
-    url= i.getAttr('src')
-    i.setAttr('src', '')
-    jQuery(i.toHtml()).removeAttr('src').data('src-cache', url).cloudinary_update(options);
+    # generate a tag without the image src
+    tag_options = _.merge( {src: ''}, options)
+    img = @imageTag(publicId, tag_options).toHtml()
+    # cache the image src
+    url = @url(publicId, options)
+    # set image src taking responsiveness in account
+    jQuery(img).data('src-cache', url).cloudinary_update(options);
 
   responsive: (options) ->
     responsiveConfig = jQuery.extend(responsiveConfig or {}, options)

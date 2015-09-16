@@ -2,15 +2,6 @@
   * Includes utility methods and lodash / jQuery shims
 ###
 
-
-###*
-  * Verifies that jQuery is present.
-  *
-  * @returns {boolean} true if jQuery is defined
-###
-isJQuery = ->
-  jQuery?
-
 ###*
   * Get data from the DOM element.
   *
@@ -21,9 +12,7 @@ isJQuery = ->
   *
 ###
 getData = ( element, name)->
-  if isJQuery()
-    jQuery(element).data(name)
-  else if _.isElement(element)
+  if _.isElement(element)
     element.getAttribute("data-#{name}")
 
 ###*
@@ -36,9 +25,7 @@ getData = ( element, name)->
   *
 ###
 setData = (element, name, value)->
-  if isJQuery()
-    jQuery(element).data(name, value)
-  else if _.isElement(element)
+  if _.isElement(element)
     element.setAttribute("data-#{name}", value)
 
 ###*
@@ -51,9 +38,7 @@ setData = (element, name, value)->
   *
 ###
 getAttribute = ( element, name)->
-  if isJQuery()
-    jQuery(element).attr(name)
-  else if _.isElement(element)
+  if _.isElement(element)
     element.getAttribute(name)
 
 ###*
@@ -66,15 +51,11 @@ getAttribute = ( element, name)->
   *
 ###
 setAttribute = (element, name, value)->
-  if isJQuery()
-    jQuery(element).attr(name, value)
-  else if _.isElement(element)
+  if _.isElement(element)
     element.setAttribute(name, value)
 
 setAttributes = (element, attributes)->
-  if isJQuery()
-    jQuery(element).attr(attributes)
-  else
+
     for name, value of attributes
       if value?
         setAttribute(element, name, value)
@@ -82,9 +63,7 @@ setAttributes = (element, attributes)->
         element.removeAttribute(name)
 
 hasClass = (element, name)->
-  if isJQuery()
-    jQuery(element).hasClass(name)
-  else if _.isElement(element)
+  if _.isElement(element)
     element.className.match(new RegExp("\\b#{name}\\b"))
 
 addClass = (element, name)->
@@ -207,42 +186,49 @@ getWidthOrHeight = (elem, name, extra) ->
 width = (element)->
   getWidthOrHeight(element, "width", "content")
 
+allStrings = (list)->
+  for item in list
+    return false unless Util.isString(item)
+  return true
 
-  ###
-  The following lodash methods are used in this library.
-  TODO create a shim that will switch between jQuery and lodash
+#  The following lodash methods are used in this library.
+#  TODO create a shim that will switch between jQuery and lodash
+#
+  #_.all
+  #_.any
+#_.assign
+#_.camelCase
+#_.cloneDeep
+#_.compact
+#_.contains
+#_.defaults
+#_.difference
+#_.extend
+#_.filter
+#_.forEach
+#_.functions
+#_.identity
+#_.includes
+#_.isArray
+#_.isElement
+#_.isEmpty
+#_.isFunction
+#_.isObject
+#_.isPlainObject
+  #_.isString
+#_.isUndefined
+#_.keys
+#_.map
+#_.mapValues
+#_.merge
+#_.omit
+#_.parseInt
+#_.snakeCase
+#_.trim
+#_.trimRight
+#_.without
 
-  _.all
-  _.any
-  _.assign
-  _.camelCase
-  _.cloneDeep
-  _.compact
-  _.contains
-  _.defaults
-  _.difference
-  _.extend
-  _.filter
-  _.identity
-  _.includes
-  _.isArray
-  _.isElement
-  _.isEmpty
-  _.isFunction
-  _.isObject
-  _.isPlainObject
-  _.isString
-  _.isUndefined
-  _.map
-  _.mapValues
-  _.merge
-  _.omit
-  _.parseInt
-  _.snakeCase
-  _.trim
-  _.trimRight
 
-  ###
 
 
 Util =
@@ -254,4 +240,22 @@ Util =
   getData: getData
   setData: setData
   width: width
-
+  ###*
+   * Return true if all items in list are strings
+   * @param {array} list - an array of items
+  ###
+  allStrings: allStrings
+  isString: _.isString
+  isArray: _.isArray
+  isEmpty: _.isEmpty
+  ###*
+   * Assign source properties to destination.
+   * If the property is an object it is assigned as a whole, overriding the destination object.
+   * @param {object} destination - the object to assign to
+  ###
+  assign: _.assign
+  ###*
+  * Recursively assign source properties to destination
+  * @param {object} destination - the object to assign to
+  ###
+  merge: _.merge

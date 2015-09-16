@@ -38,7 +38,7 @@ class Param
    * @return {string} the serialized form of the parameter
   ###
   serialize: ->
-    val = @process(@origValue)
+    val = @value()
     if @short? && val?
       "#{@short}_#{val}"
     else
@@ -53,7 +53,7 @@ class Param
   @norm_color: (value) -> value?.replace(/^#/, 'rgb:')
 
   build_array: (arg = []) ->
-    if _.isArray(arg)
+    if Util.isArray(arg)
       arg
     else
       [arg]
@@ -74,7 +74,7 @@ class ArrayParam extends Param
     else
       null
   set: (@origValue)->
-    if _.isArray(@origValue)
+    if Util.isArray(@origValue)
       super(@origValue)
     else
       super([@origValue])
@@ -86,13 +86,13 @@ class TransformationParam extends Param
     @sep = sep
     super(name, short, process)
   serialize: ->
-    if _.isEmpty(@value())
+    if Util.isEmpty(@value())
       null
-    else if _.all(@value(), _.isString)
+    else if Util.allStrings(@value())
       "#{@short}_#{@value().join(@sep)}"
     else
       result = for t in @value() when t?
-        if _.isString( t)
+        if Util.isString( t)
           "#{@short}_#{t}"
         else if _.isFunction( t.serialize)
           t.serialize()
@@ -100,7 +100,7 @@ class TransformationParam extends Param
           new Transformation(t).serialize()
       _.compact(result)
   set: (@origValue)->
-    if _.isArray(@origValue)
+    if Util.isArray(@origValue)
       super(@origValue)
     else
       super([@origValue])

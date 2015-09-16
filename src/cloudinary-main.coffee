@@ -173,11 +173,11 @@ class Cloudinary
 
 
   video_url: (publicId, options) ->
-    options = _.merge({ resource_type: 'video' }, options)
+    options = Util.assign({ resource_type: 'video' }, options)
     @url(publicId, options)
 
   video_thumbnail_url: (publicId, options) ->
-    options = _.merge({}, DEFAULT_POSTER_OPTIONS, options)
+    options = Util.assign({}, DEFAULT_POSTER_OPTIONS, options)
     @url(publicId, options)
 
   transformation_string: (options) ->
@@ -191,7 +191,7 @@ class Cloudinary
   ###
   image: (publicId, options={}) ->
     # generate a tag without the image src
-    tag_options = _.merge( {src: ''}, options)
+    tag_options = Util.assign( {src: ''}, options)
     img = @imageTag(publicId, tag_options).toDOM()
     # cache the image src
     Util.setData(img, 'src-cache', @url(publicId, options))
@@ -200,34 +200,34 @@ class Cloudinary
     img
 
   video_thumbnail: (publicId, options) ->
-    @image publicId, _.extend( {}, DEFAULT_POSTER_OPTIONS, options)
+    @image publicId, Util.merge( {}, DEFAULT_POSTER_OPTIONS, options)
 
   facebook_profile_image: (publicId, options) ->
-    @image publicId, _.merge({type: 'facebook'}, options)
+    @image publicId, Util.assign({type: 'facebook'}, options)
 
   twitter_profile_image: (publicId, options) ->
-    @image publicId, _.merge({type: 'twitter'}, options)
+    @image publicId, Util.assign({type: 'twitter'}, options)
 
   twitter_name_profile_image: (publicId, options) ->
-    @image publicId, _.merge({type: 'twitter_name'}, options)
+    @image publicId, Util.assign({type: 'twitter_name'}, options)
 
   gravatar_image: (publicId, options) ->
-    @image publicId, _.merge({type: 'gravatar'}, options)
+    @image publicId, Util.assign({type: 'gravatar'}, options)
 
   fetch_image: (publicId, options) ->
-    @image publicId, _.merge({type: 'fetch'}, options)
+    @image publicId, Util.assign({type: 'fetch'}, options)
 
   video: (publicId, options = {}) ->
     @videoTag(publicId, options).toHtml()
 
   sprite_css: (publicId, options) ->
-    options = _.merge({ type: 'sprite' }, options)
+    options = Util.assign({ type: 'sprite' }, options)
     if !publicId.match(/.css$/)
       options.format = 'css'
     @url publicId, options
 
   responsive: (options) ->
-    responsiveConfig = _.merge(responsiveConfig or {}, options)
+    responsiveConfig = Util.merge(responsiveConfig or {}, options)
     @cloudinary_update 'img.cld-responsive, img.cld-hidpi', responsiveConfig
     responsiveResize = responsiveConfig['responsive_resize'] ? @config('responsive_resize') ? true
     if responsiveResize and !responsiveResizeInitialized
@@ -261,7 +261,7 @@ class Cloudinary
     if _.isFunction stoppoints
       stoppoints(width)
     else
-      if _.isString stoppoints
+      if Util.isString stoppoints
         stoppoints = _.map(stoppoints.split(','), _.parseInt).sort( (a,b) -> a - b )
       closestAbove stoppoints, width
 
@@ -355,7 +355,7 @@ class Cloudinary
     images = _(nodes)
       .filter( 'tagName': 'IMG')
       .forEach( (i) ->
-        imgOptions = _.extend({
+        imgOptions = Util.assign({
           width: i.getAttribute('width')
           height: i.getAttribute('height')
           src: i.getAttribute('src')
@@ -388,11 +388,11 @@ class Cloudinary
 
   cloudinary_update: (elements, options = {}) ->
     elements = switch
-      when _.isArray(elements)
+      when Util.isArray(elements)
         elements
       when elements.constructor.name == "NodeList"
         elements
-      when _.isString(elements)
+      when Util.isString(elements)
         document.querySelectorAll(elements)
       else
         [elements]
@@ -443,5 +443,5 @@ class Cloudinary
 global = module?.exports ? window
 # Copy all previously defined object in the "Cloudinary" scope
 
-_.extend( Cloudinary, global.Cloudinary) if global.Cloudinary
+Util.assign( Cloudinary, global.Cloudinary) if global.Cloudinary
 global.Cloudinary = Cloudinary
