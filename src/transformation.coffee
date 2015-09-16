@@ -179,7 +179,7 @@ class TransformationBase
   ###
   set: (key, value)->
     camelKey = Util.camelCase( key)
-    if _.includes( @methods, camelKey)
+    if Util.contains( @methods, camelKey)
       this[camelKey](value)
     else
       @otherOptions[key] = value

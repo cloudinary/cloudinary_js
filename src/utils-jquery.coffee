@@ -266,3 +266,4 @@ Util =
    * @return {*} the provided value
   ###
   identity: identity
+  isPlainObject: jQuery.isPlainObject

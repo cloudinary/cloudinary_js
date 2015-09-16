@@ -97,7 +97,7 @@ class Configuration
         @configuration
       when Util.isString(new_config)
         @get(new_config)
-      when _.isObject(new_config)
+      when Util.isPlainObject(new_config)
         @merge(new_config)
         @configuration
       else

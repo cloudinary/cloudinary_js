@@ -351,7 +351,8 @@
      * @param {*} value
      * @return {*} the provided value
      */
-    identity: _.identity
+    identity: _.identity,
+    isPlainObject: _.isPlainObject
   };
 
 
@@ -1101,7 +1102,7 @@
           return this.configuration;
         case !Util.isString(new_config):
           return this.get(new_config);
-        case !_.isObject(new_config):
+        case !Util.isPlainObject(new_config):
           this.merge(new_config);
           return this.configuration;
         default:
@@ -1642,7 +1643,7 @@
     TransformationBase.prototype.set = function(key, value) {
       var camelKey;
       camelKey = Util.camelCase(key);
-      if (_.includes(this.methods, camelKey)) {
+      if (Util.contains(this.methods, camelKey)) {
         this[camelKey](value);
       } else {
         this.otherOptions[key] = value;
