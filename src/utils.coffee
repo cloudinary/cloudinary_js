@@ -254,3 +254,4 @@ Util =
   merge: _.merge
   camelCase: _.camelCase
   snakeCase: _.snakeCase
+  cloneDeep: _.cloneDeep

@@ -279,7 +279,8 @@
      */
     merge: _.merge,
     camelCase: _.camelCase,
-    snakeCase: _.snakeCase
+    snakeCase: _.snakeCase,
+    cloneDeep: _.cloneDeep
   };
 
 
@@ -932,7 +933,7 @@
       if (options == null) {
         options = {};
       }
-      this.configuration = _.cloneDeep(options);
+      this.configuration = Util.cloneDeep(options);
       _.defaults(this.configuration, DEFAULT_CONFIGURATION_PARAMS);
     }
 
@@ -957,7 +958,7 @@
       if (config == null) {
         config = {};
       }
-      Util.assign(this.configuration, _.cloneDeep(config));
+      Util.assign(this.configuration, Util.cloneDeep(config));
       return this;
     };
 
@@ -1038,7 +1039,7 @@
      */
 
     Configuration.prototype.toOptions = function() {
-      return _.cloneDeep(this.configuration);
+      return Util.cloneDeep(this.configuration);
     };
 
     return Configuration;
@@ -1540,7 +1541,7 @@
           transformation: options
         };
       }
-      options = _.cloneDeep(options, function(value) {
+      options = Util.cloneDeep(options, function(value) {
         if (value instanceof Transformation) {
           return new value.constructor(value.toOptions());
         }

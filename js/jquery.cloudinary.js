@@ -201,7 +201,8 @@
      */
     merge: merge,
     camelCase: camelCase,
-    snakeCase: snakeCase
+    snakeCase: snakeCase,
+    cloneDeep: jQuery.clone
   };
 
 
@@ -854,7 +855,7 @@
       if (options == null) {
         options = {};
       }
-      this.configuration = _.cloneDeep(options);
+      this.configuration = Util.cloneDeep(options);
       _.defaults(this.configuration, DEFAULT_CONFIGURATION_PARAMS);
     }
 
@@ -879,7 +880,7 @@
       if (config == null) {
         config = {};
       }
-      Util.assign(this.configuration, _.cloneDeep(config));
+      Util.assign(this.configuration, Util.cloneDeep(config));
       return this;
     };
 
@@ -960,7 +961,7 @@
      */
 
     Configuration.prototype.toOptions = function() {
-      return _.cloneDeep(this.configuration);
+      return Util.cloneDeep(this.configuration);
     };
 
     return Configuration;
@@ -1462,7 +1463,7 @@
           transformation: options
         };
       }
-      options = _.cloneDeep(options, function(value) {
+      options = Util.cloneDeep(options, function(value) {
         if (value instanceof Transformation) {
           return new value.constructor(value.toOptions());
         }
@@ -2518,8 +2519,8 @@
     if (options == null) {
       options = {};
     }
-    upload_params = _.cloneDeep(upload_params);
-    options = _.cloneDeep(options);
+    upload_params = Util.cloneDeep(upload_params);
+    options = Util.cloneDeep(options);
     attrs_to_move = ['cloud_name', 'resource_type', 'type'];
     i = 0;
     while (i < attrs_to_move.length) {

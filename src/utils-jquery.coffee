@@ -112,7 +112,6 @@ snakeCase = (source)->
 #  The following lodash methods are used in this library.
 #  TODO create a shim that will switch between jQuery and lodash
 #
-#_.camelCase
 #_.cloneDeep
 #_.compact
 #_.contains
@@ -167,3 +166,4 @@ Util =
   merge: merge
   camelCase: camelCase
   snakeCase: snakeCase
+  cloneDeep: jQuery.clone

@@ -162,7 +162,7 @@ class TransformationBase
   fromOptions: (options) ->
     options or= {}
     options = {transformation: options } if Util.isString(options) || Util.isArray(options) || options instanceof Transformation
-    options = _.cloneDeep(options, (value) ->
+    options = Util.cloneDeep(options, (value) ->
       if value instanceof Transformation
         new value.constructor( value.toOptions())
     )

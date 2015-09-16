@@ -30,7 +30,7 @@ class Configuration
   ]
 
   constructor: (options ={})->
-    @configuration = _.cloneDeep(options)
+    @configuration = Util.cloneDeep(options)
     _.defaults( @configuration, DEFAULT_CONFIGURATION_PARAMS)
 
 
@@ -49,7 +49,7 @@ class Configuration
     @configuration[name]
 
   merge: (config={})->
-    Util.assign(@configuration, _.cloneDeep(config))
+    Util.assign(@configuration, Util.cloneDeep(config))
     this
 
   fromDocument: ->
@@ -108,7 +108,7 @@ class Configuration
    * @returns {Object} a key:value collection of the configuration parameters
   ###
   toOptions: ()->
-    _.cloneDeep(@configuration)
+    Util.cloneDeep(@configuration)
 
 unless module?.exports
   exports = window

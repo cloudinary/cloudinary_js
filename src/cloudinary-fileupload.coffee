@@ -100,8 +100,8 @@ jQuery.fn.cloudinary_upload_url = (remote_url) ->
   this
 
 jQuery.fn.unsigned_cloudinary_upload = (upload_preset, upload_params = {}, options = {}) ->
-  upload_params = _.cloneDeep(upload_params)
-  options = _.cloneDeep(options)
+  upload_params = Util.cloneDeep(upload_params)
+  options = Util.cloneDeep(options)
   attrs_to_move = [
     'cloud_name'
     'resource_type'
