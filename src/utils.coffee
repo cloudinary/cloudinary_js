@@ -194,7 +194,6 @@ allStrings = (list)->
 #  The following lodash methods are used in this library.
 #  TODO create a shim that will switch between jQuery and lodash
 #
-#_.functions
 #_.identity
 #_.includes
 #_.isElement
@@ -302,3 +301,9 @@ Util =
    * @return {Array} a list of functions of object
   ###
   functions: _.functions
+  ###*
+   * Returns the provided value. This functions is used as a default predicate function.
+   * @param {*} value
+   * @return {*} the provided value
+  ###
+  identity: _.identity

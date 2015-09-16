@@ -36,7 +36,7 @@
     * @returns the value associated with the `name`
     *
    */
-  var ArrayParam, Cloudinary, CloudinaryJQuery, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, camelCase, cloneDeep, compact, contains, crc32, defaults, difference, exports, functions, getAttribute, getData, global, hasClass, isEmpty, isString, merge, process_video_params, reWords, ref, ref1, setAttribute, setAttributes, setData, snakeCase, utf8_encode, webp, width,
+  var ArrayParam, Cloudinary, CloudinaryJQuery, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, camelCase, cloneDeep, compact, contains, crc32, defaults, difference, exports, functions, getAttribute, getData, global, hasClass, identity, isEmpty, isString, merge, process_video_params, reWords, ref, ref1, setAttribute, setAttributes, setData, snakeCase, utf8_encode, webp, width,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
@@ -243,6 +243,10 @@
     return results;
   };
 
+  identity = function(value) {
+    return value;
+  };
+
   Util = {
     hasClass: hasClass,
     addClass: addClass,
@@ -341,7 +345,14 @@
      * @param {object} object - the object to inspect
      * @return {Array} a list of functions of object
      */
-    functions: functions
+    functions: functions,
+
+    /**
+     * Returns the provided value. This functions is used as a default predicate function.
+     * @param {*} value
+     * @return {*} the provided value
+     */
+    identity: identity
   };
 
 
@@ -1134,11 +1145,11 @@
      * Create a new Parameter
      * @param {string} name - The name of the parameter in snake_case
      * @param {string short - The name of the serialized form of the parameter
-     * @param {function} [process=_.identity ] - Manipulate origValue when value is called
+     * @param {function} [process=Util.identity ] - Manipulate origValue when value is called
      */
     function Param(name, short, process) {
       if (process == null) {
-        process = _.identity;
+        process = Util.identity;
       }
 
       /**
@@ -1350,7 +1361,7 @@
 
     function RawParam(name, short, process) {
       if (process == null) {
-        process = _.identity;
+        process = Util.identity;
       }
       RawParam.__super__.constructor.call(this, name, short, process);
     }
@@ -1459,7 +1470,7 @@
           if (Util.isFunction(defaultValue)) {
             process = defaultValue;
           } else {
-            process = _.identity;
+            process = Util.identity;
           }
         }
         trans[name] = new Param(name, abbr, process).set(value);
@@ -1467,7 +1478,7 @@
       };
       this.rawParam = function(value, name, abbr, defaultValue, process) {
         if (process == null) {
-          process = _.identity;
+          process = Util.identity;
         }
         if (Util.isFunction(defaultValue) && (process == null)) {
           process = defaultValue;
@@ -1477,7 +1488,7 @@
       };
       this.rangeParam = function(value, name, abbr, defaultValue, process) {
         if (process == null) {
-          process = _.identity;
+          process = Util.identity;
         }
         if (Util.isFunction(defaultValue) && (process == null)) {
           process = defaultValue;
@@ -1493,7 +1504,7 @@
           defaultValue = [];
         }
         if (process == null) {
-          process = _.identity;
+          process = Util.identity;
         }
         if (Util.isFunction(defaultValue) && (process == null)) {
           process = defaultValue;
@@ -1506,7 +1517,7 @@
           sep = ".";
         }
         if (process == null) {
-          process = _.identity;
+          process = Util.identity;
         }
         if (Util.isFunction(defaultValue) && (process == null)) {
           process = defaultValue;

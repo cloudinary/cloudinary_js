@@ -6,9 +6,9 @@ class Param
    * Create a new Parameter
    * @param {string} name - The name of the parameter in snake_case
    * @param {string short - The name of the serialized form of the parameter
-   * @param {function} [process=_.identity ] - Manipulate origValue when value is called
+   * @param {function} [process=Util.identity ] - Manipulate origValue when value is called
   ###
-  constructor: (name, short, process = _.identity)->
+  constructor: (name, short, process = Util.identity)->
     ###*
      * The name of the parameter in snake_case
      * @type {string}
@@ -117,7 +117,7 @@ class RangeParam extends Param
     value
 
 class RawParam extends Param
-  constructor: (name, short, process = _.identity)->
+  constructor: (name, short, process = Util.identity)->
     super(name, short, process)
   serialize: ->
     @value()

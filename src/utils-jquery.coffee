@@ -140,6 +140,8 @@ functions = (object)->
   for i of object when jQuery.isFunction(object[i])
     i
 
+identity = (value)-> value
+
 #  The following lodash methods are used in this library.
 #  TODO create a shim that will switch between jQuery and lodash
 #
@@ -258,3 +260,9 @@ Util =
    * @return {Array} a list of functions of object
   ###
   functions: functions
+  ###*
+   * Returns the provided value. This functions is used as a default predicate function.
+   * @param {*} value
+   * @return {*} the provided value
+  ###
+  identity: identity

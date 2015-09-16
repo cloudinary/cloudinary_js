@@ -52,26 +52,26 @@ class TransformationBase
         if Util.isFunction(defaultValue)
           process = defaultValue
         else
-          process = _.identity
+          process = Util.identity
       trans[name] = new Param(name, abbr, process).set(value)
       @
 
-    @rawParam = (value, name, abbr, defaultValue, process = _.identity) ->
+    @rawParam = (value, name, abbr, defaultValue, process = Util.identity) ->
       process = defaultValue if Util.isFunction(defaultValue) && !process?
       trans[name] = new RawParam(name, abbr, process).set(value)
       @
 
-    @rangeParam = (value, name, abbr, defaultValue, process = _.identity) ->
+    @rangeParam = (value, name, abbr, defaultValue, process = Util.identity) ->
       process = defaultValue if Util.isFunction(defaultValue) && !process?
       trans[name] = new RangeParam(name, abbr, process).set(value)
       @
 
-    @arrayParam = (value, name, abbr, sep = ":", defaultValue = [], process = _.identity) ->
+    @arrayParam = (value, name, abbr, sep = ":", defaultValue = [], process = Util.identity) ->
       process = defaultValue if Util.isFunction(defaultValue) && !process?
       trans[name] = new ArrayParam(name, abbr, sep, process).set(value)
       @
 
-    @transformationParam = (value, name, abbr, sep = ".", defaultValue, process = _.identity) ->
+    @transformationParam = (value, name, abbr, sep = ".", defaultValue, process = Util.identity) ->
       process = defaultValue if Util.isFunction(defaultValue) && !process?
       trans[name] = new TransformationParam(name, abbr, sep, process).set(value)
       @
