@@ -66,7 +66,7 @@ class ArrayParam extends Param
   serialize: ->
     if @short?
       flat = for t in @value()
-        if _.isFunction( t.serialize)
+        if Util.isFunction( t.serialize)
           t.serialize() # Param or Transformation
         else
           t
@@ -94,7 +94,7 @@ class TransformationParam extends Param
       result = for t in @value() when t?
         if Util.isString( t)
           "#{@short}_#{t}"
-        else if _.isFunction( t.serialize)
+        else if Util.isFunction( t.serialize)
           t.serialize()
         else if _.isPlainObject(t)
           new Transformation(t).serialize()

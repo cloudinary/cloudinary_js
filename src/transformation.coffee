@@ -49,7 +49,7 @@ class TransformationBase
 
     @param = (value, name, abbr, defaultValue, process) ->
       unless process?
-        if _.isFunction(defaultValue)
+        if Util.isFunction(defaultValue)
           process = defaultValue
         else
           process = _.identity
@@ -57,22 +57,22 @@ class TransformationBase
       @
 
     @rawParam = (value, name, abbr, defaultValue, process = _.identity) ->
-      process = defaultValue if _.isFunction(defaultValue) && !process?
+      process = defaultValue if Util.isFunction(defaultValue) && !process?
       trans[name] = new RawParam(name, abbr, process).set(value)
       @
 
     @rangeParam = (value, name, abbr, defaultValue, process = _.identity) ->
-      process = defaultValue if _.isFunction(defaultValue) && !process?
+      process = defaultValue if Util.isFunction(defaultValue) && !process?
       trans[name] = new RangeParam(name, abbr, process).set(value)
       @
 
     @arrayParam = (value, name, abbr, sep = ":", defaultValue = [], process = _.identity) ->
-      process = defaultValue if _.isFunction(defaultValue) && !process?
+      process = defaultValue if Util.isFunction(defaultValue) && !process?
       trans[name] = new ArrayParam(name, abbr, sep, process).set(value)
       @
 
     @transformationParam = (value, name, abbr, sep = ".", defaultValue, process = _.identity) ->
-      process = defaultValue if _.isFunction(defaultValue) && !process?
+      process = defaultValue if Util.isFunction(defaultValue) && !process?
       trans[name] = new TransformationParam(name, abbr, sep, process).set(value)
       @
 
@@ -130,8 +130,8 @@ class TransformationBase
      * @type {Array<String>}
     ###
     @methods = Util.difference(
-      _.functions(Transformation.prototype),
-      _.functions(TransformationBase.prototype)
+      Util.functions(Transformation.prototype),
+      Util.functions(TransformationBase.prototype)
     )
 
     ###*
@@ -291,7 +291,7 @@ class Transformation  extends TransformationBase
   htmlHeight: (value)->      @param value, "html_height"
   htmlWidth:(value)->        @param value, "html_width"
   offset: (value)->
-    [start_o, end_o] = if( _.isFunction(value?.split))
+    [start_o, end_o] = if( Util.isFunction(value?.split))
       value.split('..')
     else if Util.isArray(value)
       value
@@ -308,7 +308,7 @@ class Transformation  extends TransformationBase
   radius: (value)->           @param value, "radius",   "r"
   rawTransformation: (value)-> @rawParam value, "raw_transformation"
   size: (value)->
-    if( _.isFunction(value?.split))
+    if( Util.isFunction(value?.split))
       [width, height] = value.split('x')
       @width(width)
       @height(height)

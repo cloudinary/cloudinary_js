@@ -136,6 +136,10 @@ difference = (arr, values)->
   for item in arr when !contains(values, item)
     item
 
+functions = (object)->
+  for i of object when jQuery.isFunction(object[i])
+    i
+
 #  The following lodash methods are used in this library.
 #  TODO create a shim that will switch between jQuery and lodash
 #
@@ -242,3 +246,15 @@ Util =
    * @return {Array} the filtered values
   ###
   difference: difference
+  ###*
+   * Returns true if argument is a function.
+   * @param {*} value - the value to check
+   * @return {boolean} true if the value is a function
+  ###
+  isFunction: jQuery.isFunction
+  ###*
+   * Returns a list of all the function names in obj
+   * @param {object} object - the object to inspect
+   * @return {Array} a list of functions of object
+  ###
+  functions: functions

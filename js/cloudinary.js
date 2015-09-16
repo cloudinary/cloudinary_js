@@ -330,7 +330,21 @@
      * @param {Array} values - values to filter from arr
      * @return {Array} the filtered values
      */
-    difference: _.difference
+    difference: _.difference,
+
+    /**
+    * Returns true if argument is a function.
+    * @param {*} value - the value to check
+    * @return {boolean} true if the value is a function
+     */
+    isFunction: _.isFunction,
+
+    /**
+     * Returns a list of all the function names in obj
+     * @param {object} object - the object to inspect
+     * @return {Array} a list of functions of object
+     */
+    functions: _.functions
   };
 
 
@@ -671,7 +685,7 @@
     Cloudinary.prototype.calc_stoppoint = function(element, width) {
       var stoppoints;
       stoppoints = Util.getData(element, 'stoppoints') || this.config('stoppoints') || defaultStoppoints;
-      if (_.isFunction(stoppoints)) {
+      if (Util.isFunction(stoppoints)) {
         return stoppoints(width);
       } else {
         if (Util.isString(stoppoints)) {
@@ -1225,7 +1239,7 @@
           results = [];
           for (j = 0, len = ref1.length; j < len; j++) {
             t = ref1[j];
-            if (_.isFunction(t.serialize)) {
+            if (Util.isFunction(t.serialize)) {
               results.push(t.serialize());
             } else {
               results.push(t);
@@ -1282,7 +1296,7 @@
             if (t != null) {
               if (Util.isString(t)) {
                 results.push(this.short + "_" + t);
-              } else if (_.isFunction(t.serialize)) {
+              } else if (Util.isFunction(t.serialize)) {
                 results.push(t.serialize());
               } else if (_.isPlainObject(t)) {
                 results.push(new Transformation(t).serialize());
@@ -1445,7 +1459,7 @@
        */
       this.param = function(value, name, abbr, defaultValue, process) {
         if (process == null) {
-          if (_.isFunction(defaultValue)) {
+          if (Util.isFunction(defaultValue)) {
             process = defaultValue;
           } else {
             process = _.identity;
@@ -1458,7 +1472,7 @@
         if (process == null) {
           process = _.identity;
         }
-        if (_.isFunction(defaultValue) && (process == null)) {
+        if (Util.isFunction(defaultValue) && (process == null)) {
           process = defaultValue;
         }
         trans[name] = new RawParam(name, abbr, process).set(value);
@@ -1468,7 +1482,7 @@
         if (process == null) {
           process = _.identity;
         }
-        if (_.isFunction(defaultValue) && (process == null)) {
+        if (Util.isFunction(defaultValue) && (process == null)) {
           process = defaultValue;
         }
         trans[name] = new RangeParam(name, abbr, process).set(value);
@@ -1484,7 +1498,7 @@
         if (process == null) {
           process = _.identity;
         }
-        if (_.isFunction(defaultValue) && (process == null)) {
+        if (Util.isFunction(defaultValue) && (process == null)) {
           process = defaultValue;
         }
         trans[name] = new ArrayParam(name, abbr, sep, process).set(value);
@@ -1497,7 +1511,7 @@
         if (process == null) {
           process = _.identity;
         }
-        if (_.isFunction(defaultValue) && (process == null)) {
+        if (Util.isFunction(defaultValue) && (process == null)) {
           process = defaultValue;
         }
         trans[name] = new TransformationParam(name, abbr, sep, process).set(value);
@@ -1564,7 +1578,7 @@
        * Values are camelCased.
        * @type {Array<String>}
        */
-      this.methods = Util.difference(_.functions(Transformation.prototype), _.functions(TransformationBase.prototype));
+      this.methods = Util.difference(Util.functions(Transformation.prototype), Util.functions(TransformationBase.prototype));
 
       /**
        * Parameters that are filtered out before passing the options to an HTML tag.
@@ -1875,7 +1889,7 @@
 
     Transformation.prototype.offset = function(value) {
       var end_o, ref1, start_o;
-      ref1 = _.isFunction(value != null ? value.split : void 0) ? value.split('..') : Util.isArray(value) ? value : [null, null], start_o = ref1[0], end_o = ref1[1];
+      ref1 = Util.isFunction(value != null ? value.split : void 0) ? value.split('..') : Util.isArray(value) ? value : [null, null], start_o = ref1[0], end_o = ref1[1];
       if (start_o != null) {
         this.startOffset(start_o);
       }
@@ -1918,7 +1932,7 @@
 
     Transformation.prototype.size = function(value) {
       var height, ref1;
-      if (_.isFunction(value != null ? value.split : void 0)) {
+      if (Util.isFunction(value != null ? value.split : void 0)) {
         ref1 = value.split('x'), width = ref1[0], height = ref1[1];
         this.width(width);
         return this.height(height);
@@ -2149,7 +2163,7 @@
 
     HtmlTag.prototype.toDOM = function() {
       var element, name, ref1, value;
-      if (!_.isFunction(typeof document !== "undefined" && document !== null ? document.createElement : void 0)) {
+      if (!Util.isFunction(typeof document !== "undefined" && document !== null ? document.createElement : void 0)) {
         throw "Can't create DOM if document is not present!";
       }
       element = document.createElement(this.name);

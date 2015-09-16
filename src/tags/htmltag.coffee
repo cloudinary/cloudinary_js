@@ -113,7 +113,7 @@ class HtmlTag
     @openTag() + @content()+ @closeTag()
 
   toDOM: ()->
-    throw "Can't create DOM if document is not present!" unless _.isFunction( document?.createElement)
+    throw "Can't create DOM if document is not present!" unless Util.isFunction( document?.createElement)
     element = document.createElement(@name)
     element[name] = value for name, value of @attributes()
     element

@@ -258,7 +258,7 @@ class Cloudinary
 
   calc_stoppoint: (element, width) ->
     stoppoints = Util.getData(element,'stoppoints') or @config('stoppoints') or defaultStoppoints
-    if _.isFunction stoppoints
+    if Util.isFunction stoppoints
       stoppoints(width)
     else
       if Util.isString stoppoints
