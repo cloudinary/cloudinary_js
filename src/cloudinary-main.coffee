@@ -85,7 +85,7 @@ class Cloudinary
    *
   ###
   finalizeResourceType = (resourceType,type,urlSuffix,useRootPath,shorten) ->
-    if _.isPlainObject(resourceType)
+    if Util.isPlainObject(resourceType)
       options = resourceType
       resourceType = options.resource_type
       type = options.type

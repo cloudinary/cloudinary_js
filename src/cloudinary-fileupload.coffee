@@ -117,11 +117,11 @@ jQuery.fn.unsigned_cloudinary_upload = (upload_preset, upload_params = {}, optio
   # Serialize upload_params
   for key of upload_params
     value = upload_params[key]
-    if jQuery.isPlainObject(value)
+    if Util.isPlainObject(value)
       upload_params[key] = jQuery.map(value, (v, k) ->
         k + '=' + v
       ).join('|')
-    else if jQuery.isArray(value)
+    else if Util.isArray(value)
       if value.length > 0 and jQuery.isArray(value[0])
         upload_params[key] = jQuery.map(value, (array_value) ->
           array_value.join ','
@@ -136,7 +136,7 @@ jQuery.fn.unsigned_cloudinary_upload = (upload_preset, upload_params = {}, optio
     options.cloudinaryField = options.cloudinary_field
     delete options.cloudinary_field
   html_options = options.html or {}
-  html_options.class = _.trimRight("cloudinary_fileupload #{html_options.class || ''}")
+  html_options.class = Util.trim("cloudinary_fileupload #{html_options.class || ''}")
   if options.multiple
     html_options.multiple = true
   @attr(html_options).cloudinary_fileupload options

@@ -96,7 +96,7 @@ class TransformationParam extends Param
           "#{@short}_#{t}"
         else if Util.isFunction( t.serialize)
           t.serialize()
-        else if _.isPlainObject(t)
+        else if Util.isPlainObject(t)
           new Transformation(t).serialize()
       Util.compact(result)
   set: (@origValue)->

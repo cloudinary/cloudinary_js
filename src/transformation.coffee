@@ -221,7 +221,7 @@ class TransformationBase
     for k in @keys() when /^html_/.exec(k)
       options[k.substr(5)] = @getValue(k)
 
-    unless @hasLayer()|| @getValue("angle") || _.contains( ["fit", "limit", "lfill"],@getValue("crop"))
+    unless @hasLayer()|| @getValue("angle") || Util.contains( ["fit", "limit", "lfill"],@getValue("crop"))
       width = @get("width")?.origValue
       height = @get("height")?.origValue
       if parseFloat(width) >= 1.0
@@ -256,7 +256,7 @@ class Transformation  extends TransformationBase
   background: (value)->       @param value, "background", "b", Param.norm_color
   bitRate: (value)->         @param value, "bit_rate", "br"
   border: (value)->           @param value, "border", "bo", (border) ->
-    if (_.isPlainObject(border))
+    if (Util.isPlainObject(border))
       border = Util.assign({}, {color: "black", width: 2}, border)
       "#{border.width}px_solid_#{Param.norm_color(border.color)}"
     else

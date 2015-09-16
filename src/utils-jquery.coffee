@@ -267,3 +267,4 @@ Util =
   ###
   identity: identity
   isPlainObject: jQuery.isPlainObject
+  trim: jQuery.trim

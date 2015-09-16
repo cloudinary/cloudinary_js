@@ -352,7 +352,8 @@
      * @return {*} the provided value
      */
     identity: _.identity,
-    isPlainObject: _.isPlainObject
+    isPlainObject: _.isPlainObject,
+    trim: _.trim
   };
 
 
@@ -464,7 +465,7 @@
 
     finalizeResourceType = function(resourceType, type, urlSuffix, useRootPath, shorten) {
       var options;
-      if (_.isPlainObject(resourceType)) {
+      if (Util.isPlainObject(resourceType)) {
         options = resourceType;
         resourceType = options.resource_type;
         type = options.type;
@@ -1306,7 +1307,7 @@
                 results.push(this.short + "_" + t);
               } else if (Util.isFunction(t.serialize)) {
                 results.push(t.serialize());
-              } else if (_.isPlainObject(t)) {
+              } else if (Util.isPlainObject(t)) {
                 results.push(new Transformation(t).serialize());
               } else {
                 results.push(void 0);
@@ -1719,7 +1720,7 @@
           options[k.substr(5)] = this.getValue(k);
         }
       }
-      if (!(this.hasLayer() || this.getValue("angle") || _.contains(["fit", "limit", "lfill"], this.getValue("crop")))) {
+      if (!(this.hasLayer() || this.getValue("angle") || Util.contains(["fit", "limit", "lfill"], this.getValue("crop")))) {
         width = (ref3 = this.get("width")) != null ? ref3.origValue : void 0;
         height = (ref4 = this.get("height")) != null ? ref4.origValue : void 0;
         if (parseFloat(width) >= 1.0) {
@@ -1794,7 +1795,7 @@
 
     Transformation.prototype.border = function(value) {
       return this.param(value, "border", "bo", function(border) {
-        if (_.isPlainObject(border)) {
+        if (Util.isPlainObject(border)) {
           border = Util.assign({}, {
             color: "black",
             width: 2

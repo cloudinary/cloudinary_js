@@ -194,8 +194,6 @@ allStrings = (list)->
 #  The following lodash methods are used in this library.
 #  TODO create a shim that will switch between jQuery and lodash
 #
-#_.isObject
-#_.isPlainObject
 #_.isUndefined
 #_.keys
 #_.map
@@ -304,3 +302,4 @@ Util =
   ###
   identity: _.identity
   isPlainObject: _.isPlainObject
+  trim: _.trim
