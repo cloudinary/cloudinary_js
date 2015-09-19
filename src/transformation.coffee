@@ -191,7 +191,7 @@ class TransformationBase
     resultArray = []
     paramList = @keys()
     transformations = @get("transformation")?.serialize()
-    paramList = _.without(paramList, "transformation")
+    paramList = Util.without(paramList, "transformation")
     transformationList = (@get(t)?.serialize() for t in paramList )
     switch
       when Util.isString(transformations)

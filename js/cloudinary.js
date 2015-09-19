@@ -32,7 +32,7 @@
     * @returns the value associated with the `name`
     *
    */
-  var ArrayParam, Cloudinary, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, augmentWidthOrHeight, contains, crc32, cssExpand, cssValue, curCSS, exports, getAttribute, getData, getStyles, getWidthOrHeight, global, hasClass, pnum, process_video_params, ref, rnumnonpx, setAttribute, setAttributes, setData, utf8_encode, width,
+  var ArrayParam, Cloudinary, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, augmentWidthOrHeight, contains, crc32, cssExpand, cssValue, curCSS, exports, getAttribute, getData, getStyles, getWidthOrHeight, global, hasClass, pnum, process_video_params, ref, rnumnonpx, setAttribute, setAttributes, setData, utf8_encode, width, without,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
@@ -247,6 +247,19 @@
     return true;
   };
 
+  without = function(array, item) {
+    var i, length, newArray;
+    newArray = [];
+    i = -1;
+    length = array.length;
+    while (++i < length) {
+      if (array[i] !== item) {
+        newArray.push(array[i]);
+      }
+    }
+    return newArray;
+  };
+
   Util = {
     hasClass: hasClass,
     addClass: addClass,
@@ -353,7 +366,21 @@
      */
     identity: _.identity,
     isPlainObject: _.isPlainObject,
-    trim: _.trim
+
+    /**
+     * Remove leading or trailing spaces from text
+     * @param {String} text
+     * @return {String} the `text` without leading or trailing spaces
+     */
+    trim: _.trim,
+
+    /**
+     * Creates a new array without the given item.
+     * @param {Array} array - original array
+     * @param {*} item - the item to exclude from the new array
+     * @return {Array} a new array made of the original array's items except for `item`
+     */
+    without: without
   };
 
 
@@ -1694,7 +1721,7 @@
       resultArray = [];
       paramList = this.keys();
       transformations = (ref1 = this.get("transformation")) != null ? ref1.serialize() : void 0;
-      paramList = _.without(paramList, "transformation");
+      paramList = Util.without(paramList, "transformation");
       transformationList = (function() {
         var j, len, ref2, results;
         results = [];

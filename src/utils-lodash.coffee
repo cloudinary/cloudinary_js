@@ -191,13 +191,12 @@ allStrings = (list)->
     return false unless Util.isString(item)
   return true
 
-#  The following lodash methods are used in this library.
-#  TODO create a shim that will switch between jQuery and lodash
-#
-#_.omit
-#_.parseInt
-#_.without
-
+without = (array, item)->
+  newArray = []
+  i = -1; length = array.length;
+  while ++i < length
+    newArray.push(array[i]) if array[i] != item
+  newArray
 
 
 
@@ -294,4 +293,16 @@ Util =
   ###
   identity: _.identity
   isPlainObject: _.isPlainObject
+  ###*
+   * Remove leading or trailing spaces from text
+   * @param {String} text
+   * @return {String} the `text` without leading or trailing spaces
+  ###
   trim: _.trim
+  ###*
+   * Creates a new array without the given item.
+   * @param {Array} array - original array
+   * @param {*} item - the item to exclude from the new array
+   * @return {Array} a new array made of the original array's items except for `item`
+  ###
+  without: without

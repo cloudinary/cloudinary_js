@@ -143,36 +143,12 @@ functions = (object)->
 
 identity = (value)-> value
 
-#  The following lodash methods are used in this library.
-#  TODO create a shim that will switch between jQuery and lodash
-#
-#_.cloneDeep
-#_.compact
-#_.contains
-#_.defaults
-#_.difference
-#_.extend
-#_.filter
-#_.forEach
-#_.functions
-#_.identity
-#_.includes
-#_.isElement
-#_.isEmpty
-#_.isFunction
-#_.isObject
-#_.isPlainObject
-#_.isUndefined
-#_.keys
-#_.map
-#_.mapValues
-#_.omit
-#_.parseInt
-#_.snakeCase
-#_.trim
-#_.trimRight
-#_.without
-
+without = (array, item)->
+  newArray = []
+  i = -1; length = array.length;
+  while ++i < length
+    newArray.push(array[i]) if array[i] != item
+  newArray
 
 Util =
   hasClass: hasClass
@@ -268,4 +244,16 @@ Util =
   ###
   identity: identity
   isPlainObject: jQuery.isPlainObject
+  ###*
+   * Remove leading or trailing spaces from text
+   * @param {String} text
+   * @return {String} the `text` without leading or trailing spaces
+  ###
   trim: jQuery.trim
+  ###*
+   * Creates a new array without the given item.
+   * @param {Array} array - original array
+   * @param {*} item - the item to exclude from the new array
+   * @return {Array} a new array made of the original array's items except for `item`
+  ###
+  without: without

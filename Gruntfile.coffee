@@ -10,7 +10,7 @@ module.exports = (grunt)->
         files:
           'js/cloudinary.js': [
             'src/header.coffee'
-            'src/utils.coffee'
+            'src/utils-lodash.coffee'
             'src/cloudinary-main.coffee'
             'src/crc32.coffee'
             'src/utf8_encode.coffee'
