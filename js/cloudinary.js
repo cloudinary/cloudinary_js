@@ -1461,6 +1461,18 @@
    */
 
   TransformationBase = (function() {
+    var lastArgCallback;
+
+    lastArgCallback = function(args) {
+      var callback;
+      callback = args != null ? args[args.length - 1] : void 0;
+      if (Util.isFunction(callback)) {
+        return callback;
+      } else {
+        return void 0;
+      }
+    };
+
     function TransformationBase(options) {
       var chainedTo, m, trans;
       if (options == null) {
@@ -1528,9 +1540,7 @@
         if (process == null) {
           process = Util.identity;
         }
-        if (Util.isFunction(defaultValue) && (process == null)) {
-          process = defaultValue;
-        }
+        process = lastArgCallback(arguments);
         trans[name] = new RawParam(name, abbr, process).set(value);
         return this;
       };
@@ -1538,9 +1548,7 @@
         if (process == null) {
           process = Util.identity;
         }
-        if (Util.isFunction(defaultValue) && (process == null)) {
-          process = defaultValue;
-        }
+        process = lastArgCallback(arguments);
         trans[name] = new RangeParam(name, abbr, process).set(value);
         return this;
       };
@@ -1554,9 +1562,7 @@
         if (process == null) {
           process = Util.identity;
         }
-        if (Util.isFunction(defaultValue) && (process == null)) {
-          process = defaultValue;
-        }
+        process = lastArgCallback(arguments);
         trans[name] = new ArrayParam(name, abbr, sep, process).set(value);
         return this;
       };
@@ -1567,9 +1573,7 @@
         if (process == null) {
           process = Util.identity;
         }
-        if (Util.isFunction(defaultValue) && (process == null)) {
-          process = defaultValue;
-        }
+        process = lastArgCallback(arguments);
         trans[name] = new TransformationParam(name, abbr, sep, process).set(value);
         return this;
       };

@@ -80,8 +80,6 @@ class ArrayParam extends Param
       super([@origValue])
 
 class TransformationParam extends Param
-  # FIXME chain, join with slashes
-  # TODO maybe use regular param with "transformation" process?
   constructor: (name, short = "t", sep = '.', process) ->
     @sep = sep
     super(name, short, process)
@@ -106,7 +104,7 @@ class TransformationParam extends Param
       super([@origValue])
 
 class RangeParam extends Param
-  constructor: (name, short, process = @norm_range_value)-> # FIXME overrun by identity in transformation?
+  constructor: (name, short, process = @norm_range_value)->
     super(name, short, process)
 
   @norm_range_value: (value) ->
