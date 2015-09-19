@@ -262,7 +262,7 @@ class Cloudinary
       stoppoints(width)
     else
       if Util.isString stoppoints
-        stoppoints = _.map(stoppoints.split(','), _.parseInt).sort( (a,b) -> a - b )
+        stoppoints = (parseInt(point) for point in stoppoints.split(',')).sort( (a,b) -> a - b )
       closestAbove stoppoints, width
 
   device_pixel_ratio: ->

@@ -55,14 +55,14 @@ class VideoTag extends HtmlTag
     sourceTypes = @getOption('source_types')
     poster = @getOption('poster') ? {}
 
-    if _.isPlainObject(poster)
+    if Util.isPlainObject(poster)
       defaults = if poster.public_id? then Cloudinary.DEFAULT_IMAGE_PARAMS else DEFAULT_POSTER_OPTIONS
       poster = new Cloudinary(@getOptions()).url(
         poster.public_id ? @publicId,
         Util.defaults({}, poster, defaults))
 
     attr = super() || []
-    attr = _.omit(attr, VIDEO_TAG_PARAMS)
+    attr = a for a in attr when !Util.contains(VIDEO_TAG_PARAMS)
     unless  Util.isArray(sourceTypes)
       attr["src"] = new Cloudinary(@getOptions())
         .url(@publicId, {resource_type: 'video', format: sourceTypes})

@@ -85,8 +85,9 @@ isString = (item)->
   typeof item == 'string' || item?.toString() == '[object String]'
 
 merge = ()->
-  arguments.unshift(true) # deep extend
-  jQuery.extend.apply(this, arguments )
+  args = (i for i in arguments)
+  args.unshift(true) # deep extend
+  jQuery.extend.apply(this, args )
 
 ###* Used to match words to create compound words. ###
 

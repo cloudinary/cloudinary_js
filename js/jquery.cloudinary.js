@@ -125,8 +125,18 @@
   };
 
   merge = function() {
-    arguments.unshift(true);
-    return jQuery.extend.apply(this, arguments);
+    var args, i;
+    args = (function() {
+      var j, len, results;
+      results = [];
+      for (j = 0, len = arguments.length; j < len; j++) {
+        i = arguments[j];
+        results.push(i);
+      }
+      return results;
+    }).apply(this, arguments);
+    args.unshift(true);
+    return jQuery.extend.apply(this, args);
   };
 
 
@@ -693,13 +703,22 @@
     };
 
     Cloudinary.prototype.calc_stoppoint = function(element, width) {
-      var stoppoints;
+      var point, stoppoints;
       stoppoints = Util.getData(element, 'stoppoints') || this.config('stoppoints') || defaultStoppoints;
       if (Util.isFunction(stoppoints)) {
         return stoppoints(width);
       } else {
         if (Util.isString(stoppoints)) {
-          stoppoints = _.map(stoppoints.split(','), _.parseInt).sort(function(a, b) {
+          stoppoints = ((function() {
+            var j, len, ref, results;
+            ref = stoppoints.split(',');
+            results = [];
+            for (j = 0, len = ref.length; j < len; j++) {
+              point = ref[j];
+              results.push(parseInt(point));
+            }
+            return results;
+          })()).sort(function(a, b) {
             return a - b;
           });
         }
@@ -1427,7 +1446,7 @@
 
   TransformationBase = (function() {
     function TransformationBase(options) {
-      var chainedTo, trans;
+      var chainedTo, m, trans;
       if (options == null) {
         options = {};
       }
@@ -1439,9 +1458,20 @@
        * @return {Object} a plain object representing this transformation
        */
       this.toOptions = function() {
-        return _.merge(_.mapValues(trans, function(t) {
-          return t.origValue;
-        }), this.otherOptions);
+        var key, opt, ref1, value;
+        opt = {};
+        for (key in trans) {
+          value = trans[key];
+          opt[key] = value.origValue;
+        }
+        ref1 = this.otherOptions;
+        for (key in ref1) {
+          value = ref1[key];
+          if (value !== void 0) {
+            opt[key] = value;
+          }
+        }
+        return opt;
       };
 
       /**
@@ -1563,7 +1593,15 @@
         }
       };
       this.keys = function() {
-        return _(trans).keys().map(Util.snakeCase).value().sort();
+        var key;
+        return ((function() {
+          var results;
+          results = [];
+          for (key in trans) {
+            results.push(Util.snakeCase(key));
+          }
+          return results;
+        })()).sort();
       };
       this.toPlainObject = function() {
         var hash, key;
@@ -1596,11 +1634,16 @@
        * @type {Array<string>}
        * @see toHtmlAttributes
        */
-      this.PARAM_NAMES = _.map(this.methods, Util.snakeCase).concat(Cloudinary.Configuration.CONFIG_PARAMS);
-
-      /*
-        Finished constructing the instance, now process the options
-       */
+      this.PARAM_NAMES = ((function() {
+        var j, len, ref1, results;
+        ref1 = this.methods;
+        results = [];
+        for (j = 0, len = ref1.length; j < len; j++) {
+          m = ref1[j];
+          results.push(Util.snakeCase(m));
+        }
+        return results;
+      }).call(this)).concat(Cloudinary.Configuration.CONFIG_PARAMS);
       if (!Util.isEmpty(options)) {
         this.fromOptions(options);
       }
@@ -1707,23 +1750,30 @@
      */
 
     TransformationBase.prototype.toHtmlAttributes = function() {
-      var height, j, k, key, l, len, len1, options, ref1, ref2, ref3, ref4;
-      options = _.omit(this.otherOptions, this.PARAM_NAMES);
-      ref1 = Util.difference(this.keys(), this.PARAM_NAMES);
-      for (j = 0, len = ref1.length; j < len; j++) {
-        key = ref1[j];
+      var height, j, k, key, l, len, len1, options, ref1, ref2, ref3, ref4, ref5, value;
+      options = {};
+      ref1 = this.otherOptions;
+      for (key in ref1) {
+        value = ref1[key];
+        if (!Util.contains(this.PARAM_NAMES, key)) {
+          options[key] = value;
+        }
+      }
+      ref2 = Util.difference(this.keys(), this.PARAM_NAMES);
+      for (j = 0, len = ref2.length; j < len; j++) {
+        key = ref2[j];
         options[key] = this.get(key).value;
       }
-      ref2 = this.keys();
-      for (l = 0, len1 = ref2.length; l < len1; l++) {
-        k = ref2[l];
+      ref3 = this.keys();
+      for (l = 0, len1 = ref3.length; l < len1; l++) {
+        k = ref3[l];
         if (/^html_/.exec(k)) {
           options[k.substr(5)] = this.getValue(k);
         }
       }
       if (!(this.hasLayer() || this.getValue("angle") || Util.contains(["fit", "limit", "lfill"], this.getValue("crop")))) {
-        width = (ref3 = this.get("width")) != null ? ref3.origValue : void 0;
-        height = (ref4 = this.get("height")) != null ? ref4.origValue : void 0;
+        width = (ref4 = this.get("width")) != null ? ref4.origValue : void 0;
+        height = (ref5 = this.get("height")) != null ? ref5.origValue : void 0;
         if (parseFloat(width) >= 1.0) {
           if (options['width'] == null) {
             options['width'] = width;
@@ -2038,7 +2088,7 @@
       this.name = name;
       this.publicId = publicId;
       if (options == null) {
-        if (_.isPlainObject(publicId)) {
+        if (Util.isPlainObject(publicId)) {
           options = publicId;
           this.publicId = void 0;
         } else {
@@ -2094,14 +2144,18 @@
      */
 
     HtmlTag.prototype.htmlAttrs = function(attrs) {
-      var pairs;
-      pairs = _.map(attrs, function(value, key) {
-        return toAttribute(key, value);
-      });
-      pairs.sort();
-      return pairs.filter(function(pair) {
-        return pair;
-      }).join(' ');
+      var key, pairs, value;
+      return pairs = ((function() {
+        var results;
+        results = [];
+        for (key in attrs) {
+          value = attrs[key];
+          if (value) {
+            results.push(toAttribute(key, value));
+          }
+        }
+        return results;
+      })()).sort().join(' ');
     };
 
 
@@ -2340,15 +2394,20 @@
     };
 
     VideoTag.prototype.attributes = function() {
-      var attr, poster, ref1, ref2, sourceTypes;
+      var a, attr, j, len, poster, ref1, ref2, sourceTypes;
       sourceTypes = this.getOption('source_types');
       poster = (ref1 = this.getOption('poster')) != null ? ref1 : {};
-      if (_.isPlainObject(poster)) {
+      if (Util.isPlainObject(poster)) {
         defaults = poster.public_id != null ? Cloudinary.DEFAULT_IMAGE_PARAMS : DEFAULT_POSTER_OPTIONS;
         poster = new Cloudinary(this.getOptions()).url((ref2 = poster.public_id) != null ? ref2 : this.publicId, Util.defaults({}, poster, defaults));
       }
       attr = VideoTag.__super__.attributes.call(this) || [];
-      attr = _.omit(attr, VIDEO_TAG_PARAMS);
+      for (j = 0, len = attr.length; j < len; j++) {
+        a = attr[j];
+        if (!Util.contains(VIDEO_TAG_PARAMS)) {
+          attr = a;
+        }
+      }
       if (!Util.isArray(sourceTypes)) {
         attr["src"] = new Cloudinary(this.getOptions()).url(this.publicId, {
           resource_type: 'video',
@@ -2392,7 +2451,7 @@
       if (options == null) {
         options = {};
       }
-      tag_options = _.merge({
+      tag_options = Util.merge({
         src: ''
       }, options);
       img = this.imageTag(publicId, tag_options).toHtml();

@@ -14,7 +14,7 @@ class HtmlTag
     @name = name
     @publicId = publicId
     if !options?
-      if _.isPlainObject(publicId)
+      if Util.isPlainObject(publicId)
         options = publicId
         @publicId = undefined
       else
@@ -58,11 +58,7 @@ class HtmlTag
    * @return {String} the attributes in the format `'key1="value1" key2="value2"'`
   ###
   htmlAttrs: (attrs) ->
-    pairs = _.map(attrs, (value, key) -> toAttribute( key, value))
-    pairs.sort()
-    pairs.filter((pair) ->
-                   pair
-                ).join ' '
+    pairs = (toAttribute( key, value) for key, value of attrs when value).sort().join(' ')
 
   ###*
    * Get all options related to this tag.

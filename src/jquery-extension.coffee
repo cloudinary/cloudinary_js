@@ -5,7 +5,7 @@ class CloudinaryJQuery extends Cloudinary
 
   image: (publicId, options={})->
     # generate a tag without the image src
-    tag_options = _.merge( {src: ''}, options)
+    tag_options = Util.merge( {src: ''}, options)
     img = @imageTag(publicId, tag_options).toHtml()
     # cache the image src
     url = @url(publicId, options)

@@ -23,7 +23,12 @@ class TransformationBase
      * @return {Object} a plain object representing this transformation
     ###
     @toOptions = ()->
-      _.merge(_.mapValues(trans, (t)-> t.origValue), @otherOptions)
+      opt= {}
+      for key, value of trans
+        opt[key]= value.origValue
+      for key, value of @otherOptions when value != undefined
+        opt[key]= value
+      opt
 
     ###*
      * Set a parent for this object for chaining purposes.
@@ -108,7 +113,8 @@ class TransformationBase
 
 
     @keys = ()->
-      _(trans).keys().map(Util.snakeCase).value().sort()
+      (Util.snakeCase(key) for key of trans).sort()
+
 
     @toPlainObject = ()-> # FIXME recursive
       hash = {}
@@ -140,19 +146,12 @@ class TransformationBase
      * @type {Array<string>}
      * @see toHtmlAttributes
     ###
-    @PARAM_NAMES = _.map(
-      @methods, Util.snakeCase).concat( Cloudinary.Configuration.CONFIG_PARAMS)
+    @PARAM_NAMES = (Util.snakeCase(m) for m in @methods).concat( Cloudinary.Configuration.CONFIG_PARAMS)
 
 
-    ###
-      Finished constructing the instance, now process the options
-    ###
-
+    # Finished constructing the instance, now process the options
 
     @fromOptions(options) unless Util.isEmpty(options)
-
-
-
 
   ###*
    * Merge the provided options with own's options
@@ -215,7 +214,8 @@ class TransformationBase
    * @return PlainObject
   ###
   toHtmlAttributes: ()->
-    options = _.omit( @otherOptions, @PARAM_NAMES)
+    options = {}
+    options[key] = value for key, value of @otherOptions when  !Util.contains(@PARAM_NAMES, key)
     options[key] = @get(key).value for key in Util.difference(@keys(), @PARAM_NAMES)
     # convert all "html_key" to "key" with the same value
     for k in @keys() when /^html_/.exec(k)
