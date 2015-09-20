@@ -472,6 +472,14 @@
       this.config = function(newConfig, newValue) {
         return configuration.config(newConfig, newValue);
       };
+      this.fromDocument = function() {
+        configuration.fromDocument();
+        return this.config();
+      };
+      this.fromEnvironment = function() {
+        configuration.fromEnvironment();
+        return this.config();
+      };
     }
 
     Cloudinary["new"] = function(options) {
@@ -1077,6 +1085,13 @@
       return this;
     };
 
+
+    /**
+     * Initialize Cloudinary from HTML meta tags.
+     * @example
+     * <meta name="cloudinary_cloud_name" value
+     */
+
     Configuration.prototype.fromDocument = function() {
       var el, j, len, meta_elements;
       meta_elements = typeof document !== "undefined" && document !== null ? document.querySelectorAll('meta[name^="cloudinary_"]') : void 0;
@@ -1089,12 +1104,20 @@
       return this;
     };
 
+
+    /**
+     * Initialize Cloudinary from the `CLOUDINARY_URL` environment variable.
+     *
+     * This function will only run under Node.js environment.
+     * @requires Node.js
+     */
+
     Configuration.prototype.fromEnvironment = function() {
-      var cloudinary, cloudinary_url, k, ref2, ref3, uri, v;
+      var cloudinary_url, k, ref2, ref3, uri, v;
       cloudinary_url = typeof process !== "undefined" && process !== null ? (ref2 = process.env) != null ? ref2.CLOUDINARY_URL : void 0 : void 0;
       if (cloudinary_url != null) {
         uri = require('url').parse(cloudinary_url, true);
-        cloudinary = {
+        this.configuration = {
           cloud_name: uri.host,
           api_key: uri.auth && uri.auth.split(":")[0],
           api_secret: uri.auth && uri.auth.split(":")[1],
@@ -1105,7 +1128,7 @@
           ref3 = uri.query;
           for (k in ref3) {
             v = ref3[k];
-            cloudinary[k] = v;
+            this.configuration[k] = v;
           }
         }
       }
@@ -1124,15 +1147,11 @@
     * @param {String} new_value
     * @returns {*} configuration, or value
     *
+    * @see {@link fromEnvironment} for initialization using environment variables
+    * @see {@link fromDocument} for initialization using HTML meta tags
      */
 
     Configuration.prototype.config = function(new_config, new_value) {
-      if ((this.configuration == null) || new_config === true) {
-        this.fromEnvironment();
-        if (!this.configuration) {
-          this.fromDocument();
-        }
-      }
       switch (false) {
         case new_value === void 0:
           this.set(new_config, new_value);

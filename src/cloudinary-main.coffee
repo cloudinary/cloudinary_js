@@ -72,6 +72,16 @@ class Cloudinary
     @config= (newConfig, newValue) ->
       configuration.config(newConfig, newValue)
 
+
+    @fromDocument = ()->
+      configuration.fromDocument()
+      @config()
+
+
+    @fromEnvironment = ()->
+      configuration.fromEnvironment()
+      @config()
+
   @new = (options)-> new @(options)
 
   ###*

@@ -33,8 +33,6 @@ class Configuration
     @configuration = Util.cloneDeep(options)
     Util.defaults( @configuration, DEFAULT_CONFIGURATION_PARAMS)
 
-
-
   ###*
    * Set a new configuration item
    * @param {String} name - the name of the item to set
@@ -52,6 +50,11 @@ class Configuration
     Util.assign(@configuration, Util.cloneDeep(config))
     this
 
+  ###*
+   * Initialize Cloudinary from HTML meta tags.
+   * @example
+   * <meta name="cloudinary_cloud_name" value
+  ###
   fromDocument: ->
     meta_elements = document?.querySelectorAll('meta[name^="cloudinary_"]');
     if meta_elements
@@ -59,11 +62,17 @@ class Configuration
         @configuration[el.getAttribute('name').replace('cloudinary_', '')] = el.getAttribute('content')
     this
 
+  ###*
+   * Initialize Cloudinary from the `CLOUDINARY_URL` environment variable.
+   *
+   * This function will only run under Node.js environment.
+   * @requires Node.js
+  ###
   fromEnvironment: ->
     cloudinary_url = process?.env?.CLOUDINARY_URL
     if cloudinary_url?
       uri = require('url').parse(cloudinary_url, true)
-      cloudinary =
+      @configuration =
         cloud_name: uri.host,
         api_key: uri.auth and uri.auth.split(":")[0],
         api_secret: uri.auth and uri.auth.split(":")[1],
@@ -71,7 +80,7 @@ class Configuration
         secure_distribution: uri.pathname and uri.pathname.substring(1)
       if uri.query?
         for k, v of uri.query
-          cloudinary[k] = v
+          @configuration[k] = v
     this
 
   ###*
@@ -85,12 +94,11 @@ class Configuration
   * @param {String} new_value
   * @returns {*} configuration, or value
   *
+  * @see {@link fromEnvironment} for initialization using environment variables
+  * @see {@link fromDocument} for initialization using HTML meta tags
   ###
   config: (new_config, new_value) ->
-    if !@configuration? || new_config == true # REVIEW do we need/want this auto-initialization?
-      @fromEnvironment()
-      @fromDocument() unless @configuration
-
+    # REVIEW it would be more OO to return a copy of @configuration and not the internal object itself. It will mean that cloudinary.config().foo = "bar" will have no effect.
     switch
       when new_value != undefined
         @set(new_config, new_value)

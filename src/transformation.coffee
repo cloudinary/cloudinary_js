@@ -12,7 +12,6 @@
  *  @class
 ###
 class TransformationBase
-  # TODO add chains (slashes)
   lastArgCallback = (args)->
     callback = args?[args.length - 1]
     if(Util.isFunction(callback))

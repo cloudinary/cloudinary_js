@@ -378,7 +378,7 @@ describe 'cloudinary', ->
     }, window.location.protocol + '//test123-res.cloudinary.com/a_0/test', {}
 
   it 'should support globally set use_root_path for private_cdn', ->
-    window.cloudinary.config().use_root_path = true
+    window.cloudinary.config('use_root_path', true)
     test_cloudinary_url 'test', { private_cdn: true }, window.location.protocol + '//test123-res.cloudinary.com/test', {}
     delete window.cloudinary.config().use_root_path
 
@@ -427,67 +427,23 @@ describe 'cloudinary', ->
     #expect(new Cloudinary.Transformation(options).toHtmlAttributes()).toEqual({});
     expect(result).toEqual 'custom://res.cloudinary.com/test123/image/upload/test'
 
-  xit 'should create an unsigned upload tag', ->
-    window.cloudinary.config().cloud_name = 'test'
-    result = window.cloudinary.unsigned_upload_tag('test', {
-      context:
-        alt: 'alternative'
-        caption: 'cap'
-      tags: [
-        'a'
-        'b'
-      ]
-    },
-      width: 100
-      cloud_name: 'test1'
-      multiple: true)
-    options = result.fileupload('option')
-    expect(options.formData.context).toEqual 'alt=alternative|caption=cap'
-    expect(options.formData.tags).toEqual 'a,b'
-    expect(options.formData.upload_preset).toEqual 'test'
-    expect(options.width).toEqual 100
-    expect(options.url).toEqual 'https://api.cloudinary.com/v1_1/test1/auto/upload'
-    expect(result.prop('multiple')).toEqual true
-    result = window.cloudinary.unsigned_upload_tag('test', {
-      context:
-        alt: 'alternative'
-        caption: 'cap'
-      tags: [
-        'a'
-        'b'
-      ]
-      cloud_name: 'test2'
-    },
-      width: 100
-      multiple: true)
-    options = result.fileupload('option')
-    expect(options.url).toEqual 'https://api.cloudinary.com/v1_1/test2/auto/upload'
-    result = window.cloudinary.unsigned_upload_tag('test', {
-      cloud_name: 'test2'
-      resource_type: 'video'
-      type: 'private'
-    },
-      width: 100
-      multiple: true)
-    options = result.fileupload('option')
-    expect(options.url).toEqual 'https://api.cloudinary.com/v1_1/test2/video/private'
 
   it 'should compute stoppoints correctly', ->
     el = document.createElement('img')
     expect(window.cloudinary.calc_stoppoint(el, 1)).toEqual 10
     expect(window.cloudinary.calc_stoppoint(el, 10)).toEqual 10
     expect(window.cloudinary.calc_stoppoint(el, 11)).toEqual 20
-    window.cloudinary.config().stoppoints = [
+    window.cloudinary.config('stoppoints', [
       50
       150
-    ]
+    ])
     expect(window.cloudinary.calc_stoppoint(el, 1)).toEqual 50
     expect(window.cloudinary.calc_stoppoint(el, 100)).toEqual 150
     expect(window.cloudinary.calc_stoppoint(el, 180)).toEqual 150
 
-    window.cloudinary.config().stoppoints = (width) ->
+    window.cloudinary.config('stoppoints', (width) ->
       width / 2
-
+    )
     expect(window.cloudinary.calc_stoppoint(el, 100)).toEqual 50
 
     el.setAttribute( 'data-stoppoints', '70,140')

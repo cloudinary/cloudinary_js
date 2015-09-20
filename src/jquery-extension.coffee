@@ -142,4 +142,5 @@ global.Cloudinary.CloudinaryJQuery = CloudinaryJQuery
 
 
 jQuery.cloudinary = new CloudinaryJQuery()
+jQuery.cloudinary.fromDocument()
 

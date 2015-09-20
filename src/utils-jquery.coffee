@@ -127,8 +127,10 @@ contains = (arr, item)->
 defaults = ()->
   args = []
   return arguments[0] if arguments.length == 1
+  # reverse the order of the arguments
   for a in arguments
     args.unshift(a)
+  # bring destination object back to the start
   first = args.pop()
   args.unshift(first)
   jQuery.extend.apply(this, args)

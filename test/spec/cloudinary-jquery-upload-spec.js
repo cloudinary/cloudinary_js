@@ -19,7 +19,7 @@
     });
     return it('should create an unsigned upload tag', function() {
       var options, result;
-      $.cloudinary.config().cloud_name = 'test';
+      $.cloudinary.config('cloud_name', 'test');
       result = $.cloudinary.unsigned_upload_tag('test', {
         context: {
           alt: 'alternative',
