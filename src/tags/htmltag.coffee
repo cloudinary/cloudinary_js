@@ -5,7 +5,8 @@
 class HtmlTag
   ###*
    * Represents an HTML (DOM) tag
-   * Usage: tag = new HtmlTag( 'div', { 'width': 10})
+   * @constructor HtmlTag
+   * @example tag = new HtmlTag( 'div', { 'width': 10})
    * @param {String} name - the name of the tag
    * @param {String} [publicId]
    * @param {Object} options
@@ -27,10 +28,12 @@ class HtmlTag
   ###*
    * Convenience constructor
    * Creates a new instance of an HTML (DOM) tag
-   * Usage: tag = HtmlTag.new( 'div', { 'width': 10})
+   * @function HtmlTag.new
+   * @example tag = HtmlTag.new( 'div', { 'width': 10})
    * @param {String} name - the name of the tag
    * @param {String} [publicId]
    * @param {Object} options
+   * @return {HtmlTag}
   ###
   @new = (name, publicId, options)->
     new @(name, publicId, options)
@@ -38,6 +41,7 @@ class HtmlTag
 
   ###*
    * Represent the given key and value as an HTML attribute.
+   * @function HtmlTag#toAttribute
    * @param {String} key - attribute name
    * @param {*|boolean} value - the value of the attribute. If the value is boolean `true`, return the key only.
    * @returns {String} the attribute
@@ -116,10 +120,4 @@ class HtmlTag
 
 
 
-# unless running on server side, export to the windows object
-unless module?.exports? || exports?
-  exports = window
-
-exports.Cloudinary ?= {}
-
-exports.Cloudinary.HtmlTag = HtmlTag
+cloudinary.HtmlTag = HtmlTag

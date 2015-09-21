@@ -20,13 +20,4 @@ class ImageTag extends HtmlTag
     attr['src'] ?= new Cloudinary(@getOptions()).url( @publicId)
     attr
 
-# unless running on server side, export to the windows object
-unless module?.exports? || exports?
-  exports = window
-
-exports.Cloudinary ?= {}
-exports.Cloudinary::imageTag = (publicId, options)->
-  options = Util.defaults({}, options, @config())
-  new ImageTag(publicId, options)
-
-exports.Cloudinary.ImageTag = ImageTag
+cloudinary.ImageTag = ImageTag

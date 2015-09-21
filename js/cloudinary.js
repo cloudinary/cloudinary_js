@@ -14,9 +14,11 @@
         ], factory);
     } else {
         // Browser globals:
-        factory(_);
+        window.cloudinary = {};
+        factory(_, cloudinary);
     }
-}(function (_) {
+}(function (_, cloudinary) {
+var cloudinary = cloudinary;
 ;
 
   /**
@@ -32,7 +34,7 @@
     * @returns the value associated with the `name`
     *
    */
-  var ArrayParam, Cloudinary, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, augmentWidthOrHeight, contains, crc32, cssExpand, cssValue, curCSS, exports, getAttribute, getData, getStyles, getWidthOrHeight, global, hasClass, pnum, process_video_params, ref, rnumnonpx, setAttribute, setAttributes, setData, utf8_encode, width, without,
+  var ArrayParam, Cloudinary, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, augmentWidthOrHeight, contains, crc32, cssExpand, cssValue, curCSS, getAttribute, getData, getStyles, getWidthOrHeight, hasClass, pnum, process_video_params, rnumnonpx, setAttribute, setAttributes, setData, utf8_encode, width, without,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
@@ -263,6 +265,16 @@
   Util = {
     hasClass: hasClass,
     addClass: addClass,
+
+    /**
+      * Get attribute from the DOM element.
+      *
+      * This method will use jQuery's `attr()` method if it is available, otherwise it will get the attribute directly
+      * @param {Element} element - the element to set the attribute for
+      * @param {String} name - the name of the attribute
+      * @returns {*} the value of the attribute
+      *
+     */
     getAttribute: getAttribute,
     setAttribute: setAttribute,
     setAttributes: setAttributes,
@@ -385,32 +397,7 @@
 
 
   /**
-    Main Cloudinary class
-  
-    Backward compatibility:
-    Must provide public keys
-     * CF_SHARED_CDN
-     * OLD_AKAMAI_SHARED_CDN
-     * AKAMAI_SHARED_CDN
-     * SHARED_CDN
-     * config
-     * url
-     * video_url
-     * video_thumbnail_url
-     * transformation_string
-     * image
-     * video_thumbnail
-     * facebook_profile_image
-     * twitter_profile_image
-     * twitter_name_profile_image
-     * gravatar_image
-     * fetch_image
-     * video
-     * sprite_css
-     * responsive
-     * calc_stoppoint
-     * device_pixel_ratio
-     * supported_dpr_values
+   * Main Cloudinary class
    */
 
   Cloudinary = (function() {
@@ -439,6 +426,7 @@
 
 
     /**
+    * @const {object} Cloudinary.DEFAULT_IMAGE_PARAMS
     * Defaults values for image parameters.
     *
     * (Previously defined using option_consume() )
@@ -453,7 +441,7 @@
 
     /**
     * Defaults values for video parameters.
-    *
+    * @const {object} Cloudinary.DEFAULT_VIDEO_PARAMS
     * (Previously defined using option_consume() )
      */
 
@@ -466,9 +454,20 @@
       type: 'upload'
     };
 
+
+    /**
+     * Main Cloudinary class
+     * @class Cloudinary
+     * @param {object} options - options to configure Cloudinary
+     * @see Configuration for more details
+     * @example
+     *var cl = new cloudinary.Cloudinary( { cloud_name: "mycloud"});
+     *var imgTag = cl.image("myPicID");
+     */
+
     function Cloudinary(options) {
       var configuration;
-      configuration = new Cloudinary.Configuration(options);
+      configuration = new cloudinary.Configuration(options);
       this.config = function(newConfig, newValue) {
         return configuration.config(newConfig, newValue);
       };
@@ -489,11 +488,12 @@
 
     /**
      * Return the resource type and action type based on the given configuration
-     * @param resource_type
-     * @param type
-     * @param url_suffix
-     * @param use_root_path
-     * @param shorten
+     * @function Cloudinary#finalizeResourceType
+     * @param {object|string} resource_type
+     * @param {string} [type='upload']
+     * @param {string} [url_suffix]
+     * @param {boolean} [use_root_path]
+     * @param {boolean} [shorten]
      * @returns {string} resource_type/type
      *
      */
@@ -550,6 +550,18 @@
       }
       return url;
     };
+
+
+    /**
+     * Generate an resource URL.
+     * @function Cloudinary#url
+     * @param {string} publicId - the public ID of the resource
+     * @param {Object} [options] - options for the tag and transformations, possible values include all {@link Transformation} parameters
+     *                          and {@link Configuration} parameters
+     * @param {string} [options.type='upload'] - the classification of the resource
+     * @param {Object} [options.resource_type='image'] - the type of the resource
+     * @return {HTMLImageElement} an image tag element
+     */
 
     Cloudinary.prototype.url = function(publicId, options) {
       var prefix, ref, resourceTypeAndType, transformation, transformationString, url, version;
@@ -618,6 +630,7 @@
 
     /**
      * Generate an image tag.
+     * @function Cloudinary#image
      * @param {string} publicId - the public ID of the image
      * @param {Object} [options] - options for the tag and transformations
      * @return {HTMLImageElement} an image tag element
@@ -635,6 +648,11 @@
       Util.setData(img, 'src-cache', this.url(publicId, options));
       this.cloudinary_update(img, options);
       return img;
+    };
+
+    Cloudinary.prototype.imageTag = function(publicId, options) {
+      options = Util.defaults({}, options, this.config());
+      return new ImageTag(publicId, options);
     };
 
     Cloudinary.prototype.video_thumbnail = function(publicId, options) {
@@ -676,6 +694,11 @@
         options = {};
       }
       return this.videoTag(publicId, options).toHtml();
+    };
+
+    Cloudinary.prototype.videoTag = function(publicId, options) {
+      options = Util.defaults({}, options, this.config());
+      return new VideoTag(publicId, options);
     };
 
     Cloudinary.prototype.sprite_css = function(publicId, options) {
@@ -827,8 +850,8 @@
 
 
     /**
-    * similar to `$.fn.cloudinary`
     * Finds all `img` tags under each node and sets it up to provide the image through Cloudinary
+    * @function Cloudinary.processImageTags
      */
 
     Cloudinary.prototype.processImageTags = function(nodes, options) {
@@ -869,15 +892,16 @@
     /**
     * Update hidpi (dpr_auto) and responsive (w_auto) fields according to the current container size and the device pixel ratio.
     * Only images marked with the cld-responsive class have w_auto updated.
-    * options:
-    * - responsive_use_stoppoints:
-    *   - true - always use stoppoints for width
-    *   - "resize" - use exact width on first render and stoppoints on resize (default)
-    *   - false - always use exact width
-    * - responsive:
-    *   - true - enable responsive on this element. Can be done by adding cld-responsive.
-    *            Note that $.cloudinary.responsive() should be called once on the page.
-    * - responsive_preserve_height: if set to true, original css height is perserved. Should only be used if the transformation supports different aspect ratios.
+    * @function Cloudinary.cloudinary_update
+    * @param {(Array|string|NodeList)} elements - the elements to modify
+    * @param {object} options
+    * @param {boolean|string} [options.responsive_use_stoppoints='resize']
+    *  - when `true`, always use stoppoints for width
+    * - when `"resize"` use exact width on first render and stoppoints on resize (default)
+    * - when `false` always use exact width
+    * @param {boolean} [options.responsive] - if `true`, enable responsive on this element. Can be done by adding cld-responsive.
+    * @param {boolean} [options.responsive_preserve_height] - if set to true, original css height is preserved.
+    *   Should only be used if the transformation supports different aspect ratios.
      */
 
     Cloudinary.prototype.cloudinary_update = function(elements, options) {
@@ -945,6 +969,8 @@
 
     /**
     * Provide a transformation object, initialized with own's options, for chaining purposes.
+    * @function Cloudinary.transformation
+    * @param {object} options
     * @return {Transformation}
      */
 
@@ -956,13 +982,7 @@
 
   })();
 
-  global = (ref = typeof module !== "undefined" && module !== null ? module.exports : void 0) != null ? ref : window;
-
-  if (global.Cloudinary) {
-    Util.assign(Cloudinary, global.Cloudinary);
-  }
-
-  global.Cloudinary = Cloudinary;
+  cloudinary.Cloudinary = Cloudinary;
 
   crc32 = function(str) {
     var crc, i, iTop, table, x, y;
@@ -1037,20 +1057,31 @@
     window.utf8_encode = utf8_encode;
   }
 
+
+  /**
+   * Cloudinary configuration class
+   */
+
   Configuration = (function() {
 
     /**
     * Defaults configuration.
-    *
-    * (Previously defined using option_consume() )
+    * @const {object} Configuration.DEFAULT_CONFIGURATION_PARAMS
      */
-    var DEFAULT_CONFIGURATION_PARAMS, ref1;
+    var DEFAULT_CONFIGURATION_PARAMS, ref;
 
     DEFAULT_CONFIGURATION_PARAMS = {
-      secure: (typeof window !== "undefined" && window !== null ? (ref1 = window.location) != null ? ref1.protocol : void 0 : void 0) === 'https:'
+      secure: (typeof window !== "undefined" && window !== null ? (ref = window.location) != null ? ref.protocol : void 0 : void 0) === 'https:'
     };
 
     Configuration.CONFIG_PARAMS = ["api_key", "api_secret", "cdn_subdomain", "cloud_name", "cname", "private_cdn", "protocol", "resource_type", "responsive_width", "secure", "secure_cdn_subdomain", "secure_distribution", "shorten", "type", "url_suffix", "use_root_path", "version"];
+
+
+    /**
+     * Cloudinary configuration class
+     * @constructor Configuration
+     * @param {object} options - configuration parameters
+     */
 
     function Configuration(options) {
       if (options == null) {
@@ -1063,8 +1094,10 @@
 
     /**
      * Set a new configuration item
+     * @function Configuration.set
      * @param {String} name - the name of the item to set
-     * @param value - the value to be set
+     * @param {*} value - the value to be set
+     * @return {Configuration}
      *
      */
 
@@ -1072,6 +1105,14 @@
       this.configuration[name] = value;
       return this;
     };
+
+
+    /**
+     * Get the value of a configuration item
+     * @function Configuration.get
+     * @param {string} name - the name of the item to set
+     * @return {*} the configuration item
+     */
 
     Configuration.prototype.get = function(name) {
       return this.configuration[name];
@@ -1088,8 +1129,10 @@
 
     /**
      * Initialize Cloudinary from HTML meta tags.
-     * @example
-     * <meta name="cloudinary_cloud_name" value
+     * @function Configuration.fromDocument
+     * @return {Configuration}
+     * @example <meta name="cloudinary_cloud_name" content="mycloud">
+     *
      */
 
     Configuration.prototype.fromDocument = function() {
@@ -1109,12 +1152,13 @@
      * Initialize Cloudinary from the `CLOUDINARY_URL` environment variable.
      *
      * This function will only run under Node.js environment.
+     * @function Configuration.fromEnvironment
      * @requires Node.js
      */
 
     Configuration.prototype.fromEnvironment = function() {
-      var cloudinary_url, k, ref2, ref3, uri, v;
-      cloudinary_url = typeof process !== "undefined" && process !== null ? (ref2 = process.env) != null ? ref2.CLOUDINARY_URL : void 0 : void 0;
+      var cloudinary_url, k, ref1, ref2, uri, v;
+      cloudinary_url = typeof process !== "undefined" && process !== null ? (ref1 = process.env) != null ? ref1.CLOUDINARY_URL : void 0 : void 0;
       if (cloudinary_url != null) {
         uri = require('url').parse(cloudinary_url, true);
         this.configuration = {
@@ -1125,9 +1169,9 @@
           secure_distribution: uri.pathname && uri.pathname.substring(1)
         };
         if (uri.query != null) {
-          ref3 = uri.query;
-          for (k in ref3) {
-            v = ref3[k];
+          ref2 = uri.query;
+          for (k in ref2) {
+            v = ref2[k];
             this.configuration[k] = v;
           }
         }
@@ -1142,9 +1186,9 @@
     * Warning: `config()` returns the actual internal configuration object. modifying it will change the configuration.
     *
     * This is a backward compatibility method. For new code, use get(), merge() etc.
-    *
-    * @param {Hash|String|true} new_config
-    * @param {String} new_value
+    * @function Configuration.config
+    * @param {hash|string|true} new_config
+    * @param {string} new_value
     * @returns {*} configuration, or value
     *
     * @see {@link fromEnvironment} for initialization using environment variables
@@ -1169,6 +1213,7 @@
 
     /**
      * Returns a copy of the configuration parameters
+     * @function Configuration.toOptions
      * @returns {Object} a key:value collection of the configuration parameters
      */
 
@@ -1180,27 +1225,16 @@
 
   })();
 
-  if (!(typeof module !== "undefined" && module !== null ? module.exports : void 0)) {
-    exports = window;
-  }
-
-  if (exports.Cloudinary == null) {
-    exports.Cloudinary = {};
-  }
-
-  exports.Cloudinary.Configuration = Configuration;
-
-
-  /**
-   * @class Represents a single parameter
-   */
+  cloudinary.Configuration = Configuration;
 
   Param = (function() {
 
     /**
-     * Create a new Parameter
+     * Represents a single parameter
+     * @class Param
      * @param {string} name - The name of the parameter in snake_case
-     * @param {string short - The name of the serialized form of the parameter
+     * @param {string} short - The name of the serialized form of the parameter.
+     *                         If a value is not provided, the parameter will not be serialized.
      * @param {function} [process=Util.identity ] - Manipulate origValue when value is called
      */
     function Param(name, short, process) {
@@ -1210,19 +1244,19 @@
 
       /**
        * The name of the parameter in snake_case
-       * @type {string}
+       * @member {string} Param#name
        */
       this.name = name;
 
       /**
        * The name of the serialized form of the parameter
-       * @type {string}
+       * @member {string} Param#short
        */
       this.short = short;
 
       /**
        * Manipulate origValue when value is called
-       * @type {function}
+       * @member {function} Param#process
        */
       this.process = process;
     }
@@ -1230,6 +1264,7 @@
 
     /**
      * Set a (unprocessed) value for this parameter
+     * @function Param#set
      * @param {*} origValue - the value of the parameter
      * @return {Param} self for chaining
      */
@@ -1242,6 +1277,7 @@
 
     /**
      * Generate the serialized form of the parameter
+     * @function Param#serialize
      * @return {string} the serialized form of the parameter
      */
 
@@ -1258,6 +1294,7 @@
 
     /**
      * Return the processed value of the parameter
+     * @function Param#value
      */
 
     Param.prototype.value = function() {
@@ -1286,6 +1323,17 @@
   ArrayParam = (function(superClass) {
     extend(ArrayParam, superClass);
 
+
+    /**
+     * A parameter that represents an array
+     * @param {string} name - The name of the parameter in snake_case
+     * @param {string} short - The name of the serialized form of the parameter
+     *                         If a value is not provided, the parameter will not be serialized.
+     * @param {string} [sep='.'] - The separator to use when joining the array elements together
+     * @param {function} [process=Util.identity ] - Manipulate origValue when value is called
+     * @class ArrayParam
+     */
+
     function ArrayParam(name, short, sep, process) {
       if (sep == null) {
         sep = '.';
@@ -1298,11 +1346,11 @@
       var flat, t;
       if (this.short != null) {
         flat = (function() {
-          var j, len, ref1, results;
-          ref1 = this.value();
+          var j, len, ref, results;
+          ref = this.value();
           results = [];
-          for (j = 0, len = ref1.length; j < len; j++) {
-            t = ref1[j];
+          for (j = 0, len = ref.length; j < len; j++) {
+            t = ref[j];
             if (Util.isFunction(t.serialize)) {
               results.push(t.serialize());
             } else {
@@ -1333,6 +1381,16 @@
   TransformationParam = (function(superClass) {
     extend(TransformationParam, superClass);
 
+
+    /**
+     * A parameter that represents a transformation
+     * @param {string} name - The name of the parameter in snake_case
+     * @param {string} [short='t'] - The name of the serialized form of the parameter
+     * @param {string} [sep='.'] - The separator to use when joining the array elements together
+     * @param {function} [process=Util.identity ] - Manipulate origValue when value is called
+     * @class TransformationParam
+     */
+
     function TransformationParam(name, short, sep, process) {
       if (short == null) {
         short = "t";
@@ -1352,11 +1410,11 @@
         return this.short + "_" + (this.value().join(this.sep));
       } else {
         result = (function() {
-          var j, len, ref1, results;
-          ref1 = this.value();
+          var j, len, ref, results;
+          ref = this.value();
           results = [];
-          for (j = 0, len = ref1.length; j < len; j++) {
-            t = ref1[j];
+          for (j = 0, len = ref.length; j < len; j++) {
+            t = ref[j];
             if (t != null) {
               if (Util.isString(t)) {
                 results.push(this.short + "_" + t);
@@ -1390,6 +1448,17 @@
 
   RangeParam = (function(superClass) {
     extend(RangeParam, superClass);
+
+
+    /**
+     * A parameter that represents a range
+     * @param {string} name - The name of the parameter in snake_case
+     * @param {string} short - The name of the serialized form of the parameter
+     *                         If a value is not provided, the parameter will not be serialized.
+     * @param {string} [sep='.'] - The separator to use when joining the array elements together
+     * @param {function} [process=norm_range_value ] - Manipulate origValue when value is called
+     * @class RangeParam
+     */
 
     function RangeParam(name, short, process) {
       if (process == null) {
@@ -1465,20 +1534,6 @@
     }
   };
 
-
-  /**
-   *  A single transformation.
-   *
-   *  @example
-   *  t = new Transformation();
-   *  t.angle(20).crop("scale").width("auto");
-   *
-   *  // or
-   *
-   *  t = new Transformation( {angle: 20, crop: "scale", width: "auto"});
-   *  @class
-   */
-
   TransformationBase = (function() {
     var lastArgCallback;
 
@@ -1491,6 +1546,12 @@
         return void 0;
       }
     };
+
+
+    /**
+     * The base class for transformations.
+     * @class TransformationBase
+     */
 
     function TransformationBase(options) {
       var chainedTo, m, trans;
@@ -1505,15 +1566,15 @@
        * @return {Object} a plain object representing this transformation
        */
       this.toOptions = function() {
-        var key, opt, ref1, value;
+        var key, opt, ref, value;
         opt = {};
         for (key in trans) {
           value = trans[key];
           opt[key] = value.origValue;
         }
-        ref1 = this.otherOptions;
-        for (key in ref1) {
-          value = ref1[key];
+        ref = this.otherOptions;
+        for (key in ref) {
+          value = ref[key];
           if (value !== void 0) {
             opt[key] = value;
           }
@@ -1604,8 +1665,8 @@
        * @description Use {@link get}.origValue for the value originally provided for the parameter
        */
       this.getValue = function(name) {
-        var ref1, ref2;
-        return (ref1 = (ref2 = trans[name]) != null ? ref2.value() : void 0) != null ? ref1 : this.otherOptions[name];
+        var ref, ref1;
+        return (ref = (ref1 = trans[name]) != null ? ref1.value() : void 0) != null ? ref : this.otherOptions[name];
       };
 
       /**
@@ -1670,19 +1731,19 @@
       /**
        * Parameters that are filtered out before passing the options to an HTML tag.
        * The list of parameters is `Transformation::methods` and `Configuration::CONFIG_PARAMS`
-       * @type {Array<string>}
+       * @const {Array<string>} TransformationBase.PARAM_NAMES
        * @see toHtmlAttributes
        */
       this.PARAM_NAMES = ((function() {
-        var j, len, ref1, results;
-        ref1 = this.methods;
+        var j, len, ref, results;
+        ref = this.methods;
         results = [];
-        for (j = 0, len = ref1.length; j < len; j++) {
-          m = ref1[j];
+        for (j = 0, len = ref.length; j < len; j++) {
+          m = ref[j];
           results.push(Util.snakeCase(m));
         }
         return results;
-      }).call(this)).concat(Cloudinary.Configuration.CONFIG_PARAMS);
+      }).call(this)).concat(cloudinary.Configuration.CONFIG_PARAMS);
       if (!Util.isEmpty(options)) {
         this.fromOptions(options);
       }
@@ -1740,17 +1801,17 @@
     };
 
     TransformationBase.prototype.serialize = function() {
-      var paramList, ref1, resultArray, t, transformationList, transformationString, transformations, value;
+      var paramList, ref, resultArray, t, transformationList, transformationString, transformations, value;
       resultArray = [];
       paramList = this.keys();
-      transformations = (ref1 = this.get("transformation")) != null ? ref1.serialize() : void 0;
+      transformations = (ref = this.get("transformation")) != null ? ref.serialize() : void 0;
       paramList = Util.without(paramList, "transformation");
       transformationList = (function() {
-        var j, len, ref2, results;
+        var j, len, ref1, results;
         results = [];
         for (j = 0, len = paramList.length; j < len; j++) {
           t = paramList[j];
-          results.push((ref2 = this.get(t)) != null ? ref2.serialize() : void 0);
+          results.push((ref1 = this.get(t)) != null ? ref1.serialize() : void 0);
         }
         return results;
       }).call(this);
@@ -1785,34 +1846,35 @@
 
     /**
      * Returns attributes for an HTML tag.
+     * @function Cloudinary.toHtmlAttributes
      * @return PlainObject
      */
 
     TransformationBase.prototype.toHtmlAttributes = function() {
-      var height, j, k, key, l, len, len1, options, ref1, ref2, ref3, ref4, ref5, value;
+      var height, j, k, key, l, len, len1, options, ref, ref1, ref2, ref3, ref4, value;
       options = {};
-      ref1 = this.otherOptions;
-      for (key in ref1) {
-        value = ref1[key];
+      ref = this.otherOptions;
+      for (key in ref) {
+        value = ref[key];
         if (!Util.contains(this.PARAM_NAMES, key)) {
           options[key] = value;
         }
       }
-      ref2 = Util.difference(this.keys(), this.PARAM_NAMES);
-      for (j = 0, len = ref2.length; j < len; j++) {
-        key = ref2[j];
+      ref1 = Util.difference(this.keys(), this.PARAM_NAMES);
+      for (j = 0, len = ref1.length; j < len; j++) {
+        key = ref1[j];
         options[key] = this.get(key).value;
       }
-      ref3 = this.keys();
-      for (l = 0, len1 = ref3.length; l < len1; l++) {
-        k = ref3[l];
+      ref2 = this.keys();
+      for (l = 0, len1 = ref2.length; l < len1; l++) {
+        k = ref2[l];
         if (/^html_/.exec(k)) {
           options[k.substr(5)] = this.getValue(k);
         }
       }
       if (!(this.hasLayer() || this.getValue("angle") || Util.contains(["fit", "limit", "lfill"], this.getValue("crop")))) {
-        width = (ref4 = this.get("width")) != null ? ref4.origValue : void 0;
-        height = (ref5 = this.get("height")) != null ? ref5.origValue : void 0;
+        width = (ref3 = this.get("width")) != null ? ref3.origValue : void 0;
+        height = (ref4 = this.get("height")) != null ? ref4.origValue : void 0;
         if (parseFloat(width) >= 1.0) {
           if (options['width'] == null) {
             options['width'] = width;
@@ -1832,8 +1894,8 @@
     };
 
     TransformationBase.prototype.toHtml = function() {
-      var ref1;
-      return (ref1 = this.getParent()) != null ? typeof ref1.toHtml === "function" ? ref1.toHtml() : void 0 : void 0;
+      var ref;
+      return (ref = this.getParent()) != null ? typeof ref.toHtml === "function" ? ref.toHtml() : void 0 : void 0;
     };
 
     TransformationBase.prototype.toString = function() {
@@ -1850,6 +1912,19 @@
     Transformation["new"] = function(args) {
       return new Transformation(args);
     };
+
+
+    /**
+     *  Represents a single transformation.
+     *  @class Transformation
+     *  @example
+     *  t = new cloudinary.Transformation();
+     *  t.angle(20).crop("scale").width("auto");
+     *
+     *  // or
+     *
+     *  t = new cloudinary.Transformation( {angle: 20, crop: "scale", width: "auto"});
+     */
 
     function Transformation(options) {
       if (options == null) {
@@ -1987,8 +2062,8 @@
     };
 
     Transformation.prototype.offset = function(value) {
-      var end_o, ref1, start_o;
-      ref1 = Util.isFunction(value != null ? value.split : void 0) ? value.split('..') : Util.isArray(value) ? value : [null, null], start_o = ref1[0], end_o = ref1[1];
+      var end_o, ref, start_o;
+      ref = Util.isFunction(value != null ? value.split : void 0) ? value.split('..') : Util.isArray(value) ? value : [null, null], start_o = ref[0], end_o = ref[1];
       if (start_o != null) {
         this.startOffset(start_o);
       }
@@ -2030,9 +2105,9 @@
     };
 
     Transformation.prototype.size = function(value) {
-      var height, ref1;
+      var height, ref;
       if (Util.isFunction(value != null ? value.split : void 0)) {
-        ref1 = value.split('x'), width = ref1[0], height = ref1[1];
+        ref = value.split('x'), width = ref[0], height = ref[1];
         this.width(width);
         return this.height(height);
       }
@@ -2094,17 +2169,9 @@
 
   })(TransformationBase);
 
-  if (!(((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) || (exports != null))) {
-    exports = window;
-  }
+  cloudinary.Transformation = Transformation;
 
-  if (exports.Cloudinary == null) {
-    exports.Cloudinary = {};
-  }
-
-  exports.Cloudinary.Transformation = Transformation;
-
-  exports.Cloudinary.TransformationBase = TransformationBase;
+  cloudinary.TransformationBase = TransformationBase;
 
 
   /**
@@ -2115,7 +2182,8 @@
 
     /**
      * Represents an HTML (DOM) tag
-     * Usage: tag = new HtmlTag( 'div', { 'width': 10})
+     * @constructor HtmlTag
+     * @example tag = new HtmlTag( 'div', { 'width': 10})
      * @param {String} name - the name of the tag
      * @param {String} [publicId]
      * @param {Object} options
@@ -2145,10 +2213,12 @@
     /**
      * Convenience constructor
      * Creates a new instance of an HTML (DOM) tag
-     * Usage: tag = HtmlTag.new( 'div', { 'width': 10})
+     * @function HtmlTag.new
+     * @example tag = HtmlTag.new( 'div', { 'width': 10})
      * @param {String} name - the name of the tag
      * @param {String} [publicId]
      * @param {Object} options
+     * @return {HtmlTag}
      */
 
     HtmlTag["new"] = function(name, publicId, options) {
@@ -2158,6 +2228,7 @@
 
     /**
      * Represent the given key and value as an HTML attribute.
+     * @function HtmlTag#toAttribute
      * @param {String} key - attribute name
      * @param {*|boolean} value - the value of the attribute. If the value is boolean `true`, return the key only.
      * @returns {String} the attribute
@@ -2265,14 +2336,14 @@
     };
 
     HtmlTag.prototype.toDOM = function() {
-      var element, name, ref1, value;
+      var element, name, ref, value;
       if (!Util.isFunction(typeof document !== "undefined" && document !== null ? document.createElement : void 0)) {
         throw "Can't create DOM if document is not present!";
       }
       element = document.createElement(this.name);
-      ref1 = this.attributes();
-      for (name in ref1) {
-        value = ref1[name];
+      ref = this.attributes();
+      for (name in ref) {
+        value = ref[name];
         element[name] = value;
       }
       return element;
@@ -2282,15 +2353,7 @@
 
   })();
 
-  if (!(((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) || (exports != null))) {
-    exports = window;
-  }
-
-  if (exports.Cloudinary == null) {
-    exports.Cloudinary = {};
-  }
-
-  exports.Cloudinary.HtmlTag = HtmlTag;
+  cloudinary.HtmlTag = HtmlTag;
 
 
   /**
@@ -2331,20 +2394,7 @@
 
   })(HtmlTag);
 
-  if (!(((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) || (exports != null))) {
-    exports = window;
-  }
-
-  if (exports.Cloudinary == null) {
-    exports.Cloudinary = {};
-  }
-
-  exports.Cloudinary.prototype.imageTag = function(publicId, options) {
-    options = Util.defaults({}, options, this.config());
-    return new ImageTag(publicId, options);
-  };
-
-  exports.Cloudinary.ImageTag = ImageTag;
+  cloudinary.ImageTag = ImageTag;
 
 
   /**
@@ -2433,12 +2483,12 @@
     };
 
     VideoTag.prototype.attributes = function() {
-      var a, attr, defaults, j, len, poster, ref1, ref2, sourceTypes;
+      var a, attr, defaults, j, len, poster, ref, ref1, sourceTypes;
       sourceTypes = this.getOption('source_types');
-      poster = (ref1 = this.getOption('poster')) != null ? ref1 : {};
+      poster = (ref = this.getOption('poster')) != null ? ref : {};
       if (Util.isPlainObject(poster)) {
         defaults = poster.public_id != null ? Cloudinary.DEFAULT_IMAGE_PARAMS : DEFAULT_POSTER_OPTIONS;
-        poster = new Cloudinary(this.getOptions()).url((ref2 = poster.public_id) != null ? ref2 : this.publicId, Util.defaults({}, poster, defaults));
+        poster = new Cloudinary(this.getOptions()).url((ref1 = poster.public_id) != null ? ref1 : this.publicId, Util.defaults({}, poster, defaults));
       }
       attr = VideoTag.__super__.attributes.call(this) || [];
       for (j = 0, len = attr.length; j < len; j++) {
@@ -2463,22 +2513,10 @@
 
   })(HtmlTag);
 
-  if (!(((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) || (exports != null))) {
-    exports = window;
-  }
-
-  if (exports.Cloudinary == null) {
-    exports.Cloudinary = {};
-  }
-
-  exports.Cloudinary.prototype.videoTag = function(publicId, options) {
-    options = Util.defaults({}, options, this.config());
-    return new VideoTag(publicId, options);
-  };
-
-  exports.Cloudinary.VideoTag = VideoTag;
+  cloudinary.VideoTag = VideoTag;
 
   
+return cloudinary;
 }));
 ;
 

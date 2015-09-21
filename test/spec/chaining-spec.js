@@ -19,7 +19,7 @@
     });
     describe("Cloudinary.transformation", function() {
       var cl, t;
-      cl = Cloudinary["new"]();
+      cl = cloudinary.Cloudinary["new"]();
       t = cl.transformation();
       it("should return a transformation object", function() {
         return expect(t.constructor.name).toBe("Transformation");
@@ -32,7 +32,7 @@
       return it("should generate video tag with various attributes", function() {
         var expected_url, tag;
         expected_url = VIDEO_UPLOAD_PATH + "ac_acc,so_3,vc_h264/movie";
-        tag = new Cloudinary(options).videoTag("movie").setSourceTypes('mp4').transformation().htmlHeight("100").htmlWidth("200").videoCodec({
+        tag = new cloudinary.Cloudinary(options).videoTag("movie").setSourceTypes('mp4').transformation().htmlHeight("100").htmlWidth("200").videoCodec({
           codec: "h264"
         }).audioCodec("acc").startOffset(3).toHtml();
         return expect(tag).toEqual("<video height=\"100\" poster=\"" + expected_url + ".jpg\" src=\"" + expected_url + ".mp4\" width=\"200\"></video>");

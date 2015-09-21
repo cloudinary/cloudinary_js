@@ -17,8 +17,10 @@
         ], factory);
     } else {
         // Browser globals:
-        factory(_, jQuery);
+        window.cloudinary = {};
+        factory(_, jQuery, cloudinary);
     }
-}(function (_, jQuery) {
+}(function (_, jQuery, cloudinary) {
+var cloudinary = cloudinary;
 `
 #  FIXME add fileupload dependency

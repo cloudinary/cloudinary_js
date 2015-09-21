@@ -15,7 +15,7 @@ describe "Chaining", () ->
     options = _.clone(config)
 
   describe "Cloudinary.transformation", () ->
-    cl = Cloudinary.new();
+    cl = cloudinary.Cloudinary.new();
     t= cl.transformation()
     it "should return a transformation object", () ->
       expect(t.constructor.name).toBe( "Transformation")
@@ -24,7 +24,7 @@ describe "Chaining", () ->
   describe "Cloudinary.ImageTag", ()->
     it "should generate video tag with various attributes", ->
       expected_url = VIDEO_UPLOAD_PATH + "ac_acc,so_3,vc_h264/movie"
-      tag = new Cloudinary(options).videoTag("movie").setSourceTypes('mp4')
+      tag = new cloudinary.Cloudinary(options).videoTag("movie").setSourceTypes('mp4')
              .transformation()
              .htmlHeight("100")
              .htmlWidth("200")

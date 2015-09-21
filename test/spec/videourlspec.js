@@ -1,19 +1,19 @@
 (function() {
-  var cloudinary, test_cloudinary_url;
+  var cl, test_cloudinary_url;
 
-  cloudinary = {};
+  cl = {};
 
   test_cloudinary_url = function(public_id, options, expected_url, expected_options) {
     var result;
-    result = cloudinary.url(public_id, options);
-    expect(new Cloudinary.Transformation(options).toHtmlAttributes()).toEqual(expected_options);
+    result = cl.url(public_id, options);
+    expect(new cloudinary.Transformation(options).toHtmlAttributes()).toEqual(expected_options);
     return expect(result).toEqual(expected_url);
   };
 
   describe("Cloudinary::Utils", function() {
     var root_path, upload_path;
     beforeEach(function() {
-      return cloudinary = new Cloudinary({
+      return cl = new cloudinary.Cloudinary({
         cloud_name: "test123",
         secure_distribution: null,
         private_cdn: false,
@@ -133,7 +133,7 @@
       describe(":offset", function() {
         var j, len1, name, params, range, results, subject, test, url_param;
         subject = function(options) {
-          return cloudinary.url("video_id", options);
+          return cl.url("video_id", options);
         };
         params = [['string range', 'so_2.66,eo_3.21', '2.66..3.21'], ['array', 'so_2.66,eo_3.21', [2.66, 3.21]], ['array of % strings', 'so_35p,eo_70p', ["35%", "70%"]], ['array of p strings', 'so_35p,eo_70p', ["35p", "70p"]], ['array of float percent', 'so_35.5p,eo_70.5p', ["35.5p", "70.5p"]]];
         results = [];
@@ -147,7 +147,7 @@
                 resource_type: 'video',
                 offset: range
               };
-              url = cloudinary.url("video_id", options);
+              url = cl.url("video_id", options);
               matched = /([^\/]*)\/video_id$/.exec(url);
               transformation = matched ? matched[1] : '';
               return expect(transformation.split(',').sort().reverse().join(',')).toEqual(url_param);
@@ -209,7 +209,7 @@
         options = {
           cloud_name: "test123"
         };
-        path = cloudinary.video_thumbnail_url(source, options);
+        path = cl.video_thumbnail_url(source, options);
         return expect(path).toEqual(upload_path + "/movie_id.jpg");
       });
     });
@@ -220,7 +220,7 @@
     VIDEO_UPLOAD_PATH = window.location.protocol + "//res.cloudinary.com/test123/video/upload/";
     DEFAULT_UPLOAD_PATH = window.location.protocol + "//res.cloudinary.com/test123/image/upload/";
     beforeEach(function() {
-      return cloudinary = new Cloudinary({
+      return cl = new cloudinary.Cloudinary({
         cloud_name: "test123",
         api_secret: "1234"
       });
@@ -228,7 +228,7 @@
     it("should generate video tag", function() {
       var expected_url, tag;
       expected_url = VIDEO_UPLOAD_PATH + "movie";
-      tag = cloudinary.video("movie");
+      tag = cl.video("movie");
       expect(tag).toContain("<video poster=\"" + expected_url + ".jpg\">");
       expect(tag).toContain("<source src=\"" + expected_url + ".webm\" type=\"video/webm\">");
       expect(tag).toContain("<source src=\"" + expected_url + ".mp4\" type=\"video/mp4\">");
@@ -237,7 +237,7 @@
     it("should generate video tag with html5 attributes", function() {
       var expected_url, tag;
       expected_url = VIDEO_UPLOAD_PATH + "movie";
-      tag = cloudinary.video("movie", {
+      tag = cl.video("movie", {
         autoplay: 1,
         controls: true,
         loop: true,
@@ -263,27 +263,27 @@
         start_offset: 3
       };
       expected_url = VIDEO_UPLOAD_PATH + "ac_acc,so_3,vc_h264/movie";
-      expect(cloudinary.video("movie", options)).toEqual("<video height=\"100\" poster=\"" + expected_url + ".jpg\" src=\"" + expected_url + ".mp4\" width=\"200\"></video>");
+      expect(cl.video("movie", options)).toEqual("<video height=\"100\" poster=\"" + expected_url + ".jpg\" src=\"" + expected_url + ".mp4\" width=\"200\"></video>");
       delete options['source_types'];
-      expect(cloudinary.video("movie", options)).toEqual(("<video height=\"100\" poster=\"" + expected_url + ".jpg\" width=\"200\">") + ("<source src=\"" + expected_url + ".webm\" type=\"video/webm\">") + ("<source src=\"" + expected_url + ".mp4\" type=\"video/mp4\">") + ("<source src=\"" + expected_url + ".ogv\" type=\"video/ogg\">") + "</video>");
+      expect(cl.video("movie", options)).toEqual(("<video height=\"100\" poster=\"" + expected_url + ".jpg\" width=\"200\">") + ("<source src=\"" + expected_url + ".webm\" type=\"video/webm\">") + ("<source src=\"" + expected_url + ".mp4\" type=\"video/mp4\">") + ("<source src=\"" + expected_url + ".ogv\" type=\"video/ogg\">") + "</video>");
       delete options['html_height'];
       delete options['html_width'];
       options['width'] = 250;
       options['crop'] = 'scale';
       expected_url = VIDEO_UPLOAD_PATH + "ac_acc,c_scale,so_3,vc_h264,w_250/movie";
-      expect(cloudinary.video("movie", options)).toEqual(("<video poster=\"" + expected_url + ".jpg\" width=\"250\">") + ("<source src=\"" + expected_url + ".webm\" type=\"video/webm\">") + ("<source src=\"" + expected_url + ".mp4\" type=\"video/mp4\">") + ("<source src=\"" + expected_url + ".ogv\" type=\"video/ogg\">") + "</video>");
+      expect(cl.video("movie", options)).toEqual(("<video poster=\"" + expected_url + ".jpg\" width=\"250\">") + ("<source src=\"" + expected_url + ".webm\" type=\"video/webm\">") + ("<source src=\"" + expected_url + ".mp4\" type=\"video/mp4\">") + ("<source src=\"" + expected_url + ".ogv\" type=\"video/ogg\">") + "</video>");
       expected_url = VIDEO_UPLOAD_PATH + "ac_acc,c_fit,so_3,vc_h264,w_250/movie";
       options['crop'] = 'fit';
-      return expect(cloudinary.video("movie", options)).toEqual(("<video poster=\"" + expected_url + ".jpg\">") + ("<source src=\"" + expected_url + ".webm\" type=\"video/webm\">") + ("<source src=\"" + expected_url + ".mp4\" type=\"video/mp4\">") + ("<source src=\"" + expected_url + ".ogv\" type=\"video/ogg\">") + "</video>");
+      return expect(cl.video("movie", options)).toEqual(("<video poster=\"" + expected_url + ".jpg\">") + ("<source src=\"" + expected_url + ".webm\" type=\"video/webm\">") + ("<source src=\"" + expected_url + ".mp4\" type=\"video/mp4\">") + ("<source src=\"" + expected_url + ".ogv\" type=\"video/ogg\">") + "</video>");
     });
     it("should generate video tag with fallback", function() {
       var expected_url, fallback;
       expected_url = VIDEO_UPLOAD_PATH + "movie";
       fallback = "<span id=\"spanid\">Cannot display video</span>";
-      expect(cloudinary.video("movie", {
+      expect(cl.video("movie", {
         fallback_content: fallback
       }), ("<video poster=\"" + expected_url + ".jpg\">") + ("<source src=\"" + expected_url + ".webm\" type=\"video/webm\">") + ("<source src=\"" + expected_url + ".mp4\" type=\"video/mp4\">") + ("<source src=\"" + expected_url + ".ogv\" type=\"video/ogg\">") + fallback + "</video>");
-      return expect(cloudinary.video("movie", {
+      return expect(cl.video("movie", {
         fallback_content: fallback,
         source_types: "mp4"
       })).toEqual(("<video poster=\"" + expected_url + ".jpg\" src=\"" + expected_url + ".mp4\">") + fallback + "</video>");
@@ -291,7 +291,7 @@
     it("should generate video tag with source types", function() {
       var expected_url;
       expected_url = VIDEO_UPLOAD_PATH + "movie";
-      return expect(cloudinary.video("movie", {
+      return expect(cl.video("movie", {
         source_types: ['ogv', 'mp4']
       })).toEqual(("<video poster=\"" + expected_url + ".jpg\">") + ("<source src=\"" + expected_url + ".ogv\" type=\"video/ogg\">") + ("<source src=\"" + expected_url + ".mp4\" type=\"video/mp4\">") + "</video>");
     });
@@ -300,7 +300,7 @@
       expected_url = VIDEO_UPLOAD_PATH + "q_50/c_scale,w_100/movie";
       expected_ogv_url = VIDEO_UPLOAD_PATH + "q_50/c_scale,q_70,w_100/movie";
       expected_mp4_url = VIDEO_UPLOAD_PATH + "q_50/c_scale,q_30,w_100/movie";
-      expect(cloudinary.video("movie", {
+      expect(cl.video("movie", {
         width: 100,
         crop: "scale",
         transformation: {
@@ -315,7 +315,7 @@
           }
         }
       })).toEqual(("<video poster=\"" + expected_url + ".jpg\" width=\"100\">") + ("<source src=\"" + expected_url + ".webm\" type=\"video/webm\">") + ("<source src=\"" + expected_mp4_url + ".mp4\" type=\"video/mp4\">") + ("<source src=\"" + expected_ogv_url + ".ogv\" type=\"video/ogg\">") + "</video>");
-      return expect(cloudinary.video("movie", {
+      return expect(cl.video("movie", {
         width: 100,
         crop: "scale",
         transformation: {
@@ -338,7 +338,7 @@
       it("should accept a URL", function() {
         var expected_poster_url;
         expected_poster_url = 'http://image/somewhere.jpg';
-        return expect(cloudinary.video("movie", {
+        return expect(cl.video("movie", {
           poster: expected_poster_url,
           source_types: "mp4"
         })).toEqual("<video poster=\"" + expected_poster_url + "\" src=\"" + expected_url + ".mp4\"></video>");
@@ -346,7 +346,7 @@
       it("should accept an object", function() {
         var expected_poster_url;
         expected_poster_url = VIDEO_UPLOAD_PATH + "g_north/movie.jpg";
-        return expect(cloudinary.video("movie", {
+        return expect(cl.video("movie", {
           poster: {
             'gravity': 'north'
           },
@@ -356,7 +356,7 @@
       it("should accept a different public ID", function() {
         var expected_poster_url;
         expected_poster_url = DEFAULT_UPLOAD_PATH + "g_north/my_poster.jpg";
-        return expect(cloudinary.video("movie", {
+        return expect(cl.video("movie", {
           poster: {
             'gravity': 'north',
             'public_id': 'my_poster',
@@ -366,13 +366,13 @@
         })).toEqual("<video poster=\"" + expected_poster_url + "\" src=\"" + expected_url + ".mp4\"></video>");
       });
       it("should accept an empty string", function() {
-        return expect(cloudinary.video("movie", {
+        return expect(cl.video("movie", {
           poster: "",
           source_types: "mp4"
         })).toEqual("<video src=\"" + expected_url + ".mp4\"></video>");
       });
       return it("should accept 'false'", function() {
-        return expect(cloudinary.video("movie", {
+        return expect(cl.video("movie", {
           poster: false,
           source_types: "mp4"
         })).toEqual("<video src=\"" + expected_url + ".mp4\"></video>");

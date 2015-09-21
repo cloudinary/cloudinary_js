@@ -1,16 +1,4 @@
 
-###*
- *  A single transformation.
- *
- *  @example
- *  t = new Transformation();
- *  t.angle(20).crop("scale").width("auto");
- *
- *  // or
- *
- *  t = new Transformation( {angle: 20, crop: "scale", width: "auto"});
- *  @class
-###
 class TransformationBase
   lastArgCallback = (args)->
     callback = args?[args.length - 1]
@@ -19,6 +7,10 @@ class TransformationBase
     else
       undefined
 
+  ###*
+   * The base class for transformations.
+   * @class TransformationBase
+  ###
   constructor: (options = {}) ->
     chainedTo = undefined
     trans = {}
@@ -148,10 +140,10 @@ class TransformationBase
     ###*
      * Parameters that are filtered out before passing the options to an HTML tag.
      * The list of parameters is `Transformation::methods` and `Configuration::CONFIG_PARAMS`
-     * @type {Array<string>}
+     * @const {Array<string>} TransformationBase.PARAM_NAMES
      * @see toHtmlAttributes
     ###
-    @PARAM_NAMES = (Util.snakeCase(m) for m in @methods).concat( Cloudinary.Configuration.CONFIG_PARAMS)
+    @PARAM_NAMES = (Util.snakeCase(m) for m in @methods).concat( cloudinary.Configuration.CONFIG_PARAMS)
 
 
     # Finished constructing the instance, now process the options
@@ -216,6 +208,7 @@ class TransformationBase
 
   ###*
    * Returns attributes for an HTML tag.
+   * @function Cloudinary.toHtmlAttributes
    * @return PlainObject
   ###
   toHtmlAttributes: ()->
@@ -248,6 +241,17 @@ class Transformation  extends TransformationBase
 
   @new = (args)-> new Transformation(args)
 
+  ###*
+   *  Represents a single transformation.
+   *  @class Transformation
+   *  @example
+   *  t = new cloudinary.Transformation();
+   *  t.angle(20).crop("scale").width("auto");
+   *
+   *  // or
+   *
+   *  t = new cloudinary.Transformation( {angle: 20, crop: "scale", width: "auto"});
+  ###
   constructor: (options = {})->
     super(options)
 
@@ -334,10 +338,5 @@ class Transformation  extends TransformationBase
   zoom: (value)->                 @param value, "zoom", "z"
 
 
-# unless running on server side, export to the windows object
-unless module?.exports? || exports?
-  exports = window
-
-exports.Cloudinary ?= {}
-exports.Cloudinary.Transformation = Transformation
-exports.Cloudinary.TransformationBase = TransformationBase
+cloudinary.Transformation = Transformation
+cloudinary.TransformationBase = TransformationBase

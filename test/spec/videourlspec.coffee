@@ -1,12 +1,12 @@
-cloudinary = {}
+cl = {}
 test_cloudinary_url = (public_id, options, expected_url, expected_options) ->
-  result = cloudinary.url(public_id, options)
-  expect(new Cloudinary.Transformation(options).toHtmlAttributes()).toEqual(expected_options)
+  result = cl.url(public_id, options)
+  expect(new cloudinary.Transformation(options).toHtmlAttributes()).toEqual(expected_options)
   expect(result).toEqual(expected_url)
 
 describe "Cloudinary::Utils", ->
   beforeEach ->
-    cloudinary = new Cloudinary
+    cl = new cloudinary.Cloudinary
       cloud_name: "test123"
       secure_distribution: null
       private_cdn: false
@@ -62,7 +62,7 @@ describe "Cloudinary::Utils", ->
 
     describe ":offset", ->
       subject = (options)->
-        cloudinary.url("video_id", options)
+        cl.url("video_id", options)
       params = [
         ['string range', 'so_2.66,eo_3.21', '2.66..3.21'],
         ['array', 'so_2.66,eo_3.21', [2.66, 3.21]],
@@ -78,8 +78,8 @@ describe "Cloudinary::Utils", ->
           it "should produce a range transformation in the format of #{url_param}", ->
             options = { resource_type: 'video', offset: range }
           #            expect( subject(options) ).to change { options }.to({})
-            url = cloudinary.url("video_id", options)
-#            expect( new Cloudinary.Transformation(options).toHtmlAttributes() ).toEqual( {})
+            url = cl.url("video_id", options)
+#            expect( new cloudinary.Cloudinary.Transformation(options).toHtmlAttributes() ).toEqual( {})
             matched = /([^\/]*)\/video_id$/.exec(url)
             transformation = if matched then matched[1] else ''
             # we can't rely on the order of the parameters so we sort them before comparing
@@ -109,7 +109,7 @@ describe "Cloudinary::Utils", ->
     it "should generate a cloudinary URI to the video thumbnail", ->
       source =  "movie_id"
       options =  {cloud_name: "test123"}
-      path =  cloudinary.video_thumbnail_url(source, options)
+      path =  cl.video_thumbnail_url(source, options)
       expect(path).toEqual("#{upload_path}/movie_id.jpg")
 
 describe "video", ->
@@ -117,11 +117,11 @@ describe "video", ->
   DEFAULT_UPLOAD_PATH = "#{window.location.protocol}//res.cloudinary.com/test123/image/upload/"
 
   beforeEach ->
-    cloudinary = new Cloudinary(cloud_name: "test123", api_secret: "1234")
+    cl = new cloudinary.Cloudinary(cloud_name: "test123", api_secret: "1234")
 
   it "should generate video tag", ->
     expected_url = VIDEO_UPLOAD_PATH + "movie"
-    tag = cloudinary.video("movie")
+    tag = cl.video("movie")
     expect(tag).toContain("<video poster=\"#{expected_url}.jpg\">")
     expect(tag).toContain("<source src=\"#{expected_url}.webm\" type=\"video/webm\">")
     expect(tag).toContain("<source src=\"#{expected_url}.mp4\" type=\"video/mp4\">")
@@ -130,7 +130,7 @@ describe "video", ->
 
   it "should generate video tag with html5 attributes", ->
     expected_url = VIDEO_UPLOAD_PATH + "movie"
-    tag = cloudinary.video("movie",
+    tag = cl.video("movie",
                             autoplay: 1,
                             controls: true,
                             loop: true,
@@ -153,11 +153,11 @@ describe "video", ->
       start_offset: 3
     }
     expected_url = VIDEO_UPLOAD_PATH + "ac_acc,so_3,vc_h264/movie"
-    expect(cloudinary.video("movie", options)).toEqual(
+    expect(cl.video("movie", options)).toEqual(
       "<video height=\"100\" poster=\"#{expected_url}.jpg\" src=\"#{expected_url}.mp4\" width=\"200\"></video>")
 
     delete options['source_types']
-    expect(cloudinary.video("movie", options)).toEqual(
+    expect(cl.video("movie", options)).toEqual(
       "<video height=\"100\" poster=\"#{expected_url}.jpg\" width=\"200\">" +
       "<source src=\"#{expected_url}.webm\" type=\"video/webm\">" +
       "<source src=\"#{expected_url}.mp4\" type=\"video/mp4\">" +
@@ -169,7 +169,7 @@ describe "video", ->
     options['width'] = 250
     options['crop'] = 'scale'
     expected_url = VIDEO_UPLOAD_PATH + "ac_acc,c_scale,so_3,vc_h264,w_250/movie"
-    expect(cloudinary.video("movie", options)).toEqual(
+    expect(cl.video("movie", options)).toEqual(
       "<video poster=\"#{expected_url}.jpg\" width=\"250\">" +
       "<source src=\"#{expected_url}.webm\" type=\"video/webm\">" +
       "<source src=\"#{expected_url}.mp4\" type=\"video/mp4\">" +
@@ -178,7 +178,7 @@ describe "video", ->
 
     expected_url = VIDEO_UPLOAD_PATH + "ac_acc,c_fit,so_3,vc_h264,w_250/movie"
     options['crop'] = 'fit'
-    expect(cloudinary.video("movie", options)).toEqual(
+    expect(cl.video("movie", options)).toEqual(
       "<video poster=\"#{expected_url}.jpg\">" +
       "<source src=\"#{expected_url}.webm\" type=\"video/webm\">" +
       "<source src=\"#{expected_url}.mp4\" type=\"video/mp4\">" +
@@ -188,14 +188,14 @@ describe "video", ->
   it "should generate video tag with fallback", ->
     expected_url = VIDEO_UPLOAD_PATH + "movie"
     fallback = "<span id=\"spanid\">Cannot display video</span>"
-    expect(cloudinary.video("movie", fallback_content: fallback),
+    expect(cl.video("movie", fallback_content: fallback),
       "<video poster=\"#{expected_url}.jpg\">" +
       "<source src=\"#{expected_url}.webm\" type=\"video/webm\">" +
       "<source src=\"#{expected_url}.mp4\" type=\"video/mp4\">" +
       "<source src=\"#{expected_url}.ogv\" type=\"video/ogg\">" +
       fallback +
       "</video>")
-    expect(cloudinary.video("movie", fallback_content: fallback, source_types: "mp4")).toEqual(
+    expect(cl.video("movie", fallback_content: fallback, source_types: "mp4")).toEqual(
       "<video poster=\"#{expected_url}.jpg\" src=\"#{expected_url}.mp4\">" +
       fallback +
       "</video>")
@@ -203,7 +203,7 @@ describe "video", ->
 
   it "should generate video tag with source types", ->
     expected_url = VIDEO_UPLOAD_PATH + "movie"
-    expect(cloudinary.video("movie", source_types: ['ogv', 'mp4'])).toEqual(
+    expect(cl.video("movie", source_types: ['ogv', 'mp4'])).toEqual(
       "<video poster=\"#{expected_url}.jpg\">" +
       "<source src=\"#{expected_url}.ogv\" type=\"video/ogg\">" +
       "<source src=\"#{expected_url}.mp4\" type=\"video/mp4\">" +
@@ -213,14 +213,14 @@ describe "video", ->
     expected_url = VIDEO_UPLOAD_PATH + "q_50/c_scale,w_100/movie"
     expected_ogv_url = VIDEO_UPLOAD_PATH + "q_50/c_scale,q_70,w_100/movie"
     expected_mp4_url = VIDEO_UPLOAD_PATH + "q_50/c_scale,q_30,w_100/movie"
-    expect(cloudinary.video("movie", width: 100, crop: "scale", transformation: {'quality': 50}, source_transformation: {'ogv': {'quality': 70}, 'mp4': {'quality': 30}})).toEqual(
+    expect(cl.video("movie", width: 100, crop: "scale", transformation: {'quality': 50}, source_transformation: {'ogv': {'quality': 70}, 'mp4': {'quality': 30}})).toEqual(
       "<video poster=\"#{expected_url}.jpg\" width=\"100\">" +
       "<source src=\"#{expected_url}.webm\" type=\"video/webm\">" +
       "<source src=\"#{expected_mp4_url}.mp4\" type=\"video/mp4\">" +
       "<source src=\"#{expected_ogv_url}.ogv\" type=\"video/ogg\">" +
       "</video>")
 
-    expect(cloudinary.video("movie", width: 100, crop: "scale", transformation: {'quality': 50}, source_transformation: {'ogv': {'quality': 70}, 'mp4': {'quality': 30}}, source_types: ['webm', 'mp4'])).toEqual(
+    expect(cl.video("movie", width: 100, crop: "scale", transformation: {'quality': 50}, source_transformation: {'ogv': {'quality': 70}, 'mp4': {'quality': 30}}, source_types: ['webm', 'mp4'])).toEqual(
       "<video poster=\"#{expected_url}.jpg\" width=\"100\">" +
       "<source src=\"#{expected_url}.webm\" type=\"video/webm\">" +
       "<source src=\"#{expected_mp4_url}.mp4\" type=\"video/mp4\">" +
@@ -231,24 +231,24 @@ describe "video", ->
 
     it "should accept a URL", ->
       expected_poster_url = 'http://image/somewhere.jpg'
-      expect(cloudinary.video("movie", poster: expected_poster_url, source_types: "mp4")).toEqual(
+      expect(cl.video("movie", poster: expected_poster_url, source_types: "mp4")).toEqual(
         "<video poster=\"#{expected_poster_url}\" src=\"#{expected_url}.mp4\"></video>")
 
     it "should accept an object", ->
       expected_poster_url = VIDEO_UPLOAD_PATH + "g_north/movie.jpg"
-      expect(cloudinary.video("movie", poster: {'gravity': 'north'}, source_types: "mp4")).toEqual(
+      expect(cl.video("movie", poster: {'gravity': 'north'}, source_types: "mp4")).toEqual(
         "<video poster=\"#{expected_poster_url}\" src=\"#{expected_url}.mp4\"></video>")
 
     it "should accept a different public ID", ->
       expected_poster_url = DEFAULT_UPLOAD_PATH + "g_north/my_poster.jpg"
-      expect(cloudinary.video("movie", poster: {'gravity': 'north', 'public_id': 'my_poster', 'format': 'jpg'}, source_types: "mp4")).toEqual(
+      expect(cl.video("movie", poster: {'gravity': 'north', 'public_id': 'my_poster', 'format': 'jpg'}, source_types: "mp4")).toEqual(
         "<video poster=\"#{expected_poster_url}\" src=\"#{expected_url}.mp4\"></video>")
 
     it "should accept an empty string", ->
-      expect(cloudinary.video("movie", poster: "", source_types: "mp4")).toEqual(
+      expect(cl.video("movie", poster: "", source_types: "mp4")).toEqual(
         "<video src=\"#{expected_url}.mp4\"></video>")
 
     it "should accept 'false'", ->
-      expect(cloudinary.video("movie", poster: false, source_types: "mp4")).toEqual(
+      expect(cl.video("movie", poster: false, source_types: "mp4")).toEqual(
         "<video src=\"#{expected_url}.mp4\"></video>")
 

@@ -203,6 +203,15 @@ without = (array, item)->
 Util =
   hasClass: hasClass
   addClass: addClass
+  ###*
+    * Get attribute from the DOM element.
+    *
+    * This method will use jQuery's `attr()` method if it is available, otherwise it will get the attribute directly
+    * @param {Element} element - the element to set the attribute for
+    * @param {String} name - the name of the attribute
+    * @returns {*} the value of the attribute
+    *
+  ###
   getAttribute: getAttribute
   setAttribute: setAttribute
   setAttributes: setAttributes

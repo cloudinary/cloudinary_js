@@ -1,14 +1,15 @@
 describe 'cloudinary', ->
+  cl = {}
   result = undefined
   fixtureContainer = undefined
   test_cloudinary_url = (public_id, options, expected_url, expected_options) ->
-    result = window.cloudinary.url(public_id, options)
+    result = cl.url(public_id, options)
     #expect(new Cloudinary.Transformation(options).toHtmlAttributes()).toEqual(expected_options);
     expect(result).toEqual expected_url
 
 
   beforeEach ->
-    window.cloudinary = new Cloudinary(cloud_name: 'test123')
+    cl = new cloudinary.Cloudinary(cloud_name: 'test123')
     fixtureContainer = document.createElement('div')
     fixtureContainer.id="fixture";
     document.body.appendChild(fixtureContainer)
@@ -59,10 +60,10 @@ describe 'cloudinary', ->
     test_cloudinary_url 'test', { format: 'jpg' }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/test.jpg', {}
 
   it 'should use width and height from options only if crop is given', ->
-    expect(cloudinary.url('test',
+    expect(cl.url('test',
       width: 100
       height: 100)).toBe window.location.protocol + '//res.cloudinary.com/test123/image/upload/test'
-    expect(cloudinary.url('test',
+    expect(cl.url('test',
       width: 100
       height: 100
       crop: 'crop')).toBe window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_crop,h_100,w_100/test'
@@ -112,7 +113,7 @@ describe 'cloudinary', ->
     ] }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/t_blip.blop/test', {}
 
   it 'should support base tranformation', ->
-    expect(cloudinary.url('test',
+    expect(cl.url('test',
       transformation:
         x: 100
         y: 100
@@ -121,7 +122,7 @@ describe 'cloudinary', ->
       width: 100)).toBe window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_fill,x_100,y_100/c_crop,w_100/test'
 
   it 'should support array of base tranformations', ->
-    expect(cloudinary.url('test',
+    expect(cl.url('test',
       transformation: [
         {
           x: 100
@@ -135,7 +136,7 @@ describe 'cloudinary', ->
       width: 100)).toBe window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_fill,w_200,x_100,y_100/r_10/c_crop,w_100/test'
 
   it 'should not include empty tranformations', ->
-    expect(cloudinary.url('test', transformation: [
+    expect(cl.url('test', transformation: [
       {}
       {
         x: 100
@@ -222,11 +223,17 @@ describe 'cloudinary', ->
       10
     ] }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/e_sepia:10/test', {}
 
+  it 'should support fetch_image', ->
+    result = cl.fetch_image('http://example.com/hello.jpg?a=b').getAttribute('src')
+    expect(result).toEqual window.location.protocol + '//res.cloudinary.com/test123/image/fetch/http://example.com/hello.jpg%3Fa%3Db'
+    return
+
   # FIXME
   #it("should support fetch_image", function() {
   #  result = window.cloudinary.fetch_image("http://example.com/hello.jpg?a=b").attr("src");
   #  expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/fetch/http://example.com/hello.jpg%3Fa%3Db")
   #});
+
   layers =
     overlay: 'l'
     underlay: 'u'
@@ -286,7 +293,7 @@ describe 'cloudinary', ->
       window.devicePixelRatio = dpr
 
     it 'should update dpr when creating an image tag using $.cloudinary.image()', ->
-      result = cloudinary.image('test', options)
+      result = cl.image('test', options)
       expect(result.getAttribute( 'src')).toBe window.location.protocol + '//res.cloudinary.com/test123/image/upload/dpr_2.0/test'
 
   it 'should add version if public_id contains /', ->
@@ -301,7 +308,7 @@ describe 'cloudinary', ->
 
   it 'should disallow url_suffix in shared distribution', ->
     expect(->
-      window.cloudinary.url 'test',
+      cl.url 'test',
         url_suffix: 'hello'
         private_cdn: false
 
@@ -309,7 +316,7 @@ describe 'cloudinary', ->
 
   it 'should disallow url_suffix in non upload types', ->
     expect(->
-      window.cloudinary.url 'test',
+      cl.url 'test',
         url_suffix: 'hello'
         private_cdn: true
         type: 'facebook'
@@ -318,13 +325,13 @@ describe 'cloudinary', ->
 
   it 'should disallow url_suffix with / or .', ->
     expect(->
-      window.cloudinary.url 'test',
+      cl.url 'test',
         url_suffix: 'hello/world'
         private_cdn: true
 
     ).toThrow()
     expect(->
-      window.cloudinary.url 'test',
+      cl.url 'test',
         url_suffix: 'hello.world'
         private_cdn: true
 
@@ -378,9 +385,9 @@ describe 'cloudinary', ->
     }, window.location.protocol + '//test123-res.cloudinary.com/a_0/test', {}
 
   it 'should support globally set use_root_path for private_cdn', ->
-    window.cloudinary.config('use_root_path', true)
+    cl.config('use_root_path', true)
     test_cloudinary_url 'test', { private_cdn: true }, window.location.protocol + '//test123-res.cloudinary.com/test', {}
-    delete window.cloudinary.config().use_root_path
+    delete cl.config().use_root_path
 
   it 'should support use_root_path together with url_suffix for private_cdn', ->
     test_cloudinary_url 'test', {
@@ -391,14 +398,14 @@ describe 'cloudinary', ->
 
   it 'should disallow use_root_path if not image/upload', ->
     expect(->
-      window.cloudinary.url 'test',
+      cl.url 'test',
         use_root_path: true
         private_cdn: true
         type: 'facebook'
 
     ).toThrow()
     expect(->
-      window.cloudinary.url 'test',
+      cl.url 'test',
         use_root_path: true
         private_cdn: true
         resource_type: 'raw'
@@ -406,9 +413,9 @@ describe 'cloudinary', ->
     ).toThrow()
 
   it 'should generate sprite css urls', ->
-    result = window.cloudinary.sprite_css('test')
+    result = cl.sprite_css('test')
     expect(result).toEqual window.location.protocol + '//res.cloudinary.com/test123/image/sprite/test.css'
-    result = window.cloudinary.sprite_css('test.css')
+    result = cl.sprite_css('test.css')
     expect(result).toEqual window.location.protocol + '//res.cloudinary.com/test123/image/sprite/test.css'
 
   it 'should escape public_ids', ->
@@ -423,48 +430,48 @@ describe 'cloudinary', ->
 
   it 'should allow to override protocol', ->
     options = 'protocol': 'custom:'
-    result = window.cloudinary.url('test', options)
+    result = cl.url('test', options)
     #expect(new Cloudinary.Transformation(options).toHtmlAttributes()).toEqual({});
     expect(result).toEqual 'custom://res.cloudinary.com/test123/image/upload/test'
 
 
   it 'should compute stoppoints correctly', ->
     el = document.createElement('img')
-    expect(window.cloudinary.calc_stoppoint(el, 1)).toEqual 10
-    expect(window.cloudinary.calc_stoppoint(el, 10)).toEqual 10
-    expect(window.cloudinary.calc_stoppoint(el, 11)).toEqual 20
-    window.cloudinary.config('stoppoints', [
+    expect(cl.calc_stoppoint(el, 1)).toEqual 10
+    expect(cl.calc_stoppoint(el, 10)).toEqual 10
+    expect(cl.calc_stoppoint(el, 11)).toEqual 20
+    cl.config('stoppoints', [
       50
       150
     ])
-    expect(window.cloudinary.calc_stoppoint(el, 1)).toEqual 50
-    expect(window.cloudinary.calc_stoppoint(el, 100)).toEqual 150
-    expect(window.cloudinary.calc_stoppoint(el, 180)).toEqual 150
+    expect(cl.calc_stoppoint(el, 1)).toEqual 50
+    expect(cl.calc_stoppoint(el, 100)).toEqual 150
+    expect(cl.calc_stoppoint(el, 180)).toEqual 150
 
-    window.cloudinary.config('stoppoints', (width) ->
+    cl.config('stoppoints', (width) ->
       width / 2
     )
-    expect(window.cloudinary.calc_stoppoint(el, 100)).toEqual 50
+    expect(cl.calc_stoppoint(el, 100)).toEqual 50
 
     el.setAttribute( 'data-stoppoints', '70,140')
-    expect(window.cloudinary.calc_stoppoint(el, 1)).toEqual 70
-    expect(window.cloudinary.calc_stoppoint(el, 100)).toEqual 140
+    expect(cl.calc_stoppoint(el, 1)).toEqual 70
+    expect(cl.calc_stoppoint(el, 100)).toEqual 140
 
   it 'should correctly resize responsive images', (done) ->
     container = undefined
     img = undefined
-    dpr = cloudinary.device_pixel_ratio()
+    dpr = cl.device_pixel_ratio()
     container = document.createElement('div')
     container.style.width = "101px"
     fixtureContainer.appendChild(container)
-    img = cloudinary.image('sample.jpg',
+    img = cl.image('sample.jpg',
       width: 'auto'
       dpr: 'auto'
       crop: 'scale'
       responsive: true)
     container.appendChild(img)
     expect(img.getAttribute('src')).toBeFalsy()
-    cloudinary.responsive()
+    cl.responsive()
     expect(img.getAttribute('src')).toEqual window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_scale,dpr_' + dpr + ',w_101/sample.jpg'
     container.style.width = "111px"
     expect(img.getAttribute('src')).toEqual window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_scale,dpr_' + dpr + ',w_101/sample.jpg'
@@ -493,11 +500,11 @@ describe 'cloudinary', ->
 
     aContainer = document.createElement('a')
     divContainer.appendChild( aContainer)
-    img = cloudinary.image('sample.jpg',
+    img = cl.image('sample.jpg',
       width: 'auto'
       dpr: 'auto'
       crop: 'scale'
       responsive: true)
     aContainer.appendChild(img)
-    cloudinary.responsive()
+    cl.responsive()
     expect(img.getAttribute('src')).not.toEqual undefined

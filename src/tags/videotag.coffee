@@ -70,13 +70,4 @@ class VideoTag extends HtmlTag
       attr["poster"] = poster
     attr
 
-# unless running on server side, export to the windows object
-unless module?.exports? || exports?
-  exports = window
-
-exports.Cloudinary ?= {}
-exports.Cloudinary::videoTag = (publicId, options)->
-  options = Util.defaults({}, options, @config())
-  new VideoTag(publicId, options)
-
-exports.Cloudinary.VideoTag = VideoTag
+cloudinary.VideoTag = VideoTag

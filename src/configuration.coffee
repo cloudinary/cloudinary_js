@@ -1,9 +1,11 @@
+###*
+ * Cloudinary configuration class
+###
 class Configuration
 
   ###*
   * Defaults configuration.
-  *
-  * (Previously defined using option_consume() )
+  * @const {object} Configuration.DEFAULT_CONFIGURATION_PARAMS
   ###
   DEFAULT_CONFIGURATION_PARAMS ={
     secure: window?.location?.protocol == 'https:'
@@ -28,21 +30,33 @@ class Configuration
     "use_root_path"
     "version"
   ]
-
+  ###*
+   * Cloudinary configuration class
+   * @constructor Configuration
+   * @param {object} options - configuration parameters
+  ###
   constructor: (options ={})->
     @configuration = Util.cloneDeep(options)
     Util.defaults( @configuration, DEFAULT_CONFIGURATION_PARAMS)
 
   ###*
    * Set a new configuration item
+   * @function Configuration.set
    * @param {String} name - the name of the item to set
-   * @param value - the value to be set
+   * @param {*} value - the value to be set
+   * @return {Configuration}
    *
   ###
   set:(name, value)->
     @configuration[name] = value
     this
 
+  ###*
+   * Get the value of a configuration item
+   * @function Configuration.get
+   * @param {string} name - the name of the item to set
+   * @return {*} the configuration item
+  ###
   get: (name)->
     @configuration[name]
 
@@ -52,8 +66,10 @@ class Configuration
 
   ###*
    * Initialize Cloudinary from HTML meta tags.
-   * @example
-   * <meta name="cloudinary_cloud_name" value
+   * @function Configuration.fromDocument
+   * @return {Configuration}
+   * @example <meta name="cloudinary_cloud_name" content="mycloud">
+   *
   ###
   fromDocument: ->
     meta_elements = document?.querySelectorAll('meta[name^="cloudinary_"]');
@@ -66,6 +82,7 @@ class Configuration
    * Initialize Cloudinary from the `CLOUDINARY_URL` environment variable.
    *
    * This function will only run under Node.js environment.
+   * @function Configuration.fromEnvironment
    * @requires Node.js
   ###
   fromEnvironment: ->
@@ -89,9 +106,9 @@ class Configuration
   * Warning: `config()` returns the actual internal configuration object. modifying it will change the configuration.
   *
   * This is a backward compatibility method. For new code, use get(), merge() etc.
-  *
-  * @param {Hash|String|true} new_config
-  * @param {String} new_value
+  * @function Configuration.config
+  * @param {hash|string|true} new_config
+  * @param {string} new_value
   * @returns {*} configuration, or value
   *
   * @see {@link fromEnvironment} for initialization using environment variables
@@ -113,13 +130,10 @@ class Configuration
 
   ###*
    * Returns a copy of the configuration parameters
+   * @function Configuration.toOptions
    * @returns {Object} a key:value collection of the configuration parameters
   ###
   toOptions: ()->
     Util.cloneDeep(@configuration)
 
-unless module?.exports
-  exports = window
-
-exports.Cloudinary ?= {}
-exports.Cloudinary.Configuration = Configuration
+cloudinary.Configuration = Configuration

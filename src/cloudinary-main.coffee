@@ -1,33 +1,16 @@
 
+#/**
+# * @license
+# * lodash 3.10.0 (Custom Build) <https://lodash.com/>
+#* Build: `lodash modern -o ./lodash.js`
+#* Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
+#* Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+#* Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+#* Available under MIT license <https://lodash.com/license>
+#*/
 
 ###*
-  Main Cloudinary class
-
-  Backward compatibility:
-  Must provide public keys
-   * CF_SHARED_CDN
-   * OLD_AKAMAI_SHARED_CDN
-   * AKAMAI_SHARED_CDN
-   * SHARED_CDN
-   * config
-   * url
-   * video_url
-   * video_thumbnail_url
-   * transformation_string
-   * image
-   * video_thumbnail
-   * facebook_profile_image
-   * twitter_profile_image
-   * twitter_name_profile_image
-   * gravatar_image
-   * fetch_image
-   * video
-   * sprite_css
-   * responsive
-   * calc_stoppoint
-   * device_pixel_ratio
-   * supported_dpr_values
-
+ * Main Cloudinary class
 ###
 class Cloudinary
   CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
@@ -41,6 +24,7 @@ class Cloudinary
   responsiveConfig = {}
   responsiveResizeInitialized = false
   ###*
+  * @const {object} Cloudinary.DEFAULT_IMAGE_PARAMS
   * Defaults values for image parameters.
   *
   * (Previously defined using option_consume() )
@@ -53,7 +37,7 @@ class Cloudinary
 
   ###*
   * Defaults values for video parameters.
-  *
+  * @const {object} Cloudinary.DEFAULT_VIDEO_PARAMS
   * (Previously defined using option_consume() )
   ###
   @DEFAULT_VIDEO_PARAMS: {
@@ -65,8 +49,17 @@ class Cloudinary
     type: 'upload'
   }
 
+  ###*
+   * Main Cloudinary class
+   * @class Cloudinary
+   * @param {object} options - options to configure Cloudinary
+   * @see Configuration for more details
+   * @example
+   *var cl = new cloudinary.Cloudinary( { cloud_name: "mycloud"});
+   *var imgTag = cl.image("myPicID");
+  ###
   constructor: (options)->
-    configuration = new Cloudinary.Configuration(options)
+    configuration = new cloudinary.Configuration(options)
 
     # Provided for backward compatibility
     @config= (newConfig, newValue) ->
@@ -86,11 +79,12 @@ class Cloudinary
 
   ###*
    * Return the resource type and action type based on the given configuration
-   * @param resource_type
-   * @param type
-   * @param url_suffix
-   * @param use_root_path
-   * @param shorten
+   * @function Cloudinary#finalizeResourceType
+   * @param {object|string} resource_type
+   * @param {string} [type='upload']
+   * @param {string} [url_suffix]
+   * @param {boolean} [use_root_path]
+   * @param {boolean} [shorten]
    * @returns {string} resource_type/type
    *
   ###
@@ -134,6 +128,16 @@ class Cloudinary
       url = prefix + url
     url
 
+  ###*
+   * Generate an resource URL.
+   * @function Cloudinary#url
+   * @param {string} publicId - the public ID of the resource
+   * @param {Object} [options] - options for the tag and transformations, possible values include all {@link Transformation} parameters
+   *                          and {@link Configuration} parameters
+   * @param {string} [options.type='upload'] - the classification of the resource
+   * @param {Object} [options.resource_type='image'] - the type of the resource
+   * @return {HTMLImageElement} an image tag element
+  ###
   url: (publicId, options = {}) ->
     options = Util.defaults({}, options, @config(), Cloudinary.DEFAULT_IMAGE_PARAMS)
     if options.type == 'fetch'
@@ -195,6 +199,7 @@ class Cloudinary
 
   ###*
    * Generate an image tag.
+   * @function Cloudinary#image
    * @param {string} publicId - the public ID of the image
    * @param {Object} [options] - options for the tag and transformations
    * @return {HTMLImageElement} an image tag element
@@ -208,6 +213,9 @@ class Cloudinary
     # set image src taking responsiveness in account
     @cloudinary_update(img, options)
     img
+  imageTag: (publicId, options)->
+    options = Util.defaults({}, options, @config())
+    new ImageTag(publicId, options)
 
   video_thumbnail: (publicId, options) ->
     @image publicId, Util.merge( {}, DEFAULT_POSTER_OPTIONS, options)
@@ -229,6 +237,10 @@ class Cloudinary
 
   video: (publicId, options = {}) ->
     @videoTag(publicId, options).toHtml()
+
+  videoTag: (publicId, options)->
+    options = Util.defaults({}, options, @config())
+    new VideoTag(publicId, options)
 
   sprite_css: (publicId, options) ->
     options = Util.assign({ type: 'sprite' }, options)
@@ -357,10 +369,11 @@ class Cloudinary
 
 
   ###*
-  * similar to `$.fn.cloudinary`
   * Finds all `img` tags under each node and sets it up to provide the image through Cloudinary
+  * @function Cloudinary.processImageTags
   ###
   processImageTags: (nodes, options = {}) ->
+    # similar to `$.fn.cloudinary`
     options = Util.defaults({}, options, @config())
     images = for node in nodes when node.tagName?.toUpperCase() == 'IMG'
         imgOptions = Util.assign({
@@ -383,17 +396,17 @@ class Cloudinary
   ###*
   * Update hidpi (dpr_auto) and responsive (w_auto) fields according to the current container size and the device pixel ratio.
   * Only images marked with the cld-responsive class have w_auto updated.
-  * options:
-  * - responsive_use_stoppoints:
-  *   - true - always use stoppoints for width
-  *   - "resize" - use exact width on first render and stoppoints on resize (default)
-  *   - false - always use exact width
-  * - responsive:
-  *   - true - enable responsive on this element. Can be done by adding cld-responsive.
-  *            Note that $.cloudinary.responsive() should be called once on the page.
-  * - responsive_preserve_height: if set to true, original css height is perserved. Should only be used if the transformation supports different aspect ratios.
+  * @function Cloudinary.cloudinary_update
+  * @param {(Array|string|NodeList)} elements - the elements to modify
+  * @param {object} options
+  * @param {boolean|string} [options.responsive_use_stoppoints='resize']
+  *  - when `true`, always use stoppoints for width
+  * - when `"resize"` use exact width on first render and stoppoints on resize (default)
+  * - when `false` always use exact width
+  * @param {boolean} [options.responsive] - if `true`, enable responsive on this element. Can be done by adding cld-responsive.
+  * @param {boolean} [options.responsive_preserve_height] - if set to true, original css height is preserved.
+  *   Should only be used if the transformation supports different aspect ratios.
   ###
-
   cloudinary_update: (elements, options = {}) ->
     elements = switch
       when Util.isArray(elements)
@@ -443,13 +456,11 @@ class Cloudinary
 
   ###*
   * Provide a transformation object, initialized with own's options, for chaining purposes.
+  * @function Cloudinary.transformation
+  * @param {object} options
   * @return {Transformation}
   ###
   transformation: (options)->
     Transformation.new( @config()).fromOptions(options).setParent( this)
 
-global = module?.exports ? window
-# Copy all previously defined object in the "Cloudinary" scope
-
-Util.assign( Cloudinary, global.Cloudinary) if global.Cloudinary
-global.Cloudinary = Cloudinary
+cloudinary.Cloudinary = Cloudinary

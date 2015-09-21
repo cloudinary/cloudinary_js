@@ -1,4 +1,8 @@
 class CloudinaryJQuery extends Cloudinary
+  ###*
+   * Cloudinary class with jQuery support
+   * @constructor CloudinaryJQuery
+  ###
   constructor: (options)->
     super(options)
 
@@ -135,10 +139,7 @@ jQuery.fn.webpify = (options = {}, webp_options) ->
 jQuery.fn.fetchify = (options) ->
   @cloudinary jQuery.extend(options, 'type': 'fetch')
 
-global = module?.exports ? window
-# Copy all previously defined object in the "Cloudinary" scope
-
-global.Cloudinary.CloudinaryJQuery = CloudinaryJQuery
+cloudinary.CloudinaryJQuery = CloudinaryJQuery
 
 
 jQuery.cloudinary = new CloudinaryJQuery()

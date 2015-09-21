@@ -113,13 +113,19 @@ module.exports = (grunt)->
             'test/spec/videourlspec.js'
             'test/spec/chaining-spec.js'
           ]
-
+    jsdoc:
+      dist:
+        src: ['js/jquery.cloudinary.js']
+        options:
+          destination: 'doc'
+          configure: "jsdoc-conf.json"
 
 
 
 
   grunt.loadNpmTasks('grunt-contrib-coffee')
   grunt.loadNpmTasks('grunt-contrib-uglify')
+  grunt.loadNpmTasks('grunt-jsdoc')
   grunt.loadNpmTasks('grunt-karma')
-  grunt.registerTask('default', ['coffee'])
-  grunt.registerTask('build', ['coffee', 'uglify'])
+  grunt.registerTask('default', ['coffee', 'jsdoc'])
+  grunt.registerTask('build', ['coffee', 'jsdoc', 'uglify'])

@@ -8,7 +8,7 @@
       return expect(result).toEqual(expected_url);
     };
     beforeEach(function() {
-      $.cloudinary = new Cloudinary.CloudinaryJQuery({
+      $.cloudinary = new cloudinary.CloudinaryJQuery({
         cloud_name: 'test123'
       });
       fixtureContainer = $('<div id="fixture">');

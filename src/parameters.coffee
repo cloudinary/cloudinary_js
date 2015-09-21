@@ -1,32 +1,32 @@
-###*
- * @class Represents a single parameter
-###
 class Param
   ###*
-   * Create a new Parameter
+   * Represents a single parameter
+   * @class Param
    * @param {string} name - The name of the parameter in snake_case
-   * @param {string short - The name of the serialized form of the parameter
+   * @param {string} short - The name of the serialized form of the parameter.
+   *                         If a value is not provided, the parameter will not be serialized.
    * @param {function} [process=Util.identity ] - Manipulate origValue when value is called
   ###
   constructor: (name, short, process = Util.identity)->
     ###*
      * The name of the parameter in snake_case
-     * @type {string}
+     * @member {string} Param#name
     ###
     @name = name
     ###*
      * The name of the serialized form of the parameter
-     * @type {string}
+     * @member {string} Param#short
     ###
     @short = short
     ###*
      * Manipulate origValue when value is called
-     * @type {function}
+     * @member {function} Param#process
     ###
     @process = process
 
   ###*
    * Set a (unprocessed) value for this parameter
+   * @function Param#set
    * @param {*} origValue - the value of the parameter
    * @return {Param} self for chaining
   ###
@@ -35,6 +35,7 @@ class Param
 
   ###*
    * Generate the serialized form of the parameter
+   * @function Param#serialize
    * @return {string} the serialized form of the parameter
   ###
   serialize: ->
@@ -46,6 +47,7 @@ class Param
 
   ###*
    * Return the processed value of the parameter
+   * @function Param#value
   ###
   value: ->
     @process(@origValue)
@@ -58,11 +60,20 @@ class Param
     else
       [arg]
 
-
 class ArrayParam extends Param
+  ###*
+   * A parameter that represents an array
+   * @param {string} name - The name of the parameter in snake_case
+   * @param {string} short - The name of the serialized form of the parameter
+   *                         If a value is not provided, the parameter will not be serialized.
+   * @param {string} [sep='.'] - The separator to use when joining the array elements together
+   * @param {function} [process=Util.identity ] - Manipulate origValue when value is called
+   * @class ArrayParam
+  ###
   constructor: (name, short, sep = '.', process) ->
     @sep = sep
     super(name, short, process)
+
   serialize: ->
     if @short?
       flat = for t in @value()
@@ -73,6 +84,7 @@ class ArrayParam extends Param
       "#{@short}_#{flat.join(@sep)}"
     else
       null
+
   set: (@origValue)->
     if Util.isArray(@origValue)
       super(@origValue)
@@ -80,9 +92,18 @@ class ArrayParam extends Param
       super([@origValue])
 
 class TransformationParam extends Param
+  ###*
+   * A parameter that represents a transformation
+   * @param {string} name - The name of the parameter in snake_case
+   * @param {string} [short='t'] - The name of the serialized form of the parameter
+   * @param {string} [sep='.'] - The separator to use when joining the array elements together
+   * @param {function} [process=Util.identity ] - Manipulate origValue when value is called
+   * @class TransformationParam
+  ###
   constructor: (name, short = "t", sep = '.', process) ->
     @sep = sep
     super(name, short, process)
+
   serialize: ->
     if Util.isEmpty(@value())
       null
@@ -97,6 +118,7 @@ class TransformationParam extends Param
         else if Util.isPlainObject(t)
           new Transformation(t).serialize()
       Util.compact(result)
+
   set: (@origValue)->
     if Util.isArray(@origValue)
       super(@origValue)
@@ -104,6 +126,15 @@ class TransformationParam extends Param
       super([@origValue])
 
 class RangeParam extends Param
+  ###*
+   * A parameter that represents a range
+   * @param {string} name - The name of the parameter in snake_case
+   * @param {string} short - The name of the serialized form of the parameter
+   *                         If a value is not provided, the parameter will not be serialized.
+   * @param {string} [sep='.'] - The separator to use when joining the array elements together
+   * @param {function} [process=norm_range_value ] - Manipulate origValue when value is called
+   * @class RangeParam
+  ###
   constructor: (name, short, process = @norm_range_value)->
     super(name, short, process)
 

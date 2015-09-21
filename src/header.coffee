@@ -13,7 +13,9 @@
         ], factory);
     } else {
         // Browser globals:
-        factory(_);
+        window.cloudinary = {};
+        factory(_, cloudinary);
     }
-}(function (_) {
+}(function (_, cloudinary) {
+var cloudinary = cloudinary;
 `

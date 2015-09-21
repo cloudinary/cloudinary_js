@@ -8,7 +8,7 @@ describe 'cloudinary', ->
     expect(result).toEqual expected_url
 
   beforeEach ->
-    $.cloudinary = new (Cloudinary.CloudinaryJQuery)(cloud_name: 'test123')
+    $.cloudinary = new (cloudinary.CloudinaryJQuery)(cloud_name: 'test123')
     fixtureContainer = $('<div id="fixture" " >')
     fixtureContainer.appendTo 'body'
 
