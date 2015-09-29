@@ -391,6 +391,7 @@
     if (!public_id) return public_id;
     
     options = options || {};
+    var account = option_consume(options, 'account', $.cloudinary.config().account);
     var type = option_consume(options, 'type', 'upload');
     if (type == 'fetch') {
       options.fetch_format = options.fetch_format || option_consume(options, 'format');
@@ -399,7 +400,9 @@
     var resource_type = option_consume(options, 'resource_type', "image");
     var version = option_consume(options, 'version');
     var format = option_consume(options, 'format');
-    var cloud_name = option_consume(options, 'cloud_name', $.cloudinary.config().cloud_name);
+    var get_cloud_name = 'cloud_name';
+    if (account) {get_cloud_name = account + '_cloud_name'};
+    var cloud_name = option_consume(options, get_cloud_name, $.cloudinary.config(get_cloud_name));
     if (!cloud_name) throw "Unknown cloud_name";
     var private_cdn = option_consume(options, 'private_cdn', $.cloudinary.config().private_cdn);
     var secure_distribution = option_consume(options, 'secure_distribution', $.cloudinary.config().secure_distribution);
@@ -861,7 +864,11 @@
     options = options || {};
     var url = options.url;
     if (!url) {
-      var cloud_name = options.cloud_name || $.cloudinary.config().cloud_name;
+      var account = options.account || $.cloudinary.config().account;
+	    var get_cloud_name = 'cloud_name';
+	    if (account) {get_cloud_name = account + '_cloud_name'};
+      var cloud_name = options.get_cloud_name || $.cloudinary.config().get_cloud_name;
+     
       url = "https://api.cloudinary.com/v1_1/" + cloud_name + "/delete_by_token";
     }
     var dataType = $.support.xhrFileUpload ? "json" : "iframe json";
@@ -936,7 +943,10 @@
       });
 
       if (!this.fileupload('option').url) {
-        var cloud_name = options.cloud_name || $.cloudinary.config().cloud_name;
+        var account = options.account || $.cloudinary.config().account;
+        var get_cloud_name = 'cloud_name';
+        if (account) {get_cloud_name = account + '_cloud_name'};
+        var cloud_name = options.get_cloud_name || $.cloudinary.config(get_cloud_name);
         var resource_type = options.resource_type || "auto";
         var type = options.type || "upload";
         var upload_url = "https://api.cloudinary.com/v1_1/" + cloud_name + "/" + resource_type + "/" + type;
