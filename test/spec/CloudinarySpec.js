@@ -399,4 +399,9 @@ describe("cloudinary", function() {
     $.cloudinary.responsive();
     expect(img.attr('src')).not.toEqual(undefined);
   });
+
+  it("should not fail on falsy public_id" ,function() {
+    expect($.cloudinary.url_internal(null)).toEqual(null);
+    expect($.cloudinary.url_internal(undefined)).toEqual(undefined);
+  });
 });

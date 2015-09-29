@@ -388,6 +388,8 @@
   }
 
   function cloudinary_url(public_id, options) {
+    if (!public_id) return public_id;
+    
     options = options || {};
     var type = option_consume(options, 'type', 'upload');
     if (type == 'fetch') {
