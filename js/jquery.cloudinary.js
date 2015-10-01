@@ -19,7 +19,7 @@
     var $ = window.jQuery;
     factory($);
     $(function() {
-      if($.fn.cloudinary_fileupload !== undefined) {
+      if($.fn.cloudinary_fileupload !== undefined && typeof Package === 'undefined') {
         $("input.cloudinary-fileupload[type=file]").cloudinary_fileupload();
       }
     });
