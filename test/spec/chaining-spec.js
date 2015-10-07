@@ -1,4 +1,19 @@
 (function() {
+  var simpleAssign, simpleClone;
+
+  simpleAssign = function(dest, source) {
+    var key, value;
+    for (key in source) {
+      value = source[key];
+      dest[key] = value;
+    }
+    return dest;
+  };
+
+  simpleClone = function(source) {
+    return simpleAssign({}, source);
+  };
+
   describe("Chaining", function() {
     var DEFAULT_UPLOAD_PATH, VIDEO_UPLOAD_PATH, config, options;
     VIDEO_UPLOAD_PATH = window.location.protocol + "//res.cloudinary.com/test123/video/upload/";
@@ -15,7 +30,7 @@
     };
     options = {};
     beforeEach(function() {
-      return options = _.clone(config);
+      return options = simpleClone(config);
     });
     describe("Cloudinary.transformation", function() {
       var cl, t;

@@ -1,11 +1,12 @@
 (function() {
   describe('cloudinary', function() {
-    var cl, fixtureContainer, layer, layers, result, test_cloudinary_url;
+    var cl, fixtureContainer, layer, layers, test_cloudinary_url;
     cl = {};
-    result = void 0;
     fixtureContainer = void 0;
     test_cloudinary_url = function(public_id, options, expected_url, expected_options) {
+      var result;
       result = cl.url(public_id, options);
+      expect(new cloudinary.Transformation(options).toHtmlAttributes()).toEqual(expected_options);
       return expect(result).toEqual(expected_url);
     };
     beforeEach(function() {
@@ -284,6 +285,7 @@
       }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/e_sepia:10/test', {});
     });
     it('should support fetch_image', function() {
+      var result;
       result = cl.fetch_image('http://example.com/hello.jpg?a=b').getAttribute('src');
       expect(result).toEqual(window.location.protocol + '//res.cloudinary.com/test123/image/fetch/http://example.com/hello.jpg%3Fa%3Db');
     });
@@ -379,6 +381,7 @@
         return window.devicePixelRatio = dpr;
       });
       return it('should update dpr when creating an image tag using $.cloudinary.image()', function() {
+        var result;
         result = cl.image('test', options);
         return expect(result.getAttribute('src')).toBe(window.location.protocol + '//res.cloudinary.com/test123/image/upload/dpr_2.0/test');
       });
@@ -506,6 +509,7 @@
       }).toThrow();
     });
     it('should generate sprite css urls', function() {
+      var result;
       result = cl.sprite_css('test');
       expect(result).toEqual(window.location.protocol + '//res.cloudinary.com/test123/image/sprite/test.css');
       result = cl.sprite_css('test.css');
@@ -527,7 +531,7 @@
       return results;
     });
     it('should allow to override protocol', function() {
-      var options;
+      var options, result;
       options = {
         'protocol': 'custom:'
       };

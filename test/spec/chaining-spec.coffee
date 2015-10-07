@@ -1,3 +1,10 @@
+simpleAssign = (dest, source)->
+  dest[key]= value for key, value of source
+  dest
+
+simpleClone = (source)->
+  simpleAssign({}, source)
+
 describe "Chaining", () ->
   VIDEO_UPLOAD_PATH = "#{window.location.protocol}//res.cloudinary.com/test123/video/upload/"
   DEFAULT_UPLOAD_PATH = "#{window.location.protocol}//res.cloudinary.com/test123/image/upload/"
@@ -12,7 +19,7 @@ describe "Chaining", () ->
     api_secret: "b"
   options = {}
   beforeEach ->
-    options = _.clone(config)
+    options = simpleClone(config)
 
   describe "Cloudinary.transformation", () ->
     cl = cloudinary.Cloudinary.new();

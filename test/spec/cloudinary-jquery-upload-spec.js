@@ -1,12 +1,7 @@
 (function() {
   describe('cloudinary', function() {
-    var fixtureContainer, test_cloudinary_url;
+    var fixtureContainer;
     fixtureContainer = void 0;
-    test_cloudinary_url = function(public_id, options, expected_url, expected_options) {
-      var result;
-      result = $.cloudinary.url(public_id, options);
-      return expect(result).toEqual(expected_url);
-    };
     beforeEach(function() {
       $.cloudinary = new cloudinary.CloudinaryJQuery({
         cloud_name: 'test123'

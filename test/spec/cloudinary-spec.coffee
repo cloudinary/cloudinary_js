@@ -1,12 +1,10 @@
 describe 'cloudinary', ->
   cl = {}
-  result = undefined
   fixtureContainer = undefined
   test_cloudinary_url = (public_id, options, expected_url, expected_options) ->
     result = cl.url(public_id, options)
-    #expect(new Cloudinary.Transformation(options).toHtmlAttributes()).toEqual(expected_options);
+    expect(new cloudinary.Transformation(options).toHtmlAttributes()).toEqual(expected_options);
     expect(result).toEqual expected_url
-
 
   beforeEach ->
     cl = new cloudinary.Cloudinary(cloud_name: 'test123')

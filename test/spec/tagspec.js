@@ -1,5 +1,5 @@
 (function() {
-  var cl, getTag, test_cloudinary_url;
+  var cl, getTag, simpleAssign, simpleClone, test_cloudinary_url;
 
   cl = {};
 
@@ -11,6 +11,19 @@
     } else {
       return [tag, null];
     }
+  };
+
+  simpleAssign = function(dest, source) {
+    var key, value;
+    for (key in source) {
+      value = source[key];
+      dest[key] = value;
+    }
+    return dest;
+  };
+
+  simpleClone = function(source) {
+    return simpleAssign({}, source);
   };
 
   test_cloudinary_url = function(public_id, options, expected_url, expected_options) {
@@ -65,7 +78,7 @@
     options = {};
     beforeEach(function() {
       cl = new cloudinary.Cloudinary(config);
-      return options = _.clone(config);
+      return options = simpleClone(config);
     });
     root_path = window.location.protocol + "//res.cloudinary.com/test123";
     upload_path = root_path + "/video/upload";
@@ -92,7 +105,7 @@
     it("should generate video tag with html5 attributes", function() {
       var expected_url, ref, ref1, ref2, ref3, tag, videoTag;
       expected_url = VIDEO_UPLOAD_PATH + "movie";
-      videoTag = new cloudinary.VideoTag("movie", _.assign({
+      videoTag = new cloudinary.VideoTag("movie", simpleAssign({
         autoplay: 1,
         controls: true,
         loop: true,
@@ -111,7 +124,7 @@
     });
     it("should generate video tag with various attributes", function() {
       var expected_url, options2, tag;
-      options2 = _.assign(options, {
+      options2 = simpleAssign(options, {
         source_types: "mp4",
         html_height: "100",
         html_width: "200",
@@ -143,10 +156,10 @@
       var expected_url, fallback;
       expected_url = VIDEO_UPLOAD_PATH + "movie";
       fallback = "<span id=\"spanid\">Cannot display video</span>";
-      expect(new cloudinary.VideoTag("movie", _.defaults({
+      expect(new cloudinary.VideoTag("movie", simpleAssign({
         fallback_content: fallback
       }, options)).toHtml()).toBe(("<video poster=\"" + expected_url + ".jpg\">") + ("<source src=\"" + expected_url + ".webm\" type=\"video/webm\">") + ("<source src=\"" + expected_url + ".mp4\" type=\"video/mp4\">") + ("<source src=\"" + expected_url + ".ogv\" type=\"video/ogg\">") + fallback + "</video>");
-      return expect(new cloudinary.VideoTag("movie", _.defaults({
+      return expect(new cloudinary.VideoTag("movie", simpleAssign({
         fallback_content: fallback,
         source_types: "mp4"
       }, options)).toHtml()).toEqual(("<video poster=\"" + expected_url + ".jpg\" src=\"" + expected_url + ".mp4\">") + fallback + "</video>");
@@ -236,7 +249,16 @@
       return describe("removeAttr()", function() {
         tag.removeAttr("id");
         return it("should remove that attribute from the tag", function() {
-          return expect(_.keys(tag.attributes())).not.toContain("id");
+          var key, keys;
+          keys = (function() {
+            var results;
+            results = [];
+            for (key in tag.attributes()) {
+              results.push(key);
+            }
+            return results;
+          })();
+          return expect(keys).not.toContain("id");
         });
       });
     });
@@ -244,7 +266,7 @@
       var element;
       element = cloudinary.HtmlTag["new"]("div").toDOM();
       return it("should generate a DOM Element", function() {
-        expect(_.isElement(element)).toBeTruthy();
+        expect(element != null ? element.nodeType : void 0).toBe(1);
         return expect(element.tagName).toMatch(/div/i);
       });
     });

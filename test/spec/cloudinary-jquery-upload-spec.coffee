@@ -1,11 +1,6 @@
 describe 'cloudinary', ->
   fixtureContainer = undefined
 
-  test_cloudinary_url = (public_id, options, expected_url, expected_options) ->
-    result = $.cloudinary.url(public_id, options)
-    #expect(options).toEqual(expected_options);
-    expect(result).toEqual expected_url
-
   beforeEach ->
     $.cloudinary = new (cloudinary.CloudinaryJQuery)(cloud_name: 'test123')
     fixtureContainer = $('<div id="fixture">')

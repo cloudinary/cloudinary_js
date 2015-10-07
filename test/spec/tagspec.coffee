@@ -7,6 +7,12 @@ getTag = (tag)->
   else
     [tag, null]
 
+simpleAssign = (dest, source)->
+  dest[key]= value for key, value of source
+  dest
+
+simpleClone = (source)->
+  simpleAssign({}, source)
 
 test_cloudinary_url = (public_id, options, expected_url, expected_options) ->
   result = cl.url(public_id, options)
@@ -43,7 +49,7 @@ describe "Cloudinary.VideoTag", ->
 
   beforeEach ->
     cl = new cloudinary.Cloudinary( config)
-    options = _.clone(config)
+    options = simpleClone(config)
 
   root_path = "#{window.location.protocol}//res.cloudinary.com/test123"
   upload_path = "#{root_path}/video/upload"
@@ -71,7 +77,7 @@ describe "Cloudinary.VideoTag", ->
 
   it "should generate video tag with html5 attributes", ->
     expected_url = VIDEO_UPLOAD_PATH + "movie"
-    videoTag = new cloudinary.VideoTag("movie", _.assign({
+    videoTag = new cloudinary.VideoTag("movie", simpleAssign({
                                            autoplay: 1,
                                            controls: true,
                                            loop: true,
@@ -90,7 +96,7 @@ describe "Cloudinary.VideoTag", ->
 
 
   it "should generate video tag with various attributes", ->
-    options2 = _.assign( options, {
+    options2 = simpleAssign( options, {
       source_types: "mp4",
       html_height : "100",
       html_width  : "200",
@@ -133,14 +139,14 @@ describe "Cloudinary.VideoTag", ->
   it "should generate video tag with fallback", ->
     expected_url = VIDEO_UPLOAD_PATH + "movie"
     fallback = "<span id=\"spanid\">Cannot display video</span>"
-    expect(new cloudinary.VideoTag("movie", _.defaults({fallback_content: fallback}, options)).toHtml()).toBe(
+    expect(new cloudinary.VideoTag("movie", simpleAssign({fallback_content: fallback}, options)).toHtml()).toBe(
       "<video poster=\"#{expected_url}.jpg\">" +
       "<source src=\"#{expected_url}.webm\" type=\"video/webm\">" +
       "<source src=\"#{expected_url}.mp4\" type=\"video/mp4\">" +
       "<source src=\"#{expected_url}.ogv\" type=\"video/ogg\">" +
       fallback +
       "</video>")
-    expect(new cloudinary.VideoTag("movie", _.defaults({fallback_content: fallback, source_types: "mp4"}, options)).toHtml()).toEqual(
+    expect(new cloudinary.VideoTag("movie", simpleAssign({fallback_content: fallback, source_types: "mp4"}, options)).toHtml()).toEqual(
       "<video poster=\"#{expected_url}.jpg\" src=\"#{expected_url}.mp4\">" +
       fallback +
       "</video>")
@@ -196,13 +202,15 @@ describe "Cloudinary.VideoTag", ->
     describe "removeAttr()", ->
       tag.removeAttr("id")
       it "should remove that attribute from the tag", ->
-        expect(_.keys(tag.attributes())).not.toContain("id")
+        keys = for key of tag.attributes()
+          key
+        expect(keys).not.toContain("id")
 
 
   describe "toDOM", ->
     element = cloudinary.HtmlTag.new("div").toDOM()
     it "should generate a DOM Element", ->
-      expect(_.isElement(element)).toBeTruthy()
+      expect(element?.nodeType).toBe(1) # element
       expect(element.tagName).toMatch /div/i
 
   

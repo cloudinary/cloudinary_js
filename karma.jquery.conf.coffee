@@ -15,13 +15,17 @@ module.exports = (config) ->
 
     # list of files / patterns to load in the browser
     files: [
-      'bower_components/lodash/lodash.js'
-      'js/cloudinary.js'
+      'bower_components/jquery/dist/jquery.js'
+      'js/jquery.noupload.cloudinary.js'
       'test/spec/cloudinary-spec.js'
+      'test/spec/cloudinary-jquery-spec.js'
       'test/spec/tagspec.js'
       'test/spec/videourlspec.js'
       'test/spec/chaining-spec.js'
     ]
+
+
+
 
     # preprocess matching files before serving them to the browser
     # available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor

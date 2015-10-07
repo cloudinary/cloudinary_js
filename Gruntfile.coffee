@@ -75,44 +75,16 @@ module.exports = (grunt)->
     karma:
       options:
         configFile: 'karma.conf.coffee'
+        reporters: ['dots']
       cloudinary:
-        files:
-          src: [
-            'bower_components/lodash/lodash.js',
-            'js/cloudinary.js',
-            'test/spec/cloudinary-spec.js'
-            'test/spec/tagspec.js'
-            'test/spec/videourlspec.js'
-            'test/spec/chaining-spec.js'
-          ]
+        options:
+          configFile: 'karma.conf.coffee'
       jqueryCloudinaryNoupload:
-        files:
-          src: [
-            'bower_components/lodash/lodash.js',
-            'bower_components/jquery/dist/jquery.js',
-            'js/jquery.noupload.cloudinary.js',
-            'test/spec/cloudinary-jquery-spec.js'
-            'test/spec/tagspec.js'
-            'test/spec/videourlspec.js'
-            'test/spec/chaining-spec.js'
-          ]
+        options:
+          configFile: 'karma.jquery.conf.coffee'
       jqueryCloudinary:
-        files:
-          src: [
-            'bower_components/jquery/dist/jquery.js'
-            'bower_components/jquery.ui/ui/widget.js'
-            'bower_components/lodash/lodash.js'
-            'bower_components/blueimp-file-upload/js/jquery.fileupload.js'
-            'bower_components/blueimp-file-upload/js/jquery.fileupload-process.js'
-            'bower_components/blueimp-file-upload/js/jquery.iframe-transport.js'
-            'bower_components/blueimp-file-upload/js/jquery.fileupload-image.js'
-            'js/jquery.cloudinary.js'
-            'test/spec/cloudinary-jquery-spec.js'
-            'test/spec/cloudinary-jquery-upload-spec.js'
-            'test/spec/tagspec.js'
-            'test/spec/videourlspec.js'
-            'test/spec/chaining-spec.js'
-          ]
+        options:
+          configFile: 'karma.jquery.upload.conf.coffee'
     jsdoc:
       dist:
         src: ['js/jquery.cloudinary.js']
