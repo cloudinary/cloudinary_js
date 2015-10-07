@@ -14,11 +14,10 @@
         ], factory);
     } else {
         // Browser globals:
-        window.cloudinary = {};
-        factory(_, cloudinary);
+        window.cloudinary = factory(_);
     }
-}(function (_, cloudinary) {
-var cloudinary = cloudinary;
+}(function (_) {
+var cloudinary = {};
 ;
 
   /**
@@ -34,7 +33,7 @@ var cloudinary = cloudinary;
     * @returns the value associated with the `name`
     *
    */
-  var ArrayParam, Cloudinary, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, augmentWidthOrHeight, contains, crc32, cssExpand, cssValue, curCSS, getAttribute, getData, getStyles, getWidthOrHeight, hasClass, pnum, process_video_params, rnumnonpx, setAttribute, setAttributes, setData, utf8_encode, width, without,
+  var ArrayParam, Cloudinary, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, augmentWidthOrHeight, contains, crc32, cssExpand, cssValue, curCSS, domStyle, getAttribute, getData, getStyles, getWidthOrHeight, hasClass, pnum, process_video_params, rnumnonpx, setAttribute, setAttributes, setData, utf8_encode, width, without,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
@@ -137,6 +136,12 @@ var cloudinary = cloudinary;
     return a === bup || !!(bup && bup.nodeType === 1 && adown.contains(bup));
   };
 
+  domStyle = function(elem, name) {
+    if (!(!elem || elem.nodeType === 3 || elem.nodeType === 8 || !elem.style)) {
+      return elem.style[name];
+    }
+  };
+
   curCSS = function(elem, name, computed) {
     var maxWidth, minWidth, ret, style, width;
     width = void 0;
@@ -150,7 +155,7 @@ var cloudinary = cloudinary;
     }
     if (computed) {
       if (ret === "" && !contains(elem.ownerDocument, elem)) {
-        ret = jQuery.style(elem, name);
+        ret = domStyle(elem, name);
       }
       if (rnumnonpx.test(ret) && rmargin.test(name)) {
         width = style.width;
@@ -495,7 +500,7 @@ var cloudinary = cloudinary;
      * @param {boolean} [use_root_path]
      * @param {boolean} [shorten]
      * @returns {string} resource_type/type
-     *
+     * @ignore
      */
 
     finalizeResourceType = function(resourceType, type, urlSuffix, useRootPath, shorten) {
@@ -1236,6 +1241,7 @@ var cloudinary = cloudinary;
      * @param {string} short - The name of the serialized form of the parameter.
      *                         If a value is not provided, the parameter will not be serialized.
      * @param {function} [process=Util.identity ] - Manipulate origValue when value is called
+     * @ignore
      */
     function Param(name, short, process) {
       if (process == null) {
@@ -1332,6 +1338,7 @@ var cloudinary = cloudinary;
      * @param {string} [sep='.'] - The separator to use when joining the array elements together
      * @param {function} [process=Util.identity ] - Manipulate origValue when value is called
      * @class ArrayParam
+     * @ignore
      */
 
     function ArrayParam(name, short, sep, process) {
@@ -1389,6 +1396,7 @@ var cloudinary = cloudinary;
      * @param {string} [sep='.'] - The separator to use when joining the array elements together
      * @param {function} [process=Util.identity ] - Manipulate origValue when value is called
      * @class TransformationParam
+     * @ignore
      */
 
     function TransformationParam(name, short, sep, process) {
@@ -1458,6 +1466,7 @@ var cloudinary = cloudinary;
      * @param {string} [sep='.'] - The separator to use when joining the array elements together
      * @param {function} [process=norm_range_value ] - Manipulate origValue when value is called
      * @class RangeParam
+     * @ignore
      */
 
     function RangeParam(name, short, process) {
@@ -1510,6 +1519,7 @@ var cloudinary = cloudinary;
   * vc_[ :profile : [level]]
   * or
     { codec: 'h264', profile: 'basic', level: '3.1' }
+  * @ignore
    */
 
   process_video_params = function(param) {

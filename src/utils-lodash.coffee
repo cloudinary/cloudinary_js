@@ -85,6 +85,12 @@ contains = (a, b) ->
   bup = b and b.parentNode
   a is bup or !!(bup and bup.nodeType is 1 and adown.contains(bup))
 
+# Truncated version of jQuery.style(elem, name)
+domStyle = (elem, name) ->
+  # Don't set styles on text and comment nodes
+  unless !elem or elem.nodeType == 3 or elem.nodeType == 8 or !elem.style
+    elem.style[name]
+
 curCSS = (elem, name, computed) ->
   width = undefined
   minWidth = undefined
@@ -97,7 +103,7 @@ curCSS = (elem, name, computed) ->
   # getPropertyValue is only needed for .css('filter') (#12537)
   ret = computed.getPropertyValue(name) or computed[name]  if computed
   if computed
-    ret = jQuery.style(elem, name)  if ret is "" and not contains(elem.ownerDocument, elem)
+    ret = domStyle(elem, name)  if ret is "" and not contains(elem.ownerDocument, elem)
 
     # Support: iOS < 6
     # A tribute to the "awesome hack by Dean Edwards"
@@ -122,6 +128,7 @@ curCSS = (elem, name, computed) ->
   # Support: IE
   # IE returns zIndex value as an integer.
   (if ret isnt `undefined` then ret + "" else ret)
+
 
 cssValue = (elem, name, convert, styles)->
   val = curCSS( elem, name, styles )

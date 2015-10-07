@@ -6,6 +6,7 @@ class Param
    * @param {string} short - The name of the serialized form of the parameter.
    *                         If a value is not provided, the parameter will not be serialized.
    * @param {function} [process=Util.identity ] - Manipulate origValue when value is called
+   * @ignore
   ###
   constructor: (name, short, process = Util.identity)->
     ###*
@@ -69,6 +70,7 @@ class ArrayParam extends Param
    * @param {string} [sep='.'] - The separator to use when joining the array elements together
    * @param {function} [process=Util.identity ] - Manipulate origValue when value is called
    * @class ArrayParam
+   * @ignore
   ###
   constructor: (name, short, sep = '.', process) ->
     @sep = sep
@@ -99,6 +101,7 @@ class TransformationParam extends Param
    * @param {string} [sep='.'] - The separator to use when joining the array elements together
    * @param {function} [process=Util.identity ] - Manipulate origValue when value is called
    * @class TransformationParam
+   * @ignore
   ###
   constructor: (name, short = "t", sep = '.', process) ->
     @sep = sep
@@ -134,6 +137,7 @@ class RangeParam extends Param
    * @param {string} [sep='.'] - The separator to use when joining the array elements together
    * @param {function} [process=norm_range_value ] - Manipulate origValue when value is called
    * @class RangeParam
+   * @ignore
   ###
   constructor: (name, short, process = @norm_range_value)->
     super(name, short, process)
@@ -162,6 +166,7 @@ class RawParam extends Param
 * vc_[ :profile : [level]]
 * or
   { codec: 'h264', profile: 'basic', level: '3.1' }
+* @ignore
 ###
 process_video_params = (param) ->
   switch param.constructor

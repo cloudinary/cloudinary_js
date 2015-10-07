@@ -13,9 +13,8 @@
         ], factory);
     } else {
         // Browser globals:
-        window.cloudinary = {};
-        factory(_, cloudinary);
+        window.cloudinary = factory(_);
     }
-}(function (_, cloudinary) {
-var cloudinary = cloudinary;
+}(function (_) {
+var cloudinary = {};
 `

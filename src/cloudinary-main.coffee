@@ -86,7 +86,7 @@ class Cloudinary
    * @param {boolean} [use_root_path]
    * @param {boolean} [shorten]
    * @returns {string} resource_type/type
-   *
+   * @ignore
   ###
   finalizeResourceType = (resourceType,type,urlSuffix,useRootPath,shorten) ->
     if Util.isPlainObject(resourceType)

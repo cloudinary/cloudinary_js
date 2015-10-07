@@ -974,6 +974,9 @@ class Param
 
   @norm_color: (value) -> value?.replace(/^#/, 'rgb:')
 
+  ###*
+   * @deprecated
+  ###
   build_array: (arg = []) ->
     if _.isArray(arg)
       arg

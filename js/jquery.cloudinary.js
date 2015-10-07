@@ -10,7 +10,6 @@
     if (typeof define === 'function' && define.amd) {
         // Register as an anonymous AMD module:
         define([
-            'lodash',
             'jquery',
             'tmpl',
             'load-image',
@@ -18,11 +17,10 @@
         ], factory);
     } else {
         // Browser globals:
-        window.cloudinary = {};
-        factory(_, jQuery, cloudinary);
+        window.cloudinary = factory(jQuery);
     }
-}(function (_, jQuery, cloudinary) {
-var cloudinary = cloudinary;
+}(function (jQuery) {
+var cloudinary = {};
 ;
 
   /**
@@ -496,7 +494,7 @@ var cloudinary = cloudinary;
      * @param {boolean} [use_root_path]
      * @param {boolean} [shorten]
      * @returns {string} resource_type/type
-     *
+     * @ignore
      */
 
     finalizeResourceType = function(resourceType, type, urlSuffix, useRootPath, shorten) {
@@ -1237,6 +1235,7 @@ var cloudinary = cloudinary;
      * @param {string} short - The name of the serialized form of the parameter.
      *                         If a value is not provided, the parameter will not be serialized.
      * @param {function} [process=Util.identity ] - Manipulate origValue when value is called
+     * @ignore
      */
     function Param(name, short, process) {
       if (process == null) {
@@ -1333,6 +1332,7 @@ var cloudinary = cloudinary;
      * @param {string} [sep='.'] - The separator to use when joining the array elements together
      * @param {function} [process=Util.identity ] - Manipulate origValue when value is called
      * @class ArrayParam
+     * @ignore
      */
 
     function ArrayParam(name, short, sep, process) {
@@ -1390,6 +1390,7 @@ var cloudinary = cloudinary;
      * @param {string} [sep='.'] - The separator to use when joining the array elements together
      * @param {function} [process=Util.identity ] - Manipulate origValue when value is called
      * @class TransformationParam
+     * @ignore
      */
 
     function TransformationParam(name, short, sep, process) {
@@ -1459,6 +1460,7 @@ var cloudinary = cloudinary;
      * @param {string} [sep='.'] - The separator to use when joining the array elements together
      * @param {function} [process=norm_range_value ] - Manipulate origValue when value is called
      * @class RangeParam
+     * @ignore
      */
 
     function RangeParam(name, short, process) {
@@ -1511,6 +1513,7 @@ var cloudinary = cloudinary;
   * vc_[ :profile : [level]]
   * or
     { codec: 'h264', profile: 'basic', level: '3.1' }
+  * @ignore
    */
 
   process_video_params = function(param) {

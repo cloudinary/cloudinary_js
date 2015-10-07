@@ -9,14 +9,12 @@
     if (typeof define === 'function' && define.amd) {
         // Register as an anonymous AMD module:
         define([
-            'lodash',
             'jquery'
         ], factory);
     } else {
         // Browser globals:
-        window.cloudinary = {};
-        factory(_, jQuery, cloudinary);
+        window.cloudinary = factory(jQuery);
     }
-}(function (_, jQuery, cloudinary) {
-var cloudinary = cloudinary;
+}(function (jQuery) {
+var cloudinary = {};
 `
