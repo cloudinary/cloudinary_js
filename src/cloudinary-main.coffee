@@ -68,12 +68,22 @@ class Cloudinary
 
     @fromDocument = ()->
       configuration.fromDocument()
-      @config()
+      @
 
 
     @fromEnvironment = ()->
       configuration.fromEnvironment()
-      @config()
+      @
+
+    ###*
+     * Initialize configuration.
+     * @function Cloudinary#init
+     * @see Configuration#init
+     * @return {Cloudinary} this for chaining
+    ###
+    @init = ()->
+      configuration.init()
+      @
 
   @new = (options)-> new @(options)
 
@@ -370,7 +380,7 @@ class Cloudinary
 
   ###*
   * Finds all `img` tags under each node and sets it up to provide the image through Cloudinary
-  * @function Cloudinary.processImageTags
+  * @function Cloudinary#processImageTags
   ###
   processImageTags: (nodes, options = {}) ->
     # similar to `$.fn.cloudinary`
@@ -396,7 +406,7 @@ class Cloudinary
   ###*
   * Update hidpi (dpr_auto) and responsive (w_auto) fields according to the current container size and the device pixel ratio.
   * Only images marked with the cld-responsive class have w_auto updated.
-  * @function Cloudinary.cloudinary_update
+  * @function Cloudinary#cloudinary_update
   * @param {(Array|string|NodeList)} elements - the elements to modify
   * @param {object} options
   * @param {boolean|string} [options.responsive_use_stoppoints='resize']
@@ -456,7 +466,7 @@ class Cloudinary
 
   ###*
   * Provide a transformation object, initialized with own's options, for chaining purposes.
-  * @function Cloudinary.transformation
+  * @function Cloudinary#transformation
   * @param {object} options
   * @return {Transformation}
   ###

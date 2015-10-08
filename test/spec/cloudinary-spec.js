@@ -287,7 +287,7 @@
     it('should support fetch_image', function() {
       var result;
       result = cl.fetch_image('http://example.com/hello.jpg?a=b').getAttribute('src');
-      expect(result).toEqual(window.location.protocol + '//res.cloudinary.com/test123/image/fetch/http://example.com/hello.jpg%3Fa%3Db');
+      return expect(result).toEqual(window.location.protocol + '//res.cloudinary.com/test123/image/fetch/http://example.com/hello.jpg%3Fa%3Db');
     });
     layers = {
       overlay: 'l',

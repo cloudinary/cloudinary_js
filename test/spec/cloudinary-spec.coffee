@@ -224,13 +224,6 @@ describe 'cloudinary', ->
   it 'should support fetch_image', ->
     result = cl.fetch_image('http://example.com/hello.jpg?a=b').getAttribute('src')
     expect(result).toEqual window.location.protocol + '//res.cloudinary.com/test123/image/fetch/http://example.com/hello.jpg%3Fa%3Db'
-    return
-
-  # FIXME
-  #it("should support fetch_image", function() {
-  #  result = window.cloudinary.fetch_image("http://example.com/hello.jpg?a=b").attr("src");
-  #  expect(result).toEqual(window.location.protocol+"//res.cloudinary.com/test123/image/fetch/http://example.com/hello.jpg%3Fa%3Db")
-  #});
 
   layers =
     overlay: 'l'

@@ -40,8 +40,21 @@ class Configuration
     Util.defaults( @configuration, DEFAULT_CONFIGURATION_PARAMS)
 
   ###*
+   * Initialize the configuration.
+   * The function first tries to retrieve the configuration form the environment and then from the document.
+   * @function Configuration#init
+   * @return {Configuration} returns this for chaining
+   * @see fromDocument
+   * @see fromEnvironment
+  ###
+  init: ()->
+    @fromEnvironment()
+    @fromDocument()
+    @
+
+  ###*
    * Set a new configuration item
-   * @function Configuration.set
+   * @function Configuration#set
    * @param {String} name - the name of the item to set
    * @param {*} value - the value to be set
    * @return {Configuration}
@@ -53,7 +66,7 @@ class Configuration
 
   ###*
    * Get the value of a configuration item
-   * @function Configuration.get
+   * @function Configuration#get
    * @param {string} name - the name of the item to set
    * @return {*} the configuration item
   ###
@@ -66,7 +79,7 @@ class Configuration
 
   ###*
    * Initialize Cloudinary from HTML meta tags.
-   * @function Configuration.fromDocument
+   * @function Configuration#fromDocument
    * @return {Configuration}
    * @example <meta name="cloudinary_cloud_name" content="mycloud">
    *
@@ -82,7 +95,7 @@ class Configuration
    * Initialize Cloudinary from the `CLOUDINARY_URL` environment variable.
    *
    * This function will only run under Node.js environment.
-   * @function Configuration.fromEnvironment
+   * @function Configuration#fromEnvironment
    * @requires Node.js
   ###
   fromEnvironment: ->
@@ -106,7 +119,7 @@ class Configuration
   * Warning: `config()` returns the actual internal configuration object. modifying it will change the configuration.
   *
   * This is a backward compatibility method. For new code, use get(), merge() etc.
-  * @function Configuration.config
+  * @function Configuration#config
   * @param {hash|string|true} new_config
   * @param {string} new_value
   * @returns {*} configuration, or value
@@ -126,11 +139,12 @@ class Configuration
         @merge(new_config)
         @configuration
       else
+        # Backward compatibility - return the internal object
         @configuration
 
   ###*
    * Returns a copy of the configuration parameters
-   * @function Configuration.toOptions
+   * @function Configuration#toOptions
    * @returns {Object} a key:value collection of the configuration parameters
   ###
   toOptions: ()->

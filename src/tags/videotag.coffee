@@ -11,6 +11,7 @@ class VideoTag extends HtmlTag
 
   ###*
    * Creates an HTML (DOM) Video tag using Cloudinary as the source.
+   * @constructor VideoTag
    * @param {String} [publicId]
    * @param {Object} [options]
   ###

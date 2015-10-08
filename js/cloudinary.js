@@ -478,11 +478,22 @@ var cloudinary = {};
       };
       this.fromDocument = function() {
         configuration.fromDocument();
-        return this.config();
+        return this;
       };
       this.fromEnvironment = function() {
         configuration.fromEnvironment();
-        return this.config();
+        return this;
+      };
+
+      /**
+       * Initialize configuration.
+       * @function Cloudinary#init
+       * @see Configuration#init
+       * @return {Cloudinary} this for chaining
+       */
+      this.init = function() {
+        configuration.init();
+        return this;
       };
     }
 
@@ -856,7 +867,7 @@ var cloudinary = {};
 
     /**
     * Finds all `img` tags under each node and sets it up to provide the image through Cloudinary
-    * @function Cloudinary.processImageTags
+    * @function Cloudinary#processImageTags
      */
 
     Cloudinary.prototype.processImageTags = function(nodes, options) {
@@ -897,7 +908,7 @@ var cloudinary = {};
     /**
     * Update hidpi (dpr_auto) and responsive (w_auto) fields according to the current container size and the device pixel ratio.
     * Only images marked with the cld-responsive class have w_auto updated.
-    * @function Cloudinary.cloudinary_update
+    * @function Cloudinary#cloudinary_update
     * @param {(Array|string|NodeList)} elements - the elements to modify
     * @param {object} options
     * @param {boolean|string} [options.responsive_use_stoppoints='resize']
@@ -974,7 +985,7 @@ var cloudinary = {};
 
     /**
     * Provide a transformation object, initialized with own's options, for chaining purposes.
-    * @function Cloudinary.transformation
+    * @function Cloudinary#transformation
     * @param {object} options
     * @return {Transformation}
      */
@@ -1098,8 +1109,24 @@ var cloudinary = {};
 
 
     /**
+     * Initialize the configuration.
+     * The function first tries to retrieve the configuration form the environment and then from the document.
+     * @function Configuration#init
+     * @return {Configuration} returns this for chaining
+     * @see fromDocument
+     * @see fromEnvironment
+     */
+
+    Configuration.prototype.init = function() {
+      this.fromEnvironment();
+      this.fromDocument();
+      return this;
+    };
+
+
+    /**
      * Set a new configuration item
-     * @function Configuration.set
+     * @function Configuration#set
      * @param {String} name - the name of the item to set
      * @param {*} value - the value to be set
      * @return {Configuration}
@@ -1114,7 +1141,7 @@ var cloudinary = {};
 
     /**
      * Get the value of a configuration item
-     * @function Configuration.get
+     * @function Configuration#get
      * @param {string} name - the name of the item to set
      * @return {*} the configuration item
      */
@@ -1134,7 +1161,7 @@ var cloudinary = {};
 
     /**
      * Initialize Cloudinary from HTML meta tags.
-     * @function Configuration.fromDocument
+     * @function Configuration#fromDocument
      * @return {Configuration}
      * @example <meta name="cloudinary_cloud_name" content="mycloud">
      *
@@ -1157,7 +1184,7 @@ var cloudinary = {};
      * Initialize Cloudinary from the `CLOUDINARY_URL` environment variable.
      *
      * This function will only run under Node.js environment.
-     * @function Configuration.fromEnvironment
+     * @function Configuration#fromEnvironment
      * @requires Node.js
      */
 
@@ -1191,7 +1218,7 @@ var cloudinary = {};
     * Warning: `config()` returns the actual internal configuration object. modifying it will change the configuration.
     *
     * This is a backward compatibility method. For new code, use get(), merge() etc.
-    * @function Configuration.config
+    * @function Configuration#config
     * @param {hash|string|true} new_config
     * @param {string} new_value
     * @returns {*} configuration, or value
@@ -1218,7 +1245,7 @@ var cloudinary = {};
 
     /**
      * Returns a copy of the configuration parameters
-     * @function Configuration.toOptions
+     * @function Configuration#toOptions
      * @returns {Object} a key:value collection of the configuration parameters
      */
 
@@ -1568,11 +1595,16 @@ var cloudinary = {};
       if (options == null) {
         options = {};
       }
+
+      /** @private */
       chainedTo = void 0;
+
+      /** @private */
       trans = {};
 
       /**
        * Return an options object that can be used to create an identical Transformation
+       * @function Transformation#toOptions
        * @return {Object} a plain object representing this transformation
        */
       this.toOptions = function() {
@@ -1594,6 +1626,9 @@ var cloudinary = {};
 
       /**
        * Set a parent for this object for chaining purposes.
+       *
+       * @function Transformation#setParent
+       * @private
        * @param {Object} object - the parent to be assigned to
        * @returns {Transformation} - returns this instance for chaining purposes.
        */
@@ -1605,16 +1640,15 @@ var cloudinary = {};
 
       /**
        * Returns the parent of this object in the chain
+       * @function Transformation#getParent
+       * @private
        * @return {Object} the parent of this object if any
        */
       this.getParent = function() {
         return chainedTo;
       };
 
-      /*
-       * Helper methods to create parameter methods
-       * These methods are required because `trans` is a private member of `TransformationBase`
-       */
+      /** @private */
       this.param = function(value, name, abbr, defaultValue, process) {
         if (process == null) {
           if (Util.isFunction(defaultValue)) {
@@ -1626,6 +1660,8 @@ var cloudinary = {};
         trans[name] = new Param(name, abbr, process).set(value);
         return this;
       };
+
+      /** @private */
       this.rawParam = function(value, name, abbr, defaultValue, process) {
         if (process == null) {
           process = Util.identity;
@@ -1634,6 +1670,8 @@ var cloudinary = {};
         trans[name] = new RawParam(name, abbr, process).set(value);
         return this;
       };
+
+      /** @private */
       this.rangeParam = function(value, name, abbr, defaultValue, process) {
         if (process == null) {
           process = Util.identity;
@@ -1642,6 +1680,8 @@ var cloudinary = {};
         trans[name] = new RangeParam(name, abbr, process).set(value);
         return this;
       };
+
+      /** @private */
       this.arrayParam = function(value, name, abbr, sep, defaultValue, process) {
         if (sep == null) {
           sep = ":";
@@ -1656,6 +1696,8 @@ var cloudinary = {};
         trans[name] = new ArrayParam(name, abbr, sep, process).set(value);
         return this;
       };
+
+      /** @private */
       this.transformationParam = function(value, name, abbr, sep, defaultValue, process) {
         if (sep == null) {
           sep = ".";
@@ -1670,6 +1712,7 @@ var cloudinary = {};
 
       /**
        * Get the value associated with the given name.
+       * @function Transformation#getValue
        * @param {string} name - the name of the parameter
        * @return {*} the processed value associated with the given name
        * @description Use {@link get}.origValue for the value originally provided for the parameter
@@ -1681,19 +1724,27 @@ var cloudinary = {};
 
       /**
        * Get the parameter object for the given parameter name
+       * @function Transformation#get
        * @param {String} name the name of the transformation parameter
        * @returns {Param} the param object for the given name, or undefined
        */
       this.get = function(name) {
         return trans[name];
       };
+
+      /**
+       * Remove a transformation option from the transformation.
+       * @function Transformation#remove
+       * @param {string} name - the name of the option to remove
+       * @return {*} the option that was removed or null if no option by that name was found
+       */
       this.remove = function(name) {
         var temp;
         switch (false) {
           case trans[name] == null:
             temp = trans[name];
             delete trans[name];
-            return temp;
+            return temp.origValue;
           case this.otherOptions[name] == null:
             temp = this.otherOptions[name];
             delete this.otherOptions[name];
@@ -1702,6 +1753,11 @@ var cloudinary = {};
             return null;
         }
       };
+
+      /**
+       * Return an array of all the keys (option names) in the transformation.
+       * @return {Array<string>} the keys in snakeCase format
+       */
       this.keys = function() {
         var key;
         return ((function() {
@@ -1713,19 +1769,38 @@ var cloudinary = {};
           return results;
         })()).sort();
       };
+
+      /**
+       * Returns a plain object representation of the transformation. Values are processed.
+       * @function Transformation#toPlainObject
+       * @return {object} the transformation options as plain object
+       */
       this.toPlainObject = function() {
         var hash, key;
         hash = {};
         for (key in trans) {
           hash[key] = trans[key].value();
+          if (Util.isPlainObject(hash[key])) {
+            hash[key] = Util.cloneDeep(hash[key]);
+          }
         }
         return hash;
       };
+
+      /**
+       * Complete the current transformation and chain to a new one.
+       * In the URL, transformations are chained together by slashes.
+       * @function Transformation#chain
+       * @return {TransformationBase} this transformation for chaining
+       * @example
+       * var tr = cloudinary.Transformation.new();
+       * tr.width(10).crop('fit').chain().angle(15).serialize()
+       * // produces "c_fit,w_10/a_15"
+       */
       this.chain = function() {
         var tr;
         tr = new this.constructor(this.toOptions());
         trans = [];
-        this.otherOptions = {};
         return this.set("transformation", tr);
       };
       this.otherOptions = {};
@@ -1734,6 +1809,8 @@ var cloudinary = {};
        * Transformation Class methods.
        * This is a list of the parameters defined in Transformation.
        * Values are camelCased.
+       * @private
+       * @ignore
        * @type {Array<String>}
        */
       this.methods = Util.difference(Util.functions(Transformation.prototype), Util.functions(TransformationBase.prototype));
@@ -1742,6 +1819,7 @@ var cloudinary = {};
        * Parameters that are filtered out before passing the options to an HTML tag.
        * The list of parameters is `Transformation::methods` and `Configuration::CONFIG_PARAMS`
        * @const {Array<string>} TransformationBase.PARAM_NAMES
+       * @private
        * @see toHtmlAttributes
        */
       this.PARAM_NAMES = ((function() {
@@ -1810,6 +1888,13 @@ var cloudinary = {};
       return this.getValue("overlay") || this.getValue("underlay");
     };
 
+
+    /**
+     * Generate a string reprensetation of the transformation.
+     * @function Transformation#serialize
+     * @return {string} the transformation as a string
+     */
+
     TransformationBase.prototype.serialize = function() {
       var paramList, ref, resultArray, t, transformationList, transformationString, transformations, value;
       resultArray = [];
@@ -1848,6 +1933,14 @@ var cloudinary = {};
       }
       return Util.compact(resultArray).join('/');
     };
+
+
+    /**
+     * Provide a list of all the valid transformation option names
+     * @function Transformation#listNames
+     * @private
+     * @return {Array<string>} a array of all the valid option names
+     */
 
     TransformationBase.prototype.listNames = function() {
       return this.methods;
@@ -1902,6 +1995,20 @@ var cloudinary = {};
     TransformationBase.prototype.isValidParamName = function(name) {
       return this.methods.indexOf(Util.camelCase(name)) >= 0;
     };
+
+
+    /**
+     * Delegate to the parent (up the call chain) to produce HTML
+     * @function Transformation#toHtml
+     * @return {string} HTML representation of the parent if possible.
+     * @example
+     * tag = cloudinary.ImageTag.new("sample", {cloud_name: "demo"})
+     * // ImageTag {name: "img", publicId: "sample"}
+     * tag.toHtml()
+     * // <img src="http://res.cloudinary.com/demo/image/upload/sample">
+     * tag.transformation().crop("fit").width(300).toHtml()
+     * // <img src="http://res.cloudinary.com/demo/image/upload/c_fit,w_300/sample">
+     */
 
     TransformationBase.prototype.toHtml = function() {
       var ref;
@@ -2428,6 +2535,7 @@ var cloudinary = {};
 
     /**
      * Creates an HTML (DOM) Video tag using Cloudinary as the source.
+     * @constructor VideoTag
      * @param {String} [publicId]
      * @param {Object} [options]
      */
