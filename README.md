@@ -1,6 +1,6 @@
 Cloudinary
 ==========
-# TODO describe new API
+
 
 Cloudinary is a cloud service that offers a solution to a web application's entire image management pipeline. 
 
@@ -17,6 +17,15 @@ The direct image upload feature of the plugin is based on https://github.com/blu
 ## Getting started guide
 ![](http://res.cloudinary.com/cloudinary/image/upload/see_more_bullet.png)  **Take a look at our [Getting started guide for jQuery](http://cloudinary.com/documentation/jquery_integration#getting_started_guide)**.
 
+## :construction: New API!
+
+The Javascript library has undergone an extensive redesign.
+Previously, the library was deeply coupled with jQuery and the Blueimp upload plugin. 
+We now provide three artifacts:
+
+ * a core Javascript library that does not depend on jQuery and Blueimp, 
+ * a jQuery plugin library, and
+ * a library that includes both the jQuery and the Blueimp functionality (which is fully backward compatible with previous versions)
 
 ## Setup ######################################################################
 
@@ -30,7 +39,7 @@ Optional:
 
 * `private_cdn`, `secure_distribution`, `cname`, `cdn_subdomain` - Please refer to [Cloudinary Documentation](http://cloudinary.com/documentation)
 
-To set these configuration parameters use the `$.cloudinary.config` function (see below)
+To set these configuration parameters use the `Cloudinary::config` function (see below)
 
 Note:
 
@@ -43,6 +52,120 @@ http://cloudinary.com/blog/direct_image_uploads_from_the_browser_to_the_cloud_wi
 
 The Cloudinary Documentation can be found at:
 http://cloudinary.com/documentation
+### Core JavaScript library
+
+The Core Cloudinary JavaScript library provides several classes, defined under the "`cloudinary`" domain.
+
+#### Configuration
+
+Start by instantiating a new Cloudinary class:
+
+##### Explicitly
+```javascript
+var cl = cloudinary.Cloudinary.new( { cloud_name: "demo"});
+```
+
+##### Using the config function
+
+```javascript
+
+// Using the config function
+var cl = cloudinary.Cloudinary.new();
+cl.config( "cloud_name", "demo");
+```
+
+##### From meta tags in the current HTML document
+When using the library in a browser environment, you can use meta tags to defined configuration options.
+
+:information_source: The `init()` function is a convenience function that invokes both `fromDocument()` and `fromEnvironment()`.
+
+```javascript
+// Add to the header tag:
+// <meta name="cloudinary_cloud_name" content="demo">
+var cl = cloudinary.Cloudinary.new();
+cl.fromDocument();
+// or
+cl.init();
+```
+
+##### From environment variables
+
+When using the library in a backend environment, such as NodeJS, you can use an environment variable to 
+defined the configuration options.
+
+```javascript
+
+// CLOUDINARY_URL=cloudinary://demo
+var cl = cloudinary.Cloudinary.new();
+cl.fromEnvironment();
+// or
+cl.init();
+
+```
+
+#### URL generation
+
+
+```javascript
+cl.url("sample")
+// "http://res.cloudinary.com/demo/image/upload/sample"
+cl.url( "sample", { width: 100, crop: "fit"})
+// "http://res.cloudinary.com/demo/image/upload/c_fit,w_100/sample"
+
+```
+
+#### HTML tag generation
+You can generate HTML tags in several ways:
+
+Cloudinary::image() generates a DOM tag, and prepares it for responsive functionality. This is the same functionality 
+as `$.cloudinary.image()`. (When using the jQuery plugin, the `src-cache` data attribute is stored using jQuery's `data()` method and so is not visible.) 
+
+```javascript
+cl.image("sample")
+//<img src=​"http:​/​/​res.cloudinary.com/​demo/​image/​upload/​sample" data-src-cache=​"http:​/​/​res.cloudinary.com/​demo/​image/​upload/​sample">​
+```
+
+
+You can generate an image Tag using the `imageTag` function:
+
+```javascript
+var tag = cl.imageTag("sample");
+tag.toHtml();
+// <img src="http://res.cloudinary.com/demo/image/upload/sample">
+tag.transformation().crop("fit").width(100).toHtml();
+// <img src="http://res.cloudinary.com/demo/image/upload/c_fit,w_100/sample">
+```
+
+You can also use `ImageTag` independently:
+
+```javascript
+var tag = cloudinary.ImageTag.new( "sample", { cloud_name: "some_other_cloud" });
+tag.toHtml();
+// <img src="http://res.cloudinary.com/some_other_cloud/image/upload/sample">
+```
+
+
+#### Transformation
+In addition to using a plain object to define transformations or using the builder methods (both described above), You can define transformations by using the Transformation class:
+
+```javascript
+var tr = cloudinary.Transformation.new();
+tr.crop("fit").width(100);
+tr.serialize()
+// "c_fit,w_100"
+```
+
+You can also chain transformation together:
+
+```javascript
+var tr = cloudinary.Transformation.new();
+tr.width(10).crop('fit').chain().angle(15).serialize()
+// "c_fit,w_10/a_15"
+```
+
+### jQuery plugin
+The Cloudinary jQuery plugin is fully backward compatible with the previous cloudinary_js version.
+Under the hood, the new JavaScript library instantiate a CloudinaryJQuery object and attaches it to jQuery.
 
 * `$.cloudinary.config(parameter_name, parameter_value)` - Sets parameter\_name's value to parameter\_value.
 * `$.cloudinary.url(public_id, options)` - Returns a cloudinary URL based on your on your configuration and the given options.
@@ -96,7 +219,7 @@ displaying & manipulating images and performing uploads from your Angular applic
 
 The Angular module is currently maintained as a separate GitHub project:
 
-https://github.com/jbcpollak/cloudinary_angular
+https://github.com/cloudinary/cloudinary_angular
 
 ## Additional resources
 

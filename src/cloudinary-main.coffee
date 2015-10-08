@@ -223,6 +223,14 @@ class Cloudinary
     # set image src taking responsiveness in account
     @cloudinary_update(img, options)
     img
+
+  ###*
+   * Creates a new ImageTag instance, configured using this own's configuration.
+   * @function Cloudinary#imageTag
+   * @param {string} publicId - the public ID of the resource
+   * @param {object} options - additional options to pass to the new ImageTag instance
+   * @return {ImageTag} an instance of ImageTag
+  ###
   imageTag: (publicId, options)->
     options = Util.defaults({}, options, @config())
     new ImageTag(publicId, options)

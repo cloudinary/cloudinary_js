@@ -666,6 +666,15 @@ var cloudinary = {};
       return img;
     };
 
+
+    /**
+     * Creates a new ImageTag instance, configured using this own's configuration.
+     * @function Cloudinary#imageTag
+     * @param {string} publicId - the public ID of the resource
+     * @param {object} options - additional options to pass to the new ImageTag instance
+     * @return {ImageTag} an instance of ImageTag
+     */
+
     Cloudinary.prototype.imageTag = function(publicId, options) {
       options = Util.defaults({}, options, this.config());
       return new ImageTag(publicId, options);
