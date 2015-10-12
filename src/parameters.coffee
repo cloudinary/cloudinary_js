@@ -41,10 +41,14 @@ class Param
   ###
   serialize: ->
     val = @value()
-    if @short? && val?
+    valid = if Util.isArray(val) || Util.isPlainObject(val) || Util.isString(val)
+        !Util.isEmpty(val)
+      else
+        val?
+    if @short? && valid
       "#{@short}_#{val}"
     else
-      null
+      ''
 
   ###*
    * Return the processed value of the parameter
@@ -78,20 +82,24 @@ class ArrayParam extends Param
 
   serialize: ->
     if @short?
-      flat = for t in @value()
-        if Util.isFunction( t.serialize)
-          t.serialize() # Param or Transformation
-        else
-          t
-      "#{@short}_#{flat.join(@sep)}"
+      array = @value()
+      if Util.isEmpty(array)
+        ''
+      else
+        flat = for t in @value()
+          if Util.isFunction( t.serialize)
+            t.serialize() # Param or Transformation
+          else
+            t
+        "#{@short}_#{flat.join(@sep)}"
     else
-      null
+      ''
 
-  set: (@origValue)->
-    if Util.isArray(@origValue)
-      super(@origValue)
+  set: (origValue)->
+    if !origValue? || Util.isArray(origValue)
+      super(origValue)
     else
-      super([@origValue])
+      super([origValue])
 
 class TransformationParam extends Param
   ###*

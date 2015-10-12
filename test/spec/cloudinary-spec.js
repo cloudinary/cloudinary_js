@@ -85,6 +85,14 @@
         format: 'jpg'
       }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/test.jpg', {});
     });
+    it('should ignore empty values', function() {
+      return expect(cl.url('test', {
+        width: '',
+        crop: 'crop',
+        flags: void 0,
+        startOffset: []
+      })).toBe(window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_crop/test');
+    });
     it('should use width and height from options only if crop is given', function() {
       expect(cl.url('test', {
         width: 100,

@@ -1305,8 +1305,8 @@ var cloudinary = {};
      * @return {Param} self for chaining
      */
 
-    Param.prototype.set = function(origValue) {
-      this.origValue = origValue;
+    Param.prototype.set = function(origValue1) {
+      this.origValue = origValue1;
       return this;
     };
 
@@ -1318,12 +1318,13 @@ var cloudinary = {};
      */
 
     Param.prototype.serialize = function() {
-      var val;
+      var val, valid;
       val = this.value();
-      if ((this.short != null) && (val != null)) {
+      valid = Util.isArray(val) || Util.isPlainObject(val) || Util.isString(val) ? !Util.isEmpty(val) : val != null;
+      if ((this.short != null) && valid) {
         return this.short + "_" + val;
       } else {
-        return null;
+        return '';
       }
     };
 
@@ -1380,34 +1381,38 @@ var cloudinary = {};
     }
 
     ArrayParam.prototype.serialize = function() {
-      var flat, t;
+      var array, flat, t;
       if (this.short != null) {
-        flat = (function() {
-          var j, len, ref, results;
-          ref = this.value();
-          results = [];
-          for (j = 0, len = ref.length; j < len; j++) {
-            t = ref[j];
-            if (Util.isFunction(t.serialize)) {
-              results.push(t.serialize());
-            } else {
-              results.push(t);
+        array = this.value();
+        if (Util.isEmpty(array)) {
+          return '';
+        } else {
+          flat = (function() {
+            var j, len, ref, results;
+            ref = this.value();
+            results = [];
+            for (j = 0, len = ref.length; j < len; j++) {
+              t = ref[j];
+              if (Util.isFunction(t.serialize)) {
+                results.push(t.serialize());
+              } else {
+                results.push(t);
+              }
             }
-          }
-          return results;
-        }).call(this);
-        return this.short + "_" + (flat.join(this.sep));
+            return results;
+          }).call(this);
+          return this.short + "_" + (flat.join(this.sep));
+        }
       } else {
-        return null;
+        return '';
       }
     };
 
     ArrayParam.prototype.set = function(origValue) {
-      this.origValue = origValue;
-      if (Util.isArray(this.origValue)) {
-        return ArrayParam.__super__.set.call(this, this.origValue);
+      if ((origValue == null) || Util.isArray(origValue)) {
+        return ArrayParam.__super__.set.call(this, origValue);
       } else {
-        return ArrayParam.__super__.set.call(this, [this.origValue]);
+        return ArrayParam.__super__.set.call(this, [origValue]);
       }
     };
 
@@ -1471,8 +1476,8 @@ var cloudinary = {};
       }
     };
 
-    TransformationParam.prototype.set = function(origValue) {
-      this.origValue = origValue;
+    TransformationParam.prototype.set = function(origValue1) {
+      this.origValue = origValue1;
       if (Util.isArray(this.origValue)) {
         return TransformationParam.__super__.set.call(this, this.origValue);
       } else {

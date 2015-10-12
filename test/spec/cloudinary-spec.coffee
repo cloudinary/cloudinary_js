@@ -57,6 +57,14 @@ describe 'cloudinary', ->
   it 'should use format from options', ->
     test_cloudinary_url 'test', { format: 'jpg' }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/test.jpg', {}
 
+  it 'should ignore empty values', ->
+    expect(cl.url( 'test',
+      width: '', # regular
+      crop: 'crop',
+      flags: undefined, # array
+      startOffset: [] #range
+      )).toBe window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_crop/test'
+
   it 'should use width and height from options only if crop is given', ->
     expect(cl.url('test',
       width: 100
