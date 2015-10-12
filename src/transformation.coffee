@@ -333,7 +333,7 @@ class Transformation  extends TransformationBase
   angle: (value)->                @arrayParam value, "angle", "a", "."
   audioCodec: (value)->           @param value, "audio_codec", "ac"
   audioFrequency: (value)->       @param value, "audio_frequency", "af"
-  # TODO aspect ratio
+  aspectRatio: (value)->          @param value, "aspect_ratio", "ar"
   background: (value)->           @param value, "background", "b", Param.norm_color
   bitRate: (value)->              @param value, "bit_rate", "br"
   border: (value)->               @param value, "border", "bo", (border) ->

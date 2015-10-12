@@ -99,6 +99,14 @@ describe 'cloudinary', ->
       angle: 'auto'
     }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/a_auto,c_scale,h_100,w_100/test', {}
 
+  it 'should support aspect_ratio', ->
+    test_cloudinary_url 'test', {
+      aspect_ratio: '1.0'
+    }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/ar_1.0/test', {}
+    test_cloudinary_url 'test', {
+      aspect_ratio: '3:2'
+    }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/ar_3:2/test', {}
+
   it 'should use x, y, radius, prefix, gravity and quality from options', ->
     test_cloudinary_url 'test', {
       x: 1

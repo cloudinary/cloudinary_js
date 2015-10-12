@@ -9,7 +9,6 @@
     if (typeof define === 'function' && define.amd) {
         // Register as an anonymous AMD module:
         define([
-            'lodash',
             'jquery',
             'tmpl',
             'load-image',
@@ -17,23 +16,15 @@
         ], factory);
     } else {
         // Browser globals:
-        factory(_, jQuery);
+        window.cloudinary = factory(jQuery);
     }
-}(function (_, jQuery) {
+}(function (jQuery) {
+var cloudinary = {};
 `
-#  FIXME add fileupload dependency
+
 ###*
   * Includes utility methods and lodash / jQuery shims
 ###
-
-
-###*
-  * Verifies that jQuery is present.
-  *
-  * @returns {boolean} true if jQuery is defined
-###
-isJQuery = ->
-  jQuery?
 
 ###*
   * Get data from the DOM element.
@@ -45,10 +36,7 @@ isJQuery = ->
   *
 ###
 getData = ( element, name)->
-  if isJQuery()
-    jQuery(element).data(name)
-  else if _.isElement(element)
-    element.getAttribute("data-#{name}")
+  jQuery(element).data(name)
 
 ###*
   * Set data in the DOM element.
@@ -60,10 +48,7 @@ getData = ( element, name)->
   *
 ###
 setData = (element, name, value)->
-  if isJQuery()
-    jQuery(element).data(name, value)
-  else if _.isElement(element)
-    element.setAttribute("data-#{name}", value)
+  jQuery(element).data(name, value)
 
 ###*
   * Get attribute from the DOM element.
@@ -75,11 +60,7 @@ setData = (element, name, value)->
   *
 ###
 getAttribute = ( element, name)->
-  if isJQuery()
-    jQuery(element).attr(name)
-  else if _.isElement(element)
-    element.getAttribute(name)
-
+  jQuery(element).attr(name)
 ###*
   * Set attribute in the DOM element.
   *
@@ -90,217 +71,223 @@ getAttribute = ( element, name)->
   *
 ###
 setAttribute = (element, name, value)->
-  if isJQuery()
-    jQuery(element).attr(name, value)
-  else if _.isElement(element)
-    element.setAttribute(name, value)
+  jQuery(element).attr(name, value)
 
 setAttributes = (element, attributes)->
-  if isJQuery()
-    jQuery(element).attr(attributes)
-  else
-    for name, value of attributes
-      if value?
-        setAttribute(element, name, value)
-      else
-        element.removeAttribute(name)
+  jQuery(element).attr(attributes)
 
 hasClass = (element, name)->
-  if isJQuery()
-    jQuery(element).hasClass(name)
-  else if _.isElement(element)
-    element.className.match(new RegExp("\b#{name}\b"))
+  jQuery(element).hasClass(name)
 
-# The following code is taken from jQuery
-
-getStyles = (elem) ->
-# Support: IE<=11+, Firefox<=30+ (#15098, #14150)
-# IE throws on elements created in popups
-# FF meanwhile throws on frame elements through "defaultView.getComputedStyle"
-    if elem.ownerDocument.defaultView.opener
-      return elem.ownerDocument.defaultView.getComputedStyle(elem, null)
-    window.getComputedStyle elem, null
-
-cssExpand = [ "Top", "Right", "Bottom", "Left" ]
-
-contains = (a, b) ->
-  adown = (if a.nodeType is 9 then a.documentElement else a)
-  bup = b and b.parentNode
-  a is bup or !!(bup and bup.nodeType is 1 and adown.contains(bup))
-
-curCSS = (elem, name, computed) ->
-  width = undefined
-  minWidth = undefined
-  maxWidth = undefined
-  ret = undefined
-  style = elem.style
-  computed = computed or getStyles(elem)
-
-  # Support: IE9
-  # getPropertyValue is only needed for .css('filter') (#12537)
-  ret = computed.getPropertyValue(name) or computed[name]  if computed
-  if computed
-    ret = jQuery.style(elem, name)  if ret is "" and not contains(elem.ownerDocument, elem)
-
-    # Support: iOS < 6
-    # A tribute to the "awesome hack by Dean Edwards"
-    # iOS < 6 (at least) returns percentage for a larger set of values, but width seems to be reliably pixels
-    # this is against the CSSOM draft spec: http://dev.w3.org/csswg/cssom/#resolved-values
-    if rnumnonpx.test(ret) and rmargin.test(name)
-
-      # Remember the original values
-      width = style.width
-      minWidth = style.minWidth
-      maxWidth = style.maxWidth
-
-      # Put in the new values to get a computed value out
-      style.minWidth = style.maxWidth = style.width = ret
-      ret = computed.width
-
-      # Revert the changed values
-      style.width = width
-      style.minWidth = minWidth
-      style.maxWidth = maxWidth
-
-  # Support: IE
-  # IE returns zIndex value as an integer.
-  (if ret isnt `undefined` then ret + "" else ret)
-
-cssValue = (elem, name, convert, styles)->
-  val = curCSS( elem, name, styles )
-  if convert then parseFloat( val ) else val
-
-augmentWidthOrHeight = (elem, name, extra, isBorderBox, styles) ->
-
-  # If we already have the right measurement, avoid augmentation
-  # Otherwise initialize for horizontal or vertical properties
-  if extra is (if isBorderBox then "border" else "content")
-    0
-  else
-    sides = if name is "width" then [  "Right", "Left" ] else [ "Top", "Bottom" ]
-    val = 0
-    for side in sides
-      # Both box models exclude margin, so add it if we want it
-      val += cssValue( elem, extra + side, true, styles)  if extra is "margin"
-      if isBorderBox
-        # border-box includes padding, so remove it if we want content
-        val -= cssValue( elem, "padding#{side}", true, styles)  if extra is "content"
-        # At this point, extra isn't border nor margin, so remove border
-        val -= cssValue( elem, "border#{side}Width", true, styles)  if extra isnt "margin"
-      else
-        # At this point, extra isn't content, so add padding
-        val += cssValue( elem, "padding#{side}", true, styles)
-        # At this point, extra isn't content nor padding, so add border
-        val += cssValue( elem, "border#{side}Width", true, styles)  if extra isnt "padding"
-    val
-
-pnum = (/[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/).source
-rnumnonpx = new RegExp( "^(" + pnum + ")(?!px)[a-z%]+$", "i" )
-
-getWidthOrHeight = (elem, name, extra) ->
-  # Start with offset property, which is equivalent to the border-box value
-  valueIsBorderBox = true
-  val = (if name is "width" then elem.offsetWidth else elem.offsetHeight)
-  styles = getStyles(elem)
-  isBorderBox = cssValue( elem, "boxSizing", false, styles) is "border-box"
-
-  # Some non-html elements return undefined for offsetWidth, so check for null/undefined
-  # svg - https://bugzilla.mozilla.org/show_bug.cgi?id=649285
-  # MathML - https://bugzilla.mozilla.org/show_bug.cgi?id=491668
-  if val <= 0 or not val?
-
-  # Fall back to computed then uncomputed css if necessary
-    val = curCSS(elem, name, styles)
-    val = elem.style[name]  if val < 0 or not val?
-
-    # Computed unit is not pixels. Stop here and return.
-    return val  if rnumnonpx.test(val)
-
-    # Check for style in case a browser which returns unreliable values
-    # for getComputedStyle silently falls back to the reliable elem.style
-    valueIsBorderBox = isBorderBox and (support.boxSizingReliable() or val is elem.style[name])
-
-    # Normalize "", auto, and prepare for extra
-    val = parseFloat(val) or 0
-
-  # Use the active box-sizing model to add/subtract irrelevant styles
-  (val + augmentWidthOrHeight(elem, name, extra or ((if isBorderBox then "border" else "content")), valueIsBorderBox, styles))
+addClass = (element, name)->
+  jQuery(element).addClass( name)
 
 
+width = (element)->
+  jQuery(element).width()
+
+isEmpty = (item)->
+  (jQuery.isArray(item) || Util.isString(item)) && item.length == 0 ||
+  (jQuery.isPlainObject(item) && jQuery.isEmptyObject(item))
 
 
+allStrings = (list)->
+  for item in list
+    return false unless Util.isString(item)
+  return true
+
+isString = (item)->
+  typeof item == 'string' || item?.toString() == '[object String]'
+
+merge = ()->
+  args = (i for i in arguments)
+  args.unshift(true) # deep extend
+  jQuery.extend.apply(this, args )
+
+###* Used to match words to create compound words. ###
+
+reWords = do ->
+  upper = '[A-Z\\xc0-\\xd6\\xd8-\\xde]'
+  lower = '[a-z\\xdf-\\xf6\\xf8-\\xff]+'
+  RegExp upper + '+(?=' + upper + lower + ')|' + upper + '?' + lower + '|' + upper + '+|[0-9]+', 'g'
+
+camelCase = (source)->
+  words = source.match(reWords)
+  words = for word, i in words
+    word = word.toLocaleLowerCase()
+    if i then word.charAt(0).toLocaleUpperCase() + word.slice(1) else word
+  words.join('')
+
+snakeCase = (source)->
+  words = source.match(reWords)
+  words = for word, i in words
+    word.toLocaleLowerCase()
+  words.join('_')
+
+compact = (arr)->
+  for item in arr when item
+    item
+
+cloneDeep = ()->
+  args = jQuery.makeArray(arguments)
+  args.unshift({}) # add "fresh" destination
+  args.unshift(true) # deep
+  jQuery.extend.apply(this, args)
+
+contains = (arr, item)->
+  for i in arr when i == item
+    return true
+  return false
+
+defaults = ()->
+  args = []
+  return arguments[0] if arguments.length == 1
+  # reverse the order of the arguments
+  for a in arguments
+    args.unshift(a)
+  # bring destination object back to the start
+  first = args.pop()
+  args.unshift(first)
+  jQuery.extend.apply(this, args)
+
+difference = (arr, values)->
+  for item in arr when !contains(values, item)
+    item
+
+functions = (object)->
+  for i of object when jQuery.isFunction(object[i])
+    i
+
+identity = (value)-> value
+
+without = (array, item)->
+  newArray = []
+  i = -1; length = array.length;
+  while ++i < length
+    newArray.push(array[i]) if array[i] != item
+  newArray
+
+Util =
+  hasClass: hasClass
+  addClass: addClass
+  getAttribute: getAttribute
+  setAttribute: setAttribute
+  setAttributes: setAttributes
+  getData: getData
+  setData: setData
+  width: width
+  ###*
+   * Return true if all items in list are strings
+   * @param {array} list - an array of items
   ###
-  The following lodash methods are used in this library.
-  TODO create a shim that will switch between jQuery and lodash
-
-  _.all
-  _.any
-  _.assign
-  _.camelCase
-  _.cloneDeep
-  _.compact
-  _.contains
-  _.defaults
-  _.difference
-  _.extend
-  _.filter
-  _.identity
-  _.includes
-  _.isArray
-  _.isElement
-  _.isEmpty
-  _.isFunction
-  _.isObject
-  _.isPlainObject
-  _.isString
-  _.isUndefined
-  _.map
-  _.mapValues
-  _.merge
-  _.omit
-  _.parseInt
-  _.snakeCase
-  _.trim
-  _.trimRight
-
+  allStrings: allStrings
+  isString: isString
+  isArray: jQuery.isArray
+  isEmpty: isEmpty
+  ###*
+   * Assign source properties to destination.
+   * If the property is an object it is assigned as a whole, overriding the destination object.
+   * @param {object} destination - the object to assign to
   ###
-# unless running on server side, export to the windows object
-unless module?.exports? || exports?
-  exports = window
+  assign: jQuery.extend
+  ###*
+   * Recursively assign source properties to destination
+  * @param {object} destination - the object to assign to
+   * @param {...object} [sources] The source objects.
+  ###
+  merge: merge
+  ###*
+   * Convert string to camelCase
+   * @param {string} string - the string to convert
+   * @return {string} in camelCase format
+  ###
+  camelCase: camelCase
+  ###*
+   * Convert string to snake_case
+   * @param {string} string - the string to convert
+   * @return {string} in snake_case format
+  ###
+  snakeCase: snakeCase
+  ###*
+   * Create a new copy of the given object, including all internal objects.
+   * @param {object} value - the object to clone
+   * @return {object} a new deep copy of the object
+  ###
+  cloneDeep: cloneDeep
+  ###*
+   * Creates a new array from the parameter with "falsey" values removed
+   * @param {Array} array - the array to remove values from
+   * @return {Array} a new array without falsey values
+  ###
+  compact: compact
+  ###*
+   * Check if a given item is included in the given array
+   * @param {Array} array - the array to search in
+   * @param {*} item - the item to search for
+   * @return {boolean} true if the item is included in the array
+  ###
+  contains: contains
+  ###*
+   * Assign values from sources if they are not defined in the destination.
+   * Once a value is set it does not change
+   * @param {object} destination - the object to assign defaults to
+   * @param {...object} source - the source object(s) to assign defaults from
+   * @return {object} destination after it was modified
+  ###
+  defaults: defaults
+  ###*
+   * Returns values in the given array that are not included in the other array
+   * @param {Array} arr - the array to select from
+   * @param {Array} values - values to filter from arr
+   * @return {Array} the filtered values
+  ###
+  difference: difference
+  ###*
+   * Returns true if argument is a function.
+   * @param {*} value - the value to check
+   * @return {boolean} true if the value is a function
+  ###
+  isFunction: jQuery.isFunction
+  ###*
+   * Returns a list of all the function names in obj
+   * @param {object} object - the object to inspect
+   * @return {Array} a list of functions of object
+  ###
+  functions: functions
+  ###*
+   * Returns the provided value. This functions is used as a default predicate function.
+   * @param {*} value
+   * @return {*} the provided value
+  ###
+  identity: identity
+  isPlainObject: jQuery.isPlainObject
+  ###*
+   * Remove leading or trailing spaces from text
+   * @param {String} text
+   * @return {String} the `text` without leading or trailing spaces
+  ###
+  trim: jQuery.trim
+  ###*
+   * Creates a new array without the given item.
+   * @param {Array} array - original array
+   * @param {*} item - the item to exclude from the new array
+   * @return {Array} a new array made of the original array's items except for `item`
+  ###
+  without: without
 
-exports.Cloudinary ?= {}
-exports.Cloudinary.getWidthOrHeight = getWidthOrHeight
 
-
+#/**
+# * @license
+# * lodash 3.10.0 (Custom Build) <https://lodash.com/>
+#* Build: `lodash modern -o ./lodash.js`
+#* Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
+#* Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+#* Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+#* Available under MIT license <https://lodash.com/license>
+#*/
 
 ###*
-  Main Cloudinary class
-
-  Backward compatibility:
-  Must provide public keys
-   * CF_SHARED_CDN
-   * OLD_AKAMAI_SHARED_CDN
-   * AKAMAI_SHARED_CDN
-   * SHARED_CDN
-   * config
-   * url
-   * video_url
-   * video_thumbnail_url
-   * transformation_string
-   * image
-   * video_thumbnail
-   * facebook_profile_image
-   * twitter_profile_image
-   * twitter_name_profile_image
-   * gravatar_image
-   * fetch_image
-   * video
-   * sprite_css
-   * responsive
-   * calc_stoppoint
-   * device_pixel_ratio
-   * supported_dpr_values
-
+ * Main Cloudinary class
 ###
 class Cloudinary
   CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
@@ -314,6 +301,7 @@ class Cloudinary
   responsiveConfig = {}
   responsiveResizeInitialized = false
   ###*
+  * @const {object} Cloudinary.DEFAULT_IMAGE_PARAMS
   * Defaults values for image parameters.
   *
   * (Previously defined using option_consume() )
@@ -326,7 +314,7 @@ class Cloudinary
 
   ###*
   * Defaults values for video parameters.
-  *
+  * @const {object} Cloudinary.DEFAULT_VIDEO_PARAMS
   * (Previously defined using option_consume() )
   ###
   @DEFAULT_VIDEO_PARAMS: {
@@ -338,27 +326,57 @@ class Cloudinary
     type: 'upload'
   }
 
+  ###*
+   * Main Cloudinary class
+   * @class Cloudinary
+   * @param {object} options - options to configure Cloudinary
+   * @see Configuration for more details
+   * @example
+   *var cl = new cloudinary.Cloudinary( { cloud_name: "mycloud"});
+   *var imgTag = cl.image("myPicID");
+  ###
   constructor: (options)->
-    configuration = new Cloudinary.Configuration(options)
+    configuration = new cloudinary.Configuration(options)
 
     # Provided for backward compatibility
     @config= (newConfig, newValue) ->
       configuration.config(newConfig, newValue)
 
+
+    @fromDocument = ()->
+      configuration.fromDocument()
+      @
+
+
+    @fromEnvironment = ()->
+      configuration.fromEnvironment()
+      @
+
+    ###*
+     * Initialize configuration.
+     * @function Cloudinary#init
+     * @see Configuration#init
+     * @return {Cloudinary} this for chaining
+    ###
+    @init = ()->
+      configuration.init()
+      @
+
   @new = (options)-> new @(options)
 
   ###*
    * Return the resource type and action type based on the given configuration
-   * @param resource_type
-   * @param type
-   * @param url_suffix
-   * @param use_root_path
-   * @param shorten
+   * @function Cloudinary#finalizeResourceType
+   * @param {object|string} resource_type
+   * @param {string} [type='upload']
+   * @param {string} [url_suffix]
+   * @param {boolean} [use_root_path]
+   * @param {boolean} [shorten]
    * @returns {string} resource_type/type
-   *
+   * @ignore
   ###
   finalizeResourceType = (resourceType,type,urlSuffix,useRootPath,shorten) ->
-    if _.isPlainObject(resourceType)
+    if Util.isPlainObject(resourceType)
       options = resourceType
       resourceType = options.resource_type
       type = options.type
@@ -397,8 +415,18 @@ class Cloudinary
       url = prefix + url
     url
 
+  ###*
+   * Generate an resource URL.
+   * @function Cloudinary#url
+   * @param {string} publicId - the public ID of the resource
+   * @param {Object} [options] - options for the tag and transformations, possible values include all {@link Transformation} parameters
+   *                          and {@link Configuration} parameters
+   * @param {string} [options.type='upload'] - the classification of the resource
+   * @param {Object} [options.resource_type='image'] - the type of the resource
+   * @return {HTMLImageElement} an image tag element
+  ###
   url: (publicId, options = {}) ->
-    options = _.defaults({}, options, @config(), Cloudinary.DEFAULT_IMAGE_PARAMS)
+    options = Util.defaults({}, options, @config(), Cloudinary.DEFAULT_IMAGE_PARAMS)
     if options.type == 'fetch'
       options.fetch_format = options.fetch_format or options.format
       publicId = absolutize(publicId)
@@ -435,22 +463,22 @@ class Cloudinary
     resourceTypeAndType = finalizeResourceType(options.resource_type, options.type, options.url_suffix, options.use_root_path, options.shorten)
     version = if options.version then 'v' + options.version else ''
 
-    url ||  _.filter([
+    url ||  Util.compact([
       prefix
       resourceTypeAndType
       transformationString
       version
       publicId
-    ], null).join('/').replace(/([^:])\/+/g, '$1/')
+    ]).join('/').replace(/([^:])\/+/g, '$1/')
 
 
 
   video_url: (publicId, options) ->
-    options = _.merge({ resource_type: 'video' }, options)
+    options = Util.assign({ resource_type: 'video' }, options)
     @url(publicId, options)
 
   video_thumbnail_url: (publicId, options) ->
-    options = _.merge({}, DEFAULT_POSTER_OPTIONS, options)
+    options = Util.assign({}, DEFAULT_POSTER_OPTIONS, options)
     @url(publicId, options)
 
   transformation_string: (options) ->
@@ -458,46 +486,65 @@ class Cloudinary
 
   ###*
    * Generate an image tag.
+   * @function Cloudinary#image
    * @param {string} publicId - the public ID of the image
    * @param {Object} [options] - options for the tag and transformations
    * @return {HTMLImageElement} an image tag element
   ###
   image: (publicId, options={}) ->
-    img = @imageTag(publicId, options).toDOM()
-    setData(img, 'src-cache', img.getAttribute('src'))
-    img.src = ""
+    # generate a tag without the image src
+    tag_options = Util.assign( {src: ''}, options)
+    img = @imageTag(publicId, tag_options).toDOM()
+    # cache the image src
+    Util.setData(img, 'src-cache', @url(publicId, options))
+    # set image src taking responsiveness in account
     @cloudinary_update(img, options)
     img
 
+  ###*
+   * Creates a new ImageTag instance, configured using this own's configuration.
+   * @function Cloudinary#imageTag
+   * @param {string} publicId - the public ID of the resource
+   * @param {object} options - additional options to pass to the new ImageTag instance
+   * @return {ImageTag} an instance of ImageTag
+  ###
+  imageTag: (publicId, options)->
+    options = Util.defaults({}, options, @config())
+    new ImageTag(publicId, options)
+
   video_thumbnail: (publicId, options) ->
-    @image publicId, _.extend( {}, DEFAULT_POSTER_OPTIONS, options)
+    @image publicId, Util.merge( {}, DEFAULT_POSTER_OPTIONS, options)
 
   facebook_profile_image: (publicId, options) ->
-    @image publicId, _.merge({type: 'facebook'}, options)
+    @image publicId, Util.assign({type: 'facebook'}, options)
 
   twitter_profile_image: (publicId, options) ->
-    @image publicId, _.merge({type: 'twitter'}, options)
+    @image publicId, Util.assign({type: 'twitter'}, options)
 
   twitter_name_profile_image: (publicId, options) ->
-    @image publicId, _.merge({type: 'twitter_name'}, options)
+    @image publicId, Util.assign({type: 'twitter_name'}, options)
 
   gravatar_image: (publicId, options) ->
-    @image publicId, _.merge({type: 'gravatar'}, options)
+    @image publicId, Util.assign({type: 'gravatar'}, options)
 
   fetch_image: (publicId, options) ->
-    @image publicId, _.merge({type: 'fetch'}, options)
+    @image publicId, Util.assign({type: 'fetch'}, options)
 
   video: (publicId, options = {}) ->
     @videoTag(publicId, options).toHtml()
 
+  videoTag: (publicId, options)->
+    options = Util.defaults({}, options, @config())
+    new VideoTag(publicId, options)
+
   sprite_css: (publicId, options) ->
-    options = _.merge({ type: 'sprite' }, options)
+    options = Util.assign({ type: 'sprite' }, options)
     if !publicId.match(/.css$/)
       options.format = 'css'
     @url publicId, options
 
   responsive: (options) ->
-    responsiveConfig = _.merge(responsiveConfig or {}, options)
+    responsiveConfig = Util.merge(responsiveConfig or {}, options)
     @cloudinary_update 'img.cld-responsive, img.cld-hidpi', responsiveConfig
     responsiveResize = responsiveConfig['responsive_resize'] ? @config('responsive_resize') ? true
     if responsiveResize and !responsiveResizeInitialized
@@ -511,7 +558,7 @@ class Cloudinary
             clearTimeout timeout
             timeout = null
 
-        run = ->
+        run = =>
           @cloudinary_update 'img.cld-responsive', responsiveConfig
 
         wait = ->
@@ -527,12 +574,12 @@ class Cloudinary
           run()
 
   calc_stoppoint: (element, width) ->
-    stoppoints = getData(element,'stoppoints') or @config('stoppoints') or defaultStoppoints
-    if _.isFunction stoppoints
+    stoppoints = Util.getData(element,'stoppoints') or @config('stoppoints') or defaultStoppoints
+    if Util.isFunction stoppoints
       stoppoints(width)
     else
-      if _.isString stoppoints
-        stoppoints = _.map(stoppoints.split(','), _.parseInt).sort( (a,b) -> a - b )
+      if Util.isString stoppoints
+        stoppoints = (parseInt(point) for point in stoppoints.split(',')).sort( (a,b) -> a - b )
       closestAbove stoppoints, width
 
   device_pixel_ratio: ->
@@ -611,58 +658,57 @@ class Cloudinary
       cdnPart = ""
       subdomain = if options.cdn_subdomain then 'a'+((crc32(publicId)%5)+1)+'.' else ''
       host = options.cname
-#      path = ""
+      #      path = ""
 
     [protocol, cdnPart, subdomain, host, path].join("")
 
 
   ###*
-  * similar to `$.fn.cloudinary`
   * Finds all `img` tags under each node and sets it up to provide the image through Cloudinary
+  * @function Cloudinary#processImageTags
   ###
   processImageTags: (nodes, options = {}) ->
-    options = _.defaults({}, options, @config())
-    images = _(nodes)
-      .filter( 'tagName': 'IMG')
-      .forEach( (i) ->
-        imgOptions = _.extend({
-          width: i.getAttribute('width')
-          height: i.getAttribute('height')
-          src: i.getAttribute('src')
+    # similar to `$.fn.cloudinary`
+    options = Util.defaults({}, options, @config())
+    images = for node in nodes when node.tagName?.toUpperCase() == 'IMG'
+        imgOptions = Util.assign({
+          width: node.getAttribute('width')
+          height: node.getAttribute('height')
+          src: node.getAttribute('src')
         }, options)
         publicId = imgOptions['source'] || imgOptions['src']
         delete imgOptions['source']
         delete imgOptions['src']
         url = @url(publicId, imgOptions)
         imgOptions = new Transformation(imgOptions).toHtmlAttributes()
-        setData(i, 'src-cache', url)
-        i.setAttribute('width', imgOptions.width)
-        i.setAttribute('height', imgOptions.height)
-      ).value()
+        Util.setData(node, 'src-cache', url)
+        node.setAttribute('width', imgOptions.width)
+        node.setAttribute('height', imgOptions.height)
+
     @cloudinary_update( images, options)
     this
 
   ###*
   * Update hidpi (dpr_auto) and responsive (w_auto) fields according to the current container size and the device pixel ratio.
   * Only images marked with the cld-responsive class have w_auto updated.
-  * options:
-  * - responsive_use_stoppoints:
-  *   - true - always use stoppoints for width
-  *   - "resize" - use exact width on first render and stoppoints on resize (default)
-  *   - false - always use exact width
-  * - responsive:
-  *   - true - enable responsive on this element. Can be done by adding cld-responsive.
-  *            Note that $.cloudinary.responsive() should be called once on the page.
-  * - responsive_preserve_height: if set to true, original css height is perserved. Should only be used if the transformation supports different aspect ratios.
+  * @function Cloudinary#cloudinary_update
+  * @param {(Array|string|NodeList)} elements - the elements to modify
+  * @param {object} options
+  * @param {boolean|string} [options.responsive_use_stoppoints='resize']
+  *  - when `true`, always use stoppoints for width
+  * - when `"resize"` use exact width on first render and stoppoints on resize (default)
+  * - when `false` always use exact width
+  * @param {boolean} [options.responsive] - if `true`, enable responsive on this element. Can be done by adding cld-responsive.
+  * @param {boolean} [options.responsive_preserve_height] - if set to true, original css height is preserved.
+  *   Should only be used if the transformation supports different aspect ratios.
   ###
-
   cloudinary_update: (elements, options = {}) ->
-    elements = switch elements
-      when _.isArray(elements)
+    elements = switch
+      when Util.isArray(elements)
         elements
       when elements.constructor.name == "NodeList"
         elements
-      when _.isString(elements)
+      when Util.isString(elements)
         document.querySelectorAll(elements)
       else
         [elements]
@@ -671,26 +717,26 @@ class Cloudinary
     exact = !responsive_use_stoppoints || responsive_use_stoppoints == 'resize' and !options.resizing
     for tag in elements when tag.tagName?.match(/img/i)
       if options.responsive
-        tag.className = _.trim( "#{tag.className} cld-responsive") unless tag.className.match( /\bcld-responsive\b/)
+        Util.addClass(tag, "cld-responsive")
       attrs = {}
-      src = getData(tag, 'src-cache') or getData(tag, 'src')
+      src = Util.getData(tag, 'src-cache') or Util.getData(tag, 'src')
       if !src
         return
-      responsive = hasClass(tag, 'cld-responsive') and src.match(/\bw_auto\b/)
+      responsive = Util.hasClass(tag, 'cld-responsive') and src.match(/\bw_auto\b/)
       if responsive
         container = tag.parentNode
         containerWidth = 0
         while container and containerWidth == 0
-          containerWidth = container.clientWidth || 0
+          containerWidth = Util.width(container)
           container = container.parentNode
         if containerWidth == 0
           # container doesn't know the size yet. Usually because the image is hidden or outside the DOM.
           return
         requestedWidth = if exact then containerWidth else @calc_stoppoint(tag, containerWidth)
-        currentWidth = getData(tag, 'width') or 0
+        currentWidth = Util.getData(tag, 'width') or 0
         if requestedWidth > currentWidth
           # requested width is larger, fetch new image
-          setData(tag, 'width', requestedWidth)
+          Util.setData(tag, 'width', requestedWidth)
         else
           # requested width is not larger - keep previous
           requestedWidth = currentWidth
@@ -700,21 +746,19 @@ class Cloudinary
           attrs.height = null
       # Update dpr according to the device's devicePixelRatio
       attrs.src = src.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + @device_pixel_ratio())
-      setAttributes(tag, attrs)
+      Util.setAttributes(tag, attrs)
     this
 
   ###*
   * Provide a transformation object, initialized with own's options, for chaining purposes.
+  * @function Cloudinary#transformation
+  * @param {object} options
   * @return {Transformation}
   ###
   transformation: (options)->
     Transformation.new( @config()).fromOptions(options).setParent( this)
 
-global = module?.exports ? window
-# Copy all previously defined object in the "Cloudinary" scope
-
-_.extend( Cloudinary, global.Cloudinary) if global.Cloudinary
-global.Cloudinary = Cloudinary
+cloudinary.Cloudinary = Cloudinary
 
 crc32 = (str) ->
 # http://kevin.vanzonneveld.net
@@ -803,12 +847,14 @@ else
 #On a client
   window.utf8_encode = utf8_encode
 
+###*
+ * Cloudinary configuration class
+###
 class Configuration
 
   ###*
   * Defaults configuration.
-  *
-  * (Previously defined using option_consume() )
+  * @const {object} Configuration.DEFAULT_CONFIGURATION_PARAMS
   ###
   DEFAULT_CONFIGURATION_PARAMS ={
     secure: window?.location?.protocol == 'https:'
@@ -833,31 +879,60 @@ class Configuration
     "use_root_path"
     "version"
   ]
-
+  ###*
+   * Cloudinary configuration class
+   * @constructor Configuration
+   * @param {object} options - configuration parameters
+  ###
   constructor: (options ={})->
-    @configuration = _.cloneDeep(options)
-    _.defaults( @configuration, DEFAULT_CONFIGURATION_PARAMS)
-#    @whitelist = _(Transformation.prototype).functions().map(_.snakeCase).value()
+    @configuration = Util.cloneDeep(options)
+    Util.defaults( @configuration, DEFAULT_CONFIGURATION_PARAMS)
 
-
+  ###*
+   * Initialize the configuration.
+   * The function first tries to retrieve the configuration form the environment and then from the document.
+   * @function Configuration#init
+   * @return {Configuration} returns this for chaining
+   * @see fromDocument
+   * @see fromEnvironment
+  ###
+  init: ()->
+    @fromEnvironment()
+    @fromDocument()
+    @
 
   ###*
    * Set a new configuration item
+   * @function Configuration#set
    * @param {String} name - the name of the item to set
-   * @param value - the value to be set
+   * @param {*} value - the value to be set
+   * @return {Configuration}
    *
   ###
   set:(name, value)->
     @configuration[name] = value
     this
 
+  ###*
+   * Get the value of a configuration item
+   * @function Configuration#get
+   * @param {string} name - the name of the item to set
+   * @return {*} the configuration item
+  ###
   get: (name)->
     @configuration[name]
 
   merge: (config={})->
-    _.assign(@configuration, _.cloneDeep(config))
+    Util.assign(@configuration, Util.cloneDeep(config))
     this
 
+  ###*
+   * Initialize Cloudinary from HTML meta tags.
+   * @function Configuration#fromDocument
+   * @return {Configuration}
+   * @example <meta name="cloudinary_cloud_name" content="mycloud">
+   *
+  ###
   fromDocument: ->
     meta_elements = document?.querySelectorAll('meta[name^="cloudinary_"]');
     if meta_elements
@@ -865,11 +940,18 @@ class Configuration
         @configuration[el.getAttribute('name').replace('cloudinary_', '')] = el.getAttribute('content')
     this
 
+  ###*
+   * Initialize Cloudinary from the `CLOUDINARY_URL` environment variable.
+   *
+   * This function will only run under Node.js environment.
+   * @function Configuration#fromEnvironment
+   * @requires Node.js
+  ###
   fromEnvironment: ->
     cloudinary_url = process?.env?.CLOUDINARY_URL
     if cloudinary_url?
       uri = require('url').parse(cloudinary_url, true)
-      cloudinary =
+      @configuration =
         cloud_name: uri.host,
         api_key: uri.auth and uri.auth.split(":")[0],
         api_secret: uri.auth and uri.auth.split(":")[1],
@@ -877,7 +959,7 @@ class Configuration
         secure_distribution: uri.pathname and uri.pathname.substring(1)
       if uri.query?
         for k, v of uri.query
-          cloudinary[k] = v
+          @configuration[k] = v
     this
 
   ###*
@@ -886,71 +968,69 @@ class Configuration
   * Warning: `config()` returns the actual internal configuration object. modifying it will change the configuration.
   *
   * This is a backward compatibility method. For new code, use get(), merge() etc.
-  *
-  * @param {Hash|String|true} new_config
-  * @param {String} new_value
+  * @function Configuration#config
+  * @param {hash|string|true} new_config
+  * @param {string} new_value
   * @returns {*} configuration, or value
   *
+  * @see {@link fromEnvironment} for initialization using environment variables
+  * @see {@link fromDocument} for initialization using HTML meta tags
   ###
   config: (new_config, new_value) ->
-    if !@configuration? || new_config == true # REVIEW do we need/want this auto-initialization?
-      @fromEnvironment()
-      @fromDocument() unless @configuration
-
+    # REVIEW it would be more OO to return a copy of @configuration and not the internal object itself. It will mean that cloudinary.config().foo = "bar" will have no effect.
     switch
       when new_value != undefined
         @set(new_config, new_value)
         @configuration
-      when _.isString(new_config)
+      when Util.isString(new_config)
         @get(new_config)
-      when _.isObject(new_config)
+      when Util.isPlainObject(new_config)
         @merge(new_config)
         @configuration
       else
+        # Backward compatibility - return the internal object
         @configuration
 
   ###*
    * Returns a copy of the configuration parameters
+   * @function Configuration#toOptions
    * @returns {Object} a key:value collection of the configuration parameters
   ###
   toOptions: ()->
-    _.cloneDeep(@configuration)
+    Util.cloneDeep(@configuration)
 
-unless module?.exports
-  exports = window
+cloudinary.Configuration = Configuration
 
-exports.Cloudinary ?= {}
-exports.Cloudinary.Configuration = Configuration
-
-###*
- * @class Represents a single parameter
-###
 class Param
   ###*
-   * Create a new Parameter
+   * Represents a single parameter
+   * @class Param
    * @param {string} name - The name of the parameter in snake_case
-   * @param {string short - The name of the serialized form of the parameter
-   * @param {function} [process=_.identity ] - Manipulate origValue when value is called
+   * @param {string} short - The name of the serialized form of the parameter.
+   *                         If a value is not provided, the parameter will not be serialized.
+   * @param {function} [process=Util.identity ] - Manipulate origValue when value is called
+   * @ignore
   ###
-  constructor: (name, short, process = _.identity)->
+  constructor: (name, short, process = Util.identity)->
     ###*
      * The name of the parameter in snake_case
-     * @type {string}
+     * @member {string} Param#name
     ###
     @name = name
     ###*
      * The name of the serialized form of the parameter
-     * @type {string}
+     * @member {string} Param#short
     ###
     @short = short
     ###*
      * Manipulate origValue when value is called
-     * @type {function}
+     * @member {function} Param#process
     ###
     @process = process
 
   ###*
    * Set a (unprocessed) value for this parameter
+   * @function Param#set
    * @param {*} origValue - the value of the parameter
    * @return {Param} self for chaining
   ###
@@ -959,17 +1039,23 @@ class Param
 
   ###*
    * Generate the serialized form of the parameter
+   * @function Param#serialize
    * @return {string} the serialized form of the parameter
   ###
   serialize: ->
-    val = @process(@origValue)
-    if @short? && val?
+    val = @value()
+    valid = if Util.isArray(val) || Util.isPlainObject(val) || Util.isString(val)
+        !Util.isEmpty(val)
+      else
+        val?
+    if @short? && valid
       "#{@short}_#{val}"
     else
-      null
+      ''
 
   ###*
    * Return the processed value of the parameter
+   * @function Param#value
   ###
   value: ->
     @process(@origValue)
@@ -977,60 +1063,94 @@ class Param
   @norm_color: (value) -> value?.replace(/^#/, 'rgb:')
 
   build_array: (arg = []) ->
-    if _.isArray(arg)
+    if Util.isArray(arg)
       arg
     else
       [arg]
 
-
 class ArrayParam extends Param
+  ###*
+   * A parameter that represents an array
+   * @param {string} name - The name of the parameter in snake_case
+   * @param {string} short - The name of the serialized form of the parameter
+   *                         If a value is not provided, the parameter will not be serialized.
+   * @param {string} [sep='.'] - The separator to use when joining the array elements together
+   * @param {function} [process=Util.identity ] - Manipulate origValue when value is called
+   * @class ArrayParam
+   * @ignore
+  ###
   constructor: (name, short, sep = '.', process) ->
     @sep = sep
     super(name, short, process)
+
   serialize: ->
     if @short?
-      flat = for t in @value()
-        if _.isFunction( t.serialize)
-          t.serialize() # Param or Transformation
-        else
-          t
-      "#{@short}_#{flat.join(@sep)}"
+      array = @value()
+      if Util.isEmpty(array)
+        ''
+      else
+        flat = for t in @value()
+          if Util.isFunction( t.serialize)
+            t.serialize() # Param or Transformation
+          else
+            t
+        "#{@short}_#{flat.join(@sep)}"
     else
-      null
-  set: (@origValue)->
-    if _.isArray(@origValue)
-      super(@origValue)
+      ''
+
+  set: (origValue)->
+    if !origValue? || Util.isArray(origValue)
+      super(origValue)
     else
-      super([@origValue])
+      super([origValue])
 
 class TransformationParam extends Param
-  # FIXME chain, join with slashes
-  # TODO maybe use regular param with "transformation" process?
+  ###*
+   * A parameter that represents a transformation
+   * @param {string} name - The name of the parameter in snake_case
+   * @param {string} [short='t'] - The name of the serialized form of the parameter
+   * @param {string} [sep='.'] - The separator to use when joining the array elements together
+   * @param {function} [process=Util.identity ] - Manipulate origValue when value is called
+   * @class TransformationParam
+   * @ignore
+  ###
   constructor: (name, short = "t", sep = '.', process) ->
     @sep = sep
     super(name, short, process)
+
   serialize: ->
-    if _.isEmpty(@value())
+    if Util.isEmpty(@value())
       null
-    else if _.all(@value(), _.isString)
+    else if Util.allStrings(@value())
       "#{@short}_#{@value().join(@sep)}"
     else
       result = for t in @value() when t?
-        if _.isString( t)
+        if Util.isString( t)
           "#{@short}_#{t}"
-        else if _.isFunction( t.serialize)
+        else if Util.isFunction( t.serialize)
           t.serialize()
-        else if _.isPlainObject(t)
+        else if Util.isPlainObject(t)
           new Transformation(t).serialize()
-      _.compact(result)
+      Util.compact(result)
+
   set: (@origValue)->
-    if _.isArray(@origValue)
+    if Util.isArray(@origValue)
       super(@origValue)
     else
       super([@origValue])
 
 class RangeParam extends Param
-  constructor: (name, short, process = @norm_range_value)-> # FIXME overrun by identity in transformation?
+  ###*
+   * A parameter that represents a range
+   * @param {string} name - The name of the parameter in snake_case
+   * @param {string} short - The name of the serialized form of the parameter
+   *                         If a value is not provided, the parameter will not be serialized.
+   * @param {string} [sep='.'] - The separator to use when joining the array elements together
+   * @param {function} [process=norm_range_value ] - Manipulate origValue when value is called
+   * @class RangeParam
+   * @ignore
+  ###
+  constructor: (name, short, process = @norm_range_value)->
     super(name, short, process)
 
   @norm_range_value: (value) ->
@@ -1041,7 +1161,7 @@ class RangeParam extends Param
     value
 
 class RawParam extends Param
-  constructor: (name, short, process = _.identity)->
+  constructor: (name, short, process = Util.identity)->
     super(name, short, process)
   serialize: ->
     @value()
@@ -1057,6 +1177,7 @@ class RawParam extends Param
 * vc_[ :profile : [level]]
 * or
   { codec: 'h264', profile: 'basic', level: '3.1' }
+* @ignore
 ###
 process_video_params = (param) ->
   switch param.constructor
@@ -1076,34 +1197,42 @@ process_video_params = (param) ->
 
 
 
-###*
- *  A single transformation.
- *
- *  @example
- *  t = new Transformation();
- *  t.angle(20).crop("scale").width("auto");
- *
- *  // or
- *
- *  t = new Transformation( {angle: 20, crop: "scale", width: "auto"});
- *  @class
-###
 class TransformationBase
-  # TODO add chains (slashes)
+  lastArgCallback = (args)->
+    callback = args?[args.length - 1]
+    if(Util.isFunction(callback))
+      callback
+    else
+      undefined
 
+  ###*
+   * The base class for transformations.
+   * @class TransformationBase
+  ###
   constructor: (options = {}) ->
+    ###* @private ###
     chainedTo = undefined
+    ###* @private ###
     trans = {}
 
     ###*
      * Return an options object that can be used to create an identical Transformation
+     * @function Transformation#toOptions
      * @return {Object} a plain object representing this transformation
     ###
     @toOptions = ()->
-      _.merge(_.mapValues(trans, (t)-> t.origValue), @otherOptions)
+      opt= {}
+      for key, value of trans
+        opt[key]= value.origValue
+      for key, value of @otherOptions when value != undefined
+        opt[key]= value
+      opt
 
     ###*
      * Set a parent for this object for chaining purposes.
+     *
+     * @function Transformation#setParent
+     * @private
      * @param {Object} object - the parent to be assigned to
      * @returns {Transformation} - returns this instance for chaining purposes.
     ###
@@ -1114,47 +1243,60 @@ class TransformationBase
 
     ###*
      * Returns the parent of this object in the chain
+     * @function Transformation#getParent
+     * @private
      * @return {Object} the parent of this object if any
     ###
     @getParent = ()->
       chainedTo
 
-    ###
+    #
     # Helper methods to create parameter methods
-    # These methods are required because `trans` is a private member of `TransformationBase`
-    ###
+    # These methods are defined here because they access `trans` which is
+    # a private member of `TransformationBase`
+    #
 
+    ###* @private ###
     @param = (value, name, abbr, defaultValue, process) ->
       unless process?
-        if _.isFunction(defaultValue)
+        if Util.isFunction(defaultValue)
           process = defaultValue
         else
-          process = _.identity
+          process = Util.identity
       trans[name] = new Param(name, abbr, process).set(value)
       @
 
-    @rawParam = (value, name, abbr, defaultValue, process = _.identity) ->
-      process = defaultValue if _.isFunction(defaultValue) && !process?
+    ###* @private ###
+    @rawParam = (value, name, abbr, defaultValue, process = Util.identity) ->
+      process = lastArgCallback(arguments)
       trans[name] = new RawParam(name, abbr, process).set(value)
       @
 
-    @rangeParam = (value, name, abbr, defaultValue, process = _.identity) ->
-      process = defaultValue if _.isFunction(defaultValue) && !process?
+    ###* @private ###
+    @rangeParam = (value, name, abbr, defaultValue, process = Util.identity) ->
+      process = lastArgCallback(arguments)
       trans[name] = new RangeParam(name, abbr, process).set(value)
       @
 
-    @arrayParam = (value, name, abbr, sep = ":", defaultValue = [], process = _.identity) ->
-      process = defaultValue if _.isFunction(defaultValue) && !process?
+    ###* @private ###
+    @arrayParam = (value, name, abbr, sep = ":", defaultValue = [], process = Util.identity) ->
+      process = lastArgCallback(arguments)
       trans[name] = new ArrayParam(name, abbr, sep, process).set(value)
       @
 
-    @transformationParam = (value, name, abbr, sep = ".", defaultValue, process = _.identity) ->
-      process = defaultValue if _.isFunction(defaultValue) && !process?
+    ###* @private ###
+    @transformationParam = (value, name, abbr, sep = ".", defaultValue, process = Util.identity) ->
+      process = lastArgCallback(arguments)
       trans[name] = new TransformationParam(name, abbr, sep, process).set(value)
       @
 
+    #
+    # End Helper methods
+    #
+
     ###*
      * Get the value associated with the given name.
+     * @function Transformation#getValue
      * @param {string} name - the name of the parameter
      * @return {*} the processed value associated with the given name
      * @description Use {@link get}.origValue for the value originally provided for the parameter
@@ -1164,18 +1306,25 @@ class TransformationBase
 
     ###*
      * Get the parameter object for the given parameter name
+     * @function Transformation#get
      * @param {String} name the name of the transformation parameter
      * @returns {Param} the param object for the given name, or undefined
     ###
     @get = (name)->
       trans[name]
 
+    ###*
+     * Remove a transformation option from the transformation.
+     * @function Transformation#remove
+     * @param {string} name - the name of the option to remove
+     * @return {*} the option that was removed or null if no option by that name was found
+    ###
     @remove = (name)->
       switch
         when trans[name]?
           temp = trans[name]
           delete trans[name]
-          temp
+          temp.origValue
         when @otherOptions[name]?
           temp = @otherOptions[name]
           delete @otherOptions[name]
@@ -1183,19 +1332,38 @@ class TransformationBase
         else
           null
 
-
+    ###*
+     * Return an array of all the keys (option names) in the transformation.
+     * @return {Array<string>} the keys in snakeCase format
+    ###
     @keys = ()->
-      _(trans).keys().map(_.snakeCase).value().sort()
+      (Util.snakeCase(key) for key of trans).sort()
 
-    @toPlainObject = ()-> # FIXME recursive
+    ###*
+     * Returns a plain object representation of the transformation. Values are processed.
+     * @function Transformation#toPlainObject
+     * @return {object} the transformation options as plain object
+    ###
+    @toPlainObject = ()->
       hash = {}
-      hash[key] = trans[key].value() for key of trans
+      for key of trans
+        hash[key] = trans[key].value()
+        hash[key] = Util.cloneDeep(hash[key]) if Util.isPlainObject(hash[key])
       hash
 
+    ###*
+     * Complete the current transformation and chain to a new one.
+     * In the URL, transformations are chained together by slashes.
+     * @function Transformation#chain
+     * @return {TransformationBase} this transformation for chaining
+     * @example
+     * var tr = cloudinary.Transformation.new();
+     * tr.width(10).crop('fit').chain().angle(15).serialize()
+     * // produces "c_fit,w_10/a_15"
+    ###
     @chain = ()->
       tr = new @constructor( @toOptions())
       trans = []
-      @otherOptions = {}
       @set("transformation", tr)
 
     @otherOptions = {}
@@ -1204,32 +1372,28 @@ class TransformationBase
      * Transformation Class methods.
      * This is a list of the parameters defined in Transformation.
      * Values are camelCased.
+     * @private
+     * @ignore
      * @type {Array<String>}
     ###
-    @methods = _.difference(
-      _.functions(Transformation.prototype),
-      _.functions(TransformationBase.prototype)
+    @methods = Util.difference(
+      Util.functions(Transformation.prototype),
+      Util.functions(TransformationBase.prototype)
     )
 
     ###*
      * Parameters that are filtered out before passing the options to an HTML tag.
      * The list of parameters is `Transformation::methods` and `Configuration::CONFIG_PARAMS`
-     * @type {Array<string>}
+     * @const {Array<string>} TransformationBase.PARAM_NAMES
+     * @private
      * @see toHtmlAttributes
     ###
-    @PARAM_NAMES = _.map(
-      @methods, _.snakeCase).concat( Cloudinary.Configuration.CONFIG_PARAMS)
+    @PARAM_NAMES = (Util.snakeCase(m) for m in @methods).concat( cloudinary.Configuration.CONFIG_PARAMS)
 
 
-    ###
-      Finished constructing the instance, now process the options
-    ###
+    # Finished constructing the instance, now process the options
 
-
-    @fromOptions(options) unless _.isEmpty(options)
-
-
-
+    @fromOptions(options) unless Util.isEmpty(options)
 
   ###*
    * Merge the provided options with own's options
@@ -1238,8 +1402,8 @@ class TransformationBase
   ###
   fromOptions: (options) ->
     options or= {}
-    options = {transformation: options } if _.isString(options) || _.isArray(options) || options instanceof Transformation
-    options = _.cloneDeep(options, (value) ->
+    options = {transformation: options } if Util.isString(options) || Util.isArray(options) || options instanceof Transformation
+    options = Util.cloneDeep(options, (value) ->
       if value instanceof Transformation
         new value.constructor( value.toOptions())
     )
@@ -1255,8 +1419,8 @@ class TransformationBase
    * @returns {Transformation} this instance for chaining
   ###
   set: (key, value)->
-    camelKey = _.camelCase( key)
-    if _.includes( @methods, camelKey)
+    camelKey = Util.camelCase( key)
+    if Util.contains( @methods, camelKey)
       this[camelKey](value)
     else
       @otherOptions[key] = value
@@ -1265,39 +1429,53 @@ class TransformationBase
   hasLayer: ()->
     @getValue("overlay") || @getValue("underlay")
 
+  ###*
+   * Generate a string reprensetation of the transformation.
+   * @function Transformation#serialize
+   * @return {string} the transformation as a string
+  ###
   serialize: ->
     resultArray = []
     paramList = @keys()
     transformations = @get("transformation")?.serialize()
-    paramList = _.without(paramList, "transformation")
+    paramList = Util.without(paramList, "transformation")
     transformationList = (@get(t)?.serialize() for t in paramList )
     switch
-      when _.isString(transformations)
+      when Util.isString(transformations)
         transformationList.push( transformations)
-      when _.isArray( transformations)
+      when Util.isArray( transformations)
         resultArray = (transformations)
-    transformationString = _.filter(transformationList, (value)->
-      _.isArray(value) &&!_.isEmpty(value) || !_.isArray(value) && value
+    transformationString = (
+      for value in transformationList when Util.isArray(value) &&!Util.isEmpty(value) || !Util.isArray(value) && value
+        value
     ).sort().join(',')
-    resultArray.push(transformationString) unless _.isEmpty(transformationString)
-    _.compact(resultArray).join('/')
+    resultArray.push(transformationString) unless Util.isEmpty(transformationString)
+    Util.compact(resultArray).join('/')
 
+  ###*
+   * Provide a list of all the valid transformation option names
+   * @function Transformation#listNames
+   * @private
+   * @return {Array<string>} a array of all the valid option names
+  ###
   listNames: ->
     @methods
 
 
   ###*
    * Returns attributes for an HTML tag.
+   * @function Cloudinary.toHtmlAttributes
    * @return PlainObject
   ###
   toHtmlAttributes: ()->
-    options = _.omit( @otherOptions, @PARAM_NAMES)
-    options[key] = @get(key).value for key in _.difference(@keys(), @PARAM_NAMES)
+    options = {}
+    options[key] = value for key, value of @otherOptions when  !Util.contains(@PARAM_NAMES, key)
+    options[key] = @get(key).value for key in Util.difference(@keys(), @PARAM_NAMES)
     # convert all "html_key" to "key" with the same value
     for k in @keys() when /^html_/.exec(k)
       options[k.substr(5)] = @getValue(k)
 
-    unless @hasLayer()|| @getValue("angle") || _.contains( ["fit", "limit", "lfill"],@getValue("crop"))
+    unless @hasLayer()|| @getValue("angle") || Util.contains( ["fit", "limit", "lfill"],@getValue("crop"))
       width = @get("width")?.origValue
       height = @get("height")?.origValue
       if parseFloat(width) >= 1.0
@@ -1307,7 +1485,20 @@ class TransformationBase
     options
 
   isValidParamName: (name) ->
-    @methods.indexOf(_.camelCase(name)) >= 0
+    @methods.indexOf(Util.camelCase(name)) >= 0
+
+  ###*
+   * Delegate to the parent (up the call chain) to produce HTML
+   * @function Transformation#toHtml
+   * @return {string} HTML representation of the parent if possible.
+   * @example
+   * tag = cloudinary.ImageTag.new("sample", {cloud_name: "demo"})
+   * // ImageTag {name: "img", publicId: "sample"}
+   * tag.toHtml()
+   * // <img src="http://res.cloudinary.com/demo/image/upload/sample">
+   * tag.transformation().crop("fit").width(300).toHtml()
+   * // <img src="http://res.cloudinary.com/demo/image/upload/c_fit,w_300/sample">
+  ###
 
   toHtml: ()->
     @getParent()?.toHtml?()
@@ -1319,6 +1510,17 @@ class Transformation  extends TransformationBase
 
   @new = (args)-> new Transformation(args)
 
+  ###*
+   *  Represents a single transformation.
+   *  @class Transformation
+   *  @example
+   *  t = new cloudinary.Transformation();
+   *  t.angle(20).crop("scale").width("auto");
+   *
+   *  // or
+   *
+   *  t = new cloudinary.Transformation( {angle: 20, crop: "scale", width: "auto"});
+  ###
   constructor: (options = {})->
     super(options)
 
@@ -1326,25 +1528,26 @@ class Transformation  extends TransformationBase
     Transformation Parameters
   ###
 
-  angle: (value)->            @arrayParam value, "angle", "a", "."
-  audioCodec: (value)->      @param value, "audio_codec", "ac"
-  audioFrequency: (value)->  @param value, "audio_frequency", "af"
-  background: (value)->       @param value, "background", "b", Param.norm_color
-  bitRate: (value)->         @param value, "bit_rate", "br"
-  border: (value)->           @param value, "border", "bo", (border) ->
-    if (_.isPlainObject(border))
-      border = _.assign({}, {color: "black", width: 2}, border)
+  angle: (value)->                @arrayParam value, "angle", "a", "."
+  audioCodec: (value)->           @param value, "audio_codec", "ac"
+  audioFrequency: (value)->       @param value, "audio_frequency", "af"
+  aspectRatio: (value)->          @param value, "aspect_ratio", "ar"
+  background: (value)->           @param value, "background", "b", Param.norm_color
+  bitRate: (value)->              @param value, "bit_rate", "br"
+  border: (value)->               @param value, "border", "bo", (border) ->
+    if (Util.isPlainObject(border))
+      border = Util.assign({}, {color: "black", width: 2}, border)
       "#{border.width}px_solid_#{Param.norm_color(border.color)}"
     else
       border
-  color: (value)->            @param value, "color", "co", Param.norm_color
-  colorSpace: (value)->      @param value, "color_space", "cs"
-  crop: (value)->             @param value, "crop", "c"
-  defaultImage: (value)->    @param value, "default_image", "d"
-  delay: (value)->            @param value, "delay", "l"
-  density: (value)->          @param value, "density", "dn"
-  duration: (value)->         @rangeParam value, "duration", "du"
-  dpr: (value)->              @param value, "dpr", "dpr", (dpr) ->
+  color: (value)->                @param value, "color", "co", Param.norm_color
+  colorSpace: (value)->           @param value, "color_space", "cs"
+  crop: (value)->                 @param value, "crop", "c"
+  defaultImage: (value)->         @param value, "default_image", "d"
+  delay: (value)->                @param value, "delay", "l"
+  density: (value)->              @param value, "density", "dn"
+  duration: (value)->             @rangeParam value, "duration", "du"
+  dpr: (value)->                  @param value, "dpr", "dpr", (dpr) ->
     dpr = dpr.toString()
     if (dpr == "auto")
       "1.0"
@@ -1352,66 +1555,61 @@ class Transformation  extends TransformationBase
       dpr + ".0"
     else
       dpr
-  effect: (value)->           @arrayParam value,  "effect", "e", ":"
-  endOffset: (value)->       @rangeParam value,  "end_offset", "eo"
-  fallbackContent: (value)->     @param value,   "fallback_content"
-  fetchFormat: (value)->     @param value,       "fetch_format", "f"
-  format: (value)->           @param value,       "format"
-  flags: (value)->            @arrayParam value,  "flags", "fl", "."
-  gravity: (value)->          @param value,       "gravity", "g"
-  height: (value)->           @param value,       "height", "h", =>
-    if _.any([ @getValue("crop"), @getValue("overlay"), @getValue("underlay")])
+  effect: (value)->               @arrayParam value,  "effect", "e", ":"
+  endOffset: (value)->            @rangeParam value,  "end_offset", "eo"
+  fallbackContent: (value)->      @param value,   "fallback_content"
+  fetchFormat: (value)->          @param value,       "fetch_format", "f"
+  format: (value)->               @param value,       "format"
+  flags: (value)->                @arrayParam value,  "flags", "fl", "."
+  gravity: (value)->              @param value,       "gravity", "g"
+  height: (value)->               @param value,       "height", "h", =>
+    if ( @getValue("crop") || @getValue("overlay") || @getValue("underlay"))
       value
     else
       null
-  htmlHeight: (value)->      @param value, "html_height"
-  htmlWidth:(value)->        @param value, "html_width"
+  htmlHeight: (value)->           @param value, "html_height"
+  htmlWidth:(value)->             @param value, "html_width"
   offset: (value)->
-    [start_o, end_o] = if( _.isFunction(value?.split))
+    [start_o, end_o] = if( Util.isFunction(value?.split))
       value.split('..')
-    else if _.isArray(value)
+    else if Util.isArray(value)
       value
     else
       [null,null]
     @startOffset(start_o) if start_o?
     @endOffset(end_o) if end_o?
-  opacity: (value)->          @param value, "opacity",  "o"
-  overlay: (value)->          @param value, "overlay",  "l"
-  page: (value)->             @param value, "page",     "pg"
-  poster: (value)->           @param value, "poster"
-  prefix: (value)->           @param value, "prefix",   "p"
-  quality: (value)->          @param value, "quality",  "q"
-  radius: (value)->           @param value, "radius",   "r"
-  rawTransformation: (value)-> @rawParam value, "raw_transformation"
+  opacity: (value)->              @param value, "opacity",  "o"
+  overlay: (value)->              @param value, "overlay",  "l"
+  page: (value)->                 @param value, "page",     "pg"
+  poster: (value)->               @param value, "poster"
+  prefix: (value)->               @param value, "prefix",   "p"
+  quality: (value)->              @param value, "quality",  "q"
+  radius: (value)->               @param value, "radius",   "r"
+  rawTransformation: (value)->    @rawParam value, "raw_transformation"
   size: (value)->
-    if( _.isFunction(value?.split))
+    if( Util.isFunction(value?.split))
       [width, height] = value.split('x')
       @width(width)
       @height(height)
   sourceTypes: (value)->          @param value, "source_types"
-  sourceTransformation: (value)->   @param value, "source_transformation"
-  startOffset: (value)->     @rangeParam value, "start_offset", "so"
-  transformation: (value)->   @transformationParam value, "transformation", "t"
-  underlay: (value)->         @param value, "underlay", "u"
-  videoCodec: (value)->      @param value, "video_codec", "vc", process_video_params
-  videoSampling: (value)->   @param value, "video_sampling", "vs"
-  width: (value)->            @param value, "width", "w", =>
-    if _.any([ @getValue("crop"), @getValue("overlay"), @getValue("underlay")])
+  sourceTransformation: (value)-> @param value, "source_transformation"
+  startOffset: (value)->          @rangeParam value, "start_offset", "so"
+  transformation: (value)->       @transformationParam value, "transformation", "t"
+  underlay: (value)->             @param value, "underlay", "u"
+  videoCodec: (value)->           @param value, "video_codec", "vc", process_video_params
+  videoSampling: (value)->        @param value, "video_sampling", "vs"
+  width: (value)->                @param value, "width", "w", =>
+    if ( @getValue("crop") || @getValue("overlay") || @getValue("underlay"))
       value
     else
       null
-  x: (value)->                @param value, "x", "x"
-  y: (value)->                @param value, "y", "y"
-  zoom: (value)->             @param value, "zoom", "z"
+  x: (value)->                    @param value, "x", "x"
+  y: (value)->                    @param value, "y", "y"
+  zoom: (value)->                 @param value, "zoom", "z"
 
 
-# unless running on server side, export to the windows object
-unless module?.exports? || exports?
-  exports = window
-
-exports.Cloudinary ?= {}
-exports.Cloudinary.Transformation = Transformation
-exports.Cloudinary.TransformationBase = TransformationBase
+cloudinary.Transformation = Transformation
+cloudinary.TransformationBase = TransformationBase
 
 
 ###*
@@ -1420,7 +1618,8 @@ exports.Cloudinary.TransformationBase = TransformationBase
 class HtmlTag
   ###*
    * Represents an HTML (DOM) tag
-   * Usage: tag = new HtmlTag( 'div', { 'width': 10})
+   * @constructor HtmlTag
+   * @example tag = new HtmlTag( 'div', { 'width': 10})
    * @param {String} name - the name of the tag
    * @param {String} [publicId]
    * @param {Object} options
@@ -1429,7 +1628,7 @@ class HtmlTag
     @name = name
     @publicId = publicId
     if !options?
-      if _.isPlainObject(publicId)
+      if Util.isPlainObject(publicId)
         options = publicId
         @publicId = undefined
       else
@@ -1442,10 +1641,12 @@ class HtmlTag
   ###*
    * Convenience constructor
    * Creates a new instance of an HTML (DOM) tag
-   * Usage: tag = HtmlTag.new( 'div', { 'width': 10})
+   * @function HtmlTag.new
+   * @example tag = HtmlTag.new( 'div', { 'width': 10})
    * @param {String} name - the name of the tag
    * @param {String} [publicId]
    * @param {Object} options
+   * @return {HtmlTag}
   ###
   @new = (name, publicId, options)->
     new @(name, publicId, options)
@@ -1453,6 +1654,7 @@ class HtmlTag
 
   ###*
    * Represent the given key and value as an HTML attribute.
+   * @function HtmlTag#toAttribute
    * @param {String} key - attribute name
    * @param {*|boolean} value - the value of the attribute. If the value is boolean `true`, return the key only.
    * @returns {String} the attribute
@@ -1473,11 +1675,7 @@ class HtmlTag
    * @return {String} the attributes in the format `'key1="value1" key2="value2"'`
   ###
   htmlAttrs: (attrs) ->
-    pairs = _.map(attrs, (value, key) -> toAttribute( key, value))
-    pairs.sort()
-    pairs.filter((pair) ->
-                   pair
-                ).join ' '
+    pairs = (toAttribute( key, value) for key, value of attrs when value).sort().join(' ')
 
   ###*
    * Get all options related to this tag.
@@ -1528,20 +1726,14 @@ class HtmlTag
     @openTag() + @content()+ @closeTag()
 
   toDOM: ()->
-    throw "Can't create DOM if document is not present!" unless _.isFunction( document?.createElement)
+    throw "Can't create DOM if document is not present!" unless Util.isFunction( document?.createElement)
     element = document.createElement(@name)
     element[name] = value for name, value of @attributes()
     element
 
 
 
-# unless running on server side, export to the windows object
-unless module?.exports? || exports?
-  exports = window
-
-exports.Cloudinary ?= {}
-
-exports.Cloudinary.HtmlTag = HtmlTag
+cloudinary.HtmlTag = HtmlTag
 
 
 ###*
@@ -1565,16 +1757,7 @@ class ImageTag extends HtmlTag
     attr['src'] ?= new Cloudinary(@getOptions()).url( @publicId)
     attr
 
-# unless running on server side, export to the windows object
-unless module?.exports? || exports?
-  exports = window
-
-exports.Cloudinary ?= {}
-exports.Cloudinary::imageTag = (publicId, options)->
-  options = _.defaults({}, options, @config())
-  new ImageTag(publicId, options)
-
-exports.Cloudinary.ImageTag = ImageTag
+cloudinary.ImageTag = ImageTag
 
 
 ###*
@@ -1589,11 +1772,12 @@ class VideoTag extends HtmlTag
 
   ###*
    * Creates an HTML (DOM) Video tag using Cloudinary as the source.
+   * @constructor VideoTag
    * @param {String} [publicId]
    * @param {Object} [options]
   ###
   constructor: (publicId, options={})->
-    options = _.defaults({}, options, Cloudinary.DEFAULT_VIDEO_PARAMS)
+    options = Util.defaults({}, options, Cloudinary.DEFAULT_VIDEO_PARAMS)
     super("video", publicId.replace(/\.(mp4|ogv|webm)$/, ''), options)
 
   setSourceTransformation: (value)->
@@ -1617,11 +1801,11 @@ class VideoTag extends HtmlTag
     sourceTransformation = @transformation().getValue('source_transformation')
     fallback = @transformation().getValue('fallback_content')
 
-    if _.isArray(sourceTypes)
+    if Util.isArray(sourceTypes)
       cld = new Cloudinary(@getOptions())
       innerTags = for srcType in sourceTypes
         transformation = sourceTransformation[srcType] or {}
-        src = cld.url( "#{@publicId }", _.defaults({}, transformation, { resource_type: 'video', format: srcType}))
+        src = cld.url( "#{@publicId }", Util.defaults({}, transformation, { resource_type: 'video', format: srcType}))
         videoType = if srcType == 'ogv' then 'ogg' else srcType
         mimeType = 'video/' + videoType
         "<source #{@htmlAttrs(src: src, type: mimeType)}>"
@@ -1633,42 +1817,40 @@ class VideoTag extends HtmlTag
     sourceTypes = @getOption('source_types')
     poster = @getOption('poster') ? {}
 
-    if _.isPlainObject(poster)
+    if Util.isPlainObject(poster)
       defaults = if poster.public_id? then Cloudinary.DEFAULT_IMAGE_PARAMS else DEFAULT_POSTER_OPTIONS
       poster = new Cloudinary(@getOptions()).url(
         poster.public_id ? @publicId,
-        _.defaults({}, poster, defaults))
+        Util.defaults({}, poster, defaults))
 
     attr = super() || []
-    attr = _.omit(attr, VIDEO_TAG_PARAMS)
-    unless  _.isArray(sourceTypes)
+    attr = a for a in attr when !Util.contains(VIDEO_TAG_PARAMS)
+    unless  Util.isArray(sourceTypes)
       attr["src"] = new Cloudinary(@getOptions())
         .url(@publicId, {resource_type: 'video', format: sourceTypes})
     if poster?
       attr["poster"] = poster
     attr
 
-# unless running on server side, export to the windows object
-unless module?.exports? || exports?
-  exports = window
-
-exports.Cloudinary ?= {}
-exports.Cloudinary::videoTag = (publicId, options)->
-  options = _.defaults({}, options, @config())
-  new VideoTag(publicId, options)
-
-exports.Cloudinary.VideoTag = VideoTag
+cloudinary.VideoTag = VideoTag
 
 class CloudinaryJQuery extends Cloudinary
+  ###*
+   * Cloudinary class with jQuery support
+   * @constructor CloudinaryJQuery
+  ###
   constructor: (options)->
     super(options)
 
 
   image: (publicId, options={})->
-    i = @imageTag(publicId, options)
-    url= i.getAttr('src')
-    i.setAttr('src', '')
-    jQuery(i.toHtml()).removeAttr('src').data('src-cache', url).cloudinary_update(options);
+    # generate a tag without the image src
+    tag_options = Util.merge( {src: ''}, options)
+    img = @imageTag(publicId, tag_options).toHtml()
+    # cache the image src
+    url = @url(publicId, options)
+    # set image src taking responsiveness in account
+    jQuery(img).data('src-cache', url).cloudinary_update(options);
 
   responsive: (options) ->
     responsiveConfig = jQuery.extend(responsiveConfig or {}, options)
@@ -1793,13 +1975,11 @@ jQuery.fn.webpify = (options = {}, webp_options) ->
 jQuery.fn.fetchify = (options) ->
   @cloudinary jQuery.extend(options, 'type': 'fetch')
 
-global = module?.exports ? window
-# Copy all previously defined object in the "Cloudinary" scope
-
-global.Cloudinary.CloudinaryJQuery = CloudinaryJQuery
+cloudinary.CloudinaryJQuery = CloudinaryJQuery
 
 
 jQuery.cloudinary = new CloudinaryJQuery()
+jQuery.cloudinary.fromDocument()
 
 
 # Extend CloudinaryJQuery
@@ -1904,8 +2084,8 @@ jQuery.fn.cloudinary_upload_url = (remote_url) ->
   this
 
 jQuery.fn.unsigned_cloudinary_upload = (upload_preset, upload_params = {}, options = {}) ->
-  upload_params = _.cloneDeep(upload_params)
-  options = _.cloneDeep(options)
+  upload_params = Util.cloneDeep(upload_params)
+  options = Util.cloneDeep(options)
   attrs_to_move = [
     'cloud_name'
     'resource_type'
@@ -1921,11 +2101,11 @@ jQuery.fn.unsigned_cloudinary_upload = (upload_preset, upload_params = {}, optio
   # Serialize upload_params
   for key of upload_params
     value = upload_params[key]
-    if jQuery.isPlainObject(value)
+    if Util.isPlainObject(value)
       upload_params[key] = jQuery.map(value, (v, k) ->
         k + '=' + v
       ).join('|')
-    else if jQuery.isArray(value)
+    else if Util.isArray(value)
       if value.length > 0 and jQuery.isArray(value[0])
         upload_params[key] = jQuery.map(value, (array_value) ->
           array_value.join ','
@@ -1940,7 +2120,7 @@ jQuery.fn.unsigned_cloudinary_upload = (upload_preset, upload_params = {}, optio
     options.cloudinaryField = options.cloudinary_field
     delete options.cloudinary_field
   html_options = options.html or {}
-  html_options.class = _.trimRight("cloudinary_fileupload #{html_options.class || ''}")
+  html_options.class = Util.trim("cloudinary_fileupload #{html_options.class || ''}")
   if options.multiple
     html_options.multiple = true
   @attr(html_options).cloudinary_fileupload options
@@ -1952,5 +2132,6 @@ jQuery.cloudinary = new CloudinaryJQuery()
 # Footer for the cloudinary.coffee file
 
 `
+return cloudinary;
 }));
 `

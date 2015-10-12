@@ -2081,6 +2081,10 @@ var cloudinary = {};
       return this.param(value, "audio_frequency", "af");
     };
 
+    Transformation.prototype.aspectRatio = function(value) {
+      return this.param(value, "aspect_ratio", "ar");
+    };
+
     Transformation.prototype.background = function(value) {
       return this.param(value, "background", "b", Param.norm_color);
     };
@@ -2653,3 +2657,5 @@ return cloudinary;
 ;
 
 }).call(this);
+
+//# sourceMappingURL=cloudinary.js.map
