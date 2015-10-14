@@ -812,7 +812,7 @@
 
         var requestedWidth = exact ? containerWidth : $.cloudinary.calc_stoppoint(this, containerWidth);
         var currentWidth = $(this).data('width') || 0;
-        if (requestedWidth > currentWidth) {
+        if (requestedWidth > currentWidth || currentWidth == 'auto') {
           // requested width is larger, fetch new image
           $(this).data('width', requestedWidth);
         } else {
