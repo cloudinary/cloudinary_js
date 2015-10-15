@@ -59,11 +59,29 @@ describe 'cloudinary', ->
 
   it 'should ignore empty values', ->
     expect(cl.url( 'test',
-      width: '', # regular
+      width: undefined , # regular
       crop: 'crop',
       flags: undefined, # array
-      startOffset: [] #range
+      startOffset: undefined, #range
+      transformation: undefined #transformation
       )).toBe window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_crop/test'
+    expect(cl.url( 'test',
+      width: '', # regular
+      crop: 'crop',
+      flags: [], # array
+      startOffset: [], #range
+      transformation: [] #transformation
+      )).toBe window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_crop/test'
+    expect(cl.url( 'test',
+      width: '', # regular
+      crop: 'crop',
+      flags: [], # array
+      startOffset: '', #range
+      transformation: '' #transformation
+      )).toBe window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_crop/test'
+    expect(cl.url( 'test',
+      transformation: {} #transformation
+      )).toBe window.location.protocol + '//res.cloudinary.com/test123/image/upload/test'
 
   it 'should use width and height from options only if crop is given', ->
     expect(cl.url('test',

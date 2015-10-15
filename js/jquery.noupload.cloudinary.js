@@ -1443,11 +1443,16 @@ var cloudinary = {};
     }
 
     TransformationParam.prototype.serialize = function() {
-      var result, t;
+      var joined, result, t;
       if (Util.isEmpty(this.value())) {
-        return null;
+        return '';
       } else if (Util.allStrings(this.value())) {
-        return this.short + "_" + (this.value().join(this.sep));
+        joined = this.value().join(this.sep);
+        if (!Util.isEmpty(joined)) {
+          return this.short + "_" + joined;
+        } else {
+          return '';
+        }
       } else {
         result = (function() {
           var j, len, ref, results;
@@ -1456,11 +1461,11 @@ var cloudinary = {};
           for (j = 0, len = ref.length; j < len; j++) {
             t = ref[j];
             if (t != null) {
-              if (Util.isString(t)) {
+              if (Util.isString(t) && !Util.isEmpty(t)) {
                 results.push(this.short + "_" + t);
               } else if (Util.isFunction(t.serialize)) {
                 results.push(t.serialize());
-              } else if (Util.isPlainObject(t)) {
+              } else if (Util.isPlainObject(t) && !Util.isEmpty(t)) {
                 results.push(new Transformation(t).serialize());
               } else {
                 results.push(void 0);

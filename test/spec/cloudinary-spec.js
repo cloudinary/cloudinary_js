@@ -86,12 +86,30 @@
       }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/test.jpg', {});
     });
     it('should ignore empty values', function() {
-      return expect(cl.url('test', {
-        width: '',
+      expect(cl.url('test', {
+        width: void 0,
         crop: 'crop',
         flags: void 0,
-        startOffset: []
+        startOffset: void 0,
+        transformation: void 0
       })).toBe(window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_crop/test');
+      expect(cl.url('test', {
+        width: '',
+        crop: 'crop',
+        flags: [],
+        startOffset: [],
+        transformation: []
+      })).toBe(window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_crop/test');
+      expect(cl.url('test', {
+        width: '',
+        crop: 'crop',
+        flags: [],
+        startOffset: '',
+        transformation: ''
+      })).toBe(window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_crop/test');
+      return expect(cl.url('test', {
+        transformation: {}
+      })).toBe(window.location.protocol + '//res.cloudinary.com/test123/image/upload/test');
     });
     it('should use width and height from options only if crop is given', function() {
       expect(cl.url('test', {

@@ -117,16 +117,20 @@ class TransformationParam extends Param
 
   serialize: ->
     if Util.isEmpty(@value())
-      null
+      ''
     else if Util.allStrings(@value())
-      "#{@short}_#{@value().join(@sep)}"
+      joined = @value().join(@sep)
+      if !Util.isEmpty(joined)
+        "#{@short}_#{joined}"
+      else
+        ''
     else
       result = for t in @value() when t?
-        if Util.isString( t)
+        if Util.isString( t) && !Util.isEmpty(t)
           "#{@short}_#{t}"
         else if Util.isFunction( t.serialize)
           t.serialize()
-        else if Util.isPlainObject(t)
+        else if Util.isPlainObject(t) && !Util.isEmpty(t)
           new Transformation(t).serialize()
       Util.compact(result)
 
