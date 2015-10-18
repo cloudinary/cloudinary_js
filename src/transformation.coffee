@@ -1,8 +1,8 @@
 ((root, factory) ->
   if (typeof define == 'function') && define.amd
-    define ['configuration', 'parameters','util-lodash'], factory
+    define ['configuration', 'parameters','util'], factory
   else if typeof exports == 'object'
-    module.exports = factory(require('configuration'), require('parameters'), require('util-lodash'))
+    module.exports = factory(require('configuration'), require('parameters'), require('util'))
   else
     root.cloudinary.Transformation = factory(root.cloudinary.Configuration, root.cloudinary.parameters, root.cloudinary.Util)
 

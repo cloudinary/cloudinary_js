@@ -1,12 +1,13 @@
 ((root, factory) ->
   if (typeof define == 'function') && define.amd
-    define ['transformation', 'configuration', 'crc32', 'utf8_encode', 'util-lodash', 'tags/imagetag', 'tags/videotag'], factory
+    define ['utf8_encode', 'crc32', 'util', 'transformation', 'configuration', 'tags/imagetag', 'tags/videotag'], factory
   else if typeof exports == 'object'
-    module.exports = factory(require('transformation'), require('configuration'), require('crc32'), require('utf8_encode'), require('util-lodash'), require('tags/imagetag'), require('tags/videotag'))
+    module.exports = factory(require('utf8_encode'), require('crc32'), require('util'), require('transformation'), require('configuration'), require('tags/imagetag'), require('tags/videotag'))
   else
-    root.cloudinary.Cloudinary = factory(cloudinary.Transformation, cloudinary.Configuration, cloudinary.crc32, cloudinary.utf8_encode, cloudinary.Util, cloudinary.ImageTag, cloudinary.VideoTag)
+    root.cloudinary ||= {}
+    root.cloudinary.Cloudinary = factory(root.cloudinary.utf8_encode, root.cloudinary.crc32, root.cloudinary.Util, root.cloudinary.Transformation, root.cloudinary.Configuration, root.cloudinary.ImageTag, root.cloudinary.VideoTag)
 
-)(this,  (Transformation, Configuration, crc32, utf8_encode, Util, ImageTag, VideoTag )->
+)(this,  (utf8_encode, crc32, Util, Transformation, Configuration, ImageTag, VideoTag )->
   ###*
    * Main Cloudinary class
   ###

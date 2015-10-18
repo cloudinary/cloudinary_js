@@ -1,11 +1,11 @@
 ((root, factory) ->
   if (typeof define == 'function') && define.amd
-    define ['tags/htmltag', 'util-lodash', 'cloudinary-main', 'require'], factory
+    define ['tags/htmltag', 'util', 'cloudinary-main', 'require'], factory
   else if typeof exports == 'object'
-    module.exports = factory(require('tags/htmltag'), require('util-lodash'), require('cloudinary-main'), require)
+    module.exports = factory(require('tags/htmltag'), require('util'), require('cloudinary-main'), require)
   else
     root.cloudinary ||= {}
-    root.cloudinary.VideoTag = factory(cloudinary.HtmlTag, cloudinary.Util, cloudinary.Cloudinary)
+    root.cloudinary.VideoTag = factory(root.cloudinary.HtmlTag, root.cloudinary.Util, root.cloudinary.Cloudinary, ()-> root.cloudinary.Cloudinary)
 
 )(this,  (HtmlTag, Util, Cloudinary, require)->
 

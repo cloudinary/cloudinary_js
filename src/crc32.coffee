@@ -5,7 +5,7 @@
     module.exports = factory(require('utf8_encode'))
   else
     root.cloudinary ||= {}
-    root.cloudinary.crc32 = factory(utf8_encode)
+    root.cloudinary.crc32 = factory(root.cloudinary.utf8_encode)
 
 )(this,  (utf8_encode)->
   crc32 = (str) ->

@@ -1,11 +1,11 @@
 ((root, factory) ->
   if (typeof define == 'function') && define.amd
-    define ['util-lodash'],factory
+    define ['util'],factory
   else if typeof exports == 'object'
-    module.exports = factory(require('util-lodash'))
+    module.exports = factory(require('util'))
   else
     root.cloudinary ||= {}
-    root.cloudinary.Configuration = factory(Util)
+    root.cloudinary.Configuration = factory(root.cloudinary.Util)
 
 )(this,  (Util)->
   ###*

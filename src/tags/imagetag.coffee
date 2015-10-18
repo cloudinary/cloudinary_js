@@ -5,7 +5,7 @@
     module.exports = factory(require('tags/htmltag'), require('cloudinary-main'), require)
   else
     root.cloudinary ||= {}
-    root.cloudinary.ImageTag = factory(cloudinary.HtmlTag, cloudinary.Cloudinary, require)
+    root.cloudinary.ImageTag = factory(root.cloudinary.HtmlTag, root.cloudinary.Cloudinary, ()-> root.cloudinary.Cloudinary)
 
 )(this, (HtmlTag, Cloudinary, require)->
   ###*

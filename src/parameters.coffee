@@ -1,11 +1,11 @@
 ((root, factory) ->
   if (typeof define == 'function') && define.amd
-    define ['transformation', 'crc32', 'utf8_encode', 'util-lodash', 'require'], factory
+    define ['util', 'transformation', 'require'], factory
   else if typeof exports == 'object'
-    module.exports = factory(require('transformation'), require('crc32'), require('utf8_encode'), require('util-lodash'), require)
+    module.exports = factory(require('util'), require('transformation'), require)
   else
     root.cloudinary ||= {}
-    root.cloudinary.parameters = factory(Transformation, crc32, utf8_encode, Util)
+    root.cloudinary.parameters = factory(root.cloudinary.Util, root.cloudinary.Transformation, ()-> cloudinary.Transformation)
 
 
 #/**
@@ -17,7 +17,7 @@
 #* Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 #* Available under MIT license <https://lodash.com/license>
 #*/
-)(this,  (Transformation, crc32, utf8_encode, Util, require)->
+)(this,  (Util, Transformation, require)->
   class Param
     ###*
      * Represents a single parameter
