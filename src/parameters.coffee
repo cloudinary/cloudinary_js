@@ -51,7 +51,8 @@
      * @param {*} origValue - the value of the parameter
      * @return {Param} self for chaining
     ###
-    set: (@origValue)->
+    set: (origValue)->
+      @origValue = origValue
       this
 
     ###*
@@ -194,7 +195,6 @@
      * @param {string} name - The name of the parameter in snake_case
      * @param {string} short - The name of the serialized form of the parameter
      *                         If a value is not provided, the parameter will not be serialized.
-     * @param {string} [sep='.'] - The separator to use when joining the array elements together
      * @param {function} [process=norm_range_value ] - Manipulate origValue when value is called
      * @class RangeParam
      * @ignore

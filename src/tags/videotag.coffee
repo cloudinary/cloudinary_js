@@ -6,7 +6,6 @@
   else
     root.cloudinary ||= {}
     root.cloudinary.VideoTag = factory(root.cloudinary.HtmlTag, root.cloudinary.Util, root.cloudinary.Cloudinary, ()-> root.cloudinary.Cloudinary)
-
 )(this,  (HtmlTag, Util, Cloudinary, require)->
 
   ###*

@@ -48,7 +48,7 @@
        * Set a parent for this object for chaining purposes.
        *
        * @function Transformation#setParent
-       * @private
+       * @protected
        * @param {Object} object - the parent to be assigned to
        * @returns {Transformation} - returns this instance for chaining purposes.
       ###
@@ -60,7 +60,7 @@
       ###*
        * Returns the parent of this object in the chain
        * @function Transformation#getParent
-       * @private
+       * @protected
        * @return {Object} the parent of this object if any
       ###
       @getParent = ()->
@@ -72,7 +72,7 @@
       # a private member of `TransformationBase`
       #
 
-      ###* @private ###
+      ###* @protected ###
       @param = (value, name, abbr, defaultValue, process) ->
         unless process?
           if Util.isFunction(defaultValue)
@@ -82,25 +82,25 @@
         trans[name] = new Param(name, abbr, process).set(value)
         @
 
-      ###* @private ###
+      ###* @protected ###
       @rawParam = (value, name, abbr, defaultValue, process = Util.identity) ->
         process = lastArgCallback(arguments)
         trans[name] = new RawParam(name, abbr, process).set(value)
         @
 
-      ###* @private ###
+      ###* @protected ###
       @rangeParam = (value, name, abbr, defaultValue, process = Util.identity) ->
         process = lastArgCallback(arguments)
         trans[name] = new RangeParam(name, abbr, process).set(value)
         @
 
-      ###* @private ###
+      ###* @protected ###
       @arrayParam = (value, name, abbr, sep = ":", defaultValue = [], process = Util.identity) ->
         process = lastArgCallback(arguments)
         trans[name] = new ArrayParam(name, abbr, sep, process).set(value)
         @
 
-      ###* @private ###
+      ###* @protected ###
       @transformationParam = (value, name, abbr, sep = ".", defaultValue, process = Util.identity) ->
         process = lastArgCallback(arguments)
         trans[name] = new TransformationParam(name, abbr, sep, process).set(value)

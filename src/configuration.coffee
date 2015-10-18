@@ -130,7 +130,7 @@
     *
     * This is a backward compatibility method. For new code, use get(), merge() etc.
     * @function Configuration#config
-    * @param {hash|string|true} new_config
+    * @param {hash|string|boolean} new_config
     * @param {string} new_value
     * @returns {*} configuration, or value
     *

@@ -89,10 +89,10 @@
     ###*
      * Return the resource type and action type based on the given configuration
      * @function Cloudinary#finalizeResourceType
-     * @param {object|string} resource_type
+     * @param {object|string} resourceType
      * @param {string} [type='upload']
-     * @param {string} [url_suffix]
-     * @param {boolean} [use_root_path]
+     * @param {string} [urlSuffix]
+     * @param {boolean} [useRootPath]
      * @param {boolean} [shorten]
      * @returns {string} resource_type/type
      * @ignore
@@ -479,8 +479,6 @@
     ###
     transformation: (options)->
       Transformation.new( @config()).fromOptions(options).setParent( this)
-
-
 )
 
 #/**

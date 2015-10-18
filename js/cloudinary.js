@@ -612,7 +612,7 @@
       *
       * This is a backward compatibility method. For new code, use get(), merge() etc.
       * @function Configuration#config
-      * @param {hash|string|true} new_config
+      * @param {hash|string|boolean} new_config
       * @param {string} new_value
       * @returns {*} configuration, or value
       *
@@ -708,8 +708,8 @@
        * @return {Param} self for chaining
        */
 
-      Param.prototype.set = function(origValue1) {
-        this.origValue = origValue1;
+      Param.prototype.set = function(origValue) {
+        this.origValue = origValue;
         return this;
       };
 
@@ -940,7 +940,6 @@
        * @param {string} name - The name of the parameter in snake_case
        * @param {string} short - The name of the serialized form of the parameter
        *                         If a value is not provided, the parameter will not be serialized.
-       * @param {string} [sep='.'] - The separator to use when joining the array elements together
        * @param {function} [process=norm_range_value ] - Manipulate origValue when value is called
        * @class RangeParam
        * @ignore
@@ -1064,7 +1063,7 @@
          * Set a parent for this object for chaining purposes.
          *
          * @function Transformation#setParent
-         * @private
+         * @protected
          * @param {Object} object - the parent to be assigned to
          * @returns {Transformation} - returns this instance for chaining purposes.
          */
@@ -1077,14 +1076,14 @@
         /**
          * Returns the parent of this object in the chain
          * @function Transformation#getParent
-         * @private
+         * @protected
          * @return {Object} the parent of this object if any
          */
         this.getParent = function() {
           return chainedTo;
         };
 
-        /** @private */
+        /** @protected */
         this.param = function(value, name, abbr, defaultValue, process) {
           if (process == null) {
             if (Util.isFunction(defaultValue)) {
@@ -1097,7 +1096,7 @@
           return this;
         };
 
-        /** @private */
+        /** @protected */
         this.rawParam = function(value, name, abbr, defaultValue, process) {
           if (process == null) {
             process = Util.identity;
@@ -1107,7 +1106,7 @@
           return this;
         };
 
-        /** @private */
+        /** @protected */
         this.rangeParam = function(value, name, abbr, defaultValue, process) {
           if (process == null) {
             process = Util.identity;
@@ -1117,7 +1116,7 @@
           return this;
         };
 
-        /** @private */
+        /** @protected */
         this.arrayParam = function(value, name, abbr, sep, defaultValue, process) {
           if (sep == null) {
             sep = ":";
@@ -1133,7 +1132,7 @@
           return this;
         };
 
-        /** @private */
+        /** @protected */
         this.transformationParam = function(value, name, abbr, sep, defaultValue, process) {
           if (sep == null) {
             sep = ".";
@@ -1813,7 +1812,7 @@
       /**
        * combine key and value from the `attr` to generate an HTML tag attributes string.
        * `Transformation::toHtmlTagOptions` is used to filter out transformation and configuration keys.
-       * @param {Object} attr
+       * @param {Object} attrs
        * @return {String} the attributes in the format `'key1="value1" key2="value2"'`
        */
 
@@ -2223,10 +2222,10 @@
       /**
        * Return the resource type and action type based on the given configuration
        * @function Cloudinary#finalizeResourceType
-       * @param {object|string} resource_type
+       * @param {object|string} resourceType
        * @param {string} [type='upload']
-       * @param {string} [url_suffix]
-       * @param {boolean} [use_root_path]
+       * @param {string} [urlSuffix]
+       * @param {boolean} [useRootPath]
        * @param {boolean} [shorten]
        * @returns {string} resource_type/type
        * @ignore

@@ -47,7 +47,6 @@
     @new = (name, publicId, options)->
       new @(name, publicId, options)
 
-
     ###*
      * Represent the given key and value as an HTML attribute.
      * @function HtmlTag#toAttribute
@@ -67,7 +66,7 @@
     ###*
      * combine key and value from the `attr` to generate an HTML tag attributes string.
      * `Transformation::toHtmlTagOptions` is used to filter out transformation and configuration keys.
-     * @param {Object} attr
+     * @param {Object} attrs
      * @return {String} the attributes in the format `'key1="value1" key2="value2"'`
     ###
     htmlAttrs: (attrs) ->
