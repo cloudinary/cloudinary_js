@@ -1,74 +1,87 @@
+((root, factory) ->
+  if (typeof define == 'function') && define.amd
+    define ['tags/htmltag', 'util-lodash', 'cloudinary-main', 'require'], factory
+  else if typeof exports == 'object'
+    module.exports = factory(require('tags/htmltag'), require('util-lodash'), require('cloudinary-main'), require)
+  else
+    root.cloudinary ||= {}
+    root.cloudinary.VideoTag = factory(cloudinary.HtmlTag, cloudinary.Util, cloudinary.Cloudinary)
 
-###*
-* Creates an HTML (DOM) Video tag using Cloudinary as the source.
-###
-class VideoTag extends HtmlTag
-
-  VIDEO_TAG_PARAMS = ['source_types','source_transformation','fallback_content', 'poster']
-  DEFAULT_VIDEO_SOURCE_TYPES = ['webm', 'mp4', 'ogv']
-  DEFAULT_POSTER_OPTIONS = { format: 'jpg', resource_type: 'video' }
-
+)(this,  (HtmlTag, Util, Cloudinary, require)->
 
   ###*
-   * Creates an HTML (DOM) Video tag using Cloudinary as the source.
-   * @constructor VideoTag
-   * @param {String} [publicId]
-   * @param {Object} [options]
+  * Creates an HTML (DOM) Video tag using Cloudinary as the source.
   ###
-  constructor: (publicId, options={})->
-    options = Util.defaults({}, options, Cloudinary.DEFAULT_VIDEO_PARAMS)
-    super("video", publicId.replace(/\.(mp4|ogv|webm)$/, ''), options)
+  class VideoTag extends HtmlTag
 
-  setSourceTransformation: (value)->
-    @transformation().sourceTransformation(value)
-    this
+    VIDEO_TAG_PARAMS = ['source_types','source_transformation','fallback_content', 'poster']
+    DEFAULT_VIDEO_SOURCE_TYPES = ['webm', 'mp4', 'ogv']
+    DEFAULT_POSTER_OPTIONS = { format: 'jpg', resource_type: 'video' }
 
-  setSourceTypes: (value)->
-    @transformation().sourceTypes(value)
-    this
+    ###*
+     * Creates an HTML (DOM) Video tag using Cloudinary as the source.
+     * @constructor VideoTag
+     * @param {String} [publicId]
+     * @param {Object} [options]
+    ###
+    constructor: (publicId, options={})->
+      Cloudinary ||= require('cloudinary-main')
+      options = Util.defaults({}, options, Cloudinary.DEFAULT_VIDEO_PARAMS)
+      super("video", publicId.replace(/\.(mp4|ogv|webm)$/, ''), options)
 
-  setPoster: (value)->
-    @transformation().poster(value)
-    this
+    setSourceTransformation: (value)->
+      @transformation().sourceTransformation(value)
+      this
 
-  setFallbackContent: (value)->
-    @transformation().fallbackContent(value)
-    this
+    setSourceTypes: (value)->
+      @transformation().sourceTypes(value)
+      this
 
-  content: ()->
-    sourceTypes = @transformation().getValue('source_types')
-    sourceTransformation = @transformation().getValue('source_transformation')
-    fallback = @transformation().getValue('fallback_content')
+    setPoster: (value)->
+      @transformation().poster(value)
+      this
 
-    if Util.isArray(sourceTypes)
-      cld = new Cloudinary(@getOptions())
-      innerTags = for srcType in sourceTypes
-        transformation = sourceTransformation[srcType] or {}
-        src = cld.url( "#{@publicId }", Util.defaults({}, transformation, { resource_type: 'video', format: srcType}))
-        videoType = if srcType == 'ogv' then 'ogg' else srcType
-        mimeType = 'video/' + videoType
-        "<source #{@htmlAttrs(src: src, type: mimeType)}>"
-    else
-      innerTags = []
-    innerTags.join('') + fallback
+    setFallbackContent: (value)->
+      @transformation().fallbackContent(value)
+      this
 
-  attributes: ()->
-    sourceTypes = @getOption('source_types')
-    poster = @getOption('poster') ? {}
+    content: ()->
+      sourceTypes = @transformation().getValue('source_types')
+      sourceTransformation = @transformation().getValue('source_transformation')
+      fallback = @transformation().getValue('fallback_content')
+      Cloudinary ||= require('cloudinary-main')
 
-    if Util.isPlainObject(poster)
-      defaults = if poster.public_id? then Cloudinary.DEFAULT_IMAGE_PARAMS else DEFAULT_POSTER_OPTIONS
-      poster = new Cloudinary(@getOptions()).url(
-        poster.public_id ? @publicId,
-        Util.defaults({}, poster, defaults))
+      if Util.isArray(sourceTypes)
+        cld = new Cloudinary(@getOptions())
+        innerTags = for srcType in sourceTypes
+          transformation = sourceTransformation[srcType] or {}
+          src = cld.url( "#{@publicId }", Util.defaults({}, transformation, { resource_type: 'video', format: srcType}))
+          videoType = if srcType == 'ogv' then 'ogg' else srcType
+          mimeType = 'video/' + videoType
+          "<source #{@htmlAttrs(src: src, type: mimeType)}>"
+      else
+        innerTags = []
+      innerTags.join('') + fallback
 
-    attr = super() || []
-    attr = a for a in attr when !Util.contains(VIDEO_TAG_PARAMS)
-    unless  Util.isArray(sourceTypes)
-      attr["src"] = new Cloudinary(@getOptions())
-        .url(@publicId, {resource_type: 'video', format: sourceTypes})
-    if poster?
-      attr["poster"] = poster
-    attr
+    attributes: ()->
+      Cloudinary ||= require('cloudinary-main')
+      sourceTypes = @getOption('source_types')
+      poster = @getOption('poster') ? {}
 
-cloudinary.VideoTag = VideoTag
+      if Util.isPlainObject(poster)
+        defaults = if poster.public_id? then Cloudinary.DEFAULT_IMAGE_PARAMS else DEFAULT_POSTER_OPTIONS
+        poster = new Cloudinary(@getOptions()).url(
+          poster.public_id ? @publicId,
+          Util.defaults({}, poster, defaults))
+
+      attr = super() || []
+      attr = a for a in attr when !Util.contains(VIDEO_TAG_PARAMS)
+      unless  Util.isArray(sourceTypes)
+        attr["src"] = new Cloudinary(@getOptions())
+          .url(@publicId, {resource_type: 'video', format: sourceTypes})
+      if poster?
+        attr["poster"] = poster
+      attr
+
+  VideoTag
+)

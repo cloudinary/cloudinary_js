@@ -1,414 +1,429 @@
+((root, factory) ->
+  if (typeof define == 'function') && define.amd
+    define ['configuration', 'parameters','util-lodash'], factory
+  else if typeof exports == 'object'
+    module.exports = factory(require('configuration'), require('parameters'), require('util-lodash'))
+  else
+    root.cloudinary.Transformation = factory(root.cloudinary.Configuration, root.cloudinary.parameters, root.cloudinary.Util)
 
-class TransformationBase
-  lastArgCallback = (args)->
-    callback = args?[args.length - 1]
-    if(Util.isFunction(callback))
-      callback
-    else
-      undefined
+)(this,  (Configuration, parameters, Util)->
+  Param = parameters.Param
+  ArrayParam = parameters.ArrayParam
+  RangeParam = parameters.RangeParam
+  RawParam = parameters.RawParam
+  TransformationParam = parameters.TransformationParam
 
-  ###*
-   * The base class for transformations.
-   * @class TransformationBase
-  ###
-  constructor: (options = {}) ->
-    ###* @private ###
-    chainedTo = undefined
-    ###* @private ###
-    trans = {}
-
-    ###*
-     * Return an options object that can be used to create an identical Transformation
-     * @function Transformation#toOptions
-     * @return {Object} a plain object representing this transformation
-    ###
-    @toOptions = ()->
-      opt= {}
-      for key, value of trans
-        opt[key]= value.origValue
-      for key, value of @otherOptions when value != undefined
-        opt[key]= value
-      opt
+  class TransformationBase
+    lastArgCallback = (args)->
+      callback = args?[args.length - 1]
+      if(Util.isFunction(callback))
+        callback
+      else
+        undefined
 
     ###*
-     * Set a parent for this object for chaining purposes.
-     *
-     * @function Transformation#setParent
-     * @private
-     * @param {Object} object - the parent to be assigned to
-     * @returns {Transformation} - returns this instance for chaining purposes.
+     * The base class for transformations.
+     * @class TransformationBase
     ###
-    @setParent = (object)->
-      chainedTo = object
-      @fromOptions( object.toOptions?())
+    constructor: (options = {}) ->
+      ###* @private ###
+      chainedTo = undefined
+      ###* @private ###
+      trans = {}
+
+      ###*
+       * Return an options object that can be used to create an identical Transformation
+       * @function Transformation#toOptions
+       * @return {Object} a plain object representing this transformation
+      ###
+      @toOptions = ()->
+        opt= {}
+        for key, value of trans
+          opt[key]= value.origValue
+        for key, value of @otherOptions when value != undefined
+          opt[key]= value
+        opt
+
+      ###*
+       * Set a parent for this object for chaining purposes.
+       *
+       * @function Transformation#setParent
+       * @private
+       * @param {Object} object - the parent to be assigned to
+       * @returns {Transformation} - returns this instance for chaining purposes.
+      ###
+      @setParent = (object)->
+        chainedTo = object
+        @fromOptions( object.toOptions?())
+        this
+
+      ###*
+       * Returns the parent of this object in the chain
+       * @function Transformation#getParent
+       * @private
+       * @return {Object} the parent of this object if any
+      ###
+      @getParent = ()->
+        chainedTo
+
+      #
+      # Helper methods to create parameter methods
+      # These methods are defined here because they access `trans` which is
+      # a private member of `TransformationBase`
+      #
+
+      ###* @private ###
+      @param = (value, name, abbr, defaultValue, process) ->
+        unless process?
+          if Util.isFunction(defaultValue)
+            process = defaultValue
+          else
+            process = Util.identity
+        trans[name] = new Param(name, abbr, process).set(value)
+        @
+
+      ###* @private ###
+      @rawParam = (value, name, abbr, defaultValue, process = Util.identity) ->
+        process = lastArgCallback(arguments)
+        trans[name] = new RawParam(name, abbr, process).set(value)
+        @
+
+      ###* @private ###
+      @rangeParam = (value, name, abbr, defaultValue, process = Util.identity) ->
+        process = lastArgCallback(arguments)
+        trans[name] = new RangeParam(name, abbr, process).set(value)
+        @
+
+      ###* @private ###
+      @arrayParam = (value, name, abbr, sep = ":", defaultValue = [], process = Util.identity) ->
+        process = lastArgCallback(arguments)
+        trans[name] = new ArrayParam(name, abbr, sep, process).set(value)
+        @
+
+      ###* @private ###
+      @transformationParam = (value, name, abbr, sep = ".", defaultValue, process = Util.identity) ->
+        process = lastArgCallback(arguments)
+        trans[name] = new TransformationParam(name, abbr, sep, process).set(value)
+        @
+
+      #
+      # End Helper methods
+      #
+
+      ###*
+       * Get the value associated with the given name.
+       * @function Transformation#getValue
+       * @param {string} name - the name of the parameter
+       * @return {*} the processed value associated with the given name
+       * @description Use {@link get}.origValue for the value originally provided for the parameter
+      ###
+      @getValue = (name)->
+        trans[name]?.value() ? @otherOptions[name]
+
+      ###*
+       * Get the parameter object for the given parameter name
+       * @function Transformation#get
+       * @param {String} name the name of the transformation parameter
+       * @returns {Param} the param object for the given name, or undefined
+      ###
+      @get = (name)->
+        trans[name]
+
+      ###*
+       * Remove a transformation option from the transformation.
+       * @function Transformation#remove
+       * @param {string} name - the name of the option to remove
+       * @return {*} the option that was removed or null if no option by that name was found
+      ###
+      @remove = (name)->
+        switch
+          when trans[name]?
+            temp = trans[name]
+            delete trans[name]
+            temp.origValue
+          when @otherOptions[name]?
+            temp = @otherOptions[name]
+            delete @otherOptions[name]
+            temp
+          else
+            null
+
+      ###*
+       * Return an array of all the keys (option names) in the transformation.
+       * @return {Array<string>} the keys in snakeCase format
+      ###
+      @keys = ()->
+        (Util.snakeCase(key) for key of trans).sort()
+
+      ###*
+       * Returns a plain object representation of the transformation. Values are processed.
+       * @function Transformation#toPlainObject
+       * @return {object} the transformation options as plain object
+      ###
+      @toPlainObject = ()->
+        hash = {}
+        for key of trans
+          hash[key] = trans[key].value()
+          hash[key] = Util.cloneDeep(hash[key]) if Util.isPlainObject(hash[key])
+        hash
+
+      ###*
+       * Complete the current transformation and chain to a new one.
+       * In the URL, transformations are chained together by slashes.
+       * @function Transformation#chain
+       * @return {TransformationBase} this transformation for chaining
+       * @example
+       * var tr = cloudinary.Transformation.new();
+       * tr.width(10).crop('fit').chain().angle(15).serialize()
+       * // produces "c_fit,w_10/a_15"
+      ###
+      @chain = ()->
+        tr = new @constructor( @toOptions())
+        trans = []
+        @set("transformation", tr)
+
+      @otherOptions = {}
+
+      ###*
+       * Transformation Class methods.
+       * This is a list of the parameters defined in Transformation.
+       * Values are camelCased.
+       * @private
+       * @ignore
+       * @type {Array<String>}
+      ###
+      @methods = Util.difference(
+        Util.functions(Transformation.prototype),
+        Util.functions(TransformationBase.prototype)
+      )
+
+      ###*
+       * Parameters that are filtered out before passing the options to an HTML tag.
+       * The list of parameters is `Transformation::methods` and `Configuration::CONFIG_PARAMS`
+       * @const {Array<string>} TransformationBase.PARAM_NAMES
+       * @private
+       * @see toHtmlAttributes
+      ###
+      @PARAM_NAMES = (Util.snakeCase(m) for m in @methods).concat( Configuration.CONFIG_PARAMS)
+
+
+      # Finished constructing the instance, now process the options
+
+      @fromOptions(options) unless Util.isEmpty(options)
+
+    ###*
+     * Merge the provided options with own's options
+     * @param {Object} [options={}] key-value list of options
+     * @returns {Transformation} this instance for chaining
+    ###
+    fromOptions: (options) ->
+      options or= {}
+      options = {transformation: options } if Util.isString(options) || Util.isArray(options) || options instanceof Transformation
+      options = Util.cloneDeep(options, (value) ->
+        if value instanceof Transformation
+          new value.constructor( value.toOptions())
+      )
+      for key, opt of options
+        @set key, opt
       this
 
     ###*
-     * Returns the parent of this object in the chain
-     * @function Transformation#getParent
-     * @private
-     * @return {Object} the parent of this object if any
+     * Set a parameter.
+     * The parameter name `key` is converted to
+     * @param {String} key - the name of the parameter
+     * @param {*} value - the value of the parameter
+     * @returns {Transformation} this instance for chaining
     ###
-    @getParent = ()->
-      chainedTo
+    set: (key, value)->
+      camelKey = Util.camelCase( key)
+      if Util.contains( @methods, camelKey)
+        this[camelKey](value)
+      else
+        @otherOptions[key] = value
+      this
 
-    #
-    # Helper methods to create parameter methods
-    # These methods are defined here because they access `trans` which is
-    # a private member of `TransformationBase`
-    #
-
-    ###* @private ###
-    @param = (value, name, abbr, defaultValue, process) ->
-      unless process?
-        if Util.isFunction(defaultValue)
-          process = defaultValue
-        else
-          process = Util.identity
-      trans[name] = new Param(name, abbr, process).set(value)
-      @
-
-    ###* @private ###
-    @rawParam = (value, name, abbr, defaultValue, process = Util.identity) ->
-      process = lastArgCallback(arguments)
-      trans[name] = new RawParam(name, abbr, process).set(value)
-      @
-
-    ###* @private ###
-    @rangeParam = (value, name, abbr, defaultValue, process = Util.identity) ->
-      process = lastArgCallback(arguments)
-      trans[name] = new RangeParam(name, abbr, process).set(value)
-      @
-
-    ###* @private ###
-    @arrayParam = (value, name, abbr, sep = ":", defaultValue = [], process = Util.identity) ->
-      process = lastArgCallback(arguments)
-      trans[name] = new ArrayParam(name, abbr, sep, process).set(value)
-      @
-
-    ###* @private ###
-    @transformationParam = (value, name, abbr, sep = ".", defaultValue, process = Util.identity) ->
-      process = lastArgCallback(arguments)
-      trans[name] = new TransformationParam(name, abbr, sep, process).set(value)
-      @
-
-    #
-    # End Helper methods
-    #
+    hasLayer: ()->
+      @getValue("overlay") || @getValue("underlay")
 
     ###*
-     * Get the value associated with the given name.
-     * @function Transformation#getValue
-     * @param {string} name - the name of the parameter
-     * @return {*} the processed value associated with the given name
-     * @description Use {@link get}.origValue for the value originally provided for the parameter
+     * Generate a string reprensetation of the transformation.
+     * @function Transformation#serialize
+     * @return {string} the transformation as a string
     ###
-    @getValue = (name)->
-      trans[name]?.value() ? @otherOptions[name]
-
-    ###*
-     * Get the parameter object for the given parameter name
-     * @function Transformation#get
-     * @param {String} name the name of the transformation parameter
-     * @returns {Param} the param object for the given name, or undefined
-    ###
-    @get = (name)->
-      trans[name]
-
-    ###*
-     * Remove a transformation option from the transformation.
-     * @function Transformation#remove
-     * @param {string} name - the name of the option to remove
-     * @return {*} the option that was removed or null if no option by that name was found
-    ###
-    @remove = (name)->
+    serialize: ->
+      resultArray = []
+      paramList = @keys()
+      transformations = @get("transformation")?.serialize()
+      paramList = Util.without(paramList, "transformation")
+      transformationList = (@get(t)?.serialize() for t in paramList )
       switch
-        when trans[name]?
-          temp = trans[name]
-          delete trans[name]
-          temp.origValue
-        when @otherOptions[name]?
-          temp = @otherOptions[name]
-          delete @otherOptions[name]
-          temp
-        else
-          null
+        when Util.isString(transformations)
+          transformationList.push( transformations)
+        when Util.isArray( transformations)
+          resultArray = (transformations)
+      transformationString = (
+        for value in transformationList when Util.isArray(value) &&!Util.isEmpty(value) || !Util.isArray(value) && value
+          value
+      ).sort().join(',')
+      resultArray.push(transformationString) unless Util.isEmpty(transformationString)
+      Util.compact(resultArray).join('/')
 
     ###*
-     * Return an array of all the keys (option names) in the transformation.
-     * @return {Array<string>} the keys in snakeCase format
+     * Provide a list of all the valid transformation option names
+     * @function Transformation#listNames
+     * @private
+     * @return {Array<string>} a array of all the valid option names
     ###
-    @keys = ()->
-      (Util.snakeCase(key) for key of trans).sort()
+    listNames: ->
+      @methods
+
 
     ###*
-     * Returns a plain object representation of the transformation. Values are processed.
-     * @function Transformation#toPlainObject
-     * @return {object} the transformation options as plain object
+     * Returns attributes for an HTML tag.
+     * @function Cloudinary.toHtmlAttributes
+     * @return PlainObject
     ###
-    @toPlainObject = ()->
-      hash = {}
-      for key of trans
-        hash[key] = trans[key].value()
-        hash[key] = Util.cloneDeep(hash[key]) if Util.isPlainObject(hash[key])
-      hash
+    toHtmlAttributes: ()->
+      options = {}
+      options[key] = value for key, value of @otherOptions when  !Util.contains(@PARAM_NAMES, key)
+      options[key] = @get(key).value for key in Util.difference(@keys(), @PARAM_NAMES)
+      # convert all "html_key" to "key" with the same value
+      for k in @keys() when /^html_/.exec(k)
+        options[k.substr(5)] = @getValue(k)
+
+      unless @hasLayer()|| @getValue("angle") || Util.contains( ["fit", "limit", "lfill"],@getValue("crop"))
+        width = @get("width")?.origValue
+        height = @get("height")?.origValue
+        if parseFloat(width) >= 1.0
+          options['width'] ?= width
+        if parseFloat(height) >= 1.0
+          options['height'] ?= height
+      options
+
+    isValidParamName: (name) ->
+      @methods.indexOf(Util.camelCase(name)) >= 0
 
     ###*
-     * Complete the current transformation and chain to a new one.
-     * In the URL, transformations are chained together by slashes.
-     * @function Transformation#chain
-     * @return {TransformationBase} this transformation for chaining
+     * Delegate to the parent (up the call chain) to produce HTML
+     * @function Transformation#toHtml
+     * @return {string} HTML representation of the parent if possible.
      * @example
-     * var tr = cloudinary.Transformation.new();
-     * tr.width(10).crop('fit').chain().angle(15).serialize()
-     * // produces "c_fit,w_10/a_15"
+     * tag = cloudinary.ImageTag.new("sample", {cloud_name: "demo"})
+     * // ImageTag {name: "img", publicId: "sample"}
+     * tag.toHtml()
+     * // <img src="http://res.cloudinary.com/demo/image/upload/sample">
+     * tag.transformation().crop("fit").width(300).toHtml()
+     * // <img src="http://res.cloudinary.com/demo/image/upload/c_fit,w_300/sample">
     ###
-    @chain = ()->
-      tr = new @constructor( @toOptions())
-      trans = []
-      @set("transformation", tr)
 
-    @otherOptions = {}
+    toHtml: ()->
+      @getParent()?.toHtml?()
+
+    toString: ()->
+      @serialize()
+
+  class Transformation  extends TransformationBase
+
+    @new = (args)-> new Transformation(args)
 
     ###*
-     * Transformation Class methods.
-     * This is a list of the parameters defined in Transformation.
-     * Values are camelCased.
-     * @private
-     * @ignore
-     * @type {Array<String>}
+     *  Represents a single transformation.
+     *  @class Transformation
+     *  @example
+     *  t = new cloudinary.Transformation();
+     *  t.angle(20).crop("scale").width("auto");
+     *
+     *  // or
+     *
+     *  t = new cloudinary.Transformation( {angle: 20, crop: "scale", width: "auto"});
     ###
-    @methods = Util.difference(
-      Util.functions(Transformation.prototype),
-      Util.functions(TransformationBase.prototype)
-    )
+    constructor: (options = {})->
+      super(options)
 
-    ###*
-     * Parameters that are filtered out before passing the options to an HTML tag.
-     * The list of parameters is `Transformation::methods` and `Configuration::CONFIG_PARAMS`
-     * @const {Array<string>} TransformationBase.PARAM_NAMES
-     * @private
-     * @see toHtmlAttributes
     ###
-    @PARAM_NAMES = (Util.snakeCase(m) for m in @methods).concat( cloudinary.Configuration.CONFIG_PARAMS)
+      Transformation Parameters
+    ###
 
-
-    # Finished constructing the instance, now process the options
-
-    @fromOptions(options) unless Util.isEmpty(options)
-
-  ###*
-   * Merge the provided options with own's options
-   * @param {Object} [options={}] key-value list of options
-   * @returns {Transformation} this instance for chaining
-  ###
-  fromOptions: (options) ->
-    options or= {}
-    options = {transformation: options } if Util.isString(options) || Util.isArray(options) || options instanceof Transformation
-    options = Util.cloneDeep(options, (value) ->
-      if value instanceof Transformation
-        new value.constructor( value.toOptions())
-    )
-    for key, opt of options
-      @set key, opt
-    this
-
-  ###*
-   * Set a parameter.
-   * The parameter name `key` is converted to
-   * @param {String} key - the name of the parameter
-   * @param {*} value - the value of the parameter
-   * @returns {Transformation} this instance for chaining
-  ###
-  set: (key, value)->
-    camelKey = Util.camelCase( key)
-    if Util.contains( @methods, camelKey)
-      this[camelKey](value)
-    else
-      @otherOptions[key] = value
-    this
-
-  hasLayer: ()->
-    @getValue("overlay") || @getValue("underlay")
-
-  ###*
-   * Generate a string reprensetation of the transformation.
-   * @function Transformation#serialize
-   * @return {string} the transformation as a string
-  ###
-  serialize: ->
-    resultArray = []
-    paramList = @keys()
-    transformations = @get("transformation")?.serialize()
-    paramList = Util.without(paramList, "transformation")
-    transformationList = (@get(t)?.serialize() for t in paramList )
-    switch
-      when Util.isString(transformations)
-        transformationList.push( transformations)
-      when Util.isArray( transformations)
-        resultArray = (transformations)
-    transformationString = (
-      for value in transformationList when Util.isArray(value) &&!Util.isEmpty(value) || !Util.isArray(value) && value
+    angle: (value)->                @arrayParam value, "angle", "a", "."
+    audioCodec: (value)->           @param value, "audio_codec", "ac"
+    audioFrequency: (value)->       @param value, "audio_frequency", "af"
+    aspectRatio: (value)->          @param value, "aspect_ratio", "ar"
+    background: (value)->           @param value, "background", "b", Param.norm_color
+    bitRate: (value)->              @param value, "bit_rate", "br"
+    border: (value)->               @param value, "border", "bo", (border) ->
+      if (Util.isPlainObject(border))
+        border = Util.assign({}, {color: "black", width: 2}, border)
+        "#{border.width}px_solid_#{Param.norm_color(border.color)}"
+      else
+        border
+    color: (value)->                @param value, "color", "co", Param.norm_color
+    colorSpace: (value)->           @param value, "color_space", "cs"
+    crop: (value)->                 @param value, "crop", "c"
+    defaultImage: (value)->         @param value, "default_image", "d"
+    delay: (value)->                @param value, "delay", "l"
+    density: (value)->              @param value, "density", "dn"
+    duration: (value)->             @rangeParam value, "duration", "du"
+    dpr: (value)->                  @param value, "dpr", "dpr", (dpr) ->
+      dpr = dpr.toString()
+      if (dpr == "auto")
+        "1.0"
+      else if (dpr?.match(/^\d+$/))
+        dpr + ".0"
+      else
+        dpr
+    effect: (value)->               @arrayParam value,  "effect", "e", ":"
+    endOffset: (value)->            @rangeParam value,  "end_offset", "eo"
+    fallbackContent: (value)->      @param value,   "fallback_content"
+    fetchFormat: (value)->          @param value,       "fetch_format", "f"
+    format: (value)->               @param value,       "format"
+    flags: (value)->                @arrayParam value,  "flags", "fl", "."
+    gravity: (value)->              @param value,       "gravity", "g"
+    height: (value)->               @param value,       "height", "h", =>
+      if ( @getValue("crop") || @getValue("overlay") || @getValue("underlay"))
         value
-    ).sort().join(',')
-    resultArray.push(transformationString) unless Util.isEmpty(transformationString)
-    Util.compact(resultArray).join('/')
-
-  ###*
-   * Provide a list of all the valid transformation option names
-   * @function Transformation#listNames
-   * @private
-   * @return {Array<string>} a array of all the valid option names
-  ###
-  listNames: ->
-    @methods
-
-
-  ###*
-   * Returns attributes for an HTML tag.
-   * @function Cloudinary.toHtmlAttributes
-   * @return PlainObject
-  ###
-  toHtmlAttributes: ()->
-    options = {}
-    options[key] = value for key, value of @otherOptions when  !Util.contains(@PARAM_NAMES, key)
-    options[key] = @get(key).value for key in Util.difference(@keys(), @PARAM_NAMES)
-    # convert all "html_key" to "key" with the same value
-    for k in @keys() when /^html_/.exec(k)
-      options[k.substr(5)] = @getValue(k)
-
-    unless @hasLayer()|| @getValue("angle") || Util.contains( ["fit", "limit", "lfill"],@getValue("crop"))
-      width = @get("width")?.origValue
-      height = @get("height")?.origValue
-      if parseFloat(width) >= 1.0
-        options['width'] ?= width
-      if parseFloat(height) >= 1.0
-        options['height'] ?= height
-    options
-
-  isValidParamName: (name) ->
-    @methods.indexOf(Util.camelCase(name)) >= 0
-
-  ###*
-   * Delegate to the parent (up the call chain) to produce HTML
-   * @function Transformation#toHtml
-   * @return {string} HTML representation of the parent if possible.
-   * @example
-   * tag = cloudinary.ImageTag.new("sample", {cloud_name: "demo"})
-   * // ImageTag {name: "img", publicId: "sample"}
-   * tag.toHtml()
-   * // <img src="http://res.cloudinary.com/demo/image/upload/sample">
-   * tag.transformation().crop("fit").width(300).toHtml()
-   * // <img src="http://res.cloudinary.com/demo/image/upload/c_fit,w_300/sample">
-  ###
-
-  toHtml: ()->
-    @getParent()?.toHtml?()
-
-  toString: ()->
-    @serialize()
-
-class Transformation  extends TransformationBase
-
-  @new = (args)-> new Transformation(args)
-
-  ###*
-   *  Represents a single transformation.
-   *  @class Transformation
-   *  @example
-   *  t = new cloudinary.Transformation();
-   *  t.angle(20).crop("scale").width("auto");
-   *
-   *  // or
-   *
-   *  t = new cloudinary.Transformation( {angle: 20, crop: "scale", width: "auto"});
-  ###
-  constructor: (options = {})->
-    super(options)
-
-  ###
-    Transformation Parameters
-  ###
-
-  angle: (value)->                @arrayParam value, "angle", "a", "."
-  audioCodec: (value)->           @param value, "audio_codec", "ac"
-  audioFrequency: (value)->       @param value, "audio_frequency", "af"
-  aspectRatio: (value)->          @param value, "aspect_ratio", "ar"
-  background: (value)->           @param value, "background", "b", Param.norm_color
-  bitRate: (value)->              @param value, "bit_rate", "br"
-  border: (value)->               @param value, "border", "bo", (border) ->
-    if (Util.isPlainObject(border))
-      border = Util.assign({}, {color: "black", width: 2}, border)
-      "#{border.width}px_solid_#{Param.norm_color(border.color)}"
-    else
-      border
-  color: (value)->                @param value, "color", "co", Param.norm_color
-  colorSpace: (value)->           @param value, "color_space", "cs"
-  crop: (value)->                 @param value, "crop", "c"
-  defaultImage: (value)->         @param value, "default_image", "d"
-  delay: (value)->                @param value, "delay", "l"
-  density: (value)->              @param value, "density", "dn"
-  duration: (value)->             @rangeParam value, "duration", "du"
-  dpr: (value)->                  @param value, "dpr", "dpr", (dpr) ->
-    dpr = dpr.toString()
-    if (dpr == "auto")
-      "1.0"
-    else if (dpr?.match(/^\d+$/))
-      dpr + ".0"
-    else
-      dpr
-  effect: (value)->               @arrayParam value,  "effect", "e", ":"
-  endOffset: (value)->            @rangeParam value,  "end_offset", "eo"
-  fallbackContent: (value)->      @param value,   "fallback_content"
-  fetchFormat: (value)->          @param value,       "fetch_format", "f"
-  format: (value)->               @param value,       "format"
-  flags: (value)->                @arrayParam value,  "flags", "fl", "."
-  gravity: (value)->              @param value,       "gravity", "g"
-  height: (value)->               @param value,       "height", "h", =>
-    if ( @getValue("crop") || @getValue("overlay") || @getValue("underlay"))
-      value
-    else
-      null
-  htmlHeight: (value)->           @param value, "html_height"
-  htmlWidth:(value)->             @param value, "html_width"
-  offset: (value)->
-    [start_o, end_o] = if( Util.isFunction(value?.split))
-      value.split('..')
-    else if Util.isArray(value)
-      value
-    else
-      [null,null]
-    @startOffset(start_o) if start_o?
-    @endOffset(end_o) if end_o?
-  opacity: (value)->              @param value, "opacity",  "o"
-  overlay: (value)->              @param value, "overlay",  "l"
-  page: (value)->                 @param value, "page",     "pg"
-  poster: (value)->               @param value, "poster"
-  prefix: (value)->               @param value, "prefix",   "p"
-  quality: (value)->              @param value, "quality",  "q"
-  radius: (value)->               @param value, "radius",   "r"
-  rawTransformation: (value)->    @rawParam value, "raw_transformation"
-  size: (value)->
-    if( Util.isFunction(value?.split))
-      [width, height] = value.split('x')
-      @width(width)
-      @height(height)
-  sourceTypes: (value)->          @param value, "source_types"
-  sourceTransformation: (value)-> @param value, "source_transformation"
-  startOffset: (value)->          @rangeParam value, "start_offset", "so"
-  transformation: (value)->       @transformationParam value, "transformation", "t"
-  underlay: (value)->             @param value, "underlay", "u"
-  videoCodec: (value)->           @param value, "video_codec", "vc", process_video_params
-  videoSampling: (value)->        @param value, "video_sampling", "vs"
-  width: (value)->                @param value, "width", "w", =>
-    if ( @getValue("crop") || @getValue("overlay") || @getValue("underlay"))
-      value
-    else
-      null
-  x: (value)->                    @param value, "x", "x"
-  y: (value)->                    @param value, "y", "y"
-  zoom: (value)->                 @param value, "zoom", "z"
+      else
+        null
+    htmlHeight: (value)->           @param value, "html_height"
+    htmlWidth:(value)->             @param value, "html_width"
+    offset: (value)->
+      [start_o, end_o] = if( Util.isFunction(value?.split))
+        value.split('..')
+      else if Util.isArray(value)
+        value
+      else
+        [null,null]
+      @startOffset(start_o) if start_o?
+      @endOffset(end_o) if end_o?
+    opacity: (value)->              @param value, "opacity",  "o"
+    overlay: (value)->              @param value, "overlay",  "l"
+    page: (value)->                 @param value, "page",     "pg"
+    poster: (value)->               @param value, "poster"
+    prefix: (value)->               @param value, "prefix",   "p"
+    quality: (value)->              @param value, "quality",  "q"
+    radius: (value)->               @param value, "radius",   "r"
+    rawTransformation: (value)->    @rawParam value, "raw_transformation"
+    size: (value)->
+      if( Util.isFunction(value?.split))
+        [width, height] = value.split('x')
+        @width(width)
+        @height(height)
+    sourceTypes: (value)->          @param value, "source_types"
+    sourceTransformation: (value)-> @param value, "source_transformation"
+    startOffset: (value)->          @rangeParam value, "start_offset", "so"
+    transformation: (value)->       @transformationParam value, "transformation", "t"
+    underlay: (value)->             @param value, "underlay", "u"
+    videoCodec: (value)->           @param value, "video_codec", "vc", Param.process_video_params
+    videoSampling: (value)->        @param value, "video_sampling", "vs"
+    width: (value)->                @param value, "width", "w", =>
+      if ( @getValue("crop") || @getValue("overlay") || @getValue("underlay"))
+        value
+      else
+        null
+    x: (value)->                    @param value, "x", "x"
+    y: (value)->                    @param value, "y", "y"
+    zoom: (value)->                 @param value, "zoom", "z"
 
 
-cloudinary.Transformation = Transformation
-cloudinary.TransformationBase = TransformationBase
+  Transformation
+
+)

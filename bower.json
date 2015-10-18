@@ -50,7 +50,8 @@
     "jquery.ui": "1.11.4"
   },
   "devDependencies": {
-    "jasmine": "~2.3.x"
+    "jasmine": "~2.3.x",
+    "requirejs-bower": "2.1.x"
   },
   "ignore": [
     "/*.*",

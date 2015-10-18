@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>cloudinary_js</title>
+    <link rel="shortcut icon" type="image/png" href="../bower_components/jasmine/images/jasmine_favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="../bower_components/jasmine/lib/jasmine-core/jasmine.css">
+    <script type="text/javascript" src="../bower_components/jasmine/lib/jasmine-core/jasmine.js"></script>
+    <script type="text/javascript" src="../bower_components/jasmine/lib/jasmine-core/jasmine-html.js"></script>
+    <script type="text/javascript" src="../bower_components/jasmine/lib/jasmine-core/boot.js"></script>
+    <script>
+        window.bootJasmine = window.onload;
+        window.onload = undefined;
+    </script>
+    <script src="../bower_components/requirejs-bower/require.js"></script>
+    <!--<script src="../bower_components/lodash/lodash.js"></script>-->
+    <!--<script src="../src/util-lodash.js"></script>-->
+    <script>
+        requirejs.config({
+            //By default load any module IDs from js/lib
+            baseUrl: '../src',
+            //except, if the module ID starts with "app",
+            //load it from the js/app directory. paths
+            //config is relative to the baseUrl, and
+            //never includes a ".js" extension since
+            //the paths config could be for a directory.
+            paths: {
+                lodash: '../bower_components/lodash/lodash',
+                spec: '../test/spec'
+            }
+        });
+
+        require(['utf8_encode', 'crc32','transformation', 'configuration', 'util-lodash', 'cloudinary-main', 'tags/htmltag', 'tags/imagetag', 'tags/videotag'],
+                function(utf8_encode, crc32, Transformation, Configuration, Util, Cloudinary, HtmlTag, ImageTag, VideoTag){
+            window.cloudinary = {};
+            window.cloudinary.Transformation = Transformation;
+            window.cloudinary.Cloudinary = Cloudinary;
+            window.cloudinary.Configuration = Configuration;
+            window.cloudinary.Util = Util;
+            window.cloudinary.HtmlTag = HtmlTag;
+            window.cloudinary.ImageTag = ImageTag;
+            window.cloudinary.VideoTag = VideoTag;
+
+
+            require( ['spec/chaining-spec', 'spec/cloudinary-spec', 'spec/tagspec', 'spec/videourlspec'], function() {
+                bootJasmine();
+            })
+        })
+    </script>
+</head>
+<body>
+
+</body>
+</html>
