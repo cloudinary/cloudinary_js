@@ -91,12 +91,40 @@ module.exports = (grunt)->
         options:
           destination: 'doc'
           configure: "jsdoc-conf.json"
-
+    requirejs:
+      options:
+        baseUrl: "src"
+        paths:
+          lodash: 'empty:'
+          jquery: 'empty:'
+        map:
+          "*": {util: 'util-lodash'}
+        skipDirOptimize: true
+        optimize: "none"
+      cloudinary:
+        options:
+          map:
+            "*": {util: 'util-lodash'}
+          name: "cloudinary-main"
+          out: "dist/cloudinary.js"
+      'cloudinary-jquery':
+        options:
+          map:
+            "*": {util: 'util-jquery'}
+          name: "jquery-extension"
+          out: "dist/jquery.noupload.cloudinary.js"
+      'cloudinary-jquery-file-upload':
+        options:
+          map:
+            "*": {util: 'util-jquery'}
+          name: "cloudinary-fileupload"
+          out: "dist/jquery.noupload.cloudinary.js"
 
 
 
   grunt.loadNpmTasks('grunt-contrib-coffee')
   grunt.loadNpmTasks('grunt-contrib-uglify')
+  grunt.loadNpmTasks('grunt-contrib-requirejs')
   grunt.loadNpmTasks('grunt-jsdoc')
   grunt.loadNpmTasks('grunt-karma')
   grunt.registerTask('default', ['coffee', 'jsdoc'])
