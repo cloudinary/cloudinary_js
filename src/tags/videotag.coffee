@@ -8,14 +8,11 @@
     root.cloudinary.VideoTag = factory(root.cloudinary.HtmlTag, root.cloudinary.Util, root.cloudinary.Cloudinary, ()-> root.cloudinary.Cloudinary)
 )(this,  (HtmlTag, Util, Cloudinary, require)->
 
-  ###*
-  * Creates an HTML (DOM) Video tag using Cloudinary as the source.
-  ###
   class VideoTag extends HtmlTag
 
-    VIDEO_TAG_PARAMS = ['source_types','source_transformation','fallback_content', 'poster']
+    VIDEO_TAG_PARAMS = ['source_types', 'source_transformation', 'fallback_content', 'poster']
     DEFAULT_VIDEO_SOURCE_TYPES = ['webm', 'mp4', 'ogv']
-    DEFAULT_POSTER_OPTIONS = { format: 'jpg', resource_type: 'video' }
+    DEFAULT_POSTER_OPTIONS = {format: 'jpg', resource_type: 'video'}
 
     ###*
      * Creates an HTML (DOM) Video tag using Cloudinary as the source.
@@ -23,7 +20,7 @@
      * @param {String} [publicId]
      * @param {Object} [options]
     ###
-    constructor: (publicId, options={})->
+    constructor: (publicId, options = {})->
       Cloudinary ||= require('cloudinary')
       options = Util.defaults({}, options, Cloudinary.DEFAULT_VIDEO_PARAMS)
       super("video", publicId.replace(/\.(mp4|ogv|webm)$/, ''), options)
@@ -54,7 +51,7 @@
         cld = new Cloudinary(@getOptions())
         innerTags = for srcType in sourceTypes
           transformation = sourceTransformation[srcType] or {}
-          src = cld.url( "#{@publicId }", Util.defaults({}, transformation, { resource_type: 'video', format: srcType}))
+          src = cld.url("#{@publicId }", Util.defaults({}, transformation, {resource_type: 'video', format: srcType}))
           videoType = if srcType == 'ogv' then 'ogg' else srcType
           mimeType = 'video/' + videoType
           "<source #{@htmlAttrs(src: src, type: mimeType)}>"
@@ -77,7 +74,7 @@
       attr = a for a in attr when !Util.contains(VIDEO_TAG_PARAMS)
       unless  Util.isArray(sourceTypes)
         attr["src"] = new Cloudinary(@getOptions())
-          .url(@publicId, {resource_type: 'video', format: sourceTypes})
+        .url(@publicId, {resource_type: 'video', format: sourceTypes})
       if poster?
         attr["poster"] = poster
       attr

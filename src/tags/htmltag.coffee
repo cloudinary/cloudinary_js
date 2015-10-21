@@ -8,9 +8,6 @@
     root.cloudinary.HtmlTag = factory(root.cloudinary.Transformation, root.cloudinary.Util)
 
 )(this,  (Transformation, Util)->
-  ###*
-    * Represents an HTML (DOM) tag
-  ###
   class HtmlTag
     ###*
      * Represents an HTML (DOM) tag

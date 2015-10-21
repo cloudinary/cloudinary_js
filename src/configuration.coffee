@@ -6,8 +6,6 @@
   else
     root.cloudinary ||= {}
     root.cloudinary.Configuration = factory(root.cloudinary.Util)
-  if fooabr?
-    console.log("I found foobar");
 )(this,  (Util)->
   ###*
    * Cloudinary configuration class

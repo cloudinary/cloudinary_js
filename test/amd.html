@@ -36,28 +36,13 @@
                 spec: '../test/spec',
                 util: 'util/lodash'
             }
-//            ,
-//            map: { "*": {util: 'util/lodash'}}
         });
-        require(['../src/main'],function(cl){
-            console.log(cl);
-            window.cl = cl;
-        });
-        require(['utf8_encode', 'crc32', 'transformation', 'configuration', 'util', 'cloudinary', 'tags/htmltag', 'tags/imagetag', 'tags/videotag'],
-            function (utf8_encode, crc32, Transformation, Configuration, Util, Cloudinary, HtmlTag, ImageTag, VideoTag) {
-                window.cloudinary = {};
-                window.cloudinary.Transformation = Transformation;
-                window.cloudinary.Cloudinary = Cloudinary;
-                window.cloudinary.Configuration = Configuration;
-                window.cloudinary.Util = Util;
-                window.cloudinary.HtmlTag = HtmlTag;
-                window.cloudinary.ImageTag = ImageTag;
-                window.cloudinary.VideoTag = VideoTag;
-
-                require(['spec/chaining-spec', 'spec/cloudinary-spec', 'spec/tagspec', 'spec/videourlspec'], function () {
-                    bootJasmine();
-                })
+        require(['all'], function (cloudinary) {
+            window.cloudinary = cloudinary;
+            require(['spec/chaining-spec', 'spec/cloudinary-spec', 'spec/tagspec', 'spec/videourlspec'], function () {
+                bootJasmine();
             })
+        })
     </script>
 </head>
 <body>

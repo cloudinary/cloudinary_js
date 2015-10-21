@@ -2,57 +2,16 @@ module.exports = (grunt)->
   grunt.initConfig
     coffee:
       compile:
-        options:
-          join: true
-          joinExt: '.coffee'
-          bare: false
-          sourceMap: true
-        files:
-          'js/cloudinary.js': [
-#            'src/header.coffee'
-            'src/utf8_encode.coffee'
-            'src/crc32.coffee'
-            'src/util/lodash.coffee'
-            'src/configuration.coffee'
-            'src/parameters.coffee'
-            'src/transformation.coffee'
-            'src/tags/htmltag.coffee'
-            'src/tags/imagetag.coffee'
-            'src/tags/videotag.coffee'
-            'src/cloudinary.coffee'
-#            'src/footer.coffee'
-          ]
-          'js/jquery.noupload.cloudinary.js': [
-#            'src/header-jquery.coffee'
-            'src/utf8_encode.coffee'
-            'src/crc32.coffee'
-            'src/util/jquery.coffee'
-            'src/configuration.coffee'
-            'src/parameters.coffee'
-            'src/transformation.coffee'
-            'src/tags/htmltag.coffee'
-            'src/tags/imagetag.coffee'
-            'src/tags/videotag.coffee'
-            'src/cloudinary.coffee'
-            'src/cloudinaryjquery.coffee'
-#            'src/footer.coffee'
-          ]
-          'js/jquery.cloudinary.js': [
-#            'src/header-jquery-upload.coffee'
-            'src/utf8_encode.coffee'
-            'src/crc32.coffee'
-            'src/util/jquery.coffee'
-            'src/configuration.coffee'
-            'src/parameters.coffee'
-            'src/transformation.coffee'
-            'src/tags/htmltag.coffee'
-            'src/tags/imagetag.coffee'
-            'src/tags/videotag.coffee'
-            'src/cloudinary.coffee'
-            'src/cloudinaryjquery.coffee'
-            'src/jquery-file-upload.coffee'
-#            'src/footer.coffee'
-          ]
+#        options:
+#          join: true
+#          joinExt: '.coffee'
+        expand: true
+        bare: false
+        sourceMap: true
+        cwd: 'src'
+        src: ['**/*.coffee']
+        dest: 'src'
+        ext: '.js'
       compile_test:
         expand: true
         cwd: 'test/spec'
@@ -94,7 +53,7 @@ module.exports = (grunt)->
     requirejs:
       options:
         baseUrl: "src"
-        paths:
+        paths: # when optimizing scripts, don't include vendor files
           lodash: 'empty:'
           jquery: 'empty:'
 #          'jquery.ui.widget': '../bower_components/blueimp-file-upload/js/vendor/jquery.ui.widget'
@@ -103,29 +62,30 @@ module.exports = (grunt)->
           'jquery.ui.widget': 'empty:'
           'jquery.iframe-transport': 'empty:'
           'jquery.fileupload': 'empty:'
-        map:
-          "*": {util: 'util/lodash'}
+#          util: 'util/lodash'
+#        map:
+#          "*": {util: 'util/lodash'}
         skipDirOptimize: true
         optimize: "none"
-      cloudinary:
+        removeCombined: true
+      'cloudinary':
         options:
-          map:
-            "*": {util: 'util/lodash'}
-          name: "cloudinary"
-          out: "dist/cloudinary.js"
+          name: 'all'
+          bundles:
+            'util/lodash': ['util']
+          out: "js/cloudinary.js"
       'cloudinary-jquery':
         options:
-          map:
-            "*": {util: 'util/jquery'}
-          name: "cloudinaryjquery"
-          out: "dist/jquery.noupload.cloudinary.js"
+          name: "alljquery"
+          bundles:
+            'util/jquery': ['util']
+          out: "js/jquery.noupload.cloudinary.js"
       'cloudinary-jquery-file-upload':
         options:
-          map:
-            "*": {util: 'util/jquery'}
-          name: "jquery-file-upload"
-          out: "dist/jquery.cloudinary.js"
-
+          bundles:
+            'util/jquery': ['util']
+          name: "alljquery-file-upload"
+          out: "js/jquery.cloudinary.js"
 
 
   grunt.loadNpmTasks('grunt-contrib-coffee')

@@ -5,7 +5,18 @@
     module.exports = factory(require('utf8_encode'), require('crc32'), require('util'), require('transformation'), require('configuration'), require('tags/imagetag'), require('tags/videotag'), require)
   else
     root.cloudinary ||= {}
-    root.cloudinary.Cloudinary = factory(root.cloudinary.utf8_encode, root.cloudinary.crc32, root.cloudinary.Util, root.cloudinary.Transformation, root.cloudinary.Configuration, root.cloudinary.ImageTag, root.cloudinary.VideoTag)
+    ###*
+     * Resolves circular dependency
+     * @private
+    ###
+    require = (name) ->
+      switch name
+        when 'tags/imagetag'
+          root.cloudinary.ImageTag
+        when 'tags/videotag'
+          root.cloudinary.VideoTag
+
+    root.cloudinary.Cloudinary = factory(root.cloudinary.utf8_encode, root.cloudinary.crc32, root.cloudinary.Util, root.cloudinary.Transformation, root.cloudinary.Configuration, root.cloudinary.ImageTag, root.cloudinary.VideoTag, require)
 
 )(this,  (utf8_encode, crc32, Util, Transformation, Configuration, ImageTag, VideoTag, require )->
   ###*
@@ -481,6 +492,7 @@
     ###
     transformation: (options)->
       Transformation.new( @config()).fromOptions(options).setParent( this)
+  Cloudinary
 )
 
 #/**

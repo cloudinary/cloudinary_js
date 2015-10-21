@@ -16,7 +16,6 @@
     constructor: (options)->
       super(options)
 
-
     image: (publicId, options={})->
       # generate a tag without the image src
       tag_options = Util.merge( {src: ''}, options)

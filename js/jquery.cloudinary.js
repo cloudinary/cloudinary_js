@@ -1,10 +1,7 @@
 (function() {
-  var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
-
   (function(root, factory) {
     if ((typeof define === 'function') && define.amd) {
-      return define(factory);
+      return define('utf8_encode',factory);
     } else if (typeof exports === 'object') {
       return module.exports = factory();
     } else {
@@ -53,9 +50,12 @@
     return utf8_encode;
   });
 
+}).call(this);
+
+(function() {
   (function(root, factory) {
     if ((typeof define === 'function') && define.amd) {
-      return define(['utf8_encode'], factory);
+      return define('crc32',['utf8_encode'], factory);
     } else if (typeof exports === 'object') {
       return module.exports = factory(require('utf8_encode'));
     } else {
@@ -89,6 +89,9 @@
     return crc32;
   });
 
+}).call(this);
+
+(function() {
   (function(root, factory) {
     if ((typeof define === 'function') && define.amd) {
       return define('util', ['jquery'], factory);
@@ -443,17 +446,17 @@
     return Util;
   });
 
+}).call(this);
+
+(function() {
   (function(root, factory) {
     if ((typeof define === 'function') && define.amd) {
-      define(['util'], factory);
+      return define('configuration',['util'], factory);
     } else if (typeof exports === 'object') {
-      module.exports = factory(require('util'));
+      return module.exports = factory(require('util'));
     } else {
       root.cloudinary || (root.cloudinary = {});
-      root.cloudinary.Configuration = factory(root.cloudinary.Util);
-    }
-    if (typeof fooabr !== "undefined" && fooabr !== null) {
-      return console.log("I found foobar");
+      return root.cloudinary.Configuration = factory(root.cloudinary.Util);
     }
   })(this, function(Util) {
 
@@ -551,11 +554,11 @@
        */
 
       Configuration.prototype.fromDocument = function() {
-        var el, j, len, meta_elements;
+        var el, i, len, meta_elements;
         meta_elements = typeof document !== "undefined" && document !== null ? document.querySelectorAll('meta[name^="cloudinary_"]') : void 0;
         if (meta_elements) {
-          for (j = 0, len = meta_elements.length; j < len; j++) {
-            el = meta_elements[j];
+          for (i = 0, len = meta_elements.length; i < len; i++) {
+            el = meta_elements[i];
             this.configuration[el.getAttribute('name').replace('cloudinary_', '')] = el.getAttribute('content');
           }
         }
@@ -642,9 +645,15 @@
     return Configuration;
   });
 
+}).call(this);
+
+(function() {
+  var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
+
   (function(root, factory) {
     if ((typeof define === 'function') && define.amd) {
-      return define(['util', 'transformation', 'require'], factory);
+      return define('parameters',['util', 'transformation', 'require'], factory);
     } else if (typeof exports === 'object') {
       return module.exports = factory(require('util'), require('transformation'), require);
     } else {
@@ -816,11 +825,11 @@
             return '';
           } else {
             flat = (function() {
-              var j, len, ref, results;
+              var i, len, ref, results;
               ref = this.value();
               results = [];
-              for (j = 0, len = ref.length; j < len; j++) {
-                t = ref[j];
+              for (i = 0, len = ref.length; i < len; i++) {
+                t = ref[i];
                 if (Util.isFunction(t.serialize)) {
                   results.push(t.serialize());
                 } else {
@@ -885,11 +894,11 @@
           }
         } else {
           result = (function() {
-            var j, len, ref, results;
+            var i, len, ref, results;
             ref = this.value();
             results = [];
-            for (j = 0, len = ref.length; j < len; j++) {
-              t = ref[j];
+            for (i = 0, len = ref.length; i < len; i++) {
+              t = ref[i];
               if (t != null) {
                 if (Util.isString(t) && !Util.isEmpty(t)) {
                   results.push(this.short + "_" + t);
@@ -981,9 +990,15 @@
     return parameters;
   });
 
+}).call(this);
+
+(function() {
+  var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
+
   (function(root, factory) {
     if ((typeof define === 'function') && define.amd) {
-      return define(['configuration', 'parameters', 'util'], factory);
+      return define('transformation',['configuration', 'parameters', 'util'], factory);
     } else if (typeof exports === 'object') {
       return module.exports = factory(require('configuration'), require('parameters'), require('util'));
     } else {
@@ -1248,11 +1263,11 @@
          * @see toHtmlAttributes
          */
         this.PARAM_NAMES = ((function() {
-          var j, len, ref, results;
+          var i, len, ref, results;
           ref = this.methods;
           results = [];
-          for (j = 0, len = ref.length; j < len; j++) {
-            m = ref[j];
+          for (i = 0, len = ref.length; i < len; i++) {
+            m = ref[i];
             results.push(Util.snakeCase(m));
           }
           return results;
@@ -1327,10 +1342,10 @@
         transformations = (ref = this.get("transformation")) != null ? ref.serialize() : void 0;
         paramList = Util.without(paramList, "transformation");
         transformationList = (function() {
-          var j, len, ref1, results;
+          var i, len, ref1, results;
           results = [];
-          for (j = 0, len = paramList.length; j < len; j++) {
-            t = paramList[j];
+          for (i = 0, len = paramList.length; i < len; i++) {
+            t = paramList[i];
             results.push((ref1 = this.get(t)) != null ? ref1.serialize() : void 0);
           }
           return results;
@@ -1343,10 +1358,10 @@
             resultArray = transformations;
         }
         transformationString = ((function() {
-          var j, len, results;
+          var i, len, results;
           results = [];
-          for (j = 0, len = transformationList.length; j < len; j++) {
-            value = transformationList[j];
+          for (i = 0, len = transformationList.length; i < len; i++) {
+            value = transformationList[i];
             if (Util.isArray(value) && !Util.isEmpty(value) || !Util.isArray(value) && value) {
               results.push(value);
             }
@@ -1379,7 +1394,7 @@
        */
 
       TransformationBase.prototype.toHtmlAttributes = function() {
-        var height, j, k, key, l, len, len1, options, ref, ref1, ref2, ref3, ref4, value, width;
+        var height, i, j, k, key, len, len1, options, ref, ref1, ref2, ref3, ref4, value, width;
         options = {};
         ref = this.otherOptions;
         for (key in ref) {
@@ -1389,13 +1404,13 @@
           }
         }
         ref1 = Util.difference(this.keys(), this.PARAM_NAMES);
-        for (j = 0, len = ref1.length; j < len; j++) {
-          key = ref1[j];
+        for (i = 0, len = ref1.length; i < len; i++) {
+          key = ref1[i];
           options[key] = this.get(key).value;
         }
         ref2 = this.keys();
-        for (l = 0, len1 = ref2.length; l < len1; l++) {
-          k = ref2[l];
+        for (j = 0, len1 = ref2.length; j < len1; j++) {
+          k = ref2[j];
           if (/^html_/.exec(k)) {
             options[k.substr(5)] = this.getValue(k);
           }
@@ -1716,9 +1731,12 @@
     return Transformation;
   });
 
+}).call(this);
+
+(function() {
   (function(root, factory) {
     if ((typeof define === 'function') && define.amd) {
-      return define(['transformation', 'util'], factory);
+      return define('tags/htmltag',['transformation', 'util'], factory);
     } else if (typeof exports === 'object') {
       return module.exports = factory(require('transformation'), require('util'));
     } else {
@@ -1726,10 +1744,6 @@
       return root.cloudinary.HtmlTag = factory(root.cloudinary.Transformation, root.cloudinary.Util);
     }
   })(this, function(Transformation, Util) {
-
-    /**
-      * Represents an HTML (DOM) tag
-     */
     var HtmlTag;
     HtmlTag = (function() {
 
@@ -1908,63 +1922,15 @@
     return HtmlTag;
   });
 
-  (function(root, factory) {
-    if ((typeof define === 'function') && define.amd) {
-      return define(['tags/htmltag', 'cloudinary', 'require'], factory);
-    } else if (typeof exports === 'object') {
-      return module.exports = factory(require('tags/htmltag'), require('cloudinary'), require);
-    } else {
-      root.cloudinary || (root.cloudinary = {});
-      return root.cloudinary.ImageTag = factory(root.cloudinary.HtmlTag, root.cloudinary.Cloudinary, function() {
-        return root.cloudinary.Cloudinary;
-      });
-    }
-  })(this, function(HtmlTag, Cloudinary, require) {
+}).call(this);
 
-    /**
-    * Creates an HTML (DOM) Image tag using Cloudinary as the source.
-     */
-    var ImageTag;
-    ImageTag = (function(superClass) {
-      extend(ImageTag, superClass);
-
-
-      /**
-       * Creates an HTML (DOM) Image tag using Cloudinary as the source.
-       * @param {String} [publicId]
-       * @param {Object} [options]
-       */
-
-      function ImageTag(publicId, options) {
-        if (options == null) {
-          options = {};
-        }
-        ImageTag.__super__.constructor.call(this, "img", publicId, options);
-      }
-
-      ImageTag.prototype.closeTag = function() {
-        return "";
-      };
-
-      ImageTag.prototype.attributes = function() {
-        var attr;
-        Cloudinary || (Cloudinary = require('cloudinary'));
-        attr = ImageTag.__super__.attributes.call(this) || [];
-        if (attr['src'] == null) {
-          attr['src'] = new Cloudinary(this.getOptions()).url(this.publicId);
-        }
-        return attr;
-      };
-
-      return ImageTag;
-
-    })(HtmlTag);
-    return ImageTag;
-  });
+(function() {
+  var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   (function(root, factory) {
     if ((typeof define === 'function') && define.amd) {
-      return define(['tags/htmltag', 'util', 'cloudinary', 'require'], factory);
+      return define('tags/videotag',['tags/htmltag', 'util', 'cloudinary', 'require'], factory);
     } else if (typeof exports === 'object') {
       return module.exports = factory(require('tags/htmltag'), require('util'), require('cloudinary'), require);
     } else {
@@ -1974,10 +1940,6 @@
       });
     }
   })(this, function(HtmlTag, Util, Cloudinary, require) {
-
-    /**
-    * Creates an HTML (DOM) Video tag using Cloudinary as the source.
-     */
     var VideoTag;
     VideoTag = (function(superClass) {
       var DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_SOURCE_TYPES, VIDEO_TAG_PARAMS;
@@ -2039,10 +2001,10 @@
         if (Util.isArray(sourceTypes)) {
           cld = new Cloudinary(this.getOptions());
           innerTags = (function() {
-            var j, len, results;
+            var i, len, results;
             results = [];
-            for (j = 0, len = sourceTypes.length; j < len; j++) {
-              srcType = sourceTypes[j];
+            for (i = 0, len = sourceTypes.length; i < len; i++) {
+              srcType = sourceTypes[i];
               transformation = sourceTransformation[srcType] || {};
               src = cld.url("" + this.publicId, Util.defaults({}, transformation, {
                 resource_type: 'video',
@@ -2064,7 +2026,7 @@
       };
 
       VideoTag.prototype.attributes = function() {
-        var a, attr, defaults, j, len, poster, ref, ref1, sourceTypes;
+        var a, attr, defaults, i, len, poster, ref, ref1, sourceTypes;
         Cloudinary || (Cloudinary = require('cloudinary'));
         sourceTypes = this.getOption('source_types');
         poster = (ref = this.getOption('poster')) != null ? ref : {};
@@ -2073,8 +2035,8 @@
           poster = new Cloudinary(this.getOptions()).url((ref1 = poster.public_id) != null ? ref1 : this.publicId, Util.defaults({}, poster, defaults));
         }
         attr = VideoTag.__super__.attributes.call(this) || [];
-        for (j = 0, len = attr.length; j < len; j++) {
-          a = attr[j];
+        for (i = 0, len = attr.length; i < len; i++) {
+          a = attr[i];
           if (!Util.contains(VIDEO_TAG_PARAMS)) {
             attr = a;
           }
@@ -2097,14 +2059,31 @@
     return VideoTag;
   });
 
+}).call(this);
+
+(function() {
   (function(root, factory) {
+    var require;
     if ((typeof define === 'function') && define.amd) {
-      return define(['utf8_encode', 'crc32', 'util', 'transformation', 'configuration', 'tags/imagetag', 'tags/videotag', 'require'], factory);
+      return define('cloudinary',['utf8_encode', 'crc32', 'util', 'transformation', 'configuration', 'tags/imagetag', 'tags/videotag', 'require'], factory);
     } else if (typeof exports === 'object') {
       return module.exports = factory(require('utf8_encode'), require('crc32'), require('util'), require('transformation'), require('configuration'), require('tags/imagetag'), require('tags/videotag'), require);
     } else {
       root.cloudinary || (root.cloudinary = {});
-      return root.cloudinary.Cloudinary = factory(root.cloudinary.utf8_encode, root.cloudinary.crc32, root.cloudinary.Util, root.cloudinary.Transformation, root.cloudinary.Configuration, root.cloudinary.ImageTag, root.cloudinary.VideoTag);
+
+      /**
+       * Resolves circular dependency
+       * @private
+       */
+      require = function(name) {
+        switch (name) {
+          case 'tags/imagetag':
+            return root.cloudinary.ImageTag;
+          case 'tags/videotag':
+            return root.cloudinary.VideoTag;
+        }
+      };
+      return root.cloudinary.Cloudinary = factory(root.cloudinary.utf8_encode, root.cloudinary.crc32, root.cloudinary.Util, root.cloudinary.Transformation, root.cloudinary.Configuration, root.cloudinary.ImageTag, root.cloudinary.VideoTag, require);
     }
   })(this, function(utf8_encode, crc32, Util, Transformation, Configuration, ImageTag, VideoTag, require) {
 
@@ -2112,7 +2091,7 @@
      * Main Cloudinary class
      */
     var Cloudinary;
-    return Cloudinary = (function() {
+    Cloudinary = (function() {
       var AKAMAI_SHARED_CDN, CF_SHARED_CDN, DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_SOURCE_TYPES, OLD_AKAMAI_SHARED_CDN, SHARED_CDN, absolutize, cdnSubdomainNumber, closestAbove, cloudinaryUrlPrefix, defaultStoppoints, devicePixelRatioCache, finalizeResourceType, responsiveConfig, responsiveResizeInitialized;
 
       CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
@@ -2715,11 +2694,74 @@
       return Cloudinary;
 
     })();
+    return Cloudinary;
   });
+
+}).call(this);
+
+(function() {
+  var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   (function(root, factory) {
     if ((typeof define === 'function') && define.amd) {
-      return define(['jquery', 'util', 'transformation', 'cloudinary'], factory);
+      return define('tags/imagetag',['tags/htmltag', 'cloudinary', 'require'], factory);
+    } else if (typeof exports === 'object') {
+      return module.exports = factory(require('tags/htmltag'), require('cloudinary'), require);
+    } else {
+      root.cloudinary || (root.cloudinary = {});
+      return root.cloudinary.ImageTag = factory(root.cloudinary.HtmlTag, root.cloudinary.Cloudinary, function() {
+        return root.cloudinary.Cloudinary;
+      });
+    }
+  })(this, function(HtmlTag, Cloudinary, require) {
+    var ImageTag;
+    ImageTag = (function(superClass) {
+      extend(ImageTag, superClass);
+
+
+      /**
+       * Creates an HTML (DOM) Image tag using Cloudinary as the source.
+       * @param {String} [publicId]
+       * @param {Object} [options]
+       */
+
+      function ImageTag(publicId, options) {
+        if (options == null) {
+          options = {};
+        }
+        ImageTag.__super__.constructor.call(this, "img", publicId, options);
+      }
+
+      ImageTag.prototype.closeTag = function() {
+        return "";
+      };
+
+      ImageTag.prototype.attributes = function() {
+        var attr;
+        Cloudinary || (Cloudinary = require('cloudinary'));
+        attr = ImageTag.__super__.attributes.call(this) || [];
+        if (attr['src'] == null) {
+          attr['src'] = new Cloudinary(this.getOptions()).url(this.publicId);
+        }
+        return attr;
+      };
+
+      return ImageTag;
+
+    })(HtmlTag);
+    return ImageTag;
+  });
+
+}).call(this);
+
+(function() {
+  var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
+
+  (function(root, factory) {
+    if ((typeof define === 'function') && define.amd) {
+      return define('cloudinaryjquery',['jquery', 'util', 'transformation', 'cloudinary'], factory);
     } else if (typeof exports === 'object') {
       return module.exports = factory(require('jquery'), require('util'), require('transformation'), require('cloudinary'));
     } else {
@@ -2912,9 +2954,12 @@
     return CloudinaryJQuery;
   });
 
+}).call(this);
+
+(function() {
   (function(root, factory) {
     if ((typeof define === 'function') && define.amd) {
-      return define(['jquery', 'util', 'cloudinaryjquery', 'jquery.ui.widget', 'jquery.iframe-transport', 'jquery.fileupload'], factory);
+      return define('jquery-file-upload',['jquery', 'util', 'cloudinaryjquery', 'jquery.ui.widget', 'jquery.iframe-transport', 'jquery.fileupload'], factory);
     } else if (typeof exports === 'object') {
       return module.exports = factory(require('jquery'), require('util'), require('cloudinaryjquery'));
     } else {
@@ -3088,4 +3133,30 @@
 
 }).call(this);
 
-//# sourceMappingURL=jquery.cloudinary.js.map
+(function() {
+  (function(root, factory) {
+    if ((typeof define === 'function') && define.amd) {
+      return define('alljquery-file-upload',['utf8_encode', 'crc32', 'util', 'transformation', 'configuration', 'tags/htmltag', 'tags/imagetag', 'tags/videotag', 'cloudinary', 'cloudinaryjquery', 'jquery-file-upload'], factory);
+    } else if (typeof exports === 'object') {
+      return module.exports = factory(require('utf8_encode'), require('crc32'), require('util'), require('transformation'), require('configuration'), require('tags/htmltag'), require('tags/imagetag'), require('tags/videotag'), require('cloudinary'), require('cloudinaryjquery'), require('jquery-file-upload'));
+    } else {
+      root.cloudinary || (root.cloudinary = {});
+      return root.cloudinary = factory(root.cloudinary.utf8_encode, root.cloudinary.crc32, root.cloudinary.Util, root.cloudinary.Transformation, root.cloudinary.Configuration, root.cloudinary.HtmlTag, root.cloudinary.ImageTag, root.cloudinary.VideoTag, root.cloudinary.Cloudinary, root.cloudinary.CloudinaryJQuery);
+    }
+  })(this, function(utf8_encode, crc32, Util, Transformation, Configuration, HtmlTag, ImageTag, VideoTag, Cloudinary, CloudinaryJQuery) {
+    return {
+      utf8_encode: utf8_encode,
+      crc32: crc32,
+      Util: Util,
+      Transformation: Transformation,
+      Configuration: Configuration,
+      HtmlTag: HtmlTag,
+      ImageTag: ImageTag,
+      VideoTag: VideoTag,
+      Cloudinary: Cloudinary,
+      CloudinaryJQuery: CloudinaryJQuery
+    };
+  });
+
+}).call(this);
+

@@ -7,6 +7,7 @@
   else
     root.cloudinary.CloudinaryJQuery = factory(jQuery, root.cloudinary.Util, root.cloudinary.CloudinaryJQuery)
 
+
 )(this,  (jQuery, Util, CloudinaryJQuery)->
   CloudinaryJQuery::delete_by_token = (delete_token, options) ->
     options = options or {}
