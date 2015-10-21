@@ -96,7 +96,7 @@
 )
 ((root, factory) ->
   if (typeof define == 'function') && define.amd
-    define ['jquery'], factory
+    define 'util', ['jquery'], factory
   else if typeof exports == 'object'
     module.exports = factory(require('jquery'))
   else
@@ -366,7 +366,8 @@
   else
     root.cloudinary ||= {}
     root.cloudinary.Configuration = factory(root.cloudinary.Util)
-
+  if fooabr?
+    console.log("I found foobar");
 )(this,  (Util)->
   ###*
    * Cloudinary configuration class
@@ -1310,9 +1311,9 @@
 )
 ((root, factory) ->
   if (typeof define == 'function') && define.amd
-    define ['tags/htmltag', 'cloudinary-main', 'require'], factory
+    define ['tags/htmltag', 'cloudinary', 'require'], factory
   else if typeof exports == 'object'
-    module.exports = factory(require('tags/htmltag'), require('cloudinary-main'), require)
+    module.exports = factory(require('tags/htmltag'), require('cloudinary'), require)
   else
     root.cloudinary ||= {}
     root.cloudinary.ImageTag = factory(root.cloudinary.HtmlTag, root.cloudinary.Cloudinary, ()-> root.cloudinary.Cloudinary)
@@ -1335,7 +1336,7 @@
       ""
   
     attributes: ()->
-      Cloudinary ||= require('cloudinary-main') # Circular reference
+      Cloudinary ||= require('cloudinary') # Circular reference
       attr = super() || []
       attr['src'] ?= new Cloudinary(@getOptions()).url( @publicId)
       attr
@@ -1344,9 +1345,9 @@
 )
 ((root, factory) ->
   if (typeof define == 'function') && define.amd
-    define ['tags/htmltag', 'util', 'cloudinary-main', 'require'], factory
+    define ['tags/htmltag', 'util', 'cloudinary', 'require'], factory
   else if typeof exports == 'object'
-    module.exports = factory(require('tags/htmltag'), require('util'), require('cloudinary-main'), require)
+    module.exports = factory(require('tags/htmltag'), require('util'), require('cloudinary'), require)
   else
     root.cloudinary ||= {}
     root.cloudinary.VideoTag = factory(root.cloudinary.HtmlTag, root.cloudinary.Util, root.cloudinary.Cloudinary, ()-> root.cloudinary.Cloudinary)
@@ -1368,7 +1369,7 @@
      * @param {Object} [options]
     ###
     constructor: (publicId, options={})->
-      Cloudinary ||= require('cloudinary-main')
+      Cloudinary ||= require('cloudinary')
       options = Util.defaults({}, options, Cloudinary.DEFAULT_VIDEO_PARAMS)
       super("video", publicId.replace(/\.(mp4|ogv|webm)$/, ''), options)
 
@@ -1392,7 +1393,7 @@
       sourceTypes = @transformation().getValue('source_types')
       sourceTransformation = @transformation().getValue('source_transformation')
       fallback = @transformation().getValue('fallback_content')
-      Cloudinary ||= require('cloudinary-main')
+      Cloudinary ||= require('cloudinary')
 
       if Util.isArray(sourceTypes)
         cld = new Cloudinary(@getOptions())
@@ -1407,7 +1408,7 @@
       innerTags.join('') + fallback
 
     attributes: ()->
-      Cloudinary ||= require('cloudinary-main')
+      Cloudinary ||= require('cloudinary')
       sourceTypes = @getOption('source_types')
       poster = @getOption('poster') ? {}
 
@@ -1430,14 +1431,14 @@
 )
 ((root, factory) ->
   if (typeof define == 'function') && define.amd
-    define ['utf8_encode', 'crc32', 'util', 'transformation', 'configuration', 'tags/imagetag', 'tags/videotag'], factory
+    define ['utf8_encode', 'crc32', 'util', 'transformation', 'configuration', 'tags/imagetag', 'tags/videotag', 'require'], factory
   else if typeof exports == 'object'
-    module.exports = factory(require('utf8_encode'), require('crc32'), require('util'), require('transformation'), require('configuration'), require('tags/imagetag'), require('tags/videotag'))
+    module.exports = factory(require('utf8_encode'), require('crc32'), require('util'), require('transformation'), require('configuration'), require('tags/imagetag'), require('tags/videotag'), require)
   else
     root.cloudinary ||= {}
     root.cloudinary.Cloudinary = factory(root.cloudinary.utf8_encode, root.cloudinary.crc32, root.cloudinary.Util, root.cloudinary.Transformation, root.cloudinary.Configuration, root.cloudinary.ImageTag, root.cloudinary.VideoTag)
 
-)(this,  (utf8_encode, crc32, Util, Transformation, Configuration, ImageTag, VideoTag )->
+)(this,  (utf8_encode, crc32, Util, Transformation, Configuration, ImageTag, VideoTag, require )->
   ###*
    * Main Cloudinary class
   ###
@@ -1662,6 +1663,7 @@
     ###
     imageTag: (publicId, options)->
       options = Util.defaults({}, options, @config())
+      ImageTag ||= require('tags/imagetag')
       new ImageTag(publicId, options)
 
     video_thumbnail: (publicId, options) ->
@@ -1686,6 +1688,7 @@
       @videoTag(publicId, options).toHtml()
 
     videoTag: (publicId, options)->
+      VideoTag ||= require('tags/videotag')
       options = Util.defaults({}, options, @config())
       new VideoTag(publicId, options)
 
@@ -1922,9 +1925,9 @@
 #*/
 ((root, factory) ->
   if (typeof define == 'function') && define.amd
-    define ['jquery', 'util', 'transformation', 'cloudinary-main'], factory
+    define ['jquery', 'util', 'transformation', 'cloudinary'], factory
   else if typeof exports == 'object'
-    module.exports = factory(require('jquery'), require('util'), require('transformation'), require('cloudinary-main'))
+    module.exports = factory(require('jquery'), require('util'), require('transformation'), require('cloudinary'))
   else
     root.cloudinary ||= {}
     root.cloudinary.CloudinaryJQuery = factory(jQuery, root.cloudinary.Util, root.cloudinary.Transformation, root.cloudinary.Cloudinary)
@@ -2081,9 +2084,9 @@
 # Extend CloudinaryJQuery
 ((root, factory) ->
   if (typeof define == 'function') && define.amd
-    define ['jquery', 'util', 'jquery-extension', 'tmpl', 'load-image', 'canvas'], factory
+    define ['jquery', 'util', 'cloudinaryjquery', 'jquery.ui.widget', 'jquery.iframe-transport','jquery.fileupload'], factory
   else if typeof exports == 'object'
-    module.exports = factory(require('jquery'), require('util'), require('jquery-extension'))
+    module.exports = factory(require('jquery'), require('util'), require('cloudinaryjquery'))
   else
     root.cloudinary.CloudinaryJQuery = factory(jQuery, root.cloudinary.Util, root.cloudinary.CloudinaryJQuery)
 

@@ -10,47 +10,47 @@ module.exports = (grunt)->
         files:
           'js/cloudinary.js': [
 #            'src/header.coffee'
-            'src/util-lodash.coffee'
             'src/utf8_encode.coffee'
             'src/crc32.coffee'
+            'src/util/lodash.coffee'
             'src/configuration.coffee'
             'src/parameters.coffee'
             'src/transformation.coffee'
             'src/tags/htmltag.coffee'
             'src/tags/imagetag.coffee'
             'src/tags/videotag.coffee'
-            'src/cloudinary-main.coffee'
+            'src/cloudinary.coffee'
 #            'src/footer.coffee'
           ]
           'js/jquery.noupload.cloudinary.js': [
 #            'src/header-jquery.coffee'
             'src/utf8_encode.coffee'
             'src/crc32.coffee'
-            'src/util-jquery.coffee'
+            'src/util/jquery.coffee'
             'src/configuration.coffee'
             'src/parameters.coffee'
             'src/transformation.coffee'
             'src/tags/htmltag.coffee'
             'src/tags/imagetag.coffee'
             'src/tags/videotag.coffee'
-            'src/cloudinary-main.coffee'
-            'src/jquery-extension.coffee'
+            'src/cloudinary.coffee'
+            'src/cloudinaryjquery.coffee'
 #            'src/footer.coffee'
           ]
           'js/jquery.cloudinary.js': [
 #            'src/header-jquery-upload.coffee'
             'src/utf8_encode.coffee'
             'src/crc32.coffee'
-            'src/util-jquery.coffee'
+            'src/util/jquery.coffee'
             'src/configuration.coffee'
             'src/parameters.coffee'
             'src/transformation.coffee'
             'src/tags/htmltag.coffee'
             'src/tags/imagetag.coffee'
             'src/tags/videotag.coffee'
-            'src/cloudinary-main.coffee'
-            'src/jquery-extension.coffee'
-            'src/cloudinary-fileupload.coffee'
+            'src/cloudinary.coffee'
+            'src/cloudinaryjquery.coffee'
+            'src/jquery-file-upload.coffee'
 #            'src/footer.coffee'
           ]
       compile_test:
@@ -97,28 +97,34 @@ module.exports = (grunt)->
         paths:
           lodash: 'empty:'
           jquery: 'empty:'
+#          'jquery.ui.widget': '../bower_components/blueimp-file-upload/js/vendor/jquery.ui.widget'
+#          'jquery.iframe-transport': '../bower_components/blueimp-file-upload/js/jquery.iframe-transport'
+#          'jquery.fileupload': '../bower_components/blueimp-file-upload/js/jquery.fileupload'
+          'jquery.ui.widget': 'empty:'
+          'jquery.iframe-transport': 'empty:'
+          'jquery.fileupload': 'empty:'
         map:
-          "*": {util: 'util-lodash'}
+          "*": {util: 'util/lodash'}
         skipDirOptimize: true
         optimize: "none"
       cloudinary:
         options:
           map:
-            "*": {util: 'util-lodash'}
-          name: "cloudinary-main"
+            "*": {util: 'util/lodash'}
+          name: "cloudinary"
           out: "dist/cloudinary.js"
       'cloudinary-jquery':
         options:
           map:
-            "*": {util: 'util-jquery'}
-          name: "jquery-extension"
+            "*": {util: 'util/jquery'}
+          name: "cloudinaryjquery"
           out: "dist/jquery.noupload.cloudinary.js"
       'cloudinary-jquery-file-upload':
         options:
           map:
-            "*": {util: 'util-jquery'}
-          name: "cloudinary-fileupload"
-          out: "dist/jquery.noupload.cloudinary.js"
+            "*": {util: 'util/jquery'}
+          name: "jquery-file-upload"
+          out: "dist/jquery.cloudinary.js"
 
 
 

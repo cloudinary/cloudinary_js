@@ -91,7 +91,7 @@
 
   (function(root, factory) {
     if ((typeof define === 'function') && define.amd) {
-      return define(['jquery'], factory);
+      return define('util', ['jquery'], factory);
     } else if (typeof exports === 'object') {
       return module.exports = factory(require('jquery'));
     } else {
@@ -445,12 +445,15 @@
 
   (function(root, factory) {
     if ((typeof define === 'function') && define.amd) {
-      return define(['util'], factory);
+      define(['util'], factory);
     } else if (typeof exports === 'object') {
-      return module.exports = factory(require('util'));
+      module.exports = factory(require('util'));
     } else {
       root.cloudinary || (root.cloudinary = {});
-      return root.cloudinary.Configuration = factory(root.cloudinary.Util);
+      root.cloudinary.Configuration = factory(root.cloudinary.Util);
+    }
+    if (typeof fooabr !== "undefined" && fooabr !== null) {
+      return console.log("I found foobar");
     }
   })(this, function(Util) {
 
@@ -1907,9 +1910,9 @@
 
   (function(root, factory) {
     if ((typeof define === 'function') && define.amd) {
-      return define(['tags/htmltag', 'cloudinary-main', 'require'], factory);
+      return define(['tags/htmltag', 'cloudinary', 'require'], factory);
     } else if (typeof exports === 'object') {
-      return module.exports = factory(require('tags/htmltag'), require('cloudinary-main'), require);
+      return module.exports = factory(require('tags/htmltag'), require('cloudinary'), require);
     } else {
       root.cloudinary || (root.cloudinary = {});
       return root.cloudinary.ImageTag = factory(root.cloudinary.HtmlTag, root.cloudinary.Cloudinary, function() {
@@ -1945,7 +1948,7 @@
 
       ImageTag.prototype.attributes = function() {
         var attr;
-        Cloudinary || (Cloudinary = require('cloudinary-main'));
+        Cloudinary || (Cloudinary = require('cloudinary'));
         attr = ImageTag.__super__.attributes.call(this) || [];
         if (attr['src'] == null) {
           attr['src'] = new Cloudinary(this.getOptions()).url(this.publicId);
@@ -1961,9 +1964,9 @@
 
   (function(root, factory) {
     if ((typeof define === 'function') && define.amd) {
-      return define(['tags/htmltag', 'util', 'cloudinary-main', 'require'], factory);
+      return define(['tags/htmltag', 'util', 'cloudinary', 'require'], factory);
     } else if (typeof exports === 'object') {
-      return module.exports = factory(require('tags/htmltag'), require('util'), require('cloudinary-main'), require);
+      return module.exports = factory(require('tags/htmltag'), require('util'), require('cloudinary'), require);
     } else {
       root.cloudinary || (root.cloudinary = {});
       return root.cloudinary.VideoTag = factory(root.cloudinary.HtmlTag, root.cloudinary.Util, root.cloudinary.Cloudinary, function() {
@@ -2002,7 +2005,7 @@
         if (options == null) {
           options = {};
         }
-        Cloudinary || (Cloudinary = require('cloudinary-main'));
+        Cloudinary || (Cloudinary = require('cloudinary'));
         options = Util.defaults({}, options, Cloudinary.DEFAULT_VIDEO_PARAMS);
         VideoTag.__super__.constructor.call(this, "video", publicId.replace(/\.(mp4|ogv|webm)$/, ''), options);
       }
@@ -2032,7 +2035,7 @@
         sourceTypes = this.transformation().getValue('source_types');
         sourceTransformation = this.transformation().getValue('source_transformation');
         fallback = this.transformation().getValue('fallback_content');
-        Cloudinary || (Cloudinary = require('cloudinary-main'));
+        Cloudinary || (Cloudinary = require('cloudinary'));
         if (Util.isArray(sourceTypes)) {
           cld = new Cloudinary(this.getOptions());
           innerTags = (function() {
@@ -2062,7 +2065,7 @@
 
       VideoTag.prototype.attributes = function() {
         var a, attr, defaults, j, len, poster, ref, ref1, sourceTypes;
-        Cloudinary || (Cloudinary = require('cloudinary-main'));
+        Cloudinary || (Cloudinary = require('cloudinary'));
         sourceTypes = this.getOption('source_types');
         poster = (ref = this.getOption('poster')) != null ? ref : {};
         if (Util.isPlainObject(poster)) {
@@ -2096,14 +2099,14 @@
 
   (function(root, factory) {
     if ((typeof define === 'function') && define.amd) {
-      return define(['utf8_encode', 'crc32', 'util', 'transformation', 'configuration', 'tags/imagetag', 'tags/videotag'], factory);
+      return define(['utf8_encode', 'crc32', 'util', 'transformation', 'configuration', 'tags/imagetag', 'tags/videotag', 'require'], factory);
     } else if (typeof exports === 'object') {
-      return module.exports = factory(require('utf8_encode'), require('crc32'), require('util'), require('transformation'), require('configuration'), require('tags/imagetag'), require('tags/videotag'));
+      return module.exports = factory(require('utf8_encode'), require('crc32'), require('util'), require('transformation'), require('configuration'), require('tags/imagetag'), require('tags/videotag'), require);
     } else {
       root.cloudinary || (root.cloudinary = {});
       return root.cloudinary.Cloudinary = factory(root.cloudinary.utf8_encode, root.cloudinary.crc32, root.cloudinary.Util, root.cloudinary.Transformation, root.cloudinary.Configuration, root.cloudinary.ImageTag, root.cloudinary.VideoTag);
     }
-  })(this, function(utf8_encode, crc32, Util, Transformation, Configuration, ImageTag, VideoTag) {
+  })(this, function(utf8_encode, crc32, Util, Transformation, Configuration, ImageTag, VideoTag, require) {
 
     /**
      * Main Cloudinary class
@@ -2381,6 +2384,7 @@
 
       Cloudinary.prototype.imageTag = function(publicId, options) {
         options = Util.defaults({}, options, this.config());
+        ImageTag || (ImageTag = require('tags/imagetag'));
         return new ImageTag(publicId, options);
       };
 
@@ -2426,6 +2430,7 @@
       };
 
       Cloudinary.prototype.videoTag = function(publicId, options) {
+        VideoTag || (VideoTag = require('tags/videotag'));
         options = Util.defaults({}, options, this.config());
         return new VideoTag(publicId, options);
       };
@@ -2714,9 +2719,9 @@
 
   (function(root, factory) {
     if ((typeof define === 'function') && define.amd) {
-      return define(['jquery', 'util', 'transformation', 'cloudinary-main'], factory);
+      return define(['jquery', 'util', 'transformation', 'cloudinary'], factory);
     } else if (typeof exports === 'object') {
-      return module.exports = factory(require('jquery'), require('util'), require('transformation'), require('cloudinary-main'));
+      return module.exports = factory(require('jquery'), require('util'), require('transformation'), require('cloudinary'));
     } else {
       root.cloudinary || (root.cloudinary = {});
       return root.cloudinary.CloudinaryJQuery = factory(jQuery, root.cloudinary.Util, root.cloudinary.Transformation, root.cloudinary.Cloudinary);

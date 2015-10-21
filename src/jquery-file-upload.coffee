@@ -1,9 +1,9 @@
 # Extend CloudinaryJQuery
 ((root, factory) ->
   if (typeof define == 'function') && define.amd
-    define ['jquery', 'util', 'jquery-extension', 'tmpl', 'load-image', 'canvas'], factory
+    define ['jquery', 'util', 'cloudinaryjquery', 'jquery.ui.widget', 'jquery.iframe-transport','jquery.fileupload'], factory
   else if typeof exports == 'object'
-    module.exports = factory(require('jquery'), require('util'), require('jquery-extension'))
+    module.exports = factory(require('jquery'), require('util'), require('cloudinaryjquery'))
   else
     root.cloudinary.CloudinaryJQuery = factory(jQuery, root.cloudinary.Util, root.cloudinary.CloudinaryJQuery)
 

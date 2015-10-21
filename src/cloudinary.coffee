@@ -1,13 +1,13 @@
 ((root, factory) ->
   if (typeof define == 'function') && define.amd
-    define ['utf8_encode', 'crc32', 'util', 'transformation', 'configuration', 'tags/imagetag', 'tags/videotag'], factory
+    define ['utf8_encode', 'crc32', 'util', 'transformation', 'configuration', 'tags/imagetag', 'tags/videotag', 'require'], factory
   else if typeof exports == 'object'
-    module.exports = factory(require('utf8_encode'), require('crc32'), require('util'), require('transformation'), require('configuration'), require('tags/imagetag'), require('tags/videotag'))
+    module.exports = factory(require('utf8_encode'), require('crc32'), require('util'), require('transformation'), require('configuration'), require('tags/imagetag'), require('tags/videotag'), require)
   else
     root.cloudinary ||= {}
     root.cloudinary.Cloudinary = factory(root.cloudinary.utf8_encode, root.cloudinary.crc32, root.cloudinary.Util, root.cloudinary.Transformation, root.cloudinary.Configuration, root.cloudinary.ImageTag, root.cloudinary.VideoTag)
 
-)(this,  (utf8_encode, crc32, Util, Transformation, Configuration, ImageTag, VideoTag )->
+)(this,  (utf8_encode, crc32, Util, Transformation, Configuration, ImageTag, VideoTag, require )->
   ###*
    * Main Cloudinary class
   ###
@@ -232,6 +232,7 @@
     ###
     imageTag: (publicId, options)->
       options = Util.defaults({}, options, @config())
+      ImageTag ||= require('tags/imagetag')
       new ImageTag(publicId, options)
 
     video_thumbnail: (publicId, options) ->
@@ -256,6 +257,7 @@
       @videoTag(publicId, options).toHtml()
 
     videoTag: (publicId, options)->
+      VideoTag ||= require('tags/videotag')
       options = Util.defaults({}, options, @config())
       new VideoTag(publicId, options)
 
