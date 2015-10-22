@@ -86,12 +86,19 @@ module.exports = (grunt)->
             'util/jquery': ['util']
           name: "alljquery-file-upload"
           out: "js/jquery.cloudinary.js"
-
-
+    copy:
+      main:
+        files: [
+          { src: 'js/cloudinary.js', dest: '../bower/bower-cloudinary/cloudinary.js'}
+          { src: 'js/jquery.cloudinary.js', dest: '../bower/bower-cloudinary-jquery-file-upload/jquery.cloudinary.js'}
+          { src: 'js/jquery.noupload.cloudinary.js', dest: '../bower/bower-cloudinary-jquery/jquery.noupload.cloudinary.js'}
+        ]
   grunt.loadNpmTasks('grunt-contrib-coffee')
   grunt.loadNpmTasks('grunt-contrib-uglify')
   grunt.loadNpmTasks('grunt-contrib-requirejs')
+  grunt.loadNpmTasks('grunt-contrib-copy');
+
   grunt.loadNpmTasks('grunt-jsdoc')
   grunt.loadNpmTasks('grunt-karma')
-  grunt.registerTask('default', ['coffee', 'jsdoc'])
+  grunt.registerTask('default', ['coffee', 'requirejs'])
   grunt.registerTask('build', ['coffee', 'jsdoc', 'uglify'])
