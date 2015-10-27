@@ -12,6 +12,7 @@
     ###*
      * Cloudinary class with jQuery support
      * @constructor CloudinaryJQuery
+     * @extends Cloudinary
     ###
     constructor: (options)->
       super(options)

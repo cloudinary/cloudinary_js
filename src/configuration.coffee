@@ -14,7 +14,7 @@
 
     ###*
     * Defaults configuration.
-    * @const {object} Configuration.DEFAULT_CONFIGURATION_PARAMS
+    * @const {Object} Configuration.DEFAULT_CONFIGURATION_PARAMS
     ###
     DEFAULT_CONFIGURATION_PARAMS ={
       secure: window?.location?.protocol == 'https:'
@@ -42,7 +42,7 @@
     ###*
      * Cloudinary configuration class
      * @constructor Configuration
-     * @param {object} options - configuration parameters
+     * @param {Object} options - configuration parameters
     ###
     constructor: (options ={})->
       @configuration = Util.cloneDeep(options)
@@ -64,7 +64,7 @@
     ###*
      * Set a new configuration item
      * @function Configuration#set
-     * @param {String} name - the name of the item to set
+     * @param {string} name - the name of the item to set
      * @param {*} value - the value to be set
      * @return {Configuration}
      *

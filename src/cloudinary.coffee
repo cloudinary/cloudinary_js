@@ -34,7 +34,7 @@
     responsiveConfig = {}
     responsiveResizeInitialized = false
     ###*
-    * @const {object} Cloudinary.DEFAULT_IMAGE_PARAMS
+    * @const {Object} Cloudinary.DEFAULT_IMAGE_PARAMS
     * Defaults values for image parameters.
     *
     * (Previously defined using option_consume() )
@@ -47,7 +47,7 @@
 
     ###*
     * Defaults values for video parameters.
-    * @const {object} Cloudinary.DEFAULT_VIDEO_PARAMS
+    * @const {Object} Cloudinary.DEFAULT_VIDEO_PARAMS
     * (Previously defined using option_consume() )
     ###
     @DEFAULT_VIDEO_PARAMS: {
@@ -62,7 +62,7 @@
     ###*
      * Main Cloudinary class
      * @class Cloudinary
-     * @param {object} options - options to configure Cloudinary
+     * @param {Object} options - options to configure Cloudinary
      * @see Configuration for more details
      * @example
      *var cl = new cloudinary.Cloudinary( { cloud_name: "mycloud"});
@@ -75,12 +75,19 @@
       @config= (newConfig, newValue) ->
         configuration.config(newConfig, newValue)
 
-
+      ###*
+       * Use \<meta\> tags in the document to configure this Cloudinary instance.
+       * @return {Cloudinary} this for chaining
+      ###
       @fromDocument = ()->
         configuration.fromDocument()
         @
 
 
+      ###*
+       * Use environment variables to configure this Cloudinary instance.
+       * @return {Cloudinary} this for chaining
+      ###
       @fromEnvironment = ()->
         configuration.fromEnvironment()
         @
@@ -95,12 +102,18 @@
         configuration.init()
         @
 
+    ###*
+     * Convenience constructor
+     * @param {Object} options
+     * @return {Cloudinary}
+     * @example cl = cloudinary.Cloudinary.new( { cloud_name: "mycloud"})
+    ###
     @new = (options)-> new @(options)
 
     ###*
      * Return the resource type and action type based on the given configuration
      * @function Cloudinary#finalizeResourceType
-     * @param {object|string} resourceType
+     * @param {Object|string} resourceType
      * @param {string} [type='upload']
      * @param {string} [urlSuffix]
      * @param {boolean} [useRootPath]
@@ -156,7 +169,7 @@
      *                          and {@link Configuration} parameters
      * @param {string} [options.type='upload'] - the classification of the resource
      * @param {Object} [options.resource_type='image'] - the type of the resource
-     * @return {HTMLImageElement} an image tag element
+     * @return {string} The resource URL
     ###
     url: (publicId, options = {}) ->
       options = Util.defaults({}, options, @config(), Cloudinary.DEFAULT_IMAGE_PARAMS)
@@ -204,16 +217,38 @@
         publicId
       ]).join('/').replace(/([^:])\/+/g, '$1/')
 
-
-
+    ###*
+     * Generate an video resource URL.
+     * @function Cloudinary#video_url
+     * @param {string} publicId - the public ID of the resource
+     * @param {Object} [options] - options for the tag and transformations, possible values include all {@link Transformation} parameters
+     *                          and {@link Configuration} parameters
+     * @param {string} [options.type='upload'] - the classification of the resource
+     * @return {string} The video URL
+    ###
     video_url: (publicId, options) ->
       options = Util.assign({ resource_type: 'video' }, options)
       @url(publicId, options)
 
+    ###*
+     * Generate an video thumbnail URL.
+     * @function Cloudinary#video_thumbnail_url
+     * @param {string} publicId - the public ID of the resource
+     * @param {Object} [options] - options for the tag and transformations, possible values include all {@link Transformation} parameters
+     *                          and {@link Configuration} parameters
+     * @param {string} [options.type='upload'] - the classification of the resource
+     * @return {string} The video thumbnail URL
+    ###
     video_thumbnail_url: (publicId, options) ->
       options = Util.assign({}, DEFAULT_POSTER_OPTIONS, options)
       @url(publicId, options)
 
+    ###*
+     * Generate a string representation of the provided transformation options.
+     * @function Cloudinary#transformation_string
+     * @param {Object} options - the transformation options
+     * @returns {string} The transformation string
+    ###
     transformation_string: (options) ->
       new Transformation( options).serialize()
 
@@ -238,46 +273,106 @@
      * Creates a new ImageTag instance, configured using this own's configuration.
      * @function Cloudinary#imageTag
      * @param {string} publicId - the public ID of the resource
-     * @param {object} options - additional options to pass to the new ImageTag instance
-     * @return {ImageTag} an instance of ImageTag
+     * @param {Object} options - additional options to pass to the new ImageTag instance
+     * @return {ImageTag} An ImageTag that is attached (chained) to this Cloudinary instance
     ###
     imageTag: (publicId, options)->
       options = Util.defaults({}, options, @config())
-      ImageTag ||= require('tags/imagetag')
+      ImageTag ||= require('tags/imagetag') # resolve circular reference
       new ImageTag(publicId, options)
 
+    ###*
+     * Generate an image tag for the video thumbnail.
+     * @function Cloudinary#video_thumbnail
+     * @param {string} publicId - the public ID of the video
+     * @param {Object} [options] - options for the tag and transformations
+     * @return {HTMLImageElement} An image tag element
+    ###
     video_thumbnail: (publicId, options) ->
       @image publicId, Util.merge( {}, DEFAULT_POSTER_OPTIONS, options)
 
+    ###*
+     * @function Cloudinary#facebook_profile_image
+     * @param {string} publicId - the public ID of the image
+     * @param {Object} [options] - options for the tag and transformations
+     * @return {HTMLImageElement} an image tag element
+    ###
     facebook_profile_image: (publicId, options) ->
       @image publicId, Util.assign({type: 'facebook'}, options)
 
+    ###*
+     * @function Cloudinary#twitter_profile_image
+     * @param {string} publicId - the public ID of the image
+     * @param {Object} [options] - options for the tag and transformations
+     * @return {HTMLImageElement} an image tag element
+    ###
     twitter_profile_image: (publicId, options) ->
       @image publicId, Util.assign({type: 'twitter'}, options)
 
+    ###*
+     * @function Cloudinary#twitter_name_profile_image
+     * @param {string} publicId - the public ID of the image
+     * @param {Object} [options] - options for the tag and transformations
+     * @return {HTMLImageElement} an image tag element
+    ###
     twitter_name_profile_image: (publicId, options) ->
       @image publicId, Util.assign({type: 'twitter_name'}, options)
 
+    ###*
+     * @function Cloudinary#gravatar_image
+     * @param {string} publicId - the public ID of the image
+     * @param {Object} [options] - options for the tag and transformations
+     * @return {HTMLImageElement} an image tag element
+    ###
     gravatar_image: (publicId, options) ->
       @image publicId, Util.assign({type: 'gravatar'}, options)
 
+    ###*
+     * @function Cloudinary#fetch_image
+     * @param {string} publicId - the public ID of the image
+     * @param {Object} [options] - options for the tag and transformations
+     * @return {HTMLImageElement} an image tag element
+    ###
     fetch_image: (publicId, options) ->
       @image publicId, Util.assign({type: 'fetch'}, options)
 
+    ###*
+     * @function Cloudinary#video
+     * @param {string} publicId - the public ID of the image
+     * @param {Object} [options] - options for the tag and transformations
+     * @return {HTMLImageElement} an image tag element
+    ###
     video: (publicId, options = {}) ->
       @videoTag(publicId, options).toHtml()
 
+    ###*
+     * Creates a new VideoTag instance, configured using this own's configuration.
+     * @function Cloudinary#videoTag
+     * @param {string} publicId - the public ID of the resource
+     * @param {Object} options - additional options to pass to the new VideoTag instance
+     * @return {VideoTag} A VideoTag that is attached (chained) to this Cloudinary instance
+    ###
     videoTag: (publicId, options)->
-      VideoTag ||= require('tags/videotag')
+      VideoTag ||= require('tags/videotag') # resolve circular reference
       options = Util.defaults({}, options, @config())
       new VideoTag(publicId, options)
 
+    ###*
+     * Generate the URL of the sprite image
+     * @function Cloudinary#sprite_css
+     * @param {string} publicId - the public ID of the resource
+     * @param {Object} [options] - options for the tag and transformations
+     * @see {@link http://cloudinary.com/documentation/sprite_generation Sprite generation}
+    ###
     sprite_css: (publicId, options) ->
       options = Util.assign({ type: 'sprite' }, options)
       if !publicId.match(/.css$/)
         options.format = 'css'
       @url publicId, options
 
+    ###*
+     * @function Cloudinary#responsive
+    ###
     responsive: (options) ->
       responsiveConfig = Util.merge(responsiveConfig or {}, options)
       @cloudinary_update 'img.cld-responsive, img.cld-hidpi', responsiveConfig
@@ -308,6 +403,9 @@
           else
             run()
 
+    ###*
+     * @function Cloudinary#calc_stoppoint
+    ###
     calc_stoppoint: (element, width) ->
       stoppoints = Util.getData(element,'stoppoints') or @config('stoppoints') or defaultStoppoints
       if Util.isFunction stoppoints
@@ -317,6 +415,9 @@
           stoppoints = (parseInt(point) for point in stoppoints.split(',')).sort( (a,b) -> a - b )
         closestAbove stoppoints, width
 
+    ###*
+     * @function Cloudinary#device_pixel_ratio
+    ###
     device_pixel_ratio: ->
       dpr = window?.devicePixelRatio or 1
       dprString = devicePixelRatioCache[dpr]
@@ -428,7 +529,7 @@
     * Only images marked with the cld-responsive class have w_auto updated.
     * @function Cloudinary#cloudinary_update
     * @param {(Array|string|NodeList)} elements - the elements to modify
-    * @param {object} options
+    * @param {Object} options
     * @param {boolean|string} [options.responsive_use_stoppoints='resize']
     *  - when `true`, always use stoppoints for width
     * - when `"resize"` use exact width on first render and stoppoints on resize (default)
@@ -487,12 +588,12 @@
     ###*
     * Provide a transformation object, initialized with own's options, for chaining purposes.
     * @function Cloudinary#transformation
-    * @param {object} options
+    * @param {Object} options
     * @return {Transformation}
     ###
     transformation: (options)->
       Transformation.new( @config()).fromOptions(options).setParent( this)
-  Cloudinary
+
 )
 
 #/**

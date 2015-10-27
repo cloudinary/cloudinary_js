@@ -12,12 +12,14 @@
     ###*
      * Creates an HTML (DOM) Image tag using Cloudinary as the source.
      * @constructor ImageTag
-     * @param {String} [publicId]
+     * @extends HtmlTag
+     * @param {string} [publicId]
      * @param {Object} [options]
     ###
     constructor: (publicId, options = {})->
       super("img", publicId, options)
 
+    ###* @protected ###
     closeTag: ()->
       ""
 
@@ -27,5 +29,4 @@
       attr['src'] ?= new Cloudinary(@getOptions()).url(@publicId)
       attr
 
-  ImageTag
 )

@@ -122,6 +122,7 @@
      * @param {string} [sep='.'] - The separator to use when joining the array elements together
      * @param {function} [process=Util.identity ] - Manipulate origValue when value is called
      * @class ArrayParam
+     * @extends Param
      * @ignore
     ###
     constructor: (name, short, sep = '.', process) ->
@@ -157,6 +158,7 @@
      * @param {string} [sep='.'] - The separator to use when joining the array elements together
      * @param {function} [process=Util.identity ] - Manipulate origValue when value is called
      * @class TransformationParam
+     * @extends Param
      * @ignore
     ###
     constructor: (name, short = "t", sep = '.', process) ->
@@ -197,6 +199,7 @@
      *                         If a value is not provided, the parameter will not be serialized.
      * @param {function} [process=norm_range_value ] - Manipulate origValue when value is called
      * @class RangeParam
+     * @extends Param
      * @ignore
     ###
     constructor: (name, short, process = @norm_range_value)->

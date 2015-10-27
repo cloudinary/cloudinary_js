@@ -124,7 +124,7 @@
       ###*
        * Get the parameter object for the given parameter name
        * @function Transformation#get
-       * @param {String} name the name of the transformation parameter
+       * @param {string} name the name of the transformation parameter
        * @returns {Param} the param object for the given name, or undefined
       ###
       @get = (name)->
@@ -160,7 +160,7 @@
       ###*
        * Returns a plain object representation of the transformation. Values are processed.
        * @function Transformation#toPlainObject
-       * @return {object} the transformation options as plain object
+       * @return {Object} the transformation options as plain object
       ###
       @toPlainObject = ()->
         hash = {}
@@ -192,7 +192,7 @@
        * Values are camelCased.
        * @private
        * @ignore
-       * @type {Array<String>}
+       * @type {Array<string>}
       ###
       @methods = Util.difference(
         Util.functions(Transformation.prototype),
@@ -233,7 +233,7 @@
     ###*
      * Set a parameter.
      * The parameter name `key` is converted to
-     * @param {String} key - the name of the parameter
+     * @param {string} key - the name of the parameter
      * @param {*} value - the value of the parameter
      * @returns {Transformation} Returns this instance for chaining
     ###

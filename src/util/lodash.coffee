@@ -17,7 +17,7 @@
     *
     * This method will use jQuery's `data()` method if it is available, otherwise it will get the `data-` attribute
     * @param {Element} element - the element to get the data from
-    * @param {String} name - the name of the data item
+    * @param {string} name - the name of the data item
     * @returns the value associated with the `name`
     *
   ###
@@ -30,7 +30,7 @@
     *
     * This method will use jQuery's `data()` method if it is available, otherwise it will set the `data-` attribute
     * @param {Element} element - the element to set the data in
-    * @param {String} name - the name of the data item
+    * @param {string} name - the name of the data item
     * @param {*} value - the value to be set
     *
   ###
@@ -43,7 +43,7 @@
     *
     * This method will use jQuery's `attr()` method if it is available, otherwise it will get the attribute directly
     * @param {Element} element - the element to set the attribute for
-    * @param {String} name - the name of the attribute
+    * @param {string} name - the name of the attribute
     * @returns {*} the value of the attribute
     *
   ###
@@ -56,7 +56,7 @@
     *
     * This method will use jQuery's `attr()` method if it is available, otherwise it will set the attribute directly
     * @param {Element} element - the element to set the attribute for
-    * @param {String} name - the name of the attribute
+    * @param {string} name - the name of the attribute
     * @param {*} value - the value to be set
     *
   ###
@@ -225,7 +225,7 @@
       *
       * This method will use jQuery's `attr()` method if it is available, otherwise it will get the attribute directly
       * @param {Element} element - the element to set the attribute for
-      * @param {String} name - the name of the attribute
+      * @param {string} name - the name of the attribute
       * @returns {*} the value of the attribute
       *
     ###
@@ -237,7 +237,7 @@
     width: width
     ###*
      * Return true if all items in list are strings
-     * @param {array} list - an array of items
+     * @param {Array} list - an array of items
     ###
     allStrings: allStrings
     isString: _.isString
@@ -246,12 +246,12 @@
     ###*
      * Assign source properties to destination.
      * If the property is an object it is assigned as a whole, overriding the destination object.
-     * @param {object} destination - the object to assign to
+     * @param {Object} destination - the object to assign to
     ###
     assign: _.assign
     ###*
     * Recursively assign source properties to destination
-    * @param {object} destination - the object to assign to
+    * @param {Object} destination - the object to assign to
     ###
     merge: _.merge
     ###*
@@ -268,8 +268,8 @@
     snakeCase: _.snakeCase
     ###*
      * Create a new copy of the given object, including all internal objects.
-     * @param {object} value - the object to clone
-     * @return {object} a new deep copy of the object
+     * @param {Object} value - the object to clone
+     * @return {Object} a new deep copy of the object
     ###
     cloneDeep: _.cloneDeep
     ###*
@@ -288,9 +288,9 @@
     ###*
     * Assign values from sources if they are not defined in the destination.
     * Once a value is set it does not change
-    * @param {object} destination - the object to assign defaults to
-    * @param {...object} source - the source object(s) to assign defaults from
-    * @return {object} destination after it was modified
+    * @param {Object} destination - the object to assign defaults to
+    * @param {...Object} source - the source object(s) to assign defaults from
+    * @return {Object} destination after it was modified
     ###
     defaults: _.defaults
     ###*
@@ -308,7 +308,7 @@
     isFunction: _.isFunction
     ###*
      * Returns a list of all the function names in obj
-     * @param {object} object - the object to inspect
+     * @param {Object} object - the object to inspect
      * @return {Array} a list of functions of object
     ###
     functions: _.functions
@@ -321,8 +321,8 @@
     isPlainObject: _.isPlainObject
     ###*
      * Remove leading or trailing spaces from text
-     * @param {String} text
-     * @return {String} the `text` without leading or trailing spaces
+     * @param {string} text
+     * @return {string} the `text` without leading or trailing spaces
     ###
     trim: _.trim
     ###*

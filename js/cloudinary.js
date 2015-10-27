@@ -112,7 +112,7 @@
       *
       * This method will use jQuery's `data()` method if it is available, otherwise it will get the `data-` attribute
       * @param {Element} element - the element to get the data from
-      * @param {String} name - the name of the data item
+      * @param {string} name - the name of the data item
       * @returns the value associated with the `name`
       *
      */
@@ -128,7 +128,7 @@
       *
       * This method will use jQuery's `data()` method if it is available, otherwise it will set the `data-` attribute
       * @param {Element} element - the element to set the data in
-      * @param {String} name - the name of the data item
+      * @param {string} name - the name of the data item
       * @param {*} value - the value to be set
       *
      */
@@ -143,7 +143,7 @@
       *
       * This method will use jQuery's `attr()` method if it is available, otherwise it will get the attribute directly
       * @param {Element} element - the element to set the attribute for
-      * @param {String} name - the name of the attribute
+      * @param {string} name - the name of the attribute
       * @returns {*} the value of the attribute
       *
      */
@@ -158,7 +158,7 @@
       *
       * This method will use jQuery's `attr()` method if it is available, otherwise it will set the attribute directly
       * @param {Element} element - the element to set the attribute for
-      * @param {String} name - the name of the attribute
+      * @param {string} name - the name of the attribute
       * @param {*} value - the value to be set
       *
      */
@@ -333,7 +333,7 @@
         *
         * This method will use jQuery's `attr()` method if it is available, otherwise it will get the attribute directly
         * @param {Element} element - the element to set the attribute for
-        * @param {String} name - the name of the attribute
+        * @param {string} name - the name of the attribute
         * @returns {*} the value of the attribute
         *
        */
@@ -346,7 +346,7 @@
 
       /**
        * Return true if all items in list are strings
-       * @param {array} list - an array of items
+       * @param {Array} list - an array of items
        */
       allStrings: allStrings,
       isString: _.isString,
@@ -356,13 +356,13 @@
       /**
        * Assign source properties to destination.
        * If the property is an object it is assigned as a whole, overriding the destination object.
-       * @param {object} destination - the object to assign to
+       * @param {Object} destination - the object to assign to
        */
       assign: _.assign,
 
       /**
       * Recursively assign source properties to destination
-      * @param {object} destination - the object to assign to
+      * @param {Object} destination - the object to assign to
        */
       merge: _.merge,
 
@@ -382,8 +382,8 @@
 
       /**
        * Create a new copy of the given object, including all internal objects.
-       * @param {object} value - the object to clone
-       * @return {object} a new deep copy of the object
+       * @param {Object} value - the object to clone
+       * @return {Object} a new deep copy of the object
        */
       cloneDeep: _.cloneDeep,
 
@@ -405,9 +405,9 @@
       /**
       * Assign values from sources if they are not defined in the destination.
       * Once a value is set it does not change
-      * @param {object} destination - the object to assign defaults to
-      * @param {...object} source - the source object(s) to assign defaults from
-      * @return {object} destination after it was modified
+      * @param {Object} destination - the object to assign defaults to
+      * @param {...Object} source - the source object(s) to assign defaults from
+      * @return {Object} destination after it was modified
        */
       defaults: _.defaults,
 
@@ -428,7 +428,7 @@
 
       /**
        * Returns a list of all the function names in obj
-       * @param {object} object - the object to inspect
+       * @param {Object} object - the object to inspect
        * @return {Array} a list of functions of object
        */
       functions: _.functions,
@@ -443,8 +443,8 @@
 
       /**
        * Remove leading or trailing spaces from text
-       * @param {String} text
-       * @return {String} the `text` without leading or trailing spaces
+       * @param {string} text
+       * @return {string} the `text` without leading or trailing spaces
        */
       trim: _.trim,
 
@@ -481,7 +481,7 @@
 
       /**
       * Defaults configuration.
-      * @const {object} Configuration.DEFAULT_CONFIGURATION_PARAMS
+      * @const {Object} Configuration.DEFAULT_CONFIGURATION_PARAMS
        */
       var DEFAULT_CONFIGURATION_PARAMS, ref;
 
@@ -495,7 +495,7 @@
       /**
        * Cloudinary configuration class
        * @constructor Configuration
-       * @param {object} options - configuration parameters
+       * @param {Object} options - configuration parameters
        */
 
       function Configuration(options) {
@@ -526,7 +526,7 @@
       /**
        * Set a new configuration item
        * @function Configuration#set
-       * @param {String} name - the name of the item to set
+       * @param {string} name - the name of the item to set
        * @param {*} value - the value to be set
        * @return {Configuration}
        *
@@ -819,6 +819,7 @@
        * @param {string} [sep='.'] - The separator to use when joining the array elements together
        * @param {function} [process=Util.identity ] - Manipulate origValue when value is called
        * @class ArrayParam
+       * @extends Param
        * @ignore
        */
 
@@ -880,6 +881,7 @@
        * @param {string} [sep='.'] - The separator to use when joining the array elements together
        * @param {function} [process=Util.identity ] - Manipulate origValue when value is called
        * @class TransformationParam
+       * @extends Param
        * @ignore
        */
 
@@ -954,6 +956,7 @@
        *                         If a value is not provided, the parameter will not be serialized.
        * @param {function} [process=norm_range_value ] - Manipulate origValue when value is called
        * @class RangeParam
+       * @extends Param
        * @ignore
        */
 
@@ -1179,7 +1182,7 @@
         /**
          * Get the parameter object for the given parameter name
          * @function Transformation#get
-         * @param {String} name the name of the transformation parameter
+         * @param {string} name the name of the transformation parameter
          * @returns {Param} the param object for the given name, or undefined
          */
         this.get = function(name) {
@@ -1228,7 +1231,7 @@
         /**
          * Returns a plain object representation of the transformation. Values are processed.
          * @function Transformation#toPlainObject
-         * @return {object} the transformation options as plain object
+         * @return {Object} the transformation options as plain object
          */
         this.toPlainObject = function() {
           var hash, key;
@@ -1266,7 +1269,7 @@
          * Values are camelCased.
          * @private
          * @ignore
-         * @type {Array<String>}
+         * @type {Array<string>}
          */
         this.methods = Util.difference(Util.functions(Transformation.prototype), Util.functions(TransformationBase.prototype));
 
@@ -1325,7 +1328,7 @@
       /**
        * Set a parameter.
        * The parameter name `key` is converted to
-       * @param {String} key - the name of the parameter
+       * @param {string} key - the name of the parameter
        * @param {*} value - the value of the parameter
        * @returns {Transformation} Returns this instance for chaining
        */
@@ -1761,15 +1764,15 @@
     }
   })(this, function(Transformation, Util) {
     var HtmlTag;
-    HtmlTag = (function() {
+    return HtmlTag = (function() {
 
       /**
        * Represents an HTML (DOM) tag
        * @constructor HtmlTag
-       * @example tag = new HtmlTag( 'div', { 'width': 10})
-       * @param {String} name - the name of the tag
-       * @param {String} [publicId]
+       * @param {string} name - the name of the tag
+       * @param {string} [publicId]
        * @param {Object} options
+       * @example tag = new HtmlTag( 'div', { 'width': 10})
        */
       var toAttribute;
 
@@ -1797,11 +1800,11 @@
        * Convenience constructor
        * Creates a new instance of an HTML (DOM) tag
        * @function HtmlTag.new
-       * @example tag = HtmlTag.new( 'div', { 'width': 10})
-       * @param {String} name - the name of the tag
-       * @param {String} [publicId]
+       * @param {string} name - the name of the tag
+       * @param {string} [publicId]
        * @param {Object} options
        * @return {HtmlTag}
+       * @example tag = HtmlTag.new( 'div', { 'width': 10})
        */
 
       HtmlTag["new"] = function(name, publicId, options) {
@@ -1812,9 +1815,10 @@
       /**
        * Represent the given key and value as an HTML attribute.
        * @function HtmlTag#toAttribute
-       * @param {String} key - attribute name
+       * @protected
+       * @param {string} key - attribute name
        * @param {*|boolean} value - the value of the attribute. If the value is boolean `true`, return the key only.
-       * @returns {String} the attribute
+       * @returns {string} the attribute
        *
        */
 
@@ -1832,8 +1836,10 @@
       /**
        * combine key and value from the `attr` to generate an HTML tag attributes string.
        * `Transformation::toHtmlTagOptions` is used to filter out transformation and configuration keys.
+       * @protected
        * @param {Object} attrs
-       * @return {String} the attributes in the format `'key1="value1" key2="value2"'`
+       * @return {string} the attributes in the format `'key1="value1" key2="value2"'`
+       * @ignore
        */
 
       HtmlTag.prototype.htmlAttrs = function(attrs) {
@@ -1854,6 +1860,7 @@
 
       /**
        * Get all options related to this tag.
+       * @function HtmlTag#getOptions
        * @returns {Object} the options
        *
        */
@@ -1865,8 +1872,9 @@
 
       /**
        * Get the value of option `name`
-       * @param {String} name - the name of the option
-       * @returns the value of the option
+       * @function HtmlTag#getOption
+       * @param {string} name - the name of the option
+       * @returns {*} Returns the value of the option
        *
        */
 
@@ -1877,6 +1885,7 @@
 
       /**
        * Get the attributes of the tag.
+       * @function HtmlTag#attributes
        * The attributes are be computed from the options every time this method is invoked.
        * @returns {Object} attributes
        */
@@ -1885,38 +1894,93 @@
         return this.transformation().toHtmlAttributes();
       };
 
+
+      /**
+       * Set a tag attribute named `name` to `value`
+       * @function HtmlTag#setAttr
+       * @param {string} name - the name of the attribute
+       * @param {string} value - the value of the attribute
+       */
+
       HtmlTag.prototype.setAttr = function(name, value) {
-        this.transformation().set(name, value);
+        this.transformation().set("html_" + name, value);
         return this;
       };
 
+
+      /**
+       * Get the value of the tag attribute `name`
+       * @function HtmlTag#getAttr
+       * @param {string} name - the name of the attribute
+       * @returns {*}
+       */
+
       HtmlTag.prototype.getAttr = function(name) {
-        return this.attributes()[name];
+        return this.attributes()["html_" + name];
       };
 
+
+      /**
+       * Remove the tag attributed named `name`
+       * @function HtmlTag#removeAttr
+       * @param {string} name - the name of the attribute
+       * @returns {*}
+       */
+
       HtmlTag.prototype.removeAttr = function(name) {
-        return this.transformation().remove(name);
+        return this.transformation().remove("html_" + name);
       };
+
+
+      /**
+       * @function HtmlTag#content
+       * @protected
+       * @ignore
+       */
 
       HtmlTag.prototype.content = function() {
         return "";
       };
+
+
+      /**
+       * @function HtmlTag#openTag
+       * @protected
+       * @ignore
+       */
 
       HtmlTag.prototype.openTag = function() {
         return "<" + this.name + " " + (this.htmlAttrs(this.attributes())) + ">";
       };
 
+
+      /**
+       * @function HtmlTag#closeTag
+       * @protected
+       * @ignore
+       */
+
       HtmlTag.prototype.closeTag = function() {
         return "</" + this.name + ">";
       };
 
-      HtmlTag.prototype.content = function() {
-        return "";
-      };
+
+      /**
+       * Generates an HTML representation of the tag.
+       * @function HtmlTag#toHtml
+       * @returns {string} Returns HTML in string format
+       */
 
       HtmlTag.prototype.toHtml = function() {
         return this.openTag() + this.content() + this.closeTag();
       };
+
+
+      /**
+       * Creates a DOM object representing the tag.
+       * @function HtmlTag#toDOM
+       * @returns {Element}
+       */
 
       HtmlTag.prototype.toDOM = function() {
         var element, name, ref, value;
@@ -1935,7 +1999,6 @@
       return HtmlTag;
 
     })();
-    return HtmlTag;
   });
 
 }).call(this);
@@ -1957,7 +2020,7 @@
     }
   })(this, function(HtmlTag, Util, Cloudinary, require) {
     var VideoTag;
-    VideoTag = (function(superClass) {
+    return VideoTag = (function(superClass) {
       var DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_SOURCE_TYPES, VIDEO_TAG_PARAMS;
 
       extend(VideoTag, superClass);
@@ -1975,7 +2038,8 @@
       /**
        * Creates an HTML (DOM) Video tag using Cloudinary as the source.
        * @constructor VideoTag
-       * @param {String} [publicId]
+       * @extends HtmlTag
+       * @param {string} [publicId]
        * @param {Object} [options]
        */
 
@@ -1988,20 +2052,54 @@
         VideoTag.__super__.constructor.call(this, "video", publicId.replace(/\.(mp4|ogv|webm)$/, ''), options);
       }
 
+
+      /**
+       * Set the transformation to apply on each source
+       * @function VideoTag#setSourceTransformation
+       * @param {Object} an object with pairs of source type and source transformation
+       * @returns {VideoTag} Returns this instance for chaining purposes.
+       */
+
       VideoTag.prototype.setSourceTransformation = function(value) {
         this.transformation().sourceTransformation(value);
         return this;
       };
+
+
+      /**
+       * Set the source types to include in the video tag
+       * @function VideoTag#setSourceTypes
+       * @param {Array<string>} an array of source types
+       * @returns {VideoTag} Returns this instance for chaining purposes.
+       */
 
       VideoTag.prototype.setSourceTypes = function(value) {
         this.transformation().sourceTypes(value);
         return this;
       };
 
+
+      /**
+       * Set the poster to be used in the video tag
+       * @function VideoTag#setPoster
+       * @param {string|Object} value
+       * - string: a URL to use for the poster
+       * - Object: transformation parameters to apply to the poster. May optionally include a public_id to use instead of the video public_id.
+       * @returns {VideoTag} Returns this instance for chaining purposes.
+       */
+
       VideoTag.prototype.setPoster = function(value) {
         this.transformation().poster(value);
         return this;
       };
+
+
+      /**
+       * Set the content to use as fallback in the video tag
+       * @function VideoTag#setFallbackContent
+       * @param {string} value - the content to use, in HTML format
+       * @returns {VideoTag} Returns this instance for chaining purposes.
+       */
 
       VideoTag.prototype.setFallbackContent = function(value) {
         this.transformation().fallbackContent(value);
@@ -2072,7 +2170,6 @@
       return VideoTag;
 
     })(HtmlTag);
-    return VideoTag;
   });
 
 }).call(this);
@@ -2107,7 +2204,7 @@
      * Main Cloudinary class
      */
     var Cloudinary;
-    Cloudinary = (function() {
+    return Cloudinary = (function() {
       var AKAMAI_SHARED_CDN, CF_SHARED_CDN, DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_SOURCE_TYPES, OLD_AKAMAI_SHARED_CDN, SHARED_CDN, absolutize, cdnSubdomainNumber, closestAbove, cloudinaryUrlPrefix, defaultStoppoints, devicePixelRatioCache, finalizeResourceType, responsiveConfig, responsiveResizeInitialized;
 
       CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
@@ -2133,7 +2230,7 @@
 
 
       /**
-      * @const {object} Cloudinary.DEFAULT_IMAGE_PARAMS
+      * @const {Object} Cloudinary.DEFAULT_IMAGE_PARAMS
       * Defaults values for image parameters.
       *
       * (Previously defined using option_consume() )
@@ -2148,7 +2245,7 @@
 
       /**
       * Defaults values for video parameters.
-      * @const {object} Cloudinary.DEFAULT_VIDEO_PARAMS
+      * @const {Object} Cloudinary.DEFAULT_VIDEO_PARAMS
       * (Previously defined using option_consume() )
        */
 
@@ -2165,7 +2262,7 @@
       /**
        * Main Cloudinary class
        * @class Cloudinary
-       * @param {object} options - options to configure Cloudinary
+       * @param {Object} options - options to configure Cloudinary
        * @see Configuration for more details
        * @example
        *var cl = new cloudinary.Cloudinary( { cloud_name: "mycloud"});
@@ -2178,10 +2275,20 @@
         this.config = function(newConfig, newValue) {
           return configuration.config(newConfig, newValue);
         };
+
+        /**
+         * Use \<meta\> tags in the document to configure this Cloudinary instance.
+         * @return {Cloudinary} this for chaining
+         */
         this.fromDocument = function() {
           configuration.fromDocument();
           return this;
         };
+
+        /**
+         * Use environment variables to configure this Cloudinary instance.
+         * @return {Cloudinary} this for chaining
+         */
         this.fromEnvironment = function() {
           configuration.fromEnvironment();
           return this;
@@ -2199,6 +2306,14 @@
         };
       }
 
+
+      /**
+       * Convenience constructor
+       * @param {Object} options
+       * @return {Cloudinary}
+       * @example cl = cloudinary.Cloudinary.new( { cloud_name: "mycloud"})
+       */
+
       Cloudinary["new"] = function(options) {
         return new this(options);
       };
@@ -2207,7 +2322,7 @@
       /**
        * Return the resource type and action type based on the given configuration
        * @function Cloudinary#finalizeResourceType
-       * @param {object|string} resourceType
+       * @param {Object|string} resourceType
        * @param {string} [type='upload']
        * @param {string} [urlSuffix]
        * @param {boolean} [useRootPath]
@@ -2278,7 +2393,7 @@
        *                          and {@link Configuration} parameters
        * @param {string} [options.type='upload'] - the classification of the resource
        * @param {Object} [options.resource_type='image'] - the type of the resource
-       * @return {HTMLImageElement} an image tag element
+       * @return {string} The resource URL
        */
 
       Cloudinary.prototype.url = function(publicId, options) {
@@ -2329,6 +2444,17 @@
         return url || Util.compact([prefix, resourceTypeAndType, transformationString, version, publicId]).join('/').replace(/([^:])\/+/g, '$1/');
       };
 
+
+      /**
+       * Generate an video resource URL.
+       * @function Cloudinary#video_url
+       * @param {string} publicId - the public ID of the resource
+       * @param {Object} [options] - options for the tag and transformations, possible values include all {@link Transformation} parameters
+       *                          and {@link Configuration} parameters
+       * @param {string} [options.type='upload'] - the classification of the resource
+       * @return {string} The video URL
+       */
+
       Cloudinary.prototype.video_url = function(publicId, options) {
         options = Util.assign({
           resource_type: 'video'
@@ -2336,10 +2462,29 @@
         return this.url(publicId, options);
       };
 
+
+      /**
+       * Generate an video thumbnail URL.
+       * @function Cloudinary#video_thumbnail_url
+       * @param {string} publicId - the public ID of the resource
+       * @param {Object} [options] - options for the tag and transformations, possible values include all {@link Transformation} parameters
+       *                          and {@link Configuration} parameters
+       * @param {string} [options.type='upload'] - the classification of the resource
+       * @return {string} The video thumbnail URL
+       */
+
       Cloudinary.prototype.video_thumbnail_url = function(publicId, options) {
         options = Util.assign({}, DEFAULT_POSTER_OPTIONS, options);
         return this.url(publicId, options);
       };
+
+
+      /**
+       * Generate a string representation of the provided transformation options.
+       * @function Cloudinary#transformation_string
+       * @param {Object} options - the transformation options
+       * @returns {string} The transformation string
+       */
 
       Cloudinary.prototype.transformation_string = function(options) {
         return new Transformation(options).serialize();
@@ -2373,8 +2518,8 @@
        * Creates a new ImageTag instance, configured using this own's configuration.
        * @function Cloudinary#imageTag
        * @param {string} publicId - the public ID of the resource
-       * @param {object} options - additional options to pass to the new ImageTag instance
-       * @return {ImageTag} an instance of ImageTag
+       * @param {Object} options - additional options to pass to the new ImageTag instance
+       * @return {ImageTag} An ImageTag that is attached (chained) to this Cloudinary instance
        */
 
       Cloudinary.prototype.imageTag = function(publicId, options) {
@@ -2383,9 +2528,26 @@
         return new ImageTag(publicId, options);
       };
 
+
+      /**
+       * Generate an image tag for the video thumbnail.
+       * @function Cloudinary#video_thumbnail
+       * @param {string} publicId - the public ID of the video
+       * @param {Object} [options] - options for the tag and transformations
+       * @return {HTMLImageElement} An image tag element
+       */
+
       Cloudinary.prototype.video_thumbnail = function(publicId, options) {
         return this.image(publicId, Util.merge({}, DEFAULT_POSTER_OPTIONS, options));
       };
+
+
+      /**
+       * @function Cloudinary#facebook_profile_image
+       * @param {string} publicId - the public ID of the image
+       * @param {Object} [options] - options for the tag and transformations
+       * @return {HTMLImageElement} an image tag element
+       */
 
       Cloudinary.prototype.facebook_profile_image = function(publicId, options) {
         return this.image(publicId, Util.assign({
@@ -2393,11 +2555,27 @@
         }, options));
       };
 
+
+      /**
+       * @function Cloudinary#twitter_profile_image
+       * @param {string} publicId - the public ID of the image
+       * @param {Object} [options] - options for the tag and transformations
+       * @return {HTMLImageElement} an image tag element
+       */
+
       Cloudinary.prototype.twitter_profile_image = function(publicId, options) {
         return this.image(publicId, Util.assign({
           type: 'twitter'
         }, options));
       };
+
+
+      /**
+       * @function Cloudinary#twitter_name_profile_image
+       * @param {string} publicId - the public ID of the image
+       * @param {Object} [options] - options for the tag and transformations
+       * @return {HTMLImageElement} an image tag element
+       */
 
       Cloudinary.prototype.twitter_name_profile_image = function(publicId, options) {
         return this.image(publicId, Util.assign({
@@ -2405,17 +2583,41 @@
         }, options));
       };
 
+
+      /**
+       * @function Cloudinary#gravatar_image
+       * @param {string} publicId - the public ID of the image
+       * @param {Object} [options] - options for the tag and transformations
+       * @return {HTMLImageElement} an image tag element
+       */
+
       Cloudinary.prototype.gravatar_image = function(publicId, options) {
         return this.image(publicId, Util.assign({
           type: 'gravatar'
         }, options));
       };
 
+
+      /**
+       * @function Cloudinary#fetch_image
+       * @param {string} publicId - the public ID of the image
+       * @param {Object} [options] - options for the tag and transformations
+       * @return {HTMLImageElement} an image tag element
+       */
+
       Cloudinary.prototype.fetch_image = function(publicId, options) {
         return this.image(publicId, Util.assign({
           type: 'fetch'
         }, options));
       };
+
+
+      /**
+       * @function Cloudinary#video
+       * @param {string} publicId - the public ID of the image
+       * @param {Object} [options] - options for the tag and transformations
+       * @return {HTMLImageElement} an image tag element
+       */
 
       Cloudinary.prototype.video = function(publicId, options) {
         if (options == null) {
@@ -2424,11 +2626,29 @@
         return this.videoTag(publicId, options).toHtml();
       };
 
+
+      /**
+       * Creates a new VideoTag instance, configured using this own's configuration.
+       * @function Cloudinary#videoTag
+       * @param {string} publicId - the public ID of the resource
+       * @param {Object} options - additional options to pass to the new VideoTag instance
+       * @return {VideoTag} A VideoTag that is attached (chained) to this Cloudinary instance
+       */
+
       Cloudinary.prototype.videoTag = function(publicId, options) {
         VideoTag || (VideoTag = require('tags/videotag'));
         options = Util.defaults({}, options, this.config());
         return new VideoTag(publicId, options);
       };
+
+
+      /**
+       * Generate the URL of the sprite image
+       * @function Cloudinary#sprite_css
+       * @param {string} publicId - the public ID of the resource
+       * @param {Object} [options] - options for the tag and transformations
+       * @see {@link http://cloudinary.com/documentation/sprite_generation Sprite generation}
+       */
 
       Cloudinary.prototype.sprite_css = function(publicId, options) {
         options = Util.assign({
@@ -2439,6 +2659,11 @@
         }
         return this.url(publicId, options);
       };
+
+
+      /**
+       * @function Cloudinary#responsive
+       */
 
       Cloudinary.prototype.responsive = function(options) {
         var ref, ref1, responsiveResize, timeout;
@@ -2478,6 +2703,11 @@
         }
       };
 
+
+      /**
+       * @function Cloudinary#calc_stoppoint
+       */
+
       Cloudinary.prototype.calc_stoppoint = function(element, width) {
         var point, stoppoints;
         stoppoints = Util.getData(element, 'stoppoints') || this.config('stoppoints') || defaultStoppoints;
@@ -2501,6 +2731,11 @@
           return closestAbove(stoppoints, width);
         }
       };
+
+
+      /**
+       * @function Cloudinary#device_pixel_ratio
+       */
 
       Cloudinary.prototype.device_pixel_ratio = function() {
         var dpr, dprString, dprUsed;
@@ -2623,7 +2858,7 @@
       * Only images marked with the cld-responsive class have w_auto updated.
       * @function Cloudinary#cloudinary_update
       * @param {(Array|string|NodeList)} elements - the elements to modify
-      * @param {object} options
+      * @param {Object} options
       * @param {boolean|string} [options.responsive_use_stoppoints='resize']
       *  - when `true`, always use stoppoints for width
       * - when `"resize"` use exact width on first render and stoppoints on resize (default)
@@ -2699,7 +2934,7 @@
       /**
       * Provide a transformation object, initialized with own's options, for chaining purposes.
       * @function Cloudinary#transformation
-      * @param {object} options
+      * @param {Object} options
       * @return {Transformation}
        */
 
@@ -2710,7 +2945,6 @@
       return Cloudinary;
 
     })();
-    return Cloudinary;
   });
 
 }).call(this);
@@ -2732,14 +2966,15 @@
     }
   })(this, function(HtmlTag, Cloudinary, require) {
     var ImageTag;
-    ImageTag = (function(superClass) {
+    return ImageTag = (function(superClass) {
       extend(ImageTag, superClass);
 
 
       /**
        * Creates an HTML (DOM) Image tag using Cloudinary as the source.
        * @constructor ImageTag
-       * @param {String} [publicId]
+       * @extends HtmlTag
+       * @param {string} [publicId]
        * @param {Object} [options]
        */
 
@@ -2749,6 +2984,9 @@
         }
         ImageTag.__super__.constructor.call(this, "img", publicId, options);
       }
+
+
+      /** @protected */
 
       ImageTag.prototype.closeTag = function() {
         return "";
@@ -2767,7 +3005,6 @@
       return ImageTag;
 
     })(HtmlTag);
-    return ImageTag;
   });
 
 }).call(this);
