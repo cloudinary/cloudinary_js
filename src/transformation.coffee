@@ -327,8 +327,6 @@
 
   class Transformation  extends TransformationBase
 
-    @new = (args)-> new Transformation(args)
-
     ###*
      *  Represents a single transformation.
      *  @class Transformation
@@ -342,6 +340,14 @@
     ###
     constructor: (options = {})->
       super(options)
+
+    ###*
+     * Convenience constructor
+     * @param {Object} options
+     * @return {Transformation}
+     * @example cl = cloudinary.Transformation.new( {angle: 20, crop: "scale", width: "auto"})
+    ###
+    @new = (args)-> new Transformation(args)
 
     ###
       Transformation Parameters

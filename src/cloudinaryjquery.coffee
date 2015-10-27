@@ -17,6 +17,9 @@
     constructor: (options)->
       super(options)
 
+    ###*
+     * @override
+    ###
     image: (publicId, options={})->
       # generate a tag without the image src
       tag_options = Util.merge( {src: ''}, options)
@@ -26,6 +29,9 @@
       # set image src taking responsiveness in account
       jQuery(img).data('src-cache', url).cloudinary_update(options);
 
+    ###*
+     * @override
+    ###
     responsive: (options) ->
       responsiveConfig = jQuery.extend(responsiveConfig or {}, options)
       jQuery('img.cld-responsive, img.cld-hidpi').cloudinary_update responsiveConfig
@@ -56,7 +62,17 @@
           else
             run()
 
+  ###*
+   * The following methods are provided through the jQuery class
+   * @class jQuery
+  ###
 
+  ###*
+   * Convert all img tags in the collection to utilize Cloudinary.
+   * @function jQuery#cloudinary
+   * @param {Object} [options] - options for the tag and transformations
+   * @returns {jQuery}
+  ###
   jQuery.fn.cloudinary = (options) ->
     @filter('img').each(->
       img_options = jQuery.extend({
@@ -130,6 +146,9 @@
 
   webp = null
 
+  ###*
+   * @function jQuery#webpify
+  ###
   jQuery.fn.webpify = (options = {}, webp_options) ->
     that = this
     webp_options = webp_options ? options

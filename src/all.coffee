@@ -1,3 +1,6 @@
+###*
+ * Creates the namespace for Cloudinary
+###
 ((root, factory) ->
   if (typeof define == 'function') && define.amd
     define ['utf8_encode', 'crc32', 'util', 'transformation', 'configuration', 'tags/htmltag', 'tags/imagetag', 'tags/videotag', 'cloudinary'], factory

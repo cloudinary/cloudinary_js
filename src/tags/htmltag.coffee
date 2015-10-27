@@ -92,10 +92,10 @@
     ###*
      * Get the attributes of the tag.
      * @function HtmlTag#attributes
-     * The attributes are be computed from the options every time this method is invoked.
      * @returns {Object} attributes
     ###
     attributes: ()->
+      # The attributes are be computed from the options every time this method is invoked.
       @transformation().toHtmlAttributes()
 
     ###*

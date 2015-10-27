@@ -1,4 +1,6 @@
-# Extend CloudinaryJQuery
+###*
+ * This module extends CloudinaryJquery to support jQuery File Upload
+###
 ((root, factory) ->
   if (typeof define == 'function') && define.amd
     define ['jquery', 'util', 'cloudinaryjquery', 'jquery.ui.widget', 'jquery.iframe-transport','jquery.fileupload'], factory
@@ -9,6 +11,14 @@
 
 
 )(this,  (jQuery, Util, CloudinaryJQuery)->
+  ###*
+   * Delete a resource using the upload token
+   * @function CloudinaryJQuery#delete_by_token
+   * @param {string} delete_token - the delete token
+   * @param {Object} [options]
+   * @param {string} [options.url] - an alternative URL to use for the API
+   * @param {string} [options.cloud_name] - an alternative cloud_name to use. This parameter is ignored if `options.url` is provided.
+  ###
   CloudinaryJQuery::delete_by_token = (delete_token, options) ->
     options = options or {}
     url = options.url
@@ -23,11 +33,22 @@
       headers: 'X-Requested-With': 'XMLHttpRequest'
       dataType: dataType
 
+  ###*
+   * Creates an `input` tag and sets it up to upload files to cloudinary
+   * @function CloudinaryJQuery#unsigned_upload_tag
+   * @param {string}
+  ###
   CloudinaryJQuery::unsigned_upload_tag = (upload_preset, upload_params, options) ->
     jQuery('<input/>').attr(
       type: 'file'
       name: 'file').unsigned_cloudinary_upload upload_preset, upload_params, options
 
+  ###*
+   * Initialize the jQuery File Upload plugin to upload to Cloudinary
+   * @function jQuery#cloudinary_fileupload
+   * @param {Object} options
+   * @returns {jQuery}
+  ###
   jQuery.fn.cloudinary_fileupload = (options) ->
     initializing = !@data('blueimpFileupload')
     if initializing
@@ -102,12 +123,26 @@
         @fileupload 'option', 'url', upload_url
     this
 
+  ###*
+   * Add a file to upload
+   * @function jQuery#cloudinary_upload_url
+   * @param {string} remote_url - the url to add
+   * @returns {jQuery}
+  ###
   jQuery.fn.cloudinary_upload_url = (remote_url) ->
     @fileupload('option', 'formData').file = remote_url
     @fileupload 'add', files: [ remote_url ]
     delete @fileupload('option', 'formData').file
     this
 
+  ###*
+   * Initialize the jQuery File Upload plugin to upload to Cloudinary using unsigned upload
+   * @function jQuery#unsigned_cloudinary_upload
+   * @param {string} upload_preset - the upload preset to use
+   * @param {Object} [upload_params] - parameters that should be past to the server
+   * @param {Object} [options]
+   * @returns {jQuery}
+  ###
   jQuery.fn.unsigned_cloudinary_upload = (upload_preset, upload_params = {}, options = {}) ->
     upload_params = Util.cloneDeep(upload_params)
     options = Util.cloneDeep(options)
