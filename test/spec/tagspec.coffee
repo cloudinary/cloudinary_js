@@ -200,8 +200,8 @@ describe "Cloudinary.VideoTag", ->
   describe "attributes", ->
     tag = cloudinary.HtmlTag.new("div", { id: "foobar"})
     describe "removeAttr()", ->
-      tag.removeAttr("id")
       it "should remove that attribute from the tag", ->
+        tag.removeAttr("id")
         keys = for key of tag.attributes()
           key
         expect(keys).not.toContain("id")

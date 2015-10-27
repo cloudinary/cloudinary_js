@@ -460,27 +460,27 @@ describe 'cloudinary', ->
     expect(result).toEqual 'custom://res.cloudinary.com/test123/image/upload/test'
 
 
-  it 'should compute stoppoints correctly', ->
+  it 'should compute breakpoints correctly', ->
     el = document.createElement('img')
-    expect(cl.calc_stoppoint(el, 1)).toEqual 10
-    expect(cl.calc_stoppoint(el, 10)).toEqual 10
-    expect(cl.calc_stoppoint(el, 11)).toEqual 20
-    cl.config('stoppoints', [
+    expect(cl.calc_breakpoint(el, 1)).toEqual 10
+    expect(cl.calc_breakpoint(el, 10)).toEqual 10
+    expect(cl.calc_breakpoint(el, 11)).toEqual 20
+    cl.config('breakpoints', [
       50
       150
     ])
-    expect(cl.calc_stoppoint(el, 1)).toEqual 50
-    expect(cl.calc_stoppoint(el, 100)).toEqual 150
-    expect(cl.calc_stoppoint(el, 180)).toEqual 150
+    expect(cl.calc_breakpoint(el, 1)).toEqual 50
+    expect(cl.calc_breakpoint(el, 100)).toEqual 150
+    expect(cl.calc_breakpoint(el, 180)).toEqual 150
 
-    cl.config('stoppoints', (width) ->
+    cl.config('breakpoints', (width) ->
       width / 2
     )
-    expect(cl.calc_stoppoint(el, 100)).toEqual 50
+    expect(cl.calc_breakpoint(el, 100)).toEqual 50
 
-    el.setAttribute( 'data-stoppoints', '70,140')
-    expect(cl.calc_stoppoint(el, 1)).toEqual 70
-    expect(cl.calc_stoppoint(el, 100)).toEqual 140
+    el.setAttribute( 'data-breakpoints', '70,140')
+    expect(cl.calc_breakpoint(el, 1)).toEqual 70
+    expect(cl.calc_breakpoint(el, 100)).toEqual 140
 
   it 'should correctly resize responsive images', (done) ->
     container = undefined

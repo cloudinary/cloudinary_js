@@ -437,26 +437,26 @@ describe 'cloudinary', ->
     #expect(options).toEqual({});
     expect(result).toEqual 'custom://res.cloudinary.com/test123/image/upload/test'
 
-  it 'should compute stoppoints correctly', ->
+  it 'should compute breakpoints correctly', ->
     el = $('<img/>')
-    expect($.cloudinary.calc_stoppoint(el, 1)).toEqual 10
-    expect($.cloudinary.calc_stoppoint(el, 10)).toEqual 10
-    expect($.cloudinary.calc_stoppoint(el, 11)).toEqual 20
-    $.cloudinary.config().stoppoints = [
+    expect($.cloudinary.calc_breakpoint(el, 1)).toEqual 10
+    expect($.cloudinary.calc_breakpoint(el, 10)).toEqual 10
+    expect($.cloudinary.calc_breakpoint(el, 11)).toEqual 20
+    $.cloudinary.config().breakpoints = [
       50
       150
     ]
-    expect($.cloudinary.calc_stoppoint(el, 1)).toEqual 50
-    expect($.cloudinary.calc_stoppoint(el, 100)).toEqual 150
-    expect($.cloudinary.calc_stoppoint(el, 180)).toEqual 150
+    expect($.cloudinary.calc_breakpoint(el, 1)).toEqual 50
+    expect($.cloudinary.calc_breakpoint(el, 100)).toEqual 150
+    expect($.cloudinary.calc_breakpoint(el, 180)).toEqual 150
 
-    $.cloudinary.config().stoppoints = (width) ->
+    $.cloudinary.config().breakpoints = (width) ->
       width / 2
 
-    expect($.cloudinary.calc_stoppoint(el, 100)).toEqual 50
-    $(el).data 'stoppoints', '70,140'
-    expect($.cloudinary.calc_stoppoint(el, 1)).toEqual 70
-    expect($.cloudinary.calc_stoppoint(el, 100)).toEqual 140
+    expect($.cloudinary.calc_breakpoint(el, 100)).toEqual 50
+    $(el).data 'breakpoints', '70,140'
+    expect($.cloudinary.calc_breakpoint(el, 1)).toEqual 70
+    expect($.cloudinary.calc_breakpoint(el, 100)).toEqual 140
 
   it 'should correctly resize responsive images', (done) ->
     container = undefined

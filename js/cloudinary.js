@@ -1916,7 +1916,7 @@
        */
 
       HtmlTag.prototype.getAttr = function(name) {
-        return this.attributes()["html_" + name];
+        return this.attributes()["html_" + name] || this.attributes()[name];
       };
 
 
@@ -1928,7 +1928,8 @@
        */
 
       HtmlTag.prototype.removeAttr = function(name) {
-        return this.transformation().remove("html_" + name);
+        var ref;
+        return (ref = this.transformation().remove("html_" + name)) != null ? ref : this.transformation().remove(name);
       };
 
 
@@ -2205,7 +2206,7 @@
      */
     var Cloudinary;
     return Cloudinary = (function() {
-      var AKAMAI_SHARED_CDN, CF_SHARED_CDN, DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_SOURCE_TYPES, OLD_AKAMAI_SHARED_CDN, SHARED_CDN, absolutize, cdnSubdomainNumber, closestAbove, cloudinaryUrlPrefix, defaultStoppoints, devicePixelRatioCache, finalizeResourceType, responsiveConfig, responsiveResizeInitialized;
+      var AKAMAI_SHARED_CDN, CF_SHARED_CDN, DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_SOURCE_TYPES, OLD_AKAMAI_SHARED_CDN, SHARED_CDN, absolutize, cdnSubdomainNumber, closestAbove, cloudinaryUrlPrefix, defaultBreakpoints, devicePixelRatioCache, finalizeResourceType, responsiveConfig, responsiveResizeInitialized;
 
       CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
 
@@ -2705,19 +2706,21 @@
 
 
       /**
-       * @function Cloudinary#calc_stoppoint
+       * @function Cloudinary#calc_breakpoint
+       * @private
+       * @ignore
        */
 
-      Cloudinary.prototype.calc_stoppoint = function(element, width) {
-        var point, stoppoints;
-        stoppoints = Util.getData(element, 'stoppoints') || this.config('stoppoints') || defaultStoppoints;
-        if (Util.isFunction(stoppoints)) {
-          return stoppoints(width);
+      Cloudinary.prototype.calc_breakpoint = function(element, width) {
+        var breakpoints, point;
+        breakpoints = Util.getData(element, 'breakpoints') || Util.getData(element, 'stoppoints') || this.config('breakpoints') || this.config('stoppoints') || defaultBreakpoints;
+        if (Util.isFunction(breakpoints)) {
+          return breakpoints(width);
         } else {
-          if (Util.isString(stoppoints)) {
-            stoppoints = ((function() {
+          if (Util.isString(breakpoints)) {
+            breakpoints = ((function() {
               var j, len, ref, results;
-              ref = stoppoints.split(',');
+              ref = breakpoints.split(',');
               results = [];
               for (j = 0, len = ref.length; j < len; j++) {
                 point = ref[j];
@@ -2728,9 +2731,19 @@
               return a - b;
             });
           }
-          return closestAbove(stoppoints, width);
+          return closestAbove(breakpoints, width);
         }
       };
+
+
+      /**
+       * @function Cloudinary#calc_stoppoint
+       * @deprecated Use {@link calc_breakpoint} instead.
+       * @private
+       * @ignore
+       */
+
+      Cloudinary.prototype.calc_stoppoint = Cloudinary.prototype.calc_breakpoint;
 
 
       /**
@@ -2754,7 +2767,7 @@
 
       Cloudinary.prototype.supported_dpr_values = [0.75, 1.0, 1.3, 1.5, 2.0, 3.0];
 
-      defaultStoppoints = function(width) {
+      defaultBreakpoints = function(width) {
         return 10 * Math.ceil(width / 10);
       };
 
@@ -2859,9 +2872,9 @@
       * @function Cloudinary#cloudinary_update
       * @param {(Array|string|NodeList)} elements - the elements to modify
       * @param {Object} options
-      * @param {boolean|string} [options.responsive_use_stoppoints='resize']
-      *  - when `true`, always use stoppoints for width
-      * - when `"resize"` use exact width on first render and stoppoints on resize (default)
+      * @param {boolean|string} [options.responsive_use_breakpoints='resize']
+      *  - when `true`, always use breakpoints for width
+      * - when `"resize"` use exact width on first render and breakpoints on resize (default)
       * - when `false` always use exact width
       * @param {boolean} [options.responsive] - if `true`, enable responsive on this element. Can be done by adding cld-responsive.
       * @param {boolean} [options.responsive_preserve_height] - if set to true, original css height is preserved.
@@ -2869,7 +2882,7 @@
        */
 
       Cloudinary.prototype.cloudinary_update = function(elements, options) {
-        var attrs, container, containerWidth, currentWidth, exact, j, len, ref, ref1, ref2, requestedWidth, responsive, responsive_use_stoppoints, src, tag;
+        var attrs, container, containerWidth, currentWidth, exact, j, len, ref, ref1, ref2, ref3, ref4, requestedWidth, responsive, responsive_use_breakpoints, src, tag;
         if (options == null) {
           options = {};
         }
@@ -2885,11 +2898,11 @@
               return [elements];
           }
         })();
-        responsive_use_stoppoints = (ref = (ref1 = options['responsive_use_stoppoints']) != null ? ref1 : this.config('responsive_use_stoppoints')) != null ? ref : 'resize';
-        exact = !responsive_use_stoppoints || responsive_use_stoppoints === 'resize' && !options.resizing;
+        responsive_use_breakpoints = (ref = (ref1 = (ref2 = (ref3 = options['responsive_use_breakpoints']) != null ? ref3 : options['responsive_use_stoppoints']) != null ? ref2 : this.config('responsive_use_breakpoints')) != null ? ref1 : this.config('responsive_use_stoppoints')) != null ? ref : 'resize';
+        exact = !responsive_use_breakpoints || responsive_use_breakpoints === 'resize' && !options.resizing;
         for (j = 0, len = elements.length; j < len; j++) {
           tag = elements[j];
-          if (!((ref2 = tag.tagName) != null ? ref2.match(/img/i) : void 0)) {
+          if (!((ref4 = tag.tagName) != null ? ref4.match(/img/i) : void 0)) {
             continue;
           }
           if (options.responsive) {
@@ -2911,7 +2924,7 @@
             if (containerWidth === 0) {
               return;
             }
-            requestedWidth = exact ? containerWidth : this.calc_stoppoint(tag, containerWidth);
+            requestedWidth = exact ? containerWidth : this.calc_breakpoint(tag, containerWidth);
             currentWidth = Util.getData(tag, 'width') || 0;
             if (requestedWidth > currentWidth) {
               Util.setData(tag, 'width', requestedWidth);

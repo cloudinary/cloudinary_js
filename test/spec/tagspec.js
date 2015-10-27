@@ -247,9 +247,9 @@
         id: "foobar"
       });
       return describe("removeAttr()", function() {
-        tag.removeAttr("id");
         return it("should remove that attribute from the tag", function() {
           var key, keys;
+          tag.removeAttr("id");
           keys = (function() {
             var results;
             results = [];

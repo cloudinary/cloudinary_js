@@ -404,16 +404,27 @@
             run()
 
     ###*
-     * @function Cloudinary#calc_stoppoint
+     * @function Cloudinary#calc_breakpoint
+     * @private
+     * @ignore
     ###
-    calc_stoppoint: (element, width) ->
-      stoppoints = Util.getData(element,'stoppoints') or @config('stoppoints') or defaultStoppoints
-      if Util.isFunction stoppoints
-        stoppoints(width)
+    calc_breakpoint: (element, width) ->
+      breakpoints = Util.getData(element,'breakpoints') or Util.getData(element,'stoppoints') or
+        @config('breakpoints') or @config('stoppoints') or defaultBreakpoints
+      if Util.isFunction breakpoints
+        breakpoints(width)
       else
-        if Util.isString stoppoints
-          stoppoints = (parseInt(point) for point in stoppoints.split(',')).sort( (a,b) -> a - b )
-        closestAbove stoppoints, width
+        if Util.isString breakpoints
+          breakpoints = (parseInt(point) for point in breakpoints.split(',')).sort( (a,b) -> a - b )
+        closestAbove breakpoints, width
+
+    ###*
+     * @function Cloudinary#calc_stoppoint
+     * @deprecated Use {@link calc_breakpoint} instead.
+     * @private
+     * @ignore
+    ###
+    calc_stoppoint: @::calc_breakpoint
 
     ###*
      * @function Cloudinary#device_pixel_ratio
@@ -438,7 +449,7 @@
       3.0
     ]
 
-    defaultStoppoints = (width) ->
+    defaultBreakpoints = (width) ->
       10 * Math.ceil(width / 10)
 
     closestAbove = (list, value) ->
@@ -530,9 +541,9 @@
     * @function Cloudinary#cloudinary_update
     * @param {(Array|string|NodeList)} elements - the elements to modify
     * @param {Object} options
-    * @param {boolean|string} [options.responsive_use_stoppoints='resize']
-    *  - when `true`, always use stoppoints for width
-    * - when `"resize"` use exact width on first render and stoppoints on resize (default)
+    * @param {boolean|string} [options.responsive_use_breakpoints='resize']
+    *  - when `true`, always use breakpoints for width
+    * - when `"resize"` use exact width on first render and breakpoints on resize (default)
     * - when `false` always use exact width
     * @param {boolean} [options.responsive] - if `true`, enable responsive on this element. Can be done by adding cld-responsive.
     * @param {boolean} [options.responsive_preserve_height] - if set to true, original css height is preserved.
@@ -549,8 +560,9 @@
         else
           [elements]
 
-      responsive_use_stoppoints = options['responsive_use_stoppoints'] ? @config('responsive_use_stoppoints') ? 'resize'
-      exact = !responsive_use_stoppoints || responsive_use_stoppoints == 'resize' and !options.resizing
+      responsive_use_breakpoints = options['responsive_use_breakpoints'] ? options['responsive_use_stoppoints'] ?
+        @config('responsive_use_breakpoints') ? @config('responsive_use_stoppoints') ? 'resize'
+      exact = !responsive_use_breakpoints || responsive_use_breakpoints == 'resize' and !options.resizing
       for tag in elements when tag.tagName?.match(/img/i)
         if options.responsive
           Util.addClass(tag, "cld-responsive")
@@ -568,7 +580,7 @@
           if containerWidth == 0
             # container doesn't know the size yet. Usually because the image is hidden or outside the DOM.
             return
-          requestedWidth = if exact then containerWidth else @calc_stoppoint(tag, containerWidth)
+          requestedWidth = if exact then containerWidth else @calc_breakpoint(tag, containerWidth)
           currentWidth = Util.getData(tag, 'width') or 0
           if requestedWidth > currentWidth
             # requested width is larger, fetch new image

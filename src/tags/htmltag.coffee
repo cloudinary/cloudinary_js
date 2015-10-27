@@ -115,7 +115,7 @@
      * @returns {*}
     ###
     getAttr: (name)->
-      @attributes()["html_#{name}"]
+      @attributes()["html_#{name}"] || @attributes()[name]
 
     ###*
      * Remove the tag attributed named `name`
@@ -124,7 +124,7 @@
      * @returns {*}
     ###
     removeAttr: (name)->
-      @transformation().remove("html_#{name}")
+      @transformation().remove("html_#{name}") ? @transformation().remove(name)
 
     ###*
      * @function HtmlTag#content

@@ -572,23 +572,23 @@
       result = cl.url('test', options);
       return expect(result).toEqual('custom://res.cloudinary.com/test123/image/upload/test');
     });
-    it('should compute stoppoints correctly', function() {
+    it('should compute breakpoints correctly', function() {
       var el;
       el = document.createElement('img');
-      expect(cl.calc_stoppoint(el, 1)).toEqual(10);
-      expect(cl.calc_stoppoint(el, 10)).toEqual(10);
-      expect(cl.calc_stoppoint(el, 11)).toEqual(20);
-      cl.config('stoppoints', [50, 150]);
-      expect(cl.calc_stoppoint(el, 1)).toEqual(50);
-      expect(cl.calc_stoppoint(el, 100)).toEqual(150);
-      expect(cl.calc_stoppoint(el, 180)).toEqual(150);
-      cl.config('stoppoints', function(width) {
+      expect(cl.calc_breakpoint(el, 1)).toEqual(10);
+      expect(cl.calc_breakpoint(el, 10)).toEqual(10);
+      expect(cl.calc_breakpoint(el, 11)).toEqual(20);
+      cl.config('breakpoints', [50, 150]);
+      expect(cl.calc_breakpoint(el, 1)).toEqual(50);
+      expect(cl.calc_breakpoint(el, 100)).toEqual(150);
+      expect(cl.calc_breakpoint(el, 180)).toEqual(150);
+      cl.config('breakpoints', function(width) {
         return width / 2;
       });
-      expect(cl.calc_stoppoint(el, 100)).toEqual(50);
-      el.setAttribute('data-stoppoints', '70,140');
-      expect(cl.calc_stoppoint(el, 1)).toEqual(70);
-      return expect(cl.calc_stoppoint(el, 100)).toEqual(140);
+      expect(cl.calc_breakpoint(el, 100)).toEqual(50);
+      el.setAttribute('data-breakpoints', '70,140');
+      expect(cl.calc_breakpoint(el, 1)).toEqual(70);
+      return expect(cl.calc_breakpoint(el, 100)).toEqual(140);
     });
     it('should correctly resize responsive images', function(done) {
       var container, dpr, img;

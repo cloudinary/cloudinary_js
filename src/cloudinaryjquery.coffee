@@ -111,7 +111,7 @@
         if containerWidth == 0
           # container doesn't know the size yet. Usually because the image is hidden or outside the DOM.
           return
-        requestedWidth = if exact then containerWidth else jQuery.cloudinary.calc_stoppoint(this, containerWidth)
+        requestedWidth = if exact then containerWidth else jQuery.cloudinary.calc_breakpoint(this, containerWidth)
         currentWidth = Util.getData(this, 'width') or 0
         if requestedWidth > currentWidth
           # requested width is larger, fetch new image

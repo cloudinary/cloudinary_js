@@ -546,23 +546,23 @@
       result = $.cloudinary.url('test', options);
       return expect(result).toEqual('custom://res.cloudinary.com/test123/image/upload/test');
     });
-    it('should compute stoppoints correctly', function() {
+    it('should compute breakpoints correctly', function() {
       var el;
       el = $('<img/>');
-      expect($.cloudinary.calc_stoppoint(el, 1)).toEqual(10);
-      expect($.cloudinary.calc_stoppoint(el, 10)).toEqual(10);
-      expect($.cloudinary.calc_stoppoint(el, 11)).toEqual(20);
-      $.cloudinary.config().stoppoints = [50, 150];
-      expect($.cloudinary.calc_stoppoint(el, 1)).toEqual(50);
-      expect($.cloudinary.calc_stoppoint(el, 100)).toEqual(150);
-      expect($.cloudinary.calc_stoppoint(el, 180)).toEqual(150);
-      $.cloudinary.config().stoppoints = function(width) {
+      expect($.cloudinary.calc_breakpoint(el, 1)).toEqual(10);
+      expect($.cloudinary.calc_breakpoint(el, 10)).toEqual(10);
+      expect($.cloudinary.calc_breakpoint(el, 11)).toEqual(20);
+      $.cloudinary.config().breakpoints = [50, 150];
+      expect($.cloudinary.calc_breakpoint(el, 1)).toEqual(50);
+      expect($.cloudinary.calc_breakpoint(el, 100)).toEqual(150);
+      expect($.cloudinary.calc_breakpoint(el, 180)).toEqual(150);
+      $.cloudinary.config().breakpoints = function(width) {
         return width / 2;
       };
-      expect($.cloudinary.calc_stoppoint(el, 100)).toEqual(50);
-      $(el).data('stoppoints', '70,140');
-      expect($.cloudinary.calc_stoppoint(el, 1)).toEqual(70);
-      return expect($.cloudinary.calc_stoppoint(el, 100)).toEqual(140);
+      expect($.cloudinary.calc_breakpoint(el, 100)).toEqual(50);
+      $(el).data('breakpoints', '70,140');
+      expect($.cloudinary.calc_breakpoint(el, 1)).toEqual(70);
+      return expect($.cloudinary.calc_breakpoint(el, 100)).toEqual(140);
     });
     it('should correctly resize responsive images', function(done) {
       var container, dpr, img;
