@@ -8,7 +8,7 @@
     root.cloudinary.crc32 = factory(root.cloudinary.utf8_encode)
 
 )(this,  (utf8_encode)->
-  crc32 = (str) ->
+  (str) ->
   # http://kevin.vanzonneveld.net
   # +   original by: Webtoolkit.info (http://www.webtoolkit.info/)
   # +   improved by: T0bsn
@@ -35,6 +35,4 @@
     if crc < 0
       crc += 4294967296
     crc
-
-  crc32
 )

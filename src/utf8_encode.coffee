@@ -8,7 +8,7 @@
     root.cloudinary.utf8_encode = factory()
 
 )(this,  ()->
-  utf8_encode = (argString) ->
+  (argString) ->
     # http://kevin.vanzonneveld.net
     # +   original by: Webtoolkit.info (http://www.webtoolkit.info/)
     # +   improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
@@ -52,5 +52,4 @@
       utftext += string.slice(start, stringl)
     utftext
 
-  utf8_encode
 )
