@@ -11,6 +11,7 @@
 
     ###*
      * Creates an HTML (DOM) Image tag using Cloudinary as the source.
+     * @constructor ImageTag
      * @param {String} [publicId]
      * @param {Object} [options]
     ###

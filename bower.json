@@ -57,7 +57,10 @@
     "/*.*",
     "node_modules",
     "bower_components",
+    "src",
     "test",
+    "doc",
+    "coverage",
     "js/jquery.fileupload*.js",
     "js/jquery.iframe-transport.js",
     "js/jquery.ui.widget.js"

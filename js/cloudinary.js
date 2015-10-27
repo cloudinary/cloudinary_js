@@ -1040,6 +1040,7 @@
 
       /**
        * The base class for transformations.
+       * Members of this class are documented as belonging to the {@link Transformation} class for convenience.
        * @class TransformationBase
        */
 
@@ -1058,7 +1059,7 @@
         /**
          * Return an options object that can be used to create an identical Transformation
          * @function Transformation#toOptions
-         * @return {Object} a plain object representing this transformation
+         * @return {Object} Returns a plain object representing this transformation
          */
         this.toOptions = function() {
           var key, opt, ref, value;
@@ -1083,7 +1084,7 @@
          * @function Transformation#setParent
          * @protected
          * @param {Object} object - the parent to be assigned to
-         * @returns {Transformation} - returns this instance for chaining purposes.
+         * @returns {Transformation} Returns this instance for chaining purposes.
          */
         this.setParent = function(object) {
           chainedTo = object;
@@ -1095,7 +1096,7 @@
          * Returns the parent of this object in the chain
          * @function Transformation#getParent
          * @protected
-         * @return {Object} the parent of this object if any
+         * @return {Object} Returns the parent of this object if there is any
          */
         this.getParent = function() {
           return chainedTo;
@@ -1189,7 +1190,8 @@
          * Remove a transformation option from the transformation.
          * @function Transformation#remove
          * @param {string} name - the name of the option to remove
-         * @return {*} the option that was removed or null if no option by that name was found
+         * @return {*} Returns the option that was removed or null if no option by that name was found. The type of the
+         *              returned value depends on the value.
          */
         this.remove = function(name) {
           var temp;
@@ -1244,7 +1246,7 @@
          * Complete the current transformation and chain to a new one.
          * In the URL, transformations are chained together by slashes.
          * @function Transformation#chain
-         * @return {TransformationBase} this transformation for chaining
+         * @return {Transformation} Returns this transformation for chaining
          * @example
          * var tr = cloudinary.Transformation.new();
          * tr.width(10).crop('fit').chain().angle(15).serialize()
@@ -1270,9 +1272,11 @@
 
         /**
          * Parameters that are filtered out before passing the options to an HTML tag.
-         * The list of parameters is `Transformation::methods` and `Configuration::CONFIG_PARAMS`
-         * @const {Array<string>} TransformationBase.PARAM_NAMES
+         *
+         * The list of parameters is a combination of `Transformation::methods` and `Configuration::CONFIG_PARAMS`
+         * @const {Array<string>} Transformation.PARAM_NAMES
          * @private
+         * @ignore
          * @see toHtmlAttributes
          */
         this.PARAM_NAMES = ((function() {
@@ -1294,7 +1298,7 @@
       /**
        * Merge the provided options with own's options
        * @param {Object} [options={}] key-value list of options
-       * @returns {Transformation} this instance for chaining
+       * @returns {Transformation} Returns this instance for chaining
        */
 
       TransformationBase.prototype.fromOptions = function(options) {
@@ -1323,7 +1327,7 @@
        * The parameter name `key` is converted to
        * @param {String} key - the name of the parameter
        * @param {*} value - the value of the parameter
-       * @returns {Transformation} this instance for chaining
+       * @returns {Transformation} Returns this instance for chaining
        */
 
       TransformationBase.prototype.set = function(key, value) {
@@ -1343,9 +1347,9 @@
 
 
       /**
-       * Generate a string reprensetation of the transformation.
+       * Generate a string representation of the transformation.
        * @function Transformation#serialize
-       * @return {string} the transformation as a string
+       * @return {string} Returns the transformation as a string
        */
 
       TransformationBase.prototype.serialize = function() {
@@ -1475,7 +1479,7 @@
       return TransformationBase;
 
     })();
-    Transformation = (function(superClass) {
+    return Transformation = (function(superClass) {
       extend(Transformation, superClass);
 
       Transformation["new"] = function(args) {
@@ -1488,11 +1492,11 @@
        *  @class Transformation
        *  @example
        *  t = new cloudinary.Transformation();
-       *  t.angle(20).crop("scale").width("auto");
+       * t.angle(20).crop("scale").width("auto");
        *
-       *  // or
+       * // or
        *
-       *  t = new cloudinary.Transformation( {angle: 20, crop: "scale", width: "auto"});
+       * t = new cloudinary.Transformation( {angle: 20, crop: "scale", width: "auto"});
        */
 
       function Transformation(options) {
@@ -1741,7 +1745,6 @@
       return Transformation;
 
     })(TransformationBase);
-    return Transformation;
   });
 
 }).call(this);
@@ -2735,6 +2738,7 @@
 
       /**
        * Creates an HTML (DOM) Image tag using Cloudinary as the source.
+       * @constructor ImageTag
        * @param {String} [publicId]
        * @param {Object} [options]
        */

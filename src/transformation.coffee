@@ -23,6 +23,7 @@
 
     ###*
      * The base class for transformations.
+     * Members of this class are documented as belonging to the {@link Transformation} class for convenience.
      * @class TransformationBase
     ###
     constructor: (options = {}) ->
@@ -34,7 +35,7 @@
       ###*
        * Return an options object that can be used to create an identical Transformation
        * @function Transformation#toOptions
-       * @return {Object} a plain object representing this transformation
+       * @return {Object} Returns a plain object representing this transformation
       ###
       @toOptions = ()->
         opt= {}
@@ -50,7 +51,7 @@
        * @function Transformation#setParent
        * @protected
        * @param {Object} object - the parent to be assigned to
-       * @returns {Transformation} - returns this instance for chaining purposes.
+       * @returns {Transformation} Returns this instance for chaining purposes.
       ###
       @setParent = (object)->
         chainedTo = object
@@ -61,7 +62,7 @@
        * Returns the parent of this object in the chain
        * @function Transformation#getParent
        * @protected
-       * @return {Object} the parent of this object if any
+       * @return {Object} Returns the parent of this object if there is any
       ###
       @getParent = ()->
         chainedTo
@@ -133,7 +134,8 @@
        * Remove a transformation option from the transformation.
        * @function Transformation#remove
        * @param {string} name - the name of the option to remove
-       * @return {*} the option that was removed or null if no option by that name was found
+       * @return {*} Returns the option that was removed or null if no option by that name was found. The type of the
+       *              returned value depends on the value.
       ###
       @remove = (name)->
         switch
@@ -171,7 +173,7 @@
        * Complete the current transformation and chain to a new one.
        * In the URL, transformations are chained together by slashes.
        * @function Transformation#chain
-       * @return {TransformationBase} this transformation for chaining
+       * @return {Transformation} Returns this transformation for chaining
        * @example
        * var tr = cloudinary.Transformation.new();
        * tr.width(10).crop('fit').chain().angle(15).serialize()
@@ -199,13 +201,14 @@
 
       ###*
        * Parameters that are filtered out before passing the options to an HTML tag.
-       * The list of parameters is `Transformation::methods` and `Configuration::CONFIG_PARAMS`
-       * @const {Array<string>} TransformationBase.PARAM_NAMES
+       *
+       * The list of parameters is a combination of `Transformation::methods` and `Configuration::CONFIG_PARAMS`
+       * @const {Array<string>} Transformation.PARAM_NAMES
        * @private
+       * @ignore
        * @see toHtmlAttributes
       ###
       @PARAM_NAMES = (Util.snakeCase(m) for m in @methods).concat( Configuration.CONFIG_PARAMS)
-
 
       # Finished constructing the instance, now process the options
 
@@ -214,7 +217,7 @@
     ###*
      * Merge the provided options with own's options
      * @param {Object} [options={}] key-value list of options
-     * @returns {Transformation} this instance for chaining
+     * @returns {Transformation} Returns this instance for chaining
     ###
     fromOptions: (options) ->
       options or= {}
@@ -232,7 +235,7 @@
      * The parameter name `key` is converted to
      * @param {String} key - the name of the parameter
      * @param {*} value - the value of the parameter
-     * @returns {Transformation} this instance for chaining
+     * @returns {Transformation} Returns this instance for chaining
     ###
     set: (key, value)->
       camelKey = Util.camelCase( key)
@@ -246,9 +249,9 @@
       @getValue("overlay") || @getValue("underlay")
 
     ###*
-     * Generate a string reprensetation of the transformation.
+     * Generate a string representation of the transformation.
      * @function Transformation#serialize
-     * @return {string} the transformation as a string
+     * @return {string} Returns the transformation as a string
     ###
     serialize: ->
       resultArray = []
@@ -331,11 +334,11 @@
      *  @class Transformation
      *  @example
      *  t = new cloudinary.Transformation();
-     *  t.angle(20).crop("scale").width("auto");
+     * t.angle(20).crop("scale").width("auto");
      *
-     *  // or
+     * // or
      *
-     *  t = new cloudinary.Transformation( {angle: 20, crop: "scale", width: "auto"});
+     * t = new cloudinary.Transformation( {angle: 20, crop: "scale", width: "auto"});
     ###
     constructor: (options = {})->
       super(options)
@@ -422,8 +425,5 @@
     x: (value)->                    @param value, "x", "x"
     y: (value)->                    @param value, "y", "y"
     zoom: (value)->                 @param value, "zoom", "z"
-
-
-  Transformation
 
 )

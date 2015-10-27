@@ -2,9 +2,6 @@ module.exports = (grunt)->
   grunt.initConfig
     coffee:
       compile:
-#        options:
-#          join: true
-#          joinExt: '.coffee'
         expand: true
         bare: false
         sourceMap: true
@@ -26,7 +23,7 @@ module.exports = (grunt)->
         files: [
           expand: true
           cwd: 'js'
-          src: '*.js'
+          src: ['*cloudinary*.js', '!*min*']
           dest: 'js'
           ext: '.min.js'
           extDot: 'last'
@@ -45,26 +42,27 @@ module.exports = (grunt)->
         options:
           configFile: 'karma.jquery.upload.conf.coffee'
     jsdoc:
-      dist:
-        src: ['js/jquery.cloudinary.js']
+      amd:
+        src: ['src/**/*.js', './README.md']
         options:
-          destination: 'doc'
+          destination: 'doc/amd'
+          template: 'template'
+          configure: "jsdoc-conf.json"
+      cloudinary:
+        src: ['js/cloudinary.js', './README.md']
+        options:
+          destination: 'doc/bower-cloudinary'
+          template: 'template'
           configure: "jsdoc-conf.json"
     requirejs:
       options:
         baseUrl: "src"
         paths: # when optimizing scripts, don't include vendor files
-          lodash: 'empty:'
-          jquery: 'empty:'
-#          'jquery.ui.widget': '../bower_components/blueimp-file-upload/js/vendor/jquery.ui.widget'
-#          'jquery.iframe-transport': '../bower_components/blueimp-file-upload/js/jquery.iframe-transport'
-#          'jquery.fileupload': '../bower_components/blueimp-file-upload/js/jquery.fileupload'
-          'jquery.ui.widget': 'empty:'
-          'jquery.iframe-transport': 'empty:'
-          'jquery.fileupload': 'empty:'
-#          util: 'util/lodash'
-#        map:
-#          "*": {util: 'util/lodash'}
+          'lodash':                   'empty:'
+          'jquery':                   'empty:'
+          'jquery.ui.widget':         'empty:'
+          'jquery.iframe-transport':  'empty:'
+          'jquery.fileupload':        'empty:'
         skipDirOptimize: true
         optimize: "none"
         removeCombined: true
@@ -87,12 +85,35 @@ module.exports = (grunt)->
           name: "alljquery-file-upload"
           out: "js/jquery.cloudinary.js"
     copy:
-      main:
+      'file-upload':
+        # For backward compatibility, copy vendor files to the js folder
+        files: [
+          {
+            expand: true
+            flatten: true
+            src: [
+              "bower_components/blueimp-canvas-to-blob/js/canvas-to-blob.min.js"
+              "bower_components/blueimp-file-upload/js/jquery.fileupload-image.js"
+              "bower_components/blueimp-file-upload/js/jquery.fileupload-process.js"
+              "bower_components/blueimp-file-upload/js/jquery.fileupload-validate.js"
+              "bower_components/blueimp-file-upload/js/jquery.fileupload.js"
+              "bower_components/blueimp-file-upload/js/jquery.iframe-transport.js"
+              "bower_components/blueimp-file-upload/js/vendor/jquery.ui.widget.js"
+            ]
+            dest: "js/"
+          }
+          {
+            src: "bower_components/blueimp-load-image/js/load-image.all.min.js"
+            dest: "js/load-image.min.js"
+          }
+        ]
+      'dist':
         files: [
           { src: 'js/cloudinary.js', dest: '../bower/bower-cloudinary/cloudinary.js'}
           { src: 'js/jquery.cloudinary.js', dest: '../bower/bower-cloudinary-jquery-file-upload/jquery.cloudinary.js'}
           { src: 'js/jquery.noupload.cloudinary.js', dest: '../bower/bower-cloudinary-jquery/jquery.noupload.cloudinary.js'}
         ]
+
   grunt.loadNpmTasks('grunt-contrib-coffee')
   grunt.loadNpmTasks('grunt-contrib-uglify')
   grunt.loadNpmTasks('grunt-contrib-requirejs')
@@ -101,4 +122,4 @@ module.exports = (grunt)->
   grunt.loadNpmTasks('grunt-jsdoc')
   grunt.loadNpmTasks('grunt-karma')
   grunt.registerTask('default', ['coffee', 'requirejs'])
-  grunt.registerTask('build', ['coffee', 'jsdoc', 'uglify'])
+  grunt.registerTask('build', ['coffee', 'requirejs', 'jsdoc', 'uglify'])
