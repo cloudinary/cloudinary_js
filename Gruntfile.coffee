@@ -23,7 +23,7 @@ module.exports = (grunt)->
         files: [
           expand: true
           cwd: 'js'
-          src: ['*cloudinary*.js', '!*min*']
+          src: ['*cloudinary*.js', '!*min*', '../bower_components/blueimp-load-image/js/load-image.js']
           dest: 'js'
           ext: '.min.js'
           extDot: 'last'
@@ -122,4 +122,4 @@ module.exports = (grunt)->
   grunt.loadNpmTasks('grunt-jsdoc')
   grunt.loadNpmTasks('grunt-karma')
   grunt.registerTask('default', ['coffee', 'requirejs'])
-  grunt.registerTask('build', ['coffee', 'requirejs', 'jsdoc', 'uglify'])
+  grunt.registerTask('build', ['coffee', 'requirejs', 'jsdoc', 'copy:file-upload', 'uglify'])
