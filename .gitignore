@@ -21,3 +21,4 @@ doc
 
 src/**/*.map
 src/**/*.js
+build/

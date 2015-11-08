@@ -37,7 +37,7 @@
                 util: 'util/lodash'
             }
         });
-        require(['all'], function (cloudinary) {
+        require(['cloudinary-full'], function (cloudinary) {
             window.cloudinary = cloudinary;
             require(['spec/chaining-spec', 'spec/cloudinary-spec', 'spec/tagspec', 'spec/videourlspec'], function () {
                 bootJasmine();

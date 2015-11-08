@@ -2209,7 +2209,9 @@
      */
     var Cloudinary;
     return Cloudinary = (function() {
-      var AKAMAI_SHARED_CDN, CF_SHARED_CDN, DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_SOURCE_TYPES, OLD_AKAMAI_SHARED_CDN, SHARED_CDN, absolutize, cdnSubdomainNumber, closestAbove, cloudinaryUrlPrefix, defaultBreakpoints, devicePixelRatioCache, finalizeResourceType, responsiveConfig, responsiveResizeInitialized;
+      var AKAMAI_SHARED_CDN, CF_SHARED_CDN, DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_SOURCE_TYPES, OLD_AKAMAI_SHARED_CDN, SHARED_CDN, VERSION, absolutize, cdnSubdomainNumber, closestAbove, cloudinaryUrlPrefix, defaultBreakpoints, devicePixelRatioCache, finalizeResourceType, responsiveConfig, responsiveResizeInitialized;
+
+      VERSION = "1.2.3";
 
       CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
 
