@@ -16,7 +16,7 @@ module.exports = (config) ->
     # list of files / patterns to load in the browser
     files: [
       'bower_components/jquery/dist/jquery.js'
-      'js/jquery.noupload.cloudinary.js'
+      'build/cloudinary-jquery.js'
       'test/spec/cloudinary-spec.js'
       'test/spec/cloudinary-jquery-spec.js'
       'test/spec/tagspec.js'
