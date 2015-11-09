@@ -1,0 +1,46 @@
+{
+  "name": "cloudinary_js",
+  "version": "2.0.0",
+  "description": "Cloudinary streamlines your web application’s image manipulation needs. Cloudinary's cloud-based servers automate image uploading, resizing, cropping, optimizing, sprite generation and more. Cloudinary's jQuery plugin allows direct uploading from the browser to the cloud and dynamic cloud-based image transformations and effects.",
+  "main": "js/jquery.cloudinary.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cloudinary/cloudinary_js.git"
+  },
+  "author": "Cloudinary",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cloudinary/cloudinary_js/issues"
+  },
+  "homepage": "https://github.com/cloudinary/cloudinary_js",
+  "devDependencies": {
+    "coffee-script": "~1.10",
+    "grunt": "~0.4",
+    "grunt-contrib-clean": "^0.6.0",
+    "grunt-contrib-coffee": "gruntjs/grunt-contrib-coffee",
+    "grunt-contrib-concat": "~0.5",
+    "grunt-contrib-copy": "~0.8",
+    "grunt-contrib-requirejs": "~0.4",
+    "grunt-contrib-uglify": "~0.9",
+    "grunt-jsdoc": "~1.0",
+    "grunt-karma": "~0.12",
+    "grunt-version": "~1.0",
+    "jasmine-core": "~2.3",
+    "karma": "~0.13",
+    "karma-chrome-launcher": "~0.2",
+    "karma-coverage": "~0.5",
+    "karma-firefox-launcher": "~0.1",
+    "karma-jasmine": "~0.3",
+    "karma-phantomjs-launcher": "~0.2",
+    "karma-safari-launcher": "~0.1",
+    "karma-story-reporter": "~0.3",
+    "phantomjs": "~1.9",
+    "requirejs": "~2.1"
+  }
+}

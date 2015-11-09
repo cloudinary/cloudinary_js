@@ -1,0 +1,25 @@
+{
+  "tags": {
+    "allowUnknownTags": true
+  },
+  "plugins": ["plugins/markdown"],
+  "templates": {
+    "cleverLinks": false,
+    "monospaceLinks": false,
+    "dateFormat": "ddd MMM Do YYYY",
+    "outputSourceFiles": false,
+    "outputSourcePath": false,
+    "systemName": "Cloudinary JavaScript Library",
+    "footer": "",
+    "copyright": "DocStrap Copyright © 2012-2014 The contributors to the JSDoc3 and DocStrap projects.",
+    "navType": "vertical",
+    "theme": "paper",
+    "linenums": true,
+    "collapseSymbols": false,
+    "inverseNav": true,
+    "highlightTutorialCode": true,
+    "protocol": "html://",
+    "logoFile": "http://res-1.cloudinary.com/cloudinary/image/upload/c_scale,fl_attachment,h_30/v1/logo/for_blue_bg/cloudinary_icon_for_blue_bg.png"
+
+  }
+}
