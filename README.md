@@ -38,16 +38,16 @@ This library include all the functionality of the Core JavaScript Library and th
 
 1. Install the files using the following command. Add the optional `--save` parameter if you wish to save the dependency in your bower.json file.
 
-	```shell
-	# one of the following:
-	bower install cloudinary                                   # for the core javascript library  
-	bower install cloudinary-jquery                        # for the jQuery plugin
-	bower install cloudinary-jquery-file-upload      # for the jQuery file upload
-	```
+    ```shell
+    # one of the following:
+    bower install cloudinary-core                    # for the core javascript library  
+    bower install cloudinary-jquery                  # for the jQuery plugin
+    bower install cloudinary-jquery-file-upload      # for the jQuery file upload
+    ```
 1. Include the javascript file in your HTML. For Example:
 
     ```html
-    <script src="../bower_components/cloudinary/cloudinary.js"></script>
+    <script src="../bower_components/cloudinary-core/cloudinary-core.js"></script>
     <script src="../bower_components/cloudinary-jquery/cloudinary-jquery.js"></script>
     <script src="../bower_components/cloudinary-jquery-file-upload/cloudinary-jquery-file-upload.js"></script>
     
@@ -57,16 +57,16 @@ This library include all the functionality of the Core JavaScript Library and th
 
 1. Install the files using the following command
 
-	```shell
-# one of the following:
-	npm install cloudinary                                   # for the core javascript library 
-	npm install cloudinary-jquery                        # for the jQuery plugin
-	npm install cloudinary-jquery-file-upload      # for the jQuery file upload
-	```
+    ```shell
+    # one of the following:
+    npm install cloudinary-core                    # for the core javascript library 
+    npm install cloudinary-jquery                  # for the jQuery plugin
+    npm install cloudinary-jquery-file-upload      # for the jQuery File Upload plugin
+    ```
 1. Include the javascript file in your HTML. For Example:
 
     ```html
-    <script src="../node_modules/cloudinary/cloudinary.js"></script>
+    <script src="../node_modules/cloudinary-core/cloudinary-core.js"></script>
     <script src="../node_modules/cloudinary-jquery/cloudinary-jquery.js"></script>
     <script src="../node_modules/cloudinary-jquery-file-upload/cloudinary-jquery-file-upload.js"></script>
     ```

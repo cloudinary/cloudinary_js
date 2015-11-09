@@ -620,7 +620,7 @@
         }), 200);
       }), 200);
     });
-    return it('should traverse up the DOM to find a parent that has clientWidth', function() {
+    it('should traverse up the DOM to find a parent that has clientWidth', function() {
       var aContainer, divContainer, img;
       aContainer = void 0;
       divContainer = void 0;
@@ -639,6 +639,10 @@
       aContainer.appendChild(img);
       cl.responsive();
       return expect(img.getAttribute('src')).not.toEqual(void 0);
+    });
+    return it('should not fail on falsy public_id', function() {
+      expect(cl.url(null)).toEqual(null);
+      return expect(cl.url(void 0)).toEqual(void 0);
     });
   });
 

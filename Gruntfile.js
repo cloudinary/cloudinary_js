@@ -155,7 +155,8 @@
               repo = repos[i];
               results.push({
                 expand: true,
-                src: ["doc/pkg-" + repo + "/**"],
+                cwd: "doc/pkg-" + repo + "/",
+                src: ["**"],
                 dest: "../pkg/pkg-" + repo + "/"
               });
             }

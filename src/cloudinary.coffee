@@ -173,6 +173,8 @@
      * @return {string} The resource URL
     ###
     url: (publicId, options = {}) ->
+      if (!publicId)
+        return publicId
       options = Util.defaults({}, options, @config(), Cloudinary.DEFAULT_IMAGE_PARAMS)
       if options.type == 'fetch'
         options.fetch_format = options.fetch_format or options.format

@@ -118,7 +118,8 @@ module.exports = (grunt)->
       doc:
         files: for repo in repos
           expand: true
-          src: ["doc/pkg-#{repo}/**"]
+          cwd: "doc/pkg-#{repo}/"
+          src: ["**"]
           dest: "../pkg/pkg-#{repo}/"
 
     version:
@@ -147,4 +148,3 @@ module.exports = (grunt)->
 
   grunt.registerTask('default', ['coffee', 'requirejs'])
   grunt.registerTask('build', ['clean', 'coffee', 'requirejs', 'jsdoc', 'copy:backward-compatible'])
-

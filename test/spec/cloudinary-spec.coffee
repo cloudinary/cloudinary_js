@@ -533,3 +533,7 @@ describe 'cloudinary', ->
     aContainer.appendChild(img)
     cl.responsive()
     expect(img.getAttribute('src')).not.toEqual undefined
+
+  it 'should not fail on falsy public_id', ->
+    expect(cl.url(null)).toEqual null
+    expect(cl.url(undefined)).toEqual undefined

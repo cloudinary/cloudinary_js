@@ -2393,6 +2393,9 @@
         if (options == null) {
           options = {};
         }
+        if (!publicId) {
+          return publicId;
+        }
         options = Util.defaults({}, options, this.config(), Cloudinary.DEFAULT_IMAGE_PARAMS);
         if (options.type === 'fetch') {
           options.fetch_format = options.fetch_format || options.format;
