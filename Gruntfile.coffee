@@ -15,6 +15,7 @@ module.exports = (grunt)->
     options = {options: options} unless options.options?
     repoOptions ||= {}
     for repo in repos
+      # noinspection JSUnresolvedFunction
       options[repo] = repoOptions?(repo) || repoOptions
     options
 
@@ -39,17 +40,15 @@ module.exports = (grunt)->
       dist:
         options:
           sourceMap: true
-        files: [
-          expand: true
-          cwd: 'js'
-          src: ['*cloudinary*.js', '!*min*', '../bower_components/blueimp-load-image/js/load-image.js']
-          dest: 'js'
+        files: for repo in repos
+          src: ["build/#{repo}.js"]
+          dest: 'build'
           ext: '.min.js'
-          extDot: 'last'
-        ]
+
     karma: repoTargets
       reporters: ['dots']
       configFile: 'karma.<%= grunt.task.current.target %>.coffee'
+
     jsdoc:
       amd:
         src: ['src/**/*.js', './README.md']
@@ -63,6 +62,7 @@ module.exports = (grunt)->
           destination: "doc/bower-#{repo}"
           template: 'template'
           configure: "jsdoc-conf.json"
+
     requirejs: repoTargets
         baseUrl: "src"
         paths: # when optimizing scripts, don't include vendor files
@@ -77,7 +77,11 @@ module.exports = (grunt)->
         out: 'build/<%= grunt.task.current.target %>.js'
         name: '<%= grunt.task.current.target %>-full'
       ,
-        (repo)-> { options: {bundles: { "#{if repo.match('jquery') then 'util/jquery' else 'util/lodash'}": ['util'] }}}
+        (repo)->
+          options:
+            bundles:
+              "#{if repo.match('jquery') then 'util/jquery' else 'util/lodash'}": ['util']
+
     copy:
       'backward-compatible':
         # For backward compatibility, copy jquery.cloudianry.js and vendor files to the js folder
@@ -87,6 +91,7 @@ module.exports = (grunt)->
             flatten: true
             src: [
               "bower_components/blueimp-canvas-to-blob/js/canvas-to-blob.min.js"
+              "bower_components/blueimp-load-image/js/load-image.all.min.js" # formerly load-image.min.js
               "bower_components/blueimp-file-upload/js/jquery.fileupload-image.js"
               "bower_components/blueimp-file-upload/js/jquery.fileupload-process.js"
               "bower_components/blueimp-file-upload/js/jquery.fileupload-validate.js"
@@ -97,17 +102,19 @@ module.exports = (grunt)->
             dest: "js/"
           }
           {
-            src: "bower_components/blueimp-load-image/js/load-image.all.min.js"
-            dest: "js/load-image.min.js"
-          }
-          {
             src: 'build/cloudinary-jquery-file-upload.js'
             dest: 'js/jquery.cloudinary.js'
           }
         ]
-      'dist':
+      dist:
         files: for repo in repos
           {'src': "build/#{repo}.js", 'dest': "../bower/bower-#{repo}/#{repo}.js"}
+      doc:
+        files: for repo in repos
+          expand: true
+          src: ["doc/bower-#{repo}/**"]
+          dest: "../bower/bower-#{repo}/"
+
     version:
       options:
         release: 'patch'
@@ -132,5 +139,5 @@ module.exports = (grunt)->
   grunt.loadNpmTasks('grunt-version')
 
   grunt.registerTask('default', ['coffee', 'requirejs'])
-  grunt.registerTask('build', ['coffee', 'requirejs', 'jsdoc:amd', 'copy:file-upload', 'uglify'])
+  grunt.registerTask('build', ['coffee', 'requirejs', 'jsdoc', 'copy:file-upload', 'uglify'])
 
