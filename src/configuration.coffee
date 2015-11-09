@@ -137,7 +137,6 @@
     * @see {@link fromDocument} for initialization using HTML meta tags
     ###
     config: (new_config, new_value) ->
-      # REVIEW it would be more OO to return a copy of @configuration and not the internal object itself. It will mean that cloudinary.config().foo = "bar" will have no effect.
       switch
         when new_value != undefined
           @set(new_config, new_value)
