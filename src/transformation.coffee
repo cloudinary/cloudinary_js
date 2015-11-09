@@ -49,7 +49,6 @@
        * Set a parent for this object for chaining purposes.
        *
        * @function Transformation#setParent
-       * @protected
        * @param {Object} object - the parent to be assigned to
        * @returns {Transformation} Returns this instance for chaining purposes.
       ###

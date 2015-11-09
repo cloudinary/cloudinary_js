@@ -19,10 +19,11 @@
     constructor: (publicId, options = {})->
       super("img", publicId, options)
 
-    ###* @protected ###
+    ###* @override ###
     closeTag: ()->
       ""
 
+    ###* @override ###
     attributes: ()->
       Cloudinary ||= require('cloudinary') # Circular reference
       attr = super() || []
