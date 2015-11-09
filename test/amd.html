@@ -19,9 +19,6 @@
         window.onload = undefined;
     </script>
     <script src="../bower_components/requirejs-bower/require.js"></script>
-    <!--<script src="../dist/cloudinary.js"></script>-->
-    <!--<script src="../bower_components/lodash/lodash.js"></script>-->
-    <!--<script src="../src/lodash.js"></script>-->
     <script>
         requirejs.config({
             //By default load any module IDs from js/lib
@@ -37,7 +34,7 @@
                 util: 'util/lodash'
             }
         });
-        require(['cloudinary-full'], function (cloudinary) {
+        require(['cloudinary-core-full'], function (cloudinary) {
             window.cloudinary = cloudinary;
             require(['spec/chaining-spec', 'spec/cloudinary-spec', 'spec/tagspec', 'spec/videourlspec'], function () {
                 bootJasmine();

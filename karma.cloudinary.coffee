@@ -16,7 +16,7 @@ module.exports = (config) ->
     # list of files / patterns to load in the browser
     files: [
       'bower_components/lodash/lodash.js'
-      'build/cloudinary.js'
+      'build/cloudinary-core.js'
       'test/spec/cloudinary-spec.js'
       'test/spec/tagspec.js'
       'test/spec/videourlspec.js'

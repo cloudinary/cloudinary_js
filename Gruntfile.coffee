@@ -1,6 +1,6 @@
 module.exports = (grunt)->
   repos = [
-    'cloudinary',
+    'cloudinary-core',
     'cloudinary-jquery',
     'cloudinary-jquery-file-upload'
   ]
@@ -42,26 +42,28 @@ module.exports = (grunt)->
           sourceMap: true
         files: for repo in repos
           src: ["build/#{repo}.js"]
-          dest: 'build'
+          dest: "build/#{repo}.min.js"
           ext: '.min.js'
 
     karma: repoTargets
       reporters: ['dots']
       configFile: 'karma.<%= grunt.task.current.target %>.coffee'
 
-    jsdoc:
-      amd:
-        src: ['src/**/*.js', './README.md']
-        options:
-          destination: 'doc/amd'
-          template: 'template'
-          configure: "jsdoc-conf.json"
-      dist: for repo in repos
-        src: ["build/#{repo}.js", './README.md']
-        options:
-          destination: "doc/bower-#{repo}"
-          template: 'template'
-          configure: "jsdoc-conf.json"
+    jsdoc: repoTargets
+        options: {}
+        amd:
+          src: ['src/**/*.js', './README.md']
+          options:
+            destination: 'doc/amd'
+            template: 'template'
+            configure: "jsdoc-conf.json"
+      ,
+        (repo)->
+          src: ["build/#{repo}.js", './README.md']
+          options:
+            destination: "doc/pkg-#{repo}"
+            template: 'template'
+            configure: "jsdoc-conf.json"
 
     requirejs: repoTargets
         baseUrl: "src"
@@ -82,6 +84,10 @@ module.exports = (grunt)->
             bundles:
               "#{if repo.match('jquery') then 'util/jquery' else 'util/lodash'}": ['util']
 
+    clean:
+      build: ["build"]
+      doc: ["doc"]
+      js: ["js"]
     copy:
       'backward-compatible':
         # For backward compatibility, copy jquery.cloudianry.js and vendor files to the js folder
@@ -108,12 +114,12 @@ module.exports = (grunt)->
         ]
       dist:
         files: for repo in repos
-          {'src': "build/#{repo}.js", 'dest': "../bower/bower-#{repo}/#{repo}.js"}
+          {'src': "build/#{repo}.js", 'dest': "../pkg/pkg-#{repo}/#{repo}.js"}
       doc:
         files: for repo in repos
           expand: true
-          src: ["doc/bower-#{repo}/**"]
-          dest: "../bower/bower-#{repo}/"
+          src: ["doc/pkg-#{repo}/**"]
+          dest: "../pkg/pkg-#{repo}/"
 
     version:
       options:
@@ -126,18 +132,19 @@ module.exports = (grunt)->
         src: ['src/cloudinary.coffee']
       dist:
         files: for repo in repos
-          src: ["../bower/bower-#{repo}/bower.json", "../bower/bower-#{repo}/package.json"]
-          dest: "../bower/bower-#{repo}/"
+          src: ["../pkg/pkg-#{repo}/pkg.json", "../pkg/pkg-#{repo}/package.json"]
+          dest: "../pkg/pkg-#{repo}/"
 
   grunt.loadNpmTasks('grunt-contrib-coffee')
   grunt.loadNpmTasks('grunt-contrib-uglify')
   grunt.loadNpmTasks('grunt-contrib-requirejs')
   grunt.loadNpmTasks('grunt-contrib-copy')
+  grunt.loadNpmTasks('grunt-contrib-clean')
 
   grunt.loadNpmTasks('grunt-jsdoc')
   grunt.loadNpmTasks('grunt-karma')
   grunt.loadNpmTasks('grunt-version')
 
   grunt.registerTask('default', ['coffee', 'requirejs'])
-  grunt.registerTask('build', ['coffee', 'requirejs', 'jsdoc', 'copy:file-upload', 'uglify'])
+  grunt.registerTask('build', ['clean', 'coffee', 'requirejs', 'jsdoc', 'copy:backward-compatible'])
 

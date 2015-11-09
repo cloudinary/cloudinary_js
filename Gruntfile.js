@@ -2,7 +2,7 @@
 (function() {
   module.exports = function(grunt) {
     var repo, repoTargets, repos;
-    repos = ['cloudinary', 'cloudinary-jquery', 'cloudinary-jquery-file-upload'];
+    repos = ['cloudinary-core', 'cloudinary-jquery', 'cloudinary-jquery-file-upload'];
 
     /**
      * Create a task configuration that includes the given options item + a sibling for each target
@@ -56,7 +56,7 @@
               repo = repos[i];
               results.push({
                 src: ["build/" + repo + ".js"],
-                dest: 'build',
+                dest: "build/" + repo + ".min.js",
                 ext: '.min.js'
               });
             }
@@ -68,7 +68,8 @@
         reporters: ['dots'],
         configFile: 'karma.<%= grunt.task.current.target %>.coffee'
       }),
-      jsdoc: {
+      jsdoc: repoTargets({
+        options: {},
         amd: {
           src: ['src/**/*.js', './README.md'],
           options: {
@@ -76,24 +77,17 @@
             template: 'template',
             configure: "jsdoc-conf.json"
           }
-        },
-        dist: (function() {
-          var i, len, results;
-          results = [];
-          for (i = 0, len = repos.length; i < len; i++) {
-            repo = repos[i];
-            results.push({
-              src: ["build/" + repo + ".js", './README.md'],
-              options: {
-                destination: "doc/bower-" + repo,
-                template: 'template',
-                configure: "jsdoc-conf.json"
-              }
-            });
+        }
+      }, function(repo) {
+        return {
+          src: ["build/" + repo + ".js", './README.md'],
+          options: {
+            destination: "doc/pkg-" + repo,
+            template: 'template',
+            configure: "jsdoc-conf.json"
           }
-          return results;
-        })()
-      },
+        };
+      }),
       requirejs: repoTargets({
         baseUrl: "src",
         paths: {
@@ -120,6 +114,11 @@
           }
         };
       }),
+      clean: {
+        build: ["build"],
+        doc: ["doc"],
+        js: ["js"]
+      },
       copy: {
         'backward-compatible': {
           files: [
@@ -142,7 +141,7 @@
               repo = repos[i];
               results.push({
                 'src': "build/" + repo + ".js",
-                'dest': "../bower/bower-" + repo + "/" + repo + ".js"
+                'dest': "../pkg/pkg-" + repo + "/" + repo + ".js"
               });
             }
             return results;
@@ -156,8 +155,8 @@
               repo = repos[i];
               results.push({
                 expand: true,
-                src: ["doc/bower-" + repo + "/**"],
-                dest: "../bower/bower-" + repo + "/"
+                src: ["doc/pkg-" + repo + "/**"],
+                dest: "../pkg/pkg-" + repo + "/"
               });
             }
             return results;
@@ -184,8 +183,8 @@
             for (i = 0, len = repos.length; i < len; i++) {
               repo = repos[i];
               results.push({
-                src: ["../bower/bower-" + repo + "/bower.json", "../bower/bower-" + repo + "/package.json"],
-                dest: "../bower/bower-" + repo + "/"
+                src: ["../pkg/pkg-" + repo + "/pkg.json", "../pkg/pkg-" + repo + "/package.json"],
+                dest: "../pkg/pkg-" + repo + "/"
               });
             }
             return results;
@@ -197,11 +196,12 @@
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-requirejs');
     grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-jsdoc');
     grunt.loadNpmTasks('grunt-karma');
     grunt.loadNpmTasks('grunt-version');
     grunt.registerTask('default', ['coffee', 'requirejs']);
-    return grunt.registerTask('build', ['coffee', 'requirejs', 'jsdoc', 'copy:file-upload', 'uglify']);
+    return grunt.registerTask('build', ['clean', 'coffee', 'requirejs', 'jsdoc', 'copy:backward-compatible']);
   };
 
 }).call(this);

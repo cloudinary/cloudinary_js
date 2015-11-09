@@ -1068,7 +1068,6 @@
          * Set a parent for this object for chaining purposes.
          *
          * @function Transformation#setParent
-         * @protected
          * @param {Object} object - the parent to be assigned to
          * @returns {Transformation} Returns this instance for chaining purposes.
          */
@@ -2198,7 +2197,7 @@
     return Cloudinary = (function() {
       var AKAMAI_SHARED_CDN, CF_SHARED_CDN, DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_SOURCE_TYPES, OLD_AKAMAI_SHARED_CDN, SHARED_CDN, VERSION, absolutize, cdnSubdomainNumber, closestAbove, cloudinaryUrlPrefix, defaultBreakpoints, devicePixelRatioCache, finalizeResourceType, responsiveConfig, responsiveResizeInitialized;
 
-      VERSION = "1.2.3";
+      VERSION = "2.0.0";
 
       CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
 
@@ -2991,11 +2990,14 @@
       }
 
 
-      /** @protected */
+      /** @override */
 
       ImageTag.prototype.closeTag = function() {
         return "";
       };
+
+
+      /** @override */
 
       ImageTag.prototype.attributes = function() {
         var attr;
@@ -3470,7 +3472,7 @@
 (function() {
   (function(root, factory) {
     if ((typeof define === 'function') && define.amd) {
-      return define('alljquery-file-upload',['utf8_encode', 'crc32', 'util', 'transformation', 'configuration', 'tags/htmltag', 'tags/imagetag', 'tags/videotag', 'cloudinary', 'cloudinaryjquery', 'jquery-file-upload'], factory);
+      return define('cloudinary-jquery-file-upload-full',['utf8_encode', 'crc32', 'util', 'transformation', 'configuration', 'tags/htmltag', 'tags/imagetag', 'tags/videotag', 'cloudinary', 'cloudinaryjquery', 'jquery-file-upload'], factory);
     } else if (typeof exports === 'object') {
       return module.exports = factory(require('utf8_encode'), require('crc32'), require('util'), require('transformation'), require('configuration'), require('tags/htmltag'), require('tags/imagetag'), require('tags/videotag'), require('cloudinary'), require('cloudinaryjquery'), require('jquery-file-upload'));
     } else {
