@@ -18,9 +18,30 @@ The direct image upload feature of the plugin is based on https://github.com/blu
 
 ## New API!
 
-The Javascript library has undergone an extensive redesign.
-Previously, the library was deeply coupled with jQuery and the Blueimp upload plugin. In order to cater for developers who do not wish to use jQuery, the library has been split into three libraries:
+The version 2.0.0 release refactors the Cloudinary JavaScript library, and the biggest news is that the newly introduced Core Library is jQuery-independent. The source code has been converted into CoffeeScript and rearranged into classes, and a new build script based on Grunt has been added. The build process produces 3 artifacts:
 
+  * A Core Library that is not dependent on jQuery
+  * A jQuery plugin that includes the Core Library
+  * A Blueimp plugin that includes the jQuery plugin and the Core Library
+  
+In order to publish these libraries in bower and NPM, 3 new Github repositories have been created:
+
+    +------------------------------------+-------------------------------+
+    | Repository                         | Package name                  |
+    +------------------------------------+-------------------------------+
+    |  pkg-cloudinary-core               | cloudinary-core               |
+    |  pkg-cloudinary-jquery             | cloudinary-jquery             |
+    |  pkg-cloudinary-jquery-file-upload | cloudinary-jquery-file-upload | 
+    +------------------------------------+-------------------------------+
+
+The same package names are used in both bower and NPM.
+
+## Backward compatibility
+The cloudinary-jquery-file-upload library is fully backwards compatible with the cloudinary_js library v1.0.25. 
+The relevant Blueimp files can still be found in the `js` folder for backward compatibility. If you rely on the Blueimp 
+files located in the repository’s `js` folder, make sure to update your links to `load-image.all.min.js` which replaces `load-image.min.js` from previous versions. 
+However, we encourage developers to use a dependency manager such as bower or NPM to install the 3rd party libraries, and not to rely on the files in the `js` folder.
+ 
 #### Core Javascript library
 The core Cloudinary JavaScript library which does not depend on jQuery: https://github.com/cloudinary/pkg-cloudinary.
 
