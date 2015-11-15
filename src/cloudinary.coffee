@@ -577,9 +577,12 @@
         if responsive
           container = tag.parentNode
           containerWidth = 0
-          while container and containerWidth == 0
+          while container and !containerWidth
             containerWidth = Util.width(container)
             container = container.parentNode
+            tag_id = container.id or container.nodeName
+            console.log 'tag %s has width %s', tag_id, containerWidth
+
           if containerWidth == 0
             # container doesn't know the size yet. Usually because the image is hidden or outside the DOM.
             return
@@ -610,7 +613,7 @@
       Transformation.new( @config()).fromOptions(options).setParent( this)
 
 )
-
+console.log("cloudinary.coffee")
 #/**
 # * @license
 # * lodash 3.10.0 (Custom Build) <https://lodash.com/>

@@ -459,60 +459,134 @@ describe 'cloudinary', ->
     #expect(new Cloudinary.Transformation(options).toHtmlAttributes()).toEqual({});
     expect(result).toEqual 'custom://res.cloudinary.com/test123/image/upload/test'
 
-
-  it 'should compute breakpoints correctly', ->
-    el = document.createElement('img')
-    expect(cl.calc_breakpoint(el, 1)).toEqual 10
-    expect(cl.calc_breakpoint(el, 10)).toEqual 10
-    expect(cl.calc_breakpoint(el, 11)).toEqual 20
-    cl.config('breakpoints', [
-      50
-      150
-    ])
-    expect(cl.calc_breakpoint(el, 1)).toEqual 50
-    expect(cl.calc_breakpoint(el, 100)).toEqual 150
-    expect(cl.calc_breakpoint(el, 180)).toEqual 150
-
-    cl.config('breakpoints', (width) ->
-      width / 2
-    )
-    expect(cl.calc_breakpoint(el, 100)).toEqual 50
-
-    el.setAttribute( 'data-breakpoints', '70,140')
-    expect(cl.calc_breakpoint(el, 1)).toEqual 70
-    expect(cl.calc_breakpoint(el, 100)).toEqual 140
-
-  it 'should correctly resize responsive images', (done) ->
+  describe "responsive", ()->
+    testDocument = null
     container = undefined
-    img = undefined
-    dpr = cl.device_pixel_ratio()
-    container = document.createElement('div')
-    container.style.width = "101px"
-    fixtureContainer.appendChild(container)
-    img = cl.image('sample.jpg',
-      width: 'auto'
-      dpr: 'auto'
-      crop: 'scale'
-      responsive: true)
-    container.appendChild(img)
-    expect(img.getAttribute('src')).toBeFalsy()
-    cl.responsive()
-    expect(img.getAttribute('src')).toEqual window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_scale,dpr_' + dpr + ',w_101/sample.jpg'
-    container.style.width = "111px"
-    expect(img.getAttribute('src')).toEqual window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_scale,dpr_' + dpr + ',w_101/sample.jpg'
-    window.dispatchEvent(new Event('resize'))
-    window.setTimeout (->
-      # wait(200)
-      expect(img.getAttribute('src')).toEqual window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_scale,dpr_' + dpr + ',w_120/sample.jpg'
+    testWindow = null
+    originWindow = window
+    window.addScript = (src, onload)=>
+      groupName = "addScript " + src
+      console.group(groupName)
+      scriptTag = testDocument.createElement("script")
+      scriptTag.setAttribute("src", src)
+      scriptTag.onload = ()->
+        console.log("loaded %s", src)
+        callback = onload
+        callback.call(this);
+      scriptTag.onerror = ()->
+        console.error("couldn't load script %s", src)
+      testDocument.body.appendChild(scriptTag)
+      originWindow.console.log("added %s to %O", src, testDocument.body.getElementsByTagName('script'))
+      console.groupEnd(groupName)
+    beforeAll(
+      (done)->
+#        done = ()->
+#          console.log("done")
+        testWindow = window.open( "spec-empty-window.html","Cloudinary responsive test", "width=500, height=500")
+        testDocument = testWindow.document
+        console.log(testWindow.location)
+        topContainer = testDocument.createElement('div')
+        testDocument.body.appendChild(topContainer)
+        container = testDocument.createElement('div')
+        topContainer.appendChild(container)
+        window.console.log("before all", container)
+        window.addEventListener "scripts-ready", ()->
+          console.log("Event received")
+        for script in window.document.head.getElementsByTagName('script')
+          src = script.getAttribute("src")
+          if src.match('build')
+            util = if src.match('jquery') then "../bower_components/jquery/dist/jquery.js" else "../bower_components/lodash/lodash.js"
+            next = false
+            addScript.call testWindow, util, ()->
+              me = window
+              mySrc = src
+              me.console.log("util %s loaded, need to load %s", util, mySrc)
+              next = true
+            setTimeout(()->
+                console.log("time's up")
+                next = true
+              ,
+                       3000)
+            while(next)
+              "waitin"
+            console.log("after while")
+            addScript.call testWindow, src, ()->
+              mine = me
+              mine.console.log("cl loaded")
+              mine.console.log("initialize cloudinary on test window")
+              testWindow.cl = new testWindow.cloudinary.Cloudinary( cloud_name: 'test123')
+              mine.console.log( "Cloudinary domain %O", testWindow.cloudinary)
+              mine.console.log( "after new")
+              evt = new Event('scripts-ready')
+              mine.dispatchEvent.call(mine, evt)
+              done()
+
+            break;
+        console.log("almost done")
+#        done()
+        console.log( "after for script")
+      ,
+      10000
+    )
+    afterAll ()->
+#      testWindow.close()
+
+    it 'should compute breakpoints correctly', ->
+      el = document.createElement('img')
+      expect(cl.calc_breakpoint(el, 1)).toEqual 10
+      expect(cl.calc_breakpoint(el, 10)).toEqual 10
+      expect(cl.calc_breakpoint(el, 11)).toEqual 20
+      cl.config('breakpoints', [
+        50
+        150
+      ])
+      expect(cl.calc_breakpoint(el, 1)).toEqual 50
+      expect(cl.calc_breakpoint(el, 100)).toEqual 150
+      expect(cl.calc_breakpoint(el, 180)).toEqual 150
+
+      cl.config('breakpoints', (width) ->
+        width / 2
+      )
+      expect(cl.calc_breakpoint(el, 100)).toEqual 50
+
+      el.setAttribute( 'data-breakpoints', '70,140')
+      expect(cl.calc_breakpoint(el, 1)).toEqual 70
+      expect(cl.calc_breakpoint(el, 100)).toEqual 140
+
+    it 'should correctly resize responsive images', (done) ->
+      dpr = testWindow.cl.device_pixel_ratio()
+
+      console.log("test", container)
       container.style.width = "101px"
-      window.setTimeout (->
+      anchor = testDocument.createElement('a')
+      container.appendChild(anchor)
+      img = testWindow.cl.image('sample.jpg',
+        width: 'auto'
+        dpr: 'auto'
+        crop: 'scale'
+        responsive: true)
+      anchor.appendChild(img)
+
+      testWindow.cl.responsive()
+      expect(img.getAttribute('src')).toBeFalsy()
+
+#      cl.responsive()
+      expect(img.getAttribute('src')).toEqual testWindow.location.protocol + '//res.cloudinary.com/test123/image/upload/c_scale,dpr_' + dpr + ',w_101/sample.jpg'
+      container.style.width = "111px"
+      expect(img.getAttribute('src')).toEqual testWindow.location.protocol + '//res.cloudinary.com/test123/image/upload/c_scale,dpr_' + dpr + ',w_101/sample.jpg'
+      testWindow.dispatchEvent(new Event('resize'))
+      testWindow.setTimeout (->
         # wait(200)
-        expect(img.getAttribute('src')).toEqual window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_scale,dpr_' + dpr + ',w_120/sample.jpg'
-        done()
+        expect(img.getAttribute('src')).toEqual testWindow.location.protocol + '//res.cloudinary.com/test123/image/upload/c_scale,dpr_' + dpr + ',w_120/sample.jpg'
+        container.style.width = "101px"
+        testWindow.setTimeout (->
+          # wait(200)
+          expect(img.getAttribute('src')).toEqual testWindow.location.protocol + '//res.cloudinary.com/test123/image/upload/c_scale,dpr_' + dpr + ',w_120/sample.jpg'
+          done()
+
+        ), 200
 
       ), 200
-
-    ), 200
 
   it 'should traverse up the DOM to find a parent that has clientWidth', ->
     aContainer = undefined

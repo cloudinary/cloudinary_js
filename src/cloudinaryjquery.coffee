@@ -121,7 +121,7 @@
       if responsive
         container = this.parentNode
         containerWidth = 0
-        while container and containerWidth == 0
+        while container and !containerWidth == 0
           containerWidth = container.clientWidth || 0
           container = container.parentNode
         if containerWidth == 0
