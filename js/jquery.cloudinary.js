@@ -2195,7 +2195,7 @@
      */
     var Cloudinary;
     return Cloudinary = (function() {
-      var AKAMAI_SHARED_CDN, CF_SHARED_CDN, DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_SOURCE_TYPES, OLD_AKAMAI_SHARED_CDN, SHARED_CDN, VERSION, absolutize, cdnSubdomainNumber, closestAbove, cloudinaryUrlPrefix, defaultBreakpoints, devicePixelRatioCache, finalizeResourceType, responsiveConfig, responsiveResizeInitialized;
+      var AKAMAI_SHARED_CDN, CF_SHARED_CDN, DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_SOURCE_TYPES, OLD_AKAMAI_SHARED_CDN, SHARED_CDN, VERSION, absolutize, cdnSubdomainNumber, closestAbove, cloudinaryUrlPrefix, defaultBreakpoints, finalizeResourceType;
 
       VERSION = "2.0.0";
 
@@ -2213,12 +2213,6 @@
       };
 
       DEFAULT_VIDEO_SOURCE_TYPES = ['webm', 'mp4', 'ogv'];
-
-      devicePixelRatioCache = {};
-
-      responsiveConfig = {};
-
-      responsiveResizeInitialized = false;
 
 
       /**
@@ -2263,6 +2257,9 @@
 
       function Cloudinary(options) {
         var configuration;
+        this.devicePixelRatioCache = {};
+        this.responsiveConfig = {};
+        this.responsiveResizeInitialized = false;
         configuration = new cloudinary.Configuration(options);
         this.config = function(newConfig, newValue) {
           return configuration.config(newConfig, newValue);
@@ -2662,16 +2659,16 @@
 
       Cloudinary.prototype.responsive = function(options) {
         var ref, ref1, responsiveResize, timeout;
-        responsiveConfig = Util.merge(responsiveConfig || {}, options);
-        this.cloudinary_update('img.cld-responsive, img.cld-hidpi', responsiveConfig);
-        responsiveResize = (ref = (ref1 = responsiveConfig['responsive_resize']) != null ? ref1 : this.config('responsive_resize')) != null ? ref : true;
-        if (responsiveResize && !responsiveResizeInitialized) {
-          responsiveConfig.resizing = responsiveResizeInitialized = true;
+        this.responsiveConfig = Util.merge(this.responsiveConfig || {}, options);
+        this.cloudinary_update('img.cld-responsive, img.cld-hidpi', this.responsiveConfig);
+        responsiveResize = (ref = (ref1 = this.responsiveConfig['responsive_resize']) != null ? ref1 : this.config('responsive_resize')) != null ? ref : true;
+        if (responsiveResize && !this.responsiveResizeInitialized) {
+          this.responsiveConfig.resizing = this.responsiveResizeInitialized = true;
           timeout = null;
           return window.addEventListener('resize', (function(_this) {
             return function() {
               var debounce, ref2, ref3, reset, run, wait;
-              debounce = (ref2 = (ref3 = responsiveConfig['responsive_debounce']) != null ? ref3 : _this.config('responsive_debounce')) != null ? ref2 : 100;
+              debounce = (ref2 = (ref3 = _this.responsiveConfig['responsive_debounce']) != null ? ref3 : _this.config('responsive_debounce')) != null ? ref2 : 100;
               reset = function() {
                 if (timeout) {
                   clearTimeout(timeout);
@@ -2679,7 +2676,7 @@
                 }
               };
               run = function() {
-                return _this.cloudinary_update('img.cld-responsive', responsiveConfig);
+                return _this.cloudinary_update('img.cld-responsive', _this.responsiveConfig);
               };
               wait = function() {
                 reset();
@@ -2747,14 +2744,14 @@
       Cloudinary.prototype.device_pixel_ratio = function() {
         var dpr, dprString, dprUsed;
         dpr = (typeof window !== "undefined" && window !== null ? window.devicePixelRatio : void 0) || 1;
-        dprString = devicePixelRatioCache[dpr];
+        dprString = this.devicePixelRatioCache[dpr];
         if (!dprString) {
           dprUsed = closestAbove(this.supported_dpr_values, dpr);
           dprString = dprUsed.toString();
           if (dprString.match(/^\d+$/)) {
             dprString += '.0';
           }
-          devicePixelRatioCache[dpr] = dprString;
+          this.devicePixelRatioCache[dpr] = dprString;
         }
         return dprString;
       };
@@ -2876,7 +2873,7 @@
        */
 
       Cloudinary.prototype.cloudinary_update = function(elements, options) {
-        var attrs, container, containerWidth, currentWidth, exact, j, len, ref, ref1, ref2, ref3, ref4, requestedWidth, responsive, responsive_use_breakpoints, src, tag;
+        var attrs, container, containerWidth, currentWidth, exact, j, len, ref, ref1, ref2, ref3, ref4, requestedWidth, responsive_use_breakpoints, src, tag;
         if (options == null) {
           options = {};
         }
@@ -2899,40 +2896,37 @@
           if (!((ref4 = tag.tagName) != null ? ref4.match(/img/i) : void 0)) {
             continue;
           }
+          containerWidth = !0;
           if (options.responsive) {
             Util.addClass(tag, "cld-responsive");
           }
           attrs = {};
           src = Util.getData(tag, 'src-cache') || Util.getData(tag, 'src');
-          if (!src) {
-            return;
-          }
-          responsive = Util.hasClass(tag, 'cld-responsive') && src.match(/\bw_auto\b/);
-          if (responsive) {
-            container = tag.parentNode;
+          if (Util.hasClass(tag, 'cld-responsive') && /\bw_auto\b/.exec(src)) {
             containerWidth = 0;
-            while (container && containerWidth === 0) {
+            container = tag;
+            while (((container = container != null ? container.parentNode : void 0) instanceof Element) && !containerWidth) {
               containerWidth = Util.width(container);
-              container = container.parentNode;
             }
-            if (containerWidth === 0) {
-              return;
-            }
-            requestedWidth = exact ? containerWidth : this.calc_breakpoint(tag, containerWidth);
-            currentWidth = Util.getData(tag, 'width') || 0;
-            if (requestedWidth > currentWidth) {
-              Util.setData(tag, 'width', requestedWidth);
-            } else {
-              requestedWidth = currentWidth;
-            }
-            src = src.replace(/\bw_auto\b/g, 'w_' + requestedWidth);
-            attrs.width = null;
-            if (!options.responsive_preserve_height) {
-              attrs.height = null;
+            if (containerWidth !== 0) {
+              requestedWidth = exact ? containerWidth : this.calc_breakpoint(tag, containerWidth);
+              currentWidth = Util.getData(tag, 'width') || 0;
+              if (requestedWidth > currentWidth) {
+                Util.setData(tag, 'width', requestedWidth);
+              } else {
+                requestedWidth = currentWidth;
+              }
+              src = src.replace(/\bw_auto\b/g, 'w_' + requestedWidth);
+              attrs.width = null;
+              if (!options.responsive_preserve_height) {
+                attrs.height = null;
+              }
             }
           }
-          attrs.src = src.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + this.device_pixel_ratio());
-          Util.setAttributes(tag, attrs);
+          if (containerWidth !== 0) {
+            attrs.src = src.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + this.device_pixel_ratio());
+            Util.setAttributes(tag, attrs);
+          }
         }
         return this;
       };
@@ -3159,48 +3153,45 @@
     * - responsive_preserve_height: if set to true, original css height is perserved. Should only be used if the transformation supports different aspect ratios.
      */
     jQuery.fn.cloudinary_update = function(options) {
-      var exact, ref, ref1, responsive_use_stoppoints;
+      var exact, ref, ref1, ref2, ref3, responsive_use_breakpoints;
       if (options == null) {
         options = {};
       }
-      responsive_use_stoppoints = (ref = (ref1 = options['responsive_use_stoppoints']) != null ? ref1 : jQuery.cloudinary.config('responsive_use_stoppoints')) != null ? ref : 'resize';
-      exact = !responsive_use_stoppoints || responsive_use_stoppoints === 'resize' && !options.resizing;
-      this.filter('img').each(function() {
-        var attrs, container, containerWidth, currentWidth, requestedWidth, responsive, src;
+      responsive_use_breakpoints = (ref = (ref1 = (ref2 = (ref3 = options['responsive_use_breakpoints']) != null ? ref3 : options['responsive_use_stoppoints']) != null ? ref2 : jQuery.cloudinary.config('responsive_use_breakpoints')) != null ? ref1 : jQuery.cloudinary.config('responsive_use_stoppoints')) != null ? ref : 'resize';
+      exact = !responsive_use_breakpoints || responsive_use_breakpoints === 'resize' && !options.resizing;
+      this.filter('img').each(function(i, tag) {
+        var attrs, container, containerWidth, currentWidth, requestedWidth, src;
+        containerWidth = !0;
         if (options.responsive) {
-          jQuery(this).addClass('cld-responsive');
+          Util.addClass(tag, "cld-responsive");
         }
         attrs = {};
-        src = Util.getData(this, 'src-cache') || Util.getData(this, 'src');
-        if (!src) {
-          return;
-        }
-        responsive = Util.hasClass(this, 'cld-responsive') && src.match(/\bw_auto\b/);
-        if (responsive) {
-          container = this.parentNode;
+        src = Util.getData(tag, 'src-cache') || Util.getData(tag, 'src');
+        if (Util.hasClass(tag, 'cld-responsive') && /\bw_auto\b/.exec(src)) {
           containerWidth = 0;
-          while (container && containerWidth === 0) {
-            containerWidth = container.clientWidth || 0;
-            container = container.parentNode;
+          container = tag;
+          while (((container = container != null ? container.parentNode : void 0) instanceof Element) && !containerWidth) {
+            containerWidth = Util.width(container);
           }
-          if (containerWidth === 0) {
-            return;
-          }
-          requestedWidth = exact ? containerWidth : jQuery.cloudinary.calc_breakpoint(this, containerWidth);
-          currentWidth = Util.getData(this, 'width') || 0;
-          if (requestedWidth > currentWidth) {
-            Util.setData(this, 'width', requestedWidth);
-          } else {
-            requestedWidth = currentWidth;
-          }
-          src = src.replace(/\bw_auto\b/g, 'w_' + requestedWidth);
-          attrs.width = null;
-          if (!options.responsive_preserve_height) {
-            attrs.height = null;
+          if (containerWidth !== 0) {
+            requestedWidth = exact ? containerWidth : jQuery.cloudinary.calc_breakpoint(tag, containerWidth);
+            currentWidth = Util.getData(tag, 'width') || 0;
+            if (requestedWidth > currentWidth) {
+              Util.setData(tag, 'width', requestedWidth);
+            } else {
+              requestedWidth = currentWidth;
+            }
+            src = src.replace(/\bw_auto\b/g, 'w_' + requestedWidth);
+            attrs.width = null;
+            if (!options.responsive_preserve_height) {
+              attrs.height = null;
+            }
           }
         }
-        attrs.src = src.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + jQuery.cloudinary.device_pixel_ratio());
-        return jQuery(this).attr(attrs);
+        if (containerWidth !== 0) {
+          attrs.src = src.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + jQuery.cloudinary.device_pixel_ratio());
+          return Util.setAttributes(tag, attrs);
+        }
       });
       return this;
     };
@@ -3239,7 +3230,6 @@
         'type': 'fetch'
       }));
     };
-    cloudinary.CloudinaryJQuery = CloudinaryJQuery;
     jQuery.cloudinary = new CloudinaryJQuery();
     jQuery.cloudinary.fromDocument();
     return CloudinaryJQuery;

@@ -213,4 +213,3 @@ describe "Cloudinary.VideoTag", ->
       expect(element?.nodeType).toBe(1) # element
       expect(element.tagName).toMatch /div/i
 
-  

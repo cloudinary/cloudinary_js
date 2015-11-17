@@ -1,0 +1,22 @@
+{
+  "name": "Cloudinary JS tests",
+  "homepage": "https://github.com/cloudinary/cloudinary_js",
+  "authors": [
+    "Cloudinary <info@cloudinary.com>"
+  ],
+  "description": "A test project used in the automated tests",
+  "main": "",
+  "moduleType": [],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "~3.3.5"
+  }
+}

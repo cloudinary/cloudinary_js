@@ -538,78 +538,13 @@
       }
       return results;
     });
-    it('should allow to override protocol', function() {
+    return it('should allow to override protocol', function() {
       var options;
       options = {
         'protocol': 'custom:'
       };
       result = $.cloudinary.url('test', options);
       return expect(result).toEqual('custom://res.cloudinary.com/test123/image/upload/test');
-    });
-    it('should compute breakpoints correctly', function() {
-      var el;
-      el = $('<img/>');
-      expect($.cloudinary.calc_breakpoint(el, 1)).toEqual(10);
-      expect($.cloudinary.calc_breakpoint(el, 10)).toEqual(10);
-      expect($.cloudinary.calc_breakpoint(el, 11)).toEqual(20);
-      $.cloudinary.config().breakpoints = [50, 150];
-      expect($.cloudinary.calc_breakpoint(el, 1)).toEqual(50);
-      expect($.cloudinary.calc_breakpoint(el, 100)).toEqual(150);
-      expect($.cloudinary.calc_breakpoint(el, 180)).toEqual(150);
-      $.cloudinary.config().breakpoints = function(width) {
-        return width / 2;
-      };
-      expect($.cloudinary.calc_breakpoint(el, 100)).toEqual(50);
-      $(el).data('breakpoints', '70,140');
-      expect($.cloudinary.calc_breakpoint(el, 1)).toEqual(70);
-      return expect($.cloudinary.calc_breakpoint(el, 100)).toEqual(140);
-    });
-    it('should correctly resize responsive images', function(done) {
-      var container, dpr, img;
-      container = void 0;
-      img = void 0;
-      dpr = $.cloudinary.device_pixel_ratio();
-      container = $('<div></div>').css({
-        width: 101
-      }).appendTo(fixtureContainer);
-      img = $.cloudinary.image('sample.jpg', {
-        width: 'auto',
-        dpr: 'auto',
-        crop: 'scale',
-        responsive: true
-      }).appendTo(container);
-      expect(img.attr('src')).toBeUndefined();
-      $.cloudinary.responsive();
-      expect(img.attr('src')).toEqual(window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_scale,dpr_' + dpr + ',w_101/sample.jpg');
-      container.css('width', 111);
-      expect(img.attr('src')).toEqual(window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_scale,dpr_' + dpr + ',w_101/sample.jpg');
-      $(window).resize();
-      return window.setTimeout((function() {
-        expect(img.attr('src')).toEqual(window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_scale,dpr_' + dpr + ',w_120/sample.jpg');
-        container.css('width', 101);
-        return window.setTimeout((function() {
-          expect(img.attr('src')).toEqual(window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_scale,dpr_' + dpr + ',w_120/sample.jpg');
-          return done();
-        }), 200);
-      }), 200);
-    });
-    return it('should traverse up the DOM to find a parent that has clientWidth', function() {
-      var aContainer, divContainer, img;
-      aContainer = void 0;
-      divContainer = void 0;
-      img = void 0;
-      divContainer = $('<div>').css({
-        width: 101
-      }).appendTo(fixtureContainer);
-      aContainer = $('<a>').appendTo(divContainer);
-      img = $.cloudinary.image('sample.jpg', {
-        width: 'auto',
-        dpr: 'auto',
-        crop: 'scale',
-        responsive: true
-      }).appendTo(aContainer);
-      $.cloudinary.responsive();
-      return expect(img.attr('src')).not.toEqual(void 0);
     });
   });
 

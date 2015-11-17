@@ -1,38 +1,37 @@
 describe 'cloudinary', ()->
-  cl = {}
-  fixtureContainer = undefined
-  test_cloudinary_url = (public_id, options, expected_url, expected_options) ->
-    result = cl.url(public_id, options)
-    expect(new cloudinary.Transformation(options).toHtmlAttributes()).toEqual(expected_options);
-    expect(result).toEqual expected_url
-
-  beforeEach ()->
-    cl = new cloudinary.Cloudinary(cloud_name: 'test123')
-    fixtureContainer = document.createElement('div')
-    fixtureContainer.id="fixture";
-    document.body.appendChild(fixtureContainer)
-
-  afterEach ()->
-    fixtureContainer.remove()
-
+  defaultConfig = cloud_name: 'demo'
+  cl = null
   describe "responsive", ()->
+    fixtureContainer = undefined
     testDocument = null
     container = undefined
     testWindow = null
-    originWindow = window
 
     beforeAll (done)->
-        testWindow = window.open( "spec-empty-window.html","Cloudinary responsive test", "width=500, height=500")
-        testDocument = testWindow.document
-        testWindow.addEventListener 'load', ()->
+      # Open a new window with test HTML. A dynamic title is required in order to open a *new* window each time even if
+      # previous window was not closed.
+      testWindow = window.open( "responsive-jquery-test.html","Cloudinary test #{(new Date()).toLocaleString()}", "width=500, height=500")
+
+      testWindow.addEventListener 'load', ()=>
+          testDocument = testWindow.document
           image1 = testDocument.getElementById('image1')
           expect(image1.getAttribute('src')).toBeDefined()
           done()
+        , false
 
     afterAll ()->
       testWindow.close()
 
-    resizeWindow = (window)->
+    beforeEach ()->
+      cl = new cloudinary.Cloudinary(cloud_name: 'demo')
+      fixtureContainer = document.createElement('div')
+      fixtureContainer.id="fixture";
+      document.body.appendChild(fixtureContainer)
+
+    afterEach ()->
+      fixtureContainer.remove()
+
+    triggerResize = (window)->
       evt = window.document.createEvent('UIEvents')
       evt.initUIEvent 'resize', true, false, window, 0
       window.dispatchEvent evt
@@ -43,23 +42,23 @@ describe 'cloudinary', ()->
       divContainer = undefined
       img = undefined
       divContainer = document.createElement('div')
-
       divContainer.style.width = 101
       fixtureContainer.appendChild(divContainer)
-
       aContainer = document.createElement('a')
       divContainer.appendChild( aContainer)
       img = cl.image('sample.jpg',
         width: 'auto'
         dpr: 'auto'
         crop: 'scale'
-        responsive: true)
+        responsive: true
+      )
       aContainer.appendChild(img)
       cl.responsive()
       expect(img.getAttribute('src')).not.toEqual undefined
 
     it 'should compute breakpoints correctly', ()->
       el = document.createElement('img')
+      fixtureContainer.appendChild(el)
       expect(cl.calc_breakpoint(el, 1)).toEqual 10
       expect(cl.calc_breakpoint(el, 10)).toEqual 10
       expect(cl.calc_breakpoint(el, 11)).toEqual 20
@@ -71,9 +70,9 @@ describe 'cloudinary', ()->
       expect(cl.calc_breakpoint(el, 100)).toEqual 150
       expect(cl.calc_breakpoint(el, 180)).toEqual 150
 
-      cl.config('breakpoints', (width) ->
+      cl.config 'breakpoints', (width) ->
         width / 2
-      )
+
       expect(cl.calc_breakpoint(el, 100)).toEqual 50
 
       el.setAttribute( 'data-breakpoints', '70,140')
@@ -95,26 +94,32 @@ describe 'cloudinary', ()->
       container.appendChild(img)
       expect(img.getAttribute('src')).toBeFalsy()
       cl.responsive()
-      expect(img.getAttribute('src')).toEqual window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_scale,dpr_' + dpr + ',w_101/sample.jpg'
+      expect(img.getAttribute('src')).toEqual window.location.protocol + '//res.cloudinary.com/demo/image/upload/c_scale,dpr_' + dpr + ',w_101/sample.jpg'
       container.style.width = "111px"
-      expect(img.getAttribute('src')).toEqual window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_scale,dpr_' + dpr + ',w_101/sample.jpg'
-      window.dispatchEvent(new Event('resize'))
+      expect(img.getAttribute('src')).toEqual window.location.protocol + '//res.cloudinary.com/demo/image/upload/c_scale,dpr_' + dpr + ',w_101/sample.jpg'
+      triggerResize window
       window.setTimeout ()->
           # wait(200)
-          expect(img.getAttribute('src')).toEqual window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_scale,dpr_' + dpr + ',w_120/sample.jpg'
+          expect(img.getAttribute('src')).toEqual window.location.protocol + '//res.cloudinary.com/demo/image/upload/c_scale,dpr_' + dpr + ',w_120/sample.jpg'
           container.style.width = "101px"
           window.setTimeout ()->
               # wait(200)
-              expect(img.getAttribute('src')).toEqual window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_scale,dpr_' + dpr + ',w_120/sample.jpg'
+              expect(img.getAttribute('src')).toEqual window.location.protocol + '//res.cloudinary.com/demo/image/upload/c_scale,dpr_' + dpr + ',w_120/sample.jpg'
               done()
-            ,
-              200
-        ,
-          200
+            , 200
+        , 200
 
-    it "should not resize images with fixed width containers", ()->
+    it "should not resize images with fixed width containers", (done)->
       image1 = testDocument.getElementById('image1')
       src = image1.getAttribute('src')
       expect(src).toBeDefined()
       currentWidth = src.match(/w_(\d+)/)[1]
+      handler = ()->
+        src = image1.getAttribute('src')
+        newWidth = src.match(/w_(\d+)/)[1]
+        expect(newWidth).toEqual currentWidth
+        testWindow.removeEventListener handler
+        done()
+      testWindow.addEventListener 'resize', handler
+      testWindow.resizeBy(200,0)
 

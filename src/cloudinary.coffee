@@ -31,9 +31,6 @@
     DEFAULT_POSTER_OPTIONS = { format: 'jpg', resource_type: 'video' };
     DEFAULT_VIDEO_SOURCE_TYPES = ['webm', 'mp4', 'ogv'];
 
-    devicePixelRatioCache = {}
-    responsiveConfig = {}
-    responsiveResizeInitialized = false
     ###*
     * @const {Object} Cloudinary.DEFAULT_IMAGE_PARAMS
     * Defaults values for image parameters.
@@ -70,6 +67,11 @@
      *var imgTag = cl.image("myPicID");
     ###
     constructor: (options)->
+
+      @devicePixelRatioCache= {}
+      @responsiveConfig= {}
+      @responsiveResizeInitialized= false
+
       configuration = new cloudinary.Configuration(options)
 
       # Provided for backward compatibility
@@ -377,14 +379,14 @@
      * @function Cloudinary#responsive
     ###
     responsive: (options) ->
-      responsiveConfig = Util.merge(responsiveConfig or {}, options)
-      @cloudinary_update 'img.cld-responsive, img.cld-hidpi', responsiveConfig
-      responsiveResize = responsiveConfig['responsive_resize'] ? @config('responsive_resize') ? true
-      if responsiveResize and !responsiveResizeInitialized
-        responsiveConfig.resizing = responsiveResizeInitialized = true
+      @responsiveConfig = Util.merge(@responsiveConfig or {}, options)
+      @cloudinary_update 'img.cld-responsive, img.cld-hidpi', @responsiveConfig
+      responsiveResize = @responsiveConfig['responsive_resize'] ? @config('responsive_resize') ? true
+      if responsiveResize and !@responsiveResizeInitialized
+        @responsiveConfig.resizing = @responsiveResizeInitialized = true
         timeout = null
         window.addEventListener 'resize', =>
-          debounce = responsiveConfig['responsive_debounce'] ? @config('responsive_debounce') ? 100
+          debounce = @responsiveConfig['responsive_debounce'] ? @config('responsive_debounce') ? 100
 
           reset = ->
             if timeout
@@ -392,7 +394,7 @@
               timeout = null
 
           run = =>
-            @cloudinary_update 'img.cld-responsive', responsiveConfig
+            @cloudinary_update 'img.cld-responsive', @responsiveConfig
 
           wait = ->
             reset()
@@ -434,14 +436,14 @@
     ###
     device_pixel_ratio: ->
       dpr = window?.devicePixelRatio or 1
-      dprString = devicePixelRatioCache[dpr]
+      dprString = @devicePixelRatioCache[dpr]
       if !dprString
         # Find closest supported DPR (to work correctly with device zoom)
         dprUsed = closestAbove(@supported_dpr_values, dpr)
         dprString = dprUsed.toString()
         if dprString.match(/^\d+$/)
           dprString += '.0'
-        devicePixelRatioCache[dpr] = dprString
+        @devicePixelRatioCache[dpr] = dprString
       dprString
     supported_dpr_values: [
       0.75
@@ -508,7 +510,6 @@
         cdnPart = ""
         subdomain = if options.cdn_subdomain then 'a'+((crc32(publicId)%5)+1)+'.' else ''
         host = options.cname
-        #      path = ""
 
       [protocol, cdnPart, subdomain, host, path].join("")
 
@@ -538,6 +539,20 @@
       @cloudinary_update( images, options)
       this
 
+    applyBreakpoints = (tag, width, options)->
+      responsive_use_breakpoints = options['responsive_use_breakpoints'] ? options['responsive_use_stoppoints'] ?
+        @config('responsive_use_breakpoints') ? @config('responsive_use_stoppoints') ? 'resize'
+      if (!responsive_use_breakpoints) || (responsive_use_breakpoints == 'resize' and !options.resizing)
+        width
+      else
+        @calc_breakpoint(tag, width)
+
+    parentWidth = (element) ->
+      containerWidth = 0
+      while ((element = element?.parentNode) instanceof Element) and !containerWidth
+        containerWidth = Util.width(element)
+      containerWidth
+
     ###*
     * Update hidpi (dpr_auto) and responsive (w_auto) fields according to the current container size and the device pixel ratio.
     * Only images marked with the cld-responsive class have w_auto updated.
@@ -563,44 +578,32 @@
         else
           [elements]
 
-      responsive_use_breakpoints = options['responsive_use_breakpoints'] ? options['responsive_use_stoppoints'] ?
-        @config('responsive_use_breakpoints') ? @config('responsive_use_stoppoints') ? 'resize'
-      exact = !responsive_use_breakpoints || responsive_use_breakpoints == 'resize' and !options.resizing
       for tag in elements when tag.tagName?.match(/img/i)
+        setUrl = true
         if options.responsive
           Util.addClass(tag, "cld-responsive")
-        attrs = {}
         src = Util.getData(tag, 'src-cache') or Util.getData(tag, 'src')
-        if !src
-          return
-        responsive = Util.hasClass(tag, 'cld-responsive') and src.match(/\bw_auto\b/)
-        if responsive
-          container = tag.parentNode
-          containerWidth = 0
-          while container and !containerWidth
-            containerWidth = Util.width(container)
-            container = container.parentNode
-            tag_id = container.id or container.nodeName
-            console.log 'tag %s has width %s', tag_id, containerWidth
+        unless Util.isEmpty(src)
+          # Update dpr according to the device's devicePixelRatio
+          src = src.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + @device_pixel_ratio())
+          if Util.hasClass(tag, 'cld-responsive') and /\bw_auto\b/.exec(src)
+            containerWidth = parentWidth(tag)
+            if containerWidth != 0
+              requestedWidth = applyBreakpoints.call(this, tag, containerWidth, options)
 
-          if containerWidth == 0
-            # container doesn't know the size yet. Usually because the image is hidden or outside the DOM.
-            return
-          requestedWidth = if exact then containerWidth else @calc_breakpoint(tag, containerWidth)
-          currentWidth = Util.getData(tag, 'width') or 0
-          if requestedWidth > currentWidth
-            # requested width is larger, fetch new image
-            Util.setData(tag, 'width', requestedWidth)
-          else
-            # requested width is not larger - keep previous
-            requestedWidth = currentWidth
-          src = src.replace(/\bw_auto\b/g, 'w_' + requestedWidth)
-          attrs.width = null
-          if !options.responsive_preserve_height
-            attrs.height = null
-        # Update dpr according to the device's devicePixelRatio
-        attrs.src = src.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + @device_pixel_ratio())
-        Util.setAttributes(tag, attrs)
+              imageWidth = Util.getData(tag, 'width') or 0
+              if requestedWidth > imageWidth
+                imageWidth = requestedWidth
+              Util.setData(tag, 'width', requestedWidth) # review always set data
+
+              src = src.replace(/\bw_auto\b/g, 'w_' + imageWidth)
+
+              Util.setAttribute(tag, 'width', null)
+              Util.setAttribute(tag, 'height', null) unless options.responsive_preserve_height
+            else
+              # Container doesn't know the size yet - usually because the image is hidden or outside the DOM.
+              setUrl = false
+          Util.setAttribute(tag, 'src', src) if setUrl
       this
 
     ###*
@@ -613,7 +616,7 @@
       Transformation.new( @config()).fromOptions(options).setParent( this)
 
 )
-console.log("cloudinary.coffee")
+
 #/**
 # * @license
 # * lodash 3.10.0 (Custom Build) <https://lodash.com/>

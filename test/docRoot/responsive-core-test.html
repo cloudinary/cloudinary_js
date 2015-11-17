@@ -1,0 +1,54 @@
+<html>
+<head>
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css">
+    <!--<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">-->
+
+    <!-- Custom CSS -->
+    <link href="css/logo-nav.css" rel="stylesheet">
+    <script type="text/javascript" src="../../bower_components/lodash/lodash.js"></script>
+    <script src="../../build/cloudinary-core.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>Bootstrap &amp; Cloudinary Responsive Images</h1>
+    <hr>
+    <div class="row">
+        <div>
+
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab"
+                                                          data-toggle="tab">Home</a></li>
+                <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">
+                    <img id="image1" data-src="http://res.cloudinary.com/demo/image/upload/w_auto/smiling_man.jpg"
+                         class="cld-responsive"></a></li>
+                <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">
+                    <img id="image2" data-src="http://res.cloudinary.com/demo/image/upload/w_auto/sample.jpg"
+                         class="cld-responsive">
+                </a></li>
+                <li role="presentation"><a href="#settings" aria-controls="settings" role="tab" data-toggle="tab">Settings</a>
+                </li>
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="home">...</div>
+                <div role="tabpanel" class="tab-pane" id="profile">...</div>
+                <div role="tabpanel" class="tab-pane" id="messages">...</div>
+                <div role="tabpanel" class="tab-pane" id="settings">...</div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <script type="text/javascript">
+        window.onload = function(){
+            cl = cloudinary.Cloudinary.new( {cloud_name: "demo"});
+            cl.responsive();
+        };
+    </script>
+</div>
+</body>
