@@ -188,7 +188,7 @@
             for (i = 0, len = repos.length; i < len; i++) {
               repo = repos[i];
               results.push({
-                src: ["../pkg/pkg-" + repo + "/pkg.json", "../pkg/pkg-" + repo + "/package.json"],
+                src: ["../pkg/pkg-" + repo + "/bower.json", "../pkg/pkg-" + repo + "/package.json"],
                 dest: "../pkg/pkg-" + repo + "/"
               });
             }

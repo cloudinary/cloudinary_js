@@ -1,5 +1,5 @@
 /*
- * Cloudinary's JavaScript library - Version 2.0.0
+ * Cloudinary's JavaScript library - Version 2.0.1
  * Copyright Cloudinary
  * see https://github.com/cloudinary/cloudinary_js
  */
@@ -2200,9 +2200,9 @@
      */
     var Cloudinary;
     return Cloudinary = (function() {
-      var AKAMAI_SHARED_CDN, CF_SHARED_CDN, DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_SOURCE_TYPES, OLD_AKAMAI_SHARED_CDN, SHARED_CDN, VERSION, absolutize, cdnSubdomainNumber, closestAbove, cloudinaryUrlPrefix, defaultBreakpoints, finalizeResourceType;
+      var AKAMAI_SHARED_CDN, CF_SHARED_CDN, DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_SOURCE_TYPES, OLD_AKAMAI_SHARED_CDN, SHARED_CDN, VERSION, absolutize, applyBreakpoints, cdnSubdomainNumber, closestAbove, cloudinaryUrlPrefix, defaultBreakpoints, finalizeResourceType, parentWidth;
 
-      VERSION = "2.0.0";
+      VERSION = "2.0.1";
 
       CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
 
@@ -2861,6 +2861,25 @@
         return this;
       };
 
+      applyBreakpoints = function(tag, width, options) {
+        var ref, ref1, ref2, ref3, responsive_use_breakpoints;
+        responsive_use_breakpoints = (ref = (ref1 = (ref2 = (ref3 = options['responsive_use_breakpoints']) != null ? ref3 : options['responsive_use_stoppoints']) != null ? ref2 : this.config('responsive_use_breakpoints')) != null ? ref1 : this.config('responsive_use_stoppoints')) != null ? ref : 'resize';
+        if ((!responsive_use_breakpoints) || (responsive_use_breakpoints === 'resize' && !options.resizing)) {
+          return width;
+        } else {
+          return this.calc_breakpoint(tag, width);
+        }
+      };
+
+      parentWidth = function(element) {
+        var containerWidth;
+        containerWidth = 0;
+        while (((element = element != null ? element.parentNode : void 0) instanceof Element) && !containerWidth) {
+          containerWidth = Util.width(element);
+        }
+        return containerWidth;
+      };
+
 
       /**
       * Update hidpi (dpr_auto) and responsive (w_auto) fields according to the current container size and the device pixel ratio.
@@ -2878,7 +2897,7 @@
        */
 
       Cloudinary.prototype.cloudinary_update = function(elements, options) {
-        var attrs, container, containerWidth, currentWidth, exact, j, len, ref, ref1, ref2, ref3, ref4, requestedWidth, responsive_use_breakpoints, src, tag;
+        var containerWidth, imageWidth, j, len, ref, requestedWidth, setUrl, src, tag;
         if (options == null) {
           options = {};
         }
@@ -2894,43 +2913,39 @@
               return [elements];
           }
         })();
-        responsive_use_breakpoints = (ref = (ref1 = (ref2 = (ref3 = options['responsive_use_breakpoints']) != null ? ref3 : options['responsive_use_stoppoints']) != null ? ref2 : this.config('responsive_use_breakpoints')) != null ? ref1 : this.config('responsive_use_stoppoints')) != null ? ref : 'resize';
-        exact = !responsive_use_breakpoints || responsive_use_breakpoints === 'resize' && !options.resizing;
         for (j = 0, len = elements.length; j < len; j++) {
           tag = elements[j];
-          if (!((ref4 = tag.tagName) != null ? ref4.match(/img/i) : void 0)) {
+          if (!((ref = tag.tagName) != null ? ref.match(/img/i) : void 0)) {
             continue;
           }
-          containerWidth = !0;
+          setUrl = true;
           if (options.responsive) {
             Util.addClass(tag, "cld-responsive");
           }
-          attrs = {};
           src = Util.getData(tag, 'src-cache') || Util.getData(tag, 'src');
-          if (Util.hasClass(tag, 'cld-responsive') && /\bw_auto\b/.exec(src)) {
-            containerWidth = 0;
-            container = tag;
-            while (((container = container != null ? container.parentNode : void 0) instanceof Element) && !containerWidth) {
-              containerWidth = Util.width(container);
-            }
-            if (containerWidth !== 0) {
-              requestedWidth = exact ? containerWidth : this.calc_breakpoint(tag, containerWidth);
-              currentWidth = Util.getData(tag, 'width') || 0;
-              if (requestedWidth > currentWidth) {
+          if (!Util.isEmpty(src)) {
+            src = src.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + this.device_pixel_ratio());
+            if (Util.hasClass(tag, 'cld-responsive') && /\bw_auto\b/.exec(src)) {
+              containerWidth = parentWidth(tag);
+              if (containerWidth !== 0) {
+                requestedWidth = applyBreakpoints.call(this, tag, containerWidth, options);
+                imageWidth = Util.getData(tag, 'width') || 0;
+                if (requestedWidth > imageWidth) {
+                  imageWidth = requestedWidth;
+                }
                 Util.setData(tag, 'width', requestedWidth);
+                src = src.replace(/\bw_auto\b/g, 'w_' + imageWidth);
+                Util.setAttribute(tag, 'width', null);
+                if (!options.responsive_preserve_height) {
+                  Util.setAttribute(tag, 'height', null);
+                }
               } else {
-                requestedWidth = currentWidth;
-              }
-              src = src.replace(/\bw_auto\b/g, 'w_' + requestedWidth);
-              attrs.width = null;
-              if (!options.responsive_preserve_height) {
-                attrs.height = null;
+                setUrl = false;
               }
             }
-          }
-          if (containerWidth !== 0) {
-            attrs.src = src.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + this.device_pixel_ratio());
-            Util.setAttributes(tag, attrs);
+            if (setUrl) {
+              Util.setAttribute(tag, 'src', src);
+            }
           }
         }
         return this;
@@ -3158,46 +3173,10 @@
     * - responsive_preserve_height: if set to true, original css height is perserved. Should only be used if the transformation supports different aspect ratios.
      */
     jQuery.fn.cloudinary_update = function(options) {
-      var exact, ref, ref1, ref2, ref3, responsive_use_breakpoints;
       if (options == null) {
         options = {};
       }
-      responsive_use_breakpoints = (ref = (ref1 = (ref2 = (ref3 = options['responsive_use_breakpoints']) != null ? ref3 : options['responsive_use_stoppoints']) != null ? ref2 : jQuery.cloudinary.config('responsive_use_breakpoints')) != null ? ref1 : jQuery.cloudinary.config('responsive_use_stoppoints')) != null ? ref : 'resize';
-      exact = !responsive_use_breakpoints || responsive_use_breakpoints === 'resize' && !options.resizing;
-      this.filter('img').each(function(i, tag) {
-        var attrs, container, containerWidth, currentWidth, requestedWidth, src;
-        containerWidth = !0;
-        if (options.responsive) {
-          Util.addClass(tag, "cld-responsive");
-        }
-        attrs = {};
-        src = Util.getData(tag, 'src-cache') || Util.getData(tag, 'src');
-        if (Util.hasClass(tag, 'cld-responsive') && /\bw_auto\b/.exec(src)) {
-          containerWidth = 0;
-          container = tag;
-          while (((container = container != null ? container.parentNode : void 0) instanceof Element) && !containerWidth) {
-            containerWidth = Util.width(container);
-          }
-          if (containerWidth !== 0) {
-            requestedWidth = exact ? containerWidth : jQuery.cloudinary.calc_breakpoint(tag, containerWidth);
-            currentWidth = Util.getData(tag, 'width') || 0;
-            if (requestedWidth > currentWidth) {
-              Util.setData(tag, 'width', requestedWidth);
-            } else {
-              requestedWidth = currentWidth;
-            }
-            src = src.replace(/\bw_auto\b/g, 'w_' + requestedWidth);
-            attrs.width = null;
-            if (!options.responsive_preserve_height) {
-              attrs.height = null;
-            }
-          }
-        }
-        if (containerWidth !== 0) {
-          attrs.src = src.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + jQuery.cloudinary.device_pixel_ratio());
-          return Util.setAttributes(tag, attrs);
-        }
-      });
+      $.cloudinary.cloudinary_update(this.filter('img').toArray(), options);
       return this;
     };
     webp = null;

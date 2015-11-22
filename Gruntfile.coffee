@@ -144,7 +144,7 @@ module.exports = (grunt)->
         src: ['src/cloudinary.coffee']
       dist:
         files: for repo in repos
-          src: ["../pkg/pkg-#{repo}/pkg.json", "../pkg/pkg-#{repo}/package.json"]
+          src: ["../pkg/pkg-#{repo}/bower.json", "../pkg/pkg-#{repo}/package.json"]
           dest: "../pkg/pkg-#{repo}/"
 
   grunt.loadNpmTasks('grunt-contrib-coffee')

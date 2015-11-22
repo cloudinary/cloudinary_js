@@ -1,4 +1,15 @@
 
+2.0.1 / 2015-11-22
+==================
+
+  * Version 2.0.1
+  * Fix Links in `README.md`
+  * Fix responsive and dpr.
+  * Create a web project for testing at `test/docRoot`. Add a bootstrap responsive html for tests.
+  * Create a separate spec file for responsive tests.
+  * Remove "old" from the JS link in `bootstrap.html`
+  * Fix algorithm used to calculate container width
+
 2.0.0 / 2015-11-10
 ==================
 
