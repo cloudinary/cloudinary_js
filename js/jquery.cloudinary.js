@@ -1,3 +1,8 @@
+/*
+ * Cloudinary's JavaScript library - Version 2.0.0
+ * Copyright Cloudinary
+ * see https://github.com/cloudinary/cloudinary_js
+ */
 (function() {
   (function(root, factory) {
     if ((typeof define === 'function') && define.amd) {

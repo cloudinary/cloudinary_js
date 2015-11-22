@@ -20,6 +20,8 @@ module.exports = (grunt)->
     options
 
   grunt.initConfig
+    pkg: grunt.file.readJSON('package.json')
+
     coffee:
       compile:
         expand: true
@@ -78,6 +80,15 @@ module.exports = (grunt)->
         removeCombined: true
         out: 'build/<%= grunt.task.current.target %>.js'
         name: '<%= grunt.task.current.target %>-full'
+        wrap:
+          start:  """
+            /*
+             * Cloudinary's JavaScript library - Version <%= pkg.version %>
+             * Copyright Cloudinary
+             * see https://github.com/cloudinary/cloudinary_js
+             */
+
+            """
       ,
         (repo)->
           options:
