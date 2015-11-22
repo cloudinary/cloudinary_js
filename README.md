@@ -43,10 +43,10 @@ files located in the repository’s `js` folder, make sure to update your links 
 However, we encourage developers to use a dependency manager such as bower or NPM to install the 3rd party libraries, and not to rely on the files in the `js` folder.
  
 #### Core Javascript library
-The core Cloudinary JavaScript library which does not depend on jQuery: https://github.com/cloudinary/pkg-cloudinary.
+The core Cloudinary JavaScript library which does not depend on jQuery: [https://github.com/cloudinary/pkg-cloudinary-core](https://github.com/cloudinary/pkg-cloudinary-core).
 
 #### jQuery plugin
-If you are using jQuery, you can take advantage of the Cloudinary jQuery plugin at https://github.com/cloudinary/pkg-cloudinary-jquery.
+If you are using jQuery, you can take advantage of the Cloudinary jQuery plugin at [https://github.com/cloudinary/pkg-cloudinary-jquery](https://github.com/cloudinary/pkg-cloudinary-jquery).
 This library include all the functionality of the Core JavaScript Library.
 
 #### jQuery File upload
