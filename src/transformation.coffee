@@ -4,6 +4,7 @@
   else if typeof exports == 'object'
     module.exports = factory(require('configuration'), require('parameters'), require('util'))
   else
+    root.cloudinary ||= {}
     root.cloudinary.Transformation = factory(root.cloudinary.Configuration, root.cloudinary.parameters, root.cloudinary.Util)
 
 )(this,  (Configuration, parameters, Util)->
