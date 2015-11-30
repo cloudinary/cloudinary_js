@@ -1,4 +1,10 @@
 
+2.0.2 / 2015-11-30
+==================
+
+  * Bootstrap fileupload when loading the code directly. Required for backward compatibility.
+  * Verify that cloudinary domain exists when defining the Tranfsormation class
+
 2.0.1 / 2015-11-22
 ==================
 
