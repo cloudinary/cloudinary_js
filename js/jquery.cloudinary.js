@@ -1006,6 +1006,7 @@
     } else if (typeof exports === 'object') {
       return module.exports = factory(require('configuration'), require('parameters'), require('util'));
     } else {
+      root.cloudinary || (root.cloudinary = {});
       return root.cloudinary.Transformation = factory(root.cloudinary.Configuration, root.cloudinary.parameters, root.cloudinary.Util);
     }
   })(this, function(Configuration, parameters, Util) {
@@ -3233,7 +3234,13 @@
     } else if (typeof exports === 'object') {
       return module.exports = factory(require('jquery'), require('util'), require('cloudinaryjquery'));
     } else {
-      return root.cloudinary.CloudinaryJQuery = factory(jQuery, root.cloudinary.Util, root.cloudinary.CloudinaryJQuery);
+      root.cloudinary.CloudinaryJQuery = factory(jQuery, root.cloudinary.Util, root.cloudinary.CloudinaryJQuery);
+      $(function() {
+        if ($.fn.cloudinary_fileupload !== void 0) {
+          return $('input.cloudinary-fileupload[type=file]').cloudinary_fileupload();
+        }
+      });
+      return root.cloudinary.CloudinaryJQuery;
     }
   })(this, function(jQuery, Util, CloudinaryJQuery) {
 

@@ -8,7 +8,10 @@
     module.exports = factory(require('jquery'), require('util'), require('cloudinaryjquery'))
   else
     root.cloudinary.CloudinaryJQuery = factory(jQuery, root.cloudinary.Util, root.cloudinary.CloudinaryJQuery)
-
+    $ ->
+      if $.fn.cloudinary_fileupload != undefined
+        $('input.cloudinary-fileupload[type=file]').cloudinary_fileupload()
+    root.cloudinary.CloudinaryJQuery
 
 )(this,  (jQuery, Util, CloudinaryJQuery)->
   ###*
