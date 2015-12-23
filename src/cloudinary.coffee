@@ -72,7 +72,7 @@
       @responsiveConfig= {}
       @responsiveResizeInitialized= false
 
-      configuration = new cloudinary.Configuration(options)
+      configuration = new Configuration(options)
 
       # Provided for backward compatibility
       @config= (newConfig, newValue) ->
