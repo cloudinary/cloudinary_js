@@ -1,7 +1,8 @@
 (function() {
   describe('cloudinary', function() {
-    var cl, fixtureContainer, layer, layers, test_cloudinary_url;
+    var cl, fixtureContainer, layer, layers, protocol, test_cloudinary_url;
     cl = {};
+    protocol = window.location.protocol === "file:" ? "http:" : window.location.protocol;
     fixtureContainer = void 0;
     test_cloudinary_url = function(public_id, options, expected_url, expected_options) {
       var result;
@@ -21,12 +22,12 @@
       return fixtureContainer.remove();
     });
     it('should use cloud_name from config', function() {
-      return test_cloudinary_url('test', {}, window.location.protocol + '//res.cloudinary.com/test123/image/upload/test', {});
+      return test_cloudinary_url('test', {}, protocol + '//res.cloudinary.com/test123/image/upload/test', {});
     });
     it('should allow overriding cloud_name in options', function() {
       return test_cloudinary_url('test', {
         cloud_name: 'test321'
-      }, window.location.protocol + '//res.cloudinary.com/test321/image/upload/test', {});
+      }, protocol + '//res.cloudinary.com/test321/image/upload/test', {});
     });
     it('should default to akamai if secure', function() {
       return test_cloudinary_url('test', {
@@ -63,27 +64,18 @@
         test_cloudinary_url('test', {
           secure: false
         }, 'http://res.cloudinary.com/test123/image/upload/test', {});
-        test_cloudinary_url('test', {}, 'https://res.cloudinary.com/test123/image/upload/test', {});
-      }
-      if (window.location.protocol === 'file:') {
-        test_cloudinary_url('test', {
-          secure: true
-        }, 'https://res.cloudinary.com/test123/image/upload/test', {});
-        test_cloudinary_url('test', {
-          secure: false
-        }, 'file://res.cloudinary.com/test123/image/upload/test', {});
-        return test_cloudinary_url('test', {}, 'file://res.cloudinary.com/test123/image/upload/test', {});
+        return test_cloudinary_url('test', {}, 'https://res.cloudinary.com/test123/image/upload/test', {});
       }
     });
     it('should not add cloud_name if private_cdn and not secure', function() {
       return test_cloudinary_url('test', {
         private_cdn: true
-      }, window.location.protocol + '//test123-res.cloudinary.com/image/upload/test', {});
+      }, protocol + '//test123-res.cloudinary.com/image/upload/test', {});
     });
     it('should use format from options', function() {
       return test_cloudinary_url('test', {
         format: 'jpg'
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/test.jpg', {});
+      }, protocol + '//res.cloudinary.com/test123/image/upload/test.jpg', {});
     });
     it('should ignore empty values', function() {
       expect(cl.url('test', {
@@ -92,52 +84,52 @@
         flags: void 0,
         startOffset: void 0,
         transformation: void 0
-      })).toBe(window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_crop/test');
+      })).toBe(protocol + '//res.cloudinary.com/test123/image/upload/c_crop/test');
       expect(cl.url('test', {
         width: '',
         crop: 'crop',
         flags: [],
         startOffset: [],
         transformation: []
-      })).toBe(window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_crop/test');
+      })).toBe(protocol + '//res.cloudinary.com/test123/image/upload/c_crop/test');
       expect(cl.url('test', {
         width: '',
         crop: 'crop',
         flags: [],
         startOffset: '',
         transformation: ''
-      })).toBe(window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_crop/test');
+      })).toBe(protocol + '//res.cloudinary.com/test123/image/upload/c_crop/test');
       return expect(cl.url('test', {
         transformation: {}
-      })).toBe(window.location.protocol + '//res.cloudinary.com/test123/image/upload/test');
+      })).toBe(protocol + '//res.cloudinary.com/test123/image/upload/test');
     });
     it('should use width and height from options only if crop is given', function() {
       expect(cl.url('test', {
         width: 100,
         height: 100
-      })).toBe(window.location.protocol + '//res.cloudinary.com/test123/image/upload/test');
+      })).toBe(protocol + '//res.cloudinary.com/test123/image/upload/test');
       return expect(cl.url('test', {
         width: 100,
         height: 100,
         crop: 'crop'
-      })).toBe(window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_crop,h_100,w_100/test');
+      })).toBe(protocol + '//res.cloudinary.com/test123/image/upload/c_crop,h_100,w_100/test');
     });
     it('should not pass width and height to html in case of fit, lfill or limit crop', function() {
       test_cloudinary_url('test', {
         width: 100,
         height: 100,
         crop: 'limit'
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_limit,h_100,w_100/test', {});
+      }, protocol + '//res.cloudinary.com/test123/image/upload/c_limit,h_100,w_100/test', {});
       test_cloudinary_url('test', {
         width: 100,
         height: 100,
         crop: 'lfill'
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_lfill,h_100,w_100/test', {});
+      }, protocol + '//res.cloudinary.com/test123/image/upload/c_lfill,h_100,w_100/test', {});
       return test_cloudinary_url('test', {
         width: 100,
         height: 100,
         crop: 'fit'
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_fit,h_100,w_100/test', {});
+      }, protocol + '//res.cloudinary.com/test123/image/upload/c_fit,h_100,w_100/test', {});
     });
     it('should not pass width and height to html in case angle was used', function() {
       return test_cloudinary_url('test', {
@@ -145,15 +137,15 @@
         height: 100,
         crop: 'scale',
         angle: 'auto'
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/a_auto,c_scale,h_100,w_100/test', {});
+      }, protocol + '//res.cloudinary.com/test123/image/upload/a_auto,c_scale,h_100,w_100/test', {});
     });
     it('should support aspect_ratio', function() {
       test_cloudinary_url('test', {
         aspect_ratio: '1.0'
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/ar_1.0/test', {});
+      }, protocol + '//res.cloudinary.com/test123/image/upload/ar_1.0/test', {});
       return test_cloudinary_url('test', {
         aspect_ratio: '3:2'
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/ar_3:2/test', {});
+      }, protocol + '//res.cloudinary.com/test123/image/upload/ar_3:2/test', {});
     });
     it('should use x, y, radius, prefix, gravity and quality from options', function() {
       return test_cloudinary_url('test', {
@@ -163,17 +155,17 @@
         gravity: 'center',
         quality: 0.4,
         prefix: 'a'
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/g_center,p_a,q_0.4,r_3,x_1,y_2/test', {});
+      }, protocol + '//res.cloudinary.com/test123/image/upload/g_center,p_a,q_0.4,r_3,x_1,y_2/test', {});
     });
     it('should support named tranformation', function() {
       return test_cloudinary_url('test', {
         transformation: 'blip'
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/t_blip/test', {});
+      }, protocol + '//res.cloudinary.com/test123/image/upload/t_blip/test', {});
     });
     it('should support array of named tranformations', function() {
       return test_cloudinary_url('test', {
         transformation: ['blip', 'blop']
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/t_blip.blop/test', {});
+      }, protocol + '//res.cloudinary.com/test123/image/upload/t_blip.blop/test', {});
     });
     it('should support base tranformation', function() {
       return expect(cl.url('test', {
@@ -184,7 +176,7 @@
         },
         crop: 'crop',
         width: 100
-      })).toBe(window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_fill,x_100,y_100/c_crop,w_100/test');
+      })).toBe(protocol + '//res.cloudinary.com/test123/image/upload/c_fill,x_100,y_100/c_crop,w_100/test');
     });
     it('should support array of base tranformations', function() {
       return expect(cl.url('test', {
@@ -200,7 +192,7 @@
         ],
         crop: 'crop',
         width: 100
-      })).toBe(window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_fill,w_200,x_100,y_100/r_10/c_crop,w_100/test');
+      })).toBe(protocol + '//res.cloudinary.com/test123/image/upload/c_fill,w_200,x_100,y_100/r_10/c_crop,w_100/test');
     });
     it('should not include empty tranformations', function() {
       return expect(cl.url('test', {
@@ -211,13 +203,13 @@
             crop: 'fill'
           }, {}
         ]
-      })).toBe(window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_fill,x_100,y_100/test');
+      })).toBe(protocol + '//res.cloudinary.com/test123/image/upload/c_fill,x_100,y_100/test');
     });
     it('should support size', function() {
       return test_cloudinary_url('test', {
         size: '10x10',
         crop: 'crop'
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/c_crop,h_10,w_10/test', {
+      }, protocol + '//res.cloudinary.com/test123/image/upload/c_crop,h_10,w_10/test', {
         width: '10',
         height: '10'
       });
@@ -225,12 +217,12 @@
     it('should use type from options', function() {
       return test_cloudinary_url('test', {
         type: 'facebook'
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/facebook/test', {});
+      }, protocol + '//res.cloudinary.com/test123/image/facebook/test', {});
     });
     it('should use resource_type from options', function() {
       return test_cloudinary_url('test', {
         resource_type: 'raw'
-      }, window.location.protocol + '//res.cloudinary.com/test123/raw/upload/test', {});
+      }, protocol + '//res.cloudinary.com/test123/raw/upload/test', {});
     });
     it('should ignore http links only if type is not given or is asset', function() {
       test_cloudinary_url('http://example.com/', {
@@ -241,57 +233,57 @@
       }, 'http://example.com/', {});
       return test_cloudinary_url('http://example.com/', {
         type: 'fetch'
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/fetch/http://example.com/', {});
+      }, protocol + '//res.cloudinary.com/test123/image/fetch/http://example.com/', {});
     });
     it('should escape fetch urls', function() {
       return test_cloudinary_url('http://blah.com/hello?a=b', {
         type: 'fetch'
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/fetch/http://blah.com/hello%3Fa%3Db', {});
+      }, protocol + '//res.cloudinary.com/test123/image/fetch/http://blah.com/hello%3Fa%3Db', {});
     });
     it('should escape http urls', function() {
       return test_cloudinary_url('http://www.youtube.com/watch?v=d9NF2edxy-M', {
         type: 'youtube'
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/youtube/http://www.youtube.com/watch%3Fv%3Dd9NF2edxy-M', {});
+      }, protocol + '//res.cloudinary.com/test123/image/youtube/http://www.youtube.com/watch%3Fv%3Dd9NF2edxy-M', {});
     });
     it('should support background', function() {
       test_cloudinary_url('test', {
         background: 'red'
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/b_red/test', {});
+      }, protocol + '//res.cloudinary.com/test123/image/upload/b_red/test', {});
       return test_cloudinary_url('test', {
         background: '#112233'
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/b_rgb:112233/test', {});
+      }, protocol + '//res.cloudinary.com/test123/image/upload/b_rgb:112233/test', {});
     });
     it('should support default_image', function() {
       return test_cloudinary_url('test', {
         default_image: 'default'
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/d_default/test', {});
+      }, protocol + '//res.cloudinary.com/test123/image/upload/d_default/test', {});
     });
     it('should support angle', function() {
       return test_cloudinary_url('test', {
         angle: 12
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/a_12/test', {});
+      }, protocol + '//res.cloudinary.com/test123/image/upload/a_12/test', {});
     });
     it('should support format for fetch urls', function() {
       return test_cloudinary_url('http://cloudinary.com/images/logo.png', {
         type: 'fetch',
         format: 'jpg'
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/fetch/f_jpg/http://cloudinary.com/images/logo.png', {});
+      }, protocol + '//res.cloudinary.com/test123/image/fetch/f_jpg/http://cloudinary.com/images/logo.png', {});
     });
     it('should support extenal cname', function() {
       return test_cloudinary_url('test', {
         cname: 'hello.com'
-      }, window.location.protocol + '//hello.com/test123/image/upload/test', {});
+      }, protocol + '//hello.com/test123/image/upload/test', {});
     });
     it('should support extenal cname with cdn_subdomain on', function() {
       return test_cloudinary_url('test', {
         cname: 'hello.com',
         cdn_subdomain: true
-      }, window.location.protocol + '//a2.hello.com/test123/image/upload/test', {});
+      }, protocol + '//a2.hello.com/test123/image/upload/test', {});
     });
     it('should support new cdn_subdomain format', function() {
       return test_cloudinary_url('test', {
         cdn_subdomain: true
-      }, window.location.protocol + '//res-2.cloudinary.com/test123/image/upload/test', {});
+      }, protocol + '//res-2.cloudinary.com/test123/image/upload/test', {});
     });
     it('should support secure_cdn_subdomain false override with secure', function() {
       return test_cloudinary_url('test', {
@@ -311,17 +303,17 @@
     it('should support effect', function() {
       return test_cloudinary_url('test', {
         effect: 'sepia'
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/e_sepia/test', {});
+      }, protocol + '//res.cloudinary.com/test123/image/upload/e_sepia/test', {});
     });
     it('should support effect with param', function() {
       return test_cloudinary_url('test', {
         effect: ['sepia', 10]
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/e_sepia:10/test', {});
+      }, protocol + '//res.cloudinary.com/test123/image/upload/e_sepia:10/test', {});
     });
     it('should support fetch_image', function() {
       var result;
       result = cl.fetch_image('http://example.com/hello.jpg?a=b').getAttribute('src');
-      return expect(result).toEqual(window.location.protocol + '//res.cloudinary.com/test123/image/fetch/http://example.com/hello.jpg%3Fa%3Db');
+      return expect(result).toEqual(protocol + '//res.cloudinary.com/test123/image/fetch/http://example.com/hello.jpg%3Fa%3Db');
     });
     layers = {
       overlay: 'l',
@@ -332,7 +324,7 @@
         var options;
         options = {};
         options[layer] = 'text:hello';
-        return test_cloudinary_url('test', options, window.location.protocol + '//res.cloudinary.com/test123/image/upload/' + layers[layer] + '_text:hello/test', {});
+        return test_cloudinary_url('test', options, protocol + '//res.cloudinary.com/test123/image/upload/' + layers[layer] + '_text:hello/test', {});
       });
       it('should not pass width/height to html for ' + layer, function() {
         var options;
@@ -341,64 +333,64 @@
           width: 100
         };
         options[layer] = 'text:hello';
-        return test_cloudinary_url('test', options, window.location.protocol + '//res.cloudinary.com/test123/image/upload/h_100,' + layers[layer] + '_text:hello,w_100/test', {});
+        return test_cloudinary_url('test', options, protocol + '//res.cloudinary.com/test123/image/upload/h_100,' + layers[layer] + '_text:hello,w_100/test', {});
       });
     }
     it('should support density', function() {
       return test_cloudinary_url('test', {
         density: 150
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/dn_150/test', {});
+      }, protocol + '//res.cloudinary.com/test123/image/upload/dn_150/test', {});
     });
     it('should support page', function() {
       return test_cloudinary_url('test', {
         page: 5
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/pg_5/test', {});
+      }, protocol + '//res.cloudinary.com/test123/image/upload/pg_5/test', {});
     });
     it('should support border', function() {
       test_cloudinary_url('test', {
         border: {
           width: 5
         }
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/bo_5px_solid_black/test', {});
+      }, protocol + '//res.cloudinary.com/test123/image/upload/bo_5px_solid_black/test', {});
       test_cloudinary_url('test', {
         border: {
           width: 5,
           color: '#ffaabbdd'
         }
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/bo_5px_solid_rgb:ffaabbdd/test', {});
+      }, protocol + '//res.cloudinary.com/test123/image/upload/bo_5px_solid_rgb:ffaabbdd/test', {});
       return test_cloudinary_url('test', {
         border: '1px_solid_blue'
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/bo_1px_solid_blue/test', {});
+      }, protocol + '//res.cloudinary.com/test123/image/upload/bo_1px_solid_blue/test', {});
     });
     it('should support flags', function() {
       test_cloudinary_url('test', {
         flags: 'abc'
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/fl_abc/test', {});
+      }, protocol + '//res.cloudinary.com/test123/image/upload/fl_abc/test', {});
       return test_cloudinary_url('test', {
         flags: ['abc', 'def']
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/fl_abc.def/test', {});
+      }, protocol + '//res.cloudinary.com/test123/image/upload/fl_abc.def/test', {});
     });
     it('should support opacity', function() {
       return test_cloudinary_url('test', {
         opacity: 30
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/o_30/test', {});
+      }, protocol + '//res.cloudinary.com/test123/image/upload/o_30/test', {});
     });
     it('should support dpr', function() {
       test_cloudinary_url('test', {
         dpr: 1
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/dpr_1.0/test', {});
+      }, protocol + '//res.cloudinary.com/test123/image/upload/dpr_1.0/test', {});
       test_cloudinary_url('test', {
         dpr: 'auto'
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/dpr_1.0/test', {});
+      }, protocol + '//res.cloudinary.com/test123/image/upload/dpr_1.0/test', {});
       return test_cloudinary_url('test', {
         dpr: 1.5
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/dpr_1.5/test', {});
+      }, protocol + '//res.cloudinary.com/test123/image/upload/dpr_1.5/test', {});
     });
     describe('zoom', function() {
       return it('should support a decimal value', function() {
         return test_cloudinary_url('test', {
           zoom: 1.2
-        }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/z_1.2/test', {});
+        }, protocol + '//res.cloudinary.com/test123/image/upload/z_1.2/test', {});
       });
     });
     describe('window.devicePixelRatio', function() {
@@ -417,22 +409,22 @@
       return it('should update dpr when creating an image tag using $.cloudinary.image()', function() {
         var result;
         result = cl.image('test', options);
-        return expect(result.getAttribute('src')).toBe(window.location.protocol + '//res.cloudinary.com/test123/image/upload/dpr_2.0/test');
+        return expect(result.getAttribute('src')).toBe(protocol + '//res.cloudinary.com/test123/image/upload/dpr_2.0/test');
       });
     });
     it('should add version if public_id contains /', function() {
-      test_cloudinary_url('folder/test', {}, window.location.protocol + '//res.cloudinary.com/test123/image/upload/v1/folder/test', {});
+      test_cloudinary_url('folder/test', {}, protocol + '//res.cloudinary.com/test123/image/upload/v1/folder/test', {});
       return test_cloudinary_url('folder/test', {
         version: 123
-      }, window.location.protocol + '//res.cloudinary.com/test123/image/upload/v123/folder/test', {});
+      }, protocol + '//res.cloudinary.com/test123/image/upload/v123/folder/test', {});
     });
     it('should not add version if public_id contains version already', function() {
-      return test_cloudinary_url('v1234/test', {}, window.location.protocol + '//res.cloudinary.com/test123/image/upload/v1234/test', {});
+      return test_cloudinary_url('v1234/test', {}, protocol + '//res.cloudinary.com/test123/image/upload/v1234/test', {});
     });
     it('should allow to shorted image/upload urls', function() {
       return test_cloudinary_url('test', {
         shorten: true
-      }, window.location.protocol + '//res.cloudinary.com/test123/iu/test', {});
+      }, protocol + '//res.cloudinary.com/test123/iu/test', {});
     });
     it('should disallow url_suffix in shared distribution', function() {
       return expect(function() {
@@ -469,54 +461,54 @@
       test_cloudinary_url('test', {
         url_suffix: 'hello',
         private_cdn: true
-      }, window.location.protocol + '//test123-res.cloudinary.com/images/test/hello', {});
+      }, protocol + '//test123-res.cloudinary.com/images/test/hello', {});
       return test_cloudinary_url('test', {
         url_suffix: 'hello',
         angle: 0,
         private_cdn: true
-      }, window.location.protocol + '//test123-res.cloudinary.com/images/a_0/test/hello', {});
+      }, protocol + '//test123-res.cloudinary.com/images/a_0/test/hello', {});
     });
     it('should put format after url_suffix', function() {
       return test_cloudinary_url('test', {
         url_suffix: 'hello',
         private_cdn: true,
         format: 'jpg'
-      }, window.location.protocol + '//test123-res.cloudinary.com/images/test/hello.jpg', {});
+      }, protocol + '//test123-res.cloudinary.com/images/test/hello.jpg', {});
     });
     it('should support url_suffix for raw uploads', function() {
       return test_cloudinary_url('test', {
         url_suffix: 'hello',
         private_cdn: true,
         resource_type: 'raw'
-      }, window.location.protocol + '//test123-res.cloudinary.com/files/test/hello', {});
+      }, protocol + '//test123-res.cloudinary.com/files/test/hello', {});
     });
     it('should support use_root_path in shared distribution', function() {
       test_cloudinary_url('test', {
         use_root_path: true,
         private_cdn: false
-      }, window.location.protocol + '//res.cloudinary.com/test123/test', {});
+      }, protocol + '//res.cloudinary.com/test123/test', {});
       return test_cloudinary_url('test', {
         use_root_path: true,
         angle: 0,
         private_cdn: false
-      }, window.location.protocol + '//res.cloudinary.com/test123/a_0/test', {});
+      }, protocol + '//res.cloudinary.com/test123/a_0/test', {});
     });
     it('should support root_path for private_cdn', function() {
       test_cloudinary_url('test', {
         use_root_path: true,
         private_cdn: true
-      }, window.location.protocol + '//test123-res.cloudinary.com/test', {});
+      }, protocol + '//test123-res.cloudinary.com/test', {});
       return test_cloudinary_url('test', {
         use_root_path: true,
         angle: 0,
         private_cdn: true
-      }, window.location.protocol + '//test123-res.cloudinary.com/a_0/test', {});
+      }, protocol + '//test123-res.cloudinary.com/a_0/test', {});
     });
     it('should support globally set use_root_path for private_cdn', function() {
       cl.config('use_root_path', true);
       test_cloudinary_url('test', {
         private_cdn: true
-      }, window.location.protocol + '//test123-res.cloudinary.com/test', {});
+      }, protocol + '//test123-res.cloudinary.com/test', {});
       return delete cl.config().use_root_path;
     });
     it('should support use_root_path together with url_suffix for private_cdn', function() {
@@ -524,7 +516,7 @@
         use_root_path: true,
         private_cdn: true,
         url_suffix: 'hello'
-      }, window.location.protocol + '//test123-res.cloudinary.com/test/hello', {});
+      }, protocol + '//test123-res.cloudinary.com/test/hello', {});
     });
     it('should disallow use_root_path if not image/upload', function() {
       expect(function() {
@@ -545,9 +537,9 @@
     it('should generate sprite css urls', function() {
       var result;
       result = cl.sprite_css('test');
-      expect(result).toEqual(window.location.protocol + '//res.cloudinary.com/test123/image/sprite/test.css');
+      expect(result).toEqual(protocol + '//res.cloudinary.com/test123/image/sprite/test.css');
       result = cl.sprite_css('test.css');
-      return expect(result).toEqual(window.location.protocol + '//res.cloudinary.com/test123/image/sprite/test.css');
+      return expect(result).toEqual(protocol + '//res.cloudinary.com/test123/image/sprite/test.css');
     });
     it('should escape public_ids', function() {
       var results, source, tests;
@@ -560,7 +552,7 @@
       };
       results = [];
       for (source in tests) {
-        results.push(test_cloudinary_url(source, {}, window.location.protocol + '//res.cloudinary.com/test123/image/upload/' + tests[source], {}));
+        results.push(test_cloudinary_url(source, {}, protocol + '//res.cloudinary.com/test123/image/upload/' + tests[source], {}));
       }
       return results;
     });

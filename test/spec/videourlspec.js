@@ -1,5 +1,5 @@
 (function() {
-  var cl, test_cloudinary_url;
+  var cl, protocol, test_cloudinary_url;
 
   cl = {};
 
@@ -9,6 +9,8 @@
     expect(new cloudinary.Transformation(options).toHtmlAttributes()).toEqual(expected_options);
     return expect(result).toEqual(expected_url);
   };
+
+  protocol = window.location.protocol === "file:" ? "http:" : window.location.protocol;
 
   describe("Cloudinary::Utils", function() {
     var root_path, upload_path;
@@ -24,7 +26,7 @@
         api_secret: "b"
       });
     });
-    root_path = window.location.protocol + "//res.cloudinary.com/test123";
+    root_path = protocol + "//res.cloudinary.com/test123";
     upload_path = root_path + "/video/upload";
     describe("cloudinary_url", function() {
       var i, len, long, ref, short;
@@ -217,8 +219,8 @@
 
   describe("video", function() {
     var DEFAULT_UPLOAD_PATH, VIDEO_UPLOAD_PATH;
-    VIDEO_UPLOAD_PATH = window.location.protocol + "//res.cloudinary.com/test123/video/upload/";
-    DEFAULT_UPLOAD_PATH = window.location.protocol + "//res.cloudinary.com/test123/image/upload/";
+    VIDEO_UPLOAD_PATH = protocol + "//res.cloudinary.com/test123/video/upload/";
+    DEFAULT_UPLOAD_PATH = protocol + "//res.cloudinary.com/test123/image/upload/";
     beforeEach(function() {
       return cl = new cloudinary.Cloudinary({
         cloud_name: "test123",

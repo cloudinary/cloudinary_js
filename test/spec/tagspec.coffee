@@ -6,7 +6,7 @@ getTag = (tag)->
     [tag.substr(next[0].length), next[0]]
   else
     [tag, null]
-
+protocol = if window.location.protocol == "file:" then "http:" else window.location.protocol
 simpleAssign = (dest, source)->
   dest[key]= value for key, value of source
   dest
@@ -26,7 +26,7 @@ describe "Cloudinary.HtmlTag", ->
     it 'should create a new tag with 2 parameters', ->
       expect( -> new cloudinary.HtmlTag( 'div', {})).not.toThrow()
 describe "Cloudinary.ImageTag", ->
-  DEFAULT_UPLOAD_PATH = "#{window.location.protocol}//res.cloudinary.com/test123/image/upload/"
+  DEFAULT_UPLOAD_PATH = "#{protocol}//res.cloudinary.com/test123/image/upload/"
   options =
     'cloud_name': 'test123'
   it "should create an image tag", ()->
@@ -34,8 +34,8 @@ describe "Cloudinary.ImageTag", ->
     expect(tag).toBe("<img src=\"#{DEFAULT_UPLOAD_PATH}image_id\">")
 
 describe "Cloudinary.VideoTag", ->
-  VIDEO_UPLOAD_PATH = "#{window.location.protocol}//res.cloudinary.com/test123/video/upload/"
-  DEFAULT_UPLOAD_PATH = "#{window.location.protocol}//res.cloudinary.com/test123/image/upload/"
+  VIDEO_UPLOAD_PATH = "#{protocol}//res.cloudinary.com/test123/video/upload/"
+  DEFAULT_UPLOAD_PATH = "#{protocol}//res.cloudinary.com/test123/image/upload/"
   config =
     cloud_name: "test123"
     secure_distribution: null
@@ -51,7 +51,7 @@ describe "Cloudinary.VideoTag", ->
     cl = new cloudinary.Cloudinary( config)
     options = simpleClone(config)
 
-  root_path = "#{window.location.protocol}//res.cloudinary.com/test123"
+  root_path = "#{protocol}//res.cloudinary.com/test123"
   upload_path = "#{root_path}/video/upload"
 
   describe "constructor", ->

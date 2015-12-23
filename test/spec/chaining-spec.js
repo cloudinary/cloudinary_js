@@ -1,5 +1,5 @@
 (function() {
-  var simpleAssign, simpleClone;
+  var protocol, simpleAssign, simpleClone;
 
   simpleAssign = function(dest, source) {
     var key, value;
@@ -14,10 +14,12 @@
     return simpleAssign({}, source);
   };
 
+  protocol = window.location.protocol === "file:" ? "http:" : window.location.protocol;
+
   describe("Chaining", function() {
     var DEFAULT_UPLOAD_PATH, VIDEO_UPLOAD_PATH, config, options;
-    VIDEO_UPLOAD_PATH = window.location.protocol + "//res.cloudinary.com/test123/video/upload/";
-    DEFAULT_UPLOAD_PATH = window.location.protocol + "//res.cloudinary.com/test123/image/upload/";
+    VIDEO_UPLOAD_PATH = protocol + "//res.cloudinary.com/test123/video/upload/";
+    DEFAULT_UPLOAD_PATH = protocol + "//res.cloudinary.com/test123/image/upload/";
     config = {
       cloud_name: "test123",
       secure_distribution: null,
