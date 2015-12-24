@@ -2266,7 +2266,7 @@
         this.devicePixelRatioCache = {};
         this.responsiveConfig = {};
         this.responsiveResizeInitialized = false;
-        configuration = new cloudinary.Configuration(options);
+        configuration = new Configuration(options);
         this.config = function(newConfig, newValue) {
           return configuration.config(newConfig, newValue);
         };
@@ -3456,7 +3456,7 @@
 (function() {
   (function(root, factory) {
     if ((typeof define === 'function') && define.amd) {
-      return define('cloudinary-jquery-file-upload-full',['utf8_encode', 'crc32', 'util', 'transformation', 'configuration', 'tags/htmltag', 'tags/imagetag', 'tags/videotag', 'cloudinary', 'cloudinaryjquery', 'jquery-file-upload'], factory);
+      return define(['utf8_encode', 'crc32', 'util', 'transformation', 'configuration', 'tags/htmltag', 'tags/imagetag', 'tags/videotag', 'cloudinary', 'cloudinaryjquery', 'jquery-file-upload'], factory);
     } else if (typeof exports === 'object') {
       return module.exports = factory(require('utf8_encode'), require('crc32'), require('util'), require('transformation'), require('configuration'), require('tags/htmltag'), require('tags/imagetag'), require('tags/videotag'), require('cloudinary'), require('cloudinaryjquery'), require('jquery-file-upload'));
     } else {

@@ -94,6 +94,8 @@ module.exports = (grunt)->
           options:
             bundles:
               "#{if repo.match('jquery') then 'util/jquery' else 'util/lodash'}": ['util']
+            onBuildWrite: (moduleName, path, contents)->
+                contents.replace("'#{@name}',", "")
 
     clean:
       build: ["build"]

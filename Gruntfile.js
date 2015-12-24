@@ -114,7 +114,10 @@
               obj = {},
               obj["" + (repo.match('jquery') ? 'util/jquery' : 'util/lodash')] = ['util'],
               obj
-            )
+            ),
+            onBuildWrite: function(moduleName, path, contents) {
+              return contents.replace("'" + this.name + "',", "");
+            }
           }
         };
       }),
