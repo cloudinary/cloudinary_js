@@ -3292,6 +3292,9 @@
      */
     jQuery.fn.cloudinary_fileupload = function(options) {
       var cloud_name, initializing, resource_type, type, upload_url;
+      if (!Util.isFunction($.fn.fileupload)) {
+        return this;
+      }
       initializing = !this.data('blueimpFileupload');
       if (initializing) {
         options = jQuery.extend({
@@ -3371,6 +3374,9 @@
      * @returns {jQuery}
      */
     jQuery.fn.cloudinary_upload_url = function(remote_url) {
+      if (!Util.isFunction($.fn.fileupload)) {
+        return this;
+      }
       this.fileupload('option', 'formData').file = remote_url;
       this.fileupload('add', {
         files: [remote_url]
