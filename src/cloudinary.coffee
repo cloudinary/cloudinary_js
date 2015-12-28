@@ -72,7 +72,7 @@
       @responsiveConfig= {}
       @responsiveResizeInitialized= false
 
-      configuration = new cloudinary.Configuration(options)
+      configuration = new Configuration(options)
 
       # Provided for backward compatibility
       @config= (newConfig, newValue) ->
@@ -485,8 +485,6 @@
       # modifications
       if options.protocol
         protocol = options.protocol + '//'
-      else if window?.location?.protocol == 'file:'
-        protocol = 'file://'
 
       if options.private_cdn
         cdnPart = options.cloud_name + "-"

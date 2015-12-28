@@ -5,9 +5,11 @@ simpleAssign = (dest, source)->
 simpleClone = (source)->
   simpleAssign({}, source)
 
+protocol = if window.location.protocol == "file:" then "http:" else window.location.protocol
+
 describe "Chaining", () ->
-  VIDEO_UPLOAD_PATH = "#{window.location.protocol}//res.cloudinary.com/test123/video/upload/"
-  DEFAULT_UPLOAD_PATH = "#{window.location.protocol}//res.cloudinary.com/test123/image/upload/"
+  VIDEO_UPLOAD_PATH = "#{protocol}//res.cloudinary.com/test123/video/upload/"
+  DEFAULT_UPLOAD_PATH = "#{protocol}//res.cloudinary.com/test123/image/upload/"
   config =
     cloud_name: "test123"
     secure_distribution: null

@@ -119,7 +119,6 @@
           src = image1.getAttribute('src');
           newWidth = src.match(/w_(\d+)/)[1];
           expect(newWidth).toEqual(currentWidth);
-          testWindow.removeEventListener(handler);
           return done();
         };
         testWindow.addEventListener('resize', handler);

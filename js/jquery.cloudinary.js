@@ -2266,7 +2266,7 @@
         this.devicePixelRatioCache = {};
         this.responsiveConfig = {};
         this.responsiveResizeInitialized = false;
-        configuration = new cloudinary.Configuration(options);
+        configuration = new Configuration(options);
         this.config = function(newConfig, newValue) {
           return configuration.config(newConfig, newValue);
         };
@@ -2782,7 +2782,7 @@
       };
 
       cloudinaryUrlPrefix = function(publicId, options) {
-        var cdnPart, host, path, protocol, ref, ref1, subdomain;
+        var cdnPart, host, path, protocol, ref, subdomain;
         if (((ref = options.cloud_name) != null ? ref.indexOf("/") : void 0) === 0) {
           return '/res' + options.cloud_name;
         }
@@ -2793,8 +2793,6 @@
         path = "/" + options.cloud_name;
         if (options.protocol) {
           protocol = options.protocol + '//';
-        } else if ((typeof window !== "undefined" && window !== null ? (ref1 = window.location) != null ? ref1.protocol : void 0 : void 0) === 'file:') {
-          protocol = 'file://';
         }
         if (options.private_cdn) {
           cdnPart = options.cloud_name + "-";
@@ -3294,6 +3292,9 @@
      */
     jQuery.fn.cloudinary_fileupload = function(options) {
       var cloud_name, initializing, resource_type, type, upload_url;
+      if (!Util.isFunction($.fn.fileupload)) {
+        return this;
+      }
       initializing = !this.data('blueimpFileupload');
       if (initializing) {
         options = jQuery.extend({
@@ -3373,6 +3374,9 @@
      * @returns {jQuery}
      */
     jQuery.fn.cloudinary_upload_url = function(remote_url) {
+      if (!Util.isFunction($.fn.fileupload)) {
+        return this;
+      }
       this.fileupload('option', 'formData').file = remote_url;
       this.fileupload('add', {
         files: [remote_url]
@@ -3456,7 +3460,7 @@
 (function() {
   (function(root, factory) {
     if ((typeof define === 'function') && define.amd) {
-      return define('cloudinary-jquery-file-upload-full',['utf8_encode', 'crc32', 'util', 'transformation', 'configuration', 'tags/htmltag', 'tags/imagetag', 'tags/videotag', 'cloudinary', 'cloudinaryjquery', 'jquery-file-upload'], factory);
+      return define(['utf8_encode', 'crc32', 'util', 'transformation', 'configuration', 'tags/htmltag', 'tags/imagetag', 'tags/videotag', 'cloudinary', 'cloudinaryjquery', 'jquery-file-upload'], factory);
     } else if (typeof exports === 'object') {
       return module.exports = factory(require('utf8_encode'), require('crc32'), require('util'), require('transformation'), require('configuration'), require('tags/htmltag'), require('tags/imagetag'), require('tags/videotag'), require('cloudinary'), require('cloudinaryjquery'), require('jquery-file-upload'));
     } else {

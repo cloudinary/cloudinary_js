@@ -1,5 +1,5 @@
 (function() {
-  var cl, getTag, simpleAssign, simpleClone, test_cloudinary_url;
+  var cl, getTag, protocol, simpleAssign, simpleClone, test_cloudinary_url;
 
   cl = {};
 
@@ -12,6 +12,8 @@
       return [tag, null];
     }
   };
+
+  protocol = window.location.protocol === "file:" ? "http:" : window.location.protocol;
 
   simpleAssign = function(dest, source) {
     var key, value;
@@ -50,7 +52,7 @@
 
   describe("Cloudinary.ImageTag", function() {
     var DEFAULT_UPLOAD_PATH, options;
-    DEFAULT_UPLOAD_PATH = window.location.protocol + "//res.cloudinary.com/test123/image/upload/";
+    DEFAULT_UPLOAD_PATH = protocol + "//res.cloudinary.com/test123/image/upload/";
     options = {
       'cloud_name': 'test123'
     };
@@ -63,8 +65,8 @@
 
   describe("Cloudinary.VideoTag", function() {
     var DEFAULT_UPLOAD_PATH, VIDEO_UPLOAD_PATH, config, options, root_path, upload_path;
-    VIDEO_UPLOAD_PATH = window.location.protocol + "//res.cloudinary.com/test123/video/upload/";
-    DEFAULT_UPLOAD_PATH = window.location.protocol + "//res.cloudinary.com/test123/image/upload/";
+    VIDEO_UPLOAD_PATH = protocol + "//res.cloudinary.com/test123/video/upload/";
+    DEFAULT_UPLOAD_PATH = protocol + "//res.cloudinary.com/test123/image/upload/";
     config = {
       cloud_name: "test123",
       secure_distribution: null,
@@ -80,7 +82,7 @@
       cl = new cloudinary.Cloudinary(config);
       return options = simpleClone(config);
     });
-    root_path = window.location.protocol + "//res.cloudinary.com/test123";
+    root_path = protocol + "//res.cloudinary.com/test123";
     upload_path = root_path + "/video/upload";
     describe("constructor", function() {
       var v;

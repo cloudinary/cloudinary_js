@@ -79,7 +79,7 @@ module.exports = (grunt)->
         optimize: "none"
         removeCombined: true
         out: 'build/<%= grunt.task.current.target %>.js'
-        name: '<%= grunt.task.current.target %>-full'
+        name: 'namespace/<%= grunt.task.current.target %>'
         wrap:
           start:  """
             /*
@@ -93,7 +93,11 @@ module.exports = (grunt)->
         (repo)->
           options:
             bundles:
+              # build with the correct util library
               "#{if repo.match('jquery') then 'util/jquery' else 'util/lodash'}": ['util']
+            onBuildWrite: (moduleName, path, contents)->
+              # make the module anonymous
+              contents.replace("'#{@name}',", "")
 
     clean:
       build: ["build"]

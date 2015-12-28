@@ -53,6 +53,7 @@
    * @returns {jQuery}
   ###
   jQuery.fn.cloudinary_fileupload = (options) ->
+    return this unless Util.isFunction($.fn.fileupload)
     initializing = !@data('blueimpFileupload')
     if initializing
       options = jQuery.extend({
@@ -133,6 +134,7 @@
    * @returns {jQuery}
   ###
   jQuery.fn.cloudinary_upload_url = (remote_url) ->
+    return this unless Util.isFunction($.fn.fileupload)
     @fileupload('option', 'formData').file = remote_url
     @fileupload 'add', files: [ remote_url ]
     delete @fileupload('option', 'formData').file

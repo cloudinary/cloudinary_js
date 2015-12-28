@@ -4,6 +4,8 @@ test_cloudinary_url = (public_id, options, expected_url, expected_options) ->
   expect(new cloudinary.Transformation(options).toHtmlAttributes()).toEqual(expected_options)
   expect(result).toEqual(expected_url)
 
+protocol = if window.location.protocol == "file:" then "http:" else window.location.protocol
+
 describe "Cloudinary::Utils", ->
   beforeEach ->
     cl = new cloudinary.Cloudinary
@@ -15,8 +17,7 @@ describe "Cloudinary::Utils", ->
       cdn_subdomain: false
       api_key: "1234"
       api_secret: "b"
-
-  root_path = "#{window.location.protocol}//res.cloudinary.com/test123"
+  root_path = "#{protocol}//res.cloudinary.com/test123"
   upload_path = "#{root_path}/video/upload"
 
   describe "cloudinary_url", ->
@@ -113,8 +114,8 @@ describe "Cloudinary::Utils", ->
       expect(path).toEqual("#{upload_path}/movie_id.jpg")
 
 describe "video", ->
-  VIDEO_UPLOAD_PATH = "#{window.location.protocol}//res.cloudinary.com/test123/video/upload/"
-  DEFAULT_UPLOAD_PATH = "#{window.location.protocol}//res.cloudinary.com/test123/image/upload/"
+  VIDEO_UPLOAD_PATH = "#{protocol}//res.cloudinary.com/test123/video/upload/"
+  DEFAULT_UPLOAD_PATH = "#{protocol}//res.cloudinary.com/test123/image/upload/"
 
   beforeEach ->
     cl = new cloudinary.Cloudinary(cloud_name: "test123", api_secret: "1234")

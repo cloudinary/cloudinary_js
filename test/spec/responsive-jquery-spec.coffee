@@ -6,7 +6,6 @@ describe 'Cloudinary', ()->
     testDocument = null
     container = undefined
     testWindow = null
-
     beforeAll (done)->
       # Open a new window with test HTML. A dynamic title is required in order to open a *new* window each time even if
       # previous window was not closed.
@@ -115,7 +114,6 @@ describe 'Cloudinary', ()->
         src = image1.getAttribute('src')
         newWidth = src.match(/w_(\d+)/)[1]
         expect(newWidth).toEqual currentWidth
-        testWindow.removeEventListener handler
         done()
       testWindow.addEventListener 'resize', handler
       testWindow.resizeBy(200,0)
