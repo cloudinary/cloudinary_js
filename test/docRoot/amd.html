@@ -21,25 +21,16 @@
     <script src="../../bower_components/requirejs-bower/require.js"></script>
     <script>
         requirejs.config({
-            //By default load any module IDs from js/lib
             baseUrl: '../../bower_components',
-            //except, if the module ID starts with "app",
-            //load it from the js/app directory. paths
-            //config is relative to the baseUrl, and
-            //never includes a ".js" extension since
-            //the paths config could be for a directory.
             paths: {
                 'jquery': 'jquery/dist/jquery.min',
                 'jquery.ui.widget': 'blueimp-file-upload/js/vendor/jquery.ui.widget',
                 'jquery.iframe-transport': 'blueimp-file-upload/js/jquery.iframe-transport',
                 'jquery.fileupload': 'blueimp-file-upload/js/jquery.fileupload',
-                lodash: 'lodash/lodash',
-                spec: '../test/spec',
-                util: 'util/lodash',
-                'cloudinary-jquery-file-upload': '../build/cloudinary-jquery-file-upload'
+                spec: '../test/spec'
             }
         });
-        require(['jquery','cloudinary-jquery-file-upload'], function ($,cloudinary) {
+        require(['jquery','../build/cloudinary-jquery-file-upload'], function ($,cloudinary) {
             window.cloudinary = cloudinary;
             require(['spec/chaining-spec', 'spec/cloudinary-spec', 'spec/tagspec', 'spec/videourlspec'], function () {
                 bootJasmine();

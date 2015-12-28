@@ -2782,7 +2782,7 @@
       };
 
       cloudinaryUrlPrefix = function(publicId, options) {
-        var cdnPart, host, path, protocol, ref, ref1, subdomain;
+        var cdnPart, host, path, protocol, ref, subdomain;
         if (((ref = options.cloud_name) != null ? ref.indexOf("/") : void 0) === 0) {
           return '/res' + options.cloud_name;
         }
@@ -2793,8 +2793,6 @@
         path = "/" + options.cloud_name;
         if (options.protocol) {
           protocol = options.protocol + '//';
-        } else if ((typeof window !== "undefined" && window !== null ? (ref1 = window.location) != null ? ref1.protocol : void 0 : void 0) === 'file:') {
-          protocol = 'file://';
         }
         if (options.private_cdn) {
           cdnPart = options.cloud_name + "-";

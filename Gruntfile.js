@@ -102,7 +102,7 @@
         optimize: "none",
         removeCombined: true,
         out: 'build/<%= grunt.task.current.target %>.js',
-        name: '<%= grunt.task.current.target %>-full',
+        name: 'namespace/<%= grunt.task.current.target %>',
         wrap: {
           start: "/*\n * Cloudinary's JavaScript library - Version <%= pkg.version %>\n * Copyright Cloudinary\n * see https://github.com/cloudinary/cloudinary_js\n */\n"
         }
