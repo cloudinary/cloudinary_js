@@ -1,4 +1,16 @@
 
+2.0.4 / 2015-12-28
+==================
+
+  * Create `namespace` folder. Move "`-full`" files to the new folder and rename them.
+  * Make root module nameless.
+  * Update dependencies and documentation of script tags.
+  * Check if jQuery.fn.fileupload exists before executing related methods. Used for backward compatibility. Fixes #67
+  * Add test runner for source ("un-packed") AMD.
+  * Don't use `file:` for Cloudinary URL. Modify resources URLs in the test files.
+  * Remove `testWindow.removeEventListener handler` - it was causing the test to fail.
+  * Fix reference to Configuration.
+
 2.0.3 / 2015-11-30
 ==================
 
