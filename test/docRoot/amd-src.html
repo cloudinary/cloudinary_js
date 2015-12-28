@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>cloudinary_js</title>
+    <link rel="shortcut icon" type="image/png"
+          href="../../bower_components/jasmine/images/jasmine_favicon.png">
+
+    <link rel="stylesheet" type="text/css"
+          href="../../bower_components/jasmine/lib/jasmine-core/jasmine.css">
+    <script type="text/javascript"
+            src="../../bower_components/jasmine/lib/jasmine-core/jasmine.js"></script>
+    <script type="text/javascript"
+            src="../../bower_components/jasmine/lib/jasmine-core/jasmine-html.js"></script>
+    <script type="text/javascript"
+            src="../../bower_components/jasmine/lib/jasmine-core/boot.js"></script>
+    <script>
+        window.bootJasmine = window.onload;
+        window.onload = undefined;
+    </script>
+    <script src="../../bower_components/requirejs-bower/require.js"></script>
+</head>
+<body>
+<script>
+    requirejs.config({
+        baseUrl: '../../src',
+        paths: {
+            'jquery': '../bower_components/jquery/dist/jquery.min',
+            'jquery.ui.widget': '../bower_components/blueimp-file-upload/js/vendor/jquery.ui.widget',
+            'jquery.iframe-transport': '../bower_components/blueimp-file-upload/js/jquery.iframe-transport',
+            'jquery.fileupload': '../bower_components/blueimp-file-upload/js/jquery.fileupload',
+            'spec': '../test/spec',
+            'lodash': '../bower_components/lodash/lodash',
+            'util': 'util/lodash'
+        }
+    });
+    require(['jquery','namespace/cloudinary-jquery-file-upload'], function ($,cloudinary) {
+        window.cloudinary = cloudinary;
+        require(['spec/chaining-spec', 'spec/cloudinary-spec', 'spec/tagspec', 'spec/videourlspec'], function () {
+            bootJasmine();
+        })
+    })
+</script>
+
+</body>
+</html>
