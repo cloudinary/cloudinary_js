@@ -47,11 +47,11 @@ The core Cloudinary JavaScript library which does not depend on jQuery: [https:/
 
 #### jQuery plugin
 If you are using jQuery, you can take advantage of the Cloudinary jQuery plugin at [https://github.com/cloudinary/pkg-cloudinary-jquery](https://github.com/cloudinary/pkg-cloudinary-jquery).
-This library include all the functionality of the Core JavaScript Library.
+This library includes all the functionality of the Core JavaScript Library.
 
 #### jQuery File upload
 The Cloudinary jQuery File Upload library extends the Cloudinary jQuery plugin that utilizes the [Blueimp jQuery File Upload library](https://blueimp.github.io/jQuery-File-Upload/) is located at https://github.com/cloudinary/pkg-cloudinary-jquery.
-This library include all the functionality of the Core JavaScript Library and the jQuery plugin.
+This library includes all the functionality of the Core JavaScript Library and the jQuery plugin.
 
 ## Installation
 
