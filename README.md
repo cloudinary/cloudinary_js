@@ -1,4 +1,4 @@
-# Cloudinary
+# Cloudinary Client Side JavaScript Library
 
 Cloudinary is a cloud service that offers a solution to a web application's entire image management pipeline.
 
@@ -8,10 +8,6 @@ Cloudinary offers comprehensive APIs and administration capabilities and is easy
 
 Cloudinary provides URL and HTTP based APIs that can be easily integrated with any Web development framework.
 
-For Javascript, Cloudinary provides a jQuery plugin for simplifying the integration even further.
-
-The direct image upload feature of the plugin is based on https://github.com/blueimp/jQuery-File-Upload
-
 ## Getting started guide
 
 ![](http://res.cloudinary.com/cloudinary/image/upload/see_more_bullet.png)  **Take a look at our [Getting started guide for jQuery](http://cloudinary.com/documentation/jquery_integration#getting_started_guide)**.
@@ -20,79 +16,66 @@ The direct image upload feature of the plugin is based on https://github.com/blu
 
 The version 2.0.0 release refactors the Cloudinary JavaScript library, and the biggest news is that the newly introduced Core Library is jQuery-independent. The source code has been converted into CoffeeScript and rearranged into classes, and a new build script based on Grunt has been added. The build process produces 3 artifacts:
 
-  * A Core Library that is not dependent on jQuery
-  * A jQuery plugin that includes the Core Library
-  * A Blueimp plugin that includes the jQuery plugin and the Core Library
-  
-In order to publish these libraries in bower and NPM, 3 new Github repositories have been created:
-
-    +------------------------------------+-------------------------------+
-    | Repository                         | Package name                  |
-    +------------------------------------+-------------------------------+
-    |  pkg-cloudinary-core               | cloudinary-core               |
-    |  pkg-cloudinary-jquery             | cloudinary-jquery             |
-    |  pkg-cloudinary-jquery-file-upload | cloudinary-jquery-file-upload | 
-    +------------------------------------+-------------------------------+
+Github Repository                                                                                    | Package name                    | Description
+-----------------------------------------------------------------------------------------------------|---------------------------------|--------------------------------------------------------------------------
+[pkg-cloudinary-core](https://github.com/cloudinary/pkg-cloudinary-core)                             | `cloudinary-core`               | Core Cloudinary Library.<br/>Use this if you do not intend to use jQuery.
+[pkg-cloudinary-jquery](https://github.com/cloudinary/pkg-cloudinary-jquery)                         | `cloudinary-jquery`             | Core Library + jQuery plugin
+[pkg-cloudinary-jquery-file-upload](https://github.com/cloudinary/pkg-cloudinary-jquery-file-upload) | `cloudinary-jquery-file-upload` | Core Library + jQuery plugin <br/>+ Blueimp File Upload adapter
 
 The same package names are used in both bower and NPM.
 
-## Backward compatibility
-The cloudinary-jquery-file-upload library is fully backwards compatible with the cloudinary_js library v1.0.25. 
+### Backward compatibility
+The cloudinary-jquery-file-upload library is fully backwards compatible with the cloudinary_js library `v1.0.25`.
 The relevant Blueimp files can still be found in the `js` folder for backward compatibility. If you rely on the Blueimp 
 files located in the repository’s `js` folder, make sure to update your links to `load-image.all.min.js` which replaces `load-image.min.js` from previous versions. 
 However, we encourage developers to use a dependency manager such as bower or NPM to install the 3rd party libraries, and not to rely on the files in the `js` folder.
- 
-#### Core Javascript library
-The core Cloudinary JavaScript library which does not depend on jQuery: [https://github.com/cloudinary/pkg-cloudinary-core](https://github.com/cloudinary/pkg-cloudinary-core).
-
-#### jQuery plugin
-If you are using jQuery, you can take advantage of the Cloudinary jQuery plugin at [https://github.com/cloudinary/pkg-cloudinary-jquery](https://github.com/cloudinary/pkg-cloudinary-jquery).
-This library include all the functionality of the Core JavaScript Library.
-
-#### jQuery File upload
-The Cloudinary jQuery File Upload library extends the Cloudinary jQuery plugin that utilizes the [Blueimp jQuery File Upload library](https://blueimp.github.io/jQuery-File-Upload/) is located at https://github.com/cloudinary/pkg-cloudinary-jquery.
-This library include all the functionality of the Core JavaScript Library and the jQuery plugin.
 
 ## Installation
 
+The following instructions detail the installation of the **Cloudinary jQuery File Upload library**.
+For installation instructions of the core library which is not dependent on jQuery follow this [link](https://github.com/cloudinary/pkg-cloudinary-core#installation)
+
 ### bower
 
-1. Install the files using the following command. Add the optional `--save` parameter if you wish to save the dependency in your bower.json file.
+1. Install the files using the following command. Use the optional `--save` parameter if you wish to save the dependency in your `bower.json` file.
 
-    ```shell
-    # one of the following:
-    bower install cloudinary-core                    # for the core javascript library  
-    bower install cloudinary-jquery                  # for the jQuery plugin
-    bower install cloudinary-jquery-file-upload      # for the jQuery file upload
-    ```
+   ```shell
+   bower install cloudinary-jquery-file-upload
+   ```
+
 1. Include the javascript file in your HTML. For Example:
 
-    ```html
-    <script src="../bower_components/cloudinary-core/cloudinary-core.js"></script>
-    <script src="../bower_components/cloudinary-jquery/cloudinary-jquery.js"></script>
-    <script src="../bower_components/cloudinary-jquery-file-upload/cloudinary-jquery-file-upload.js"></script>
-    
-    ```
+   ```html
+   <script src="bower_components/jquery/dist/jquery.js"                                          type="text/javascript"></script>
+   <script src="bower_components/jquery.ui/ui/widget.js"                                         type="text/javascript"></script>
+   <script src="bower_components/blueimp-file-upload/js/jquery.iframe-transport.js"              type="text/javascript"></script>
+   <script src="bower_components/blueimp-file-upload/js/jquery.fileupload.js"                    type="text/javascript"></script>
+   <script src="bower_components/blueimp-file-upload/js/jquery.fileupload-image.js"              type="text/javascript"></script>
 
-### NPM*
+   <script src="bower_components/cloudinary-jquery-file-upload/cloudinary-jquery-file-upload.js" type="text/javascript"></script>
+   ```
 
-1. Install the files using the following command
+### NPM
+The following instructions describe the installation of the **client-side libraries**. For the server side NodeJS library, see https://github.com/cloudinary/cloudinary_npm
 
-    ```shell
-    # one of the following:
-    npm install cloudinary-core                    # for the core javascript library 
-    npm install cloudinary-jquery                  # for the jQuery plugin
-    npm install cloudinary-jquery-file-upload      # for the jQuery File Upload plugin
-    ```
+1. Install the files using the following commands. Use the optional `--save` parameter if you wish to save the dependency in your `package.json` file.
+
+   ```shell
+   npm install jquery
+   npm install blueimp-file-upload
+   npm install cloudinary-jquery-file-upload
+   ```
 1. Include the javascript file in your HTML. For Example:
 
-    ```html
-    <script src="../node_modules/cloudinary-core/cloudinary-core.js"></script>
-    <script src="../node_modules/cloudinary-jquery/cloudinary-jquery.js"></script>
-    <script src="../node_modules/cloudinary-jquery-file-upload/cloudinary-jquery-file-upload.js"></script>
-    ```
+   ```html
+   <script src="node_modules/jquery/dist/jquery.js"                                          type="text/javascript"></script>
+   <script src="node_modules/blueimp-file-upload/js/vendor/jquery.ui.widget.js"              type="text/javascript"></script>
+   <script src="node_modules/blueimp-file-upload/js/jquery.iframe-transport.js"              type="text/javascript"></script>
+   <script src="node_modules/blueimp-file-upload/js/jquery.fileupload.js"                    type="text/javascript"></script>
+   <script src="node_modules/blueimp-file-upload/js/jquery.fileupload-image.js"              type="text/javascript"></script>
 
-\* For the server side NodeJS library, see https://github.com/cloudinary/cloudinary_npm
+   <script src="node_modules/cloudinary-jquery-file-upload/cloudinary-jquery-file-upload.js" type="text/javascript"></script>
+   ```
 
 ## Setup
 
@@ -120,9 +103,11 @@ http://cloudinary.com/blog/direct_image_uploads_from_the_browser_to_the_cloud_wi
 The Cloudinary Documentation can be found at:
 http://cloudinary.com/documentation
 
-### Core JavaScript library
+### JavaScript Cloudinary objects library
 
-The Core Cloudinary JavaScript library provides several classes, defined under the "`cloudinary`" domain.
+The Cloudinary JavaScript library API reference can be found at: [https://cloudinary.github.io/pkg-cloudinary-jquery-file-upload](https://cloudinary.github.io/pkg-cloudinary-jquery-file-upload)
+
+The Cloudinary JavaScript library provides several classes, defined under the "`cloudinary`" domain.
 
 #### Configuration
 
@@ -194,7 +179,7 @@ cl.url( "sample", { width: 100, crop: "fit"})
 
 You can generate HTML tags in several ways:
 
-`Cloudinary::image()` generates a DOM tag, and prepares it for responsive functionality. This is the same functionality as `$.cloudinary.image()`. (When using the jQuery plugin, the `src-cache` data attribute is stored using jQuery's `data()` method and so is not visible.)
+`Cloudinary::image()` generates a DOM tag, and prepares it for responsive functionality. This is the same functionality as `$.cloudinary.image()`. (When using the Cloudinary jQuery plugin, the `src-cache` data attribute is stored using jQuery's `data()` method and so is not visible.)
 
 ```javascript
 cl.image("sample")
@@ -257,7 +242,7 @@ tr.width(10).crop('fit').chain().angle(15).serialize()
 ### jQuery plugin
 
 The Cloudinary jQuery plugin is fully backward compatible with the previous cloudinary_js version.
-Under the hood, the new JavaScript library instantiates a CloudinaryJQuery object and attaches it to jQuery.
+Under the hood, the new JavaScript library instantiates a `CloudinaryJQuery` object and attaches it to jQuery.
 
 * `$.cloudinary.config(parameter_name, parameter_value)` - Sets parameter\_name's value to parameter\_value.
 * `$.cloudinary.url(public_id, options)` - Returns a cloudinary URL based on your configuration and the given options.
@@ -281,7 +266,7 @@ The javascript library implements helpers to be used in conjunction with the bac
 ## Client side image resizing before upload
 
 See the File Processing Options in https://github.com/blueimp/jQuery-File-Upload/wiki/Options.
-Add the following javascript includes after the standard fileupload includes:
+Add the following javascript includes _after_ the standard fileupload includes:
 
 ```    
 "bower_components/blueimp-load-image/js/load-image.all.min.js"
@@ -297,11 +282,11 @@ Also, add the following javascript:
 $(document).ready(function() {
   $('.cloudinary-fileupload').fileupload({
     disableImageResize: false,
-    imageMaxWidth: 800,                            // 800 is an example value
-    imageMaxHeight: 600,                           // 600 is an example value
-    acceptFileTypes: /(\.|\/)(gif|jpe?g|png|bmp|ico)$/i,
+    imageMaxWidth: 800,                           // 800 is an example value
+    imageMaxHeight: 600,                          // 600 is an example value
     maxFileSize: 20000000,                        // 20MB is an example value
-    loadImageMaxFileSize: 20000000        // default is 10MB
+    loadImageMaxFileSize: 20000000,               // default is 10MB
+    acceptFileTypes: /(\.|\/)(gif|jpe?g|png|bmp|ico)$/i
   });
 });
 ```
@@ -339,3 +324,4 @@ Stay tuned for updates, tips and tutorials: [Blog](http://cloudinary.com/blog), 
 
 Released under the MIT license.
 
+The direct image upload feature of the plugin is based on https://github.com/blueimp/jQuery-File-Upload
