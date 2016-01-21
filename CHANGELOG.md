@@ -1,4 +1,14 @@
 
+2.0.5 / 2016-01-21
+==================
+
+  * Update version number in backward compatibility library (no code changes)
+  * Merge branch 'master' of https://github.com/cloudinary/cloudinary_js
+  * Update README.md
+  * Add IDEA files to gitignore
+  * Merge pull request #71 from bradvogel/patch-2
+    * I think you mean this link?
+
 2.0.4 / 2015-12-28
 ==================
 
