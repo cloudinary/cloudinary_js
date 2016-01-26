@@ -2,7 +2,7 @@
   if (typeof define == 'function') && define.amd
     define ['utf8_encode'], factory
   else if typeof exports == 'object'
-    module.exports = factory(require('utf8_encode'))
+    module.exports = factory(require('./utf8_encode'))
   else
     root.cloudinary ||= {}
     root.cloudinary.crc32 = factory(root.cloudinary.utf8_encode)

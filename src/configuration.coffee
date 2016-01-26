@@ -2,7 +2,7 @@
   if (typeof define == 'function') && define.amd
     define ['util'],factory
   else if typeof exports == 'object'
-    module.exports = factory(require('util'))
+    module.exports = factory(require('./util'))
   else
     root.cloudinary ||= {}
     root.cloudinary.Configuration = factory(root.cloudinary.Util)
@@ -110,7 +110,7 @@
     fromEnvironment: ->
       cloudinary_url = process?.env?.CLOUDINARY_URL
       if cloudinary_url?
-        uri = require('url').parse(cloudinary_url, true)
+        uri = require('./url').parse(cloudinary_url, true)
         @configuration =
           cloud_name: uri.host,
           api_key: uri.auth and uri.auth.split(":")[0],

@@ -2,7 +2,7 @@
   if (typeof define == 'function') && define.amd
     define ['util', 'transformation', 'require'], factory
   else if typeof exports == 'object'
-    module.exports = factory(require('util'), require('transformation'), require)
+    module.exports = factory(require('./util'), require('./transformation'), require)
   else
     root.cloudinary ||= {}
     root.cloudinary.parameters = factory(root.cloudinary.Util, root.cloudinary.Transformation, ()-> cloudinary.Transformation)
@@ -181,7 +181,7 @@
           else if Util.isFunction( t.serialize)
             t.serialize()
           else if Util.isPlainObject(t) && !Util.isEmpty(t)
-            Transformation ||= require('transformation')
+            Transformation ||= require('./transformation')
             new Transformation(t).serialize()
         Util.compact(result)
 

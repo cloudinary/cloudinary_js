@@ -2,7 +2,7 @@
   if (typeof define == 'function') && define.amd
     define ['jquery', 'util', 'transformation', 'cloudinary'], factory
   else if typeof exports == 'object'
-    module.exports = factory(require('jquery'), require('util'), require('transformation'), require('cloudinary'))
+    module.exports = factory(require('./jquery'), require('./util'), require('./transformation'), require('./cloudinary'))
   else
     root.cloudinary ||= {}
     root.cloudinary.CloudinaryJQuery = factory(jQuery, root.cloudinary.Util, root.cloudinary.Transformation, root.cloudinary.Cloudinary)

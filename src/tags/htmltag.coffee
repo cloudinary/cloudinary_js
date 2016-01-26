@@ -2,7 +2,7 @@
   if (typeof define == 'function') && define.amd
     define ['transformation', 'util'], factory
   else if typeof exports == 'object'
-    module.exports = factory(require('transformation'), require('util'))
+    module.exports = factory(require('./transformation'), require('./util'))
   else
     root.cloudinary ||= {}
     root.cloudinary.HtmlTag = factory(root.cloudinary.Transformation, root.cloudinary.Util)

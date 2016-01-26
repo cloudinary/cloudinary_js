@@ -2,21 +2,21 @@
   if (typeof define == 'function') && define.amd
     define ['utf8_encode', 'crc32', 'util', 'transformation', 'configuration', 'tags/imagetag', 'tags/videotag', 'require'], factory
   else if typeof exports == 'object'
-    module.exports = factory(require('utf8_encode'), require('crc32'), require('util'), require('transformation'), require('configuration'), require('tags/imagetag'), require('tags/videotag'), require)
+    module.exports = factory(require('./utf8_encode'), require('./crc32'), require('./util'), require('./transformation'), require('./configuration'), require('./tags/imagetag'), require('./tags/videotag'), require)
   else
     root.cloudinary ||= {}
     ###*
      * Resolves circular dependency
      * @private
     ###
-    require = (name) ->
+    _require = (name) ->
       switch name
-        when 'tags/imagetag'
+        when './tags/imagetag'
           root.cloudinary.ImageTag
-        when 'tags/videotag'
+        when './tags/videotag'
           root.cloudinary.VideoTag
 
-    root.cloudinary.Cloudinary = factory(root.cloudinary.utf8_encode, root.cloudinary.crc32, root.cloudinary.Util, root.cloudinary.Transformation, root.cloudinary.Configuration, root.cloudinary.ImageTag, root.cloudinary.VideoTag, require)
+    root.cloudinary.Cloudinary = factory(root.cloudinary.utf8_encode, root.cloudinary.crc32, root.cloudinary.Util, root.cloudinary.Transformation, root.cloudinary.Configuration, root.cloudinary.ImageTag, root.cloudinary.VideoTag, _require)
 
 )(this,  (utf8_encode, crc32, Util, Transformation, Configuration, ImageTag, VideoTag, require )->
   ###*
@@ -283,7 +283,7 @@
     ###
     imageTag: (publicId, options)->
       options = Util.defaults({}, options, @config())
-      ImageTag ||= require('tags/imagetag') # resolve circular reference
+      ImageTag ||= require('./tags/imagetag') # resolve circular reference
       new ImageTag(publicId, options)
 
     ###*
@@ -358,7 +358,7 @@
      * @return {VideoTag} A VideoTag that is attached (chained) to this Cloudinary instance
     ###
     videoTag: (publicId, options)->
-      VideoTag ||= require('tags/videotag') # resolve circular reference
+      VideoTag ||= require('./tags/videotag') # resolve circular reference
       options = Util.defaults({}, options, @config())
       new VideoTag(publicId, options)
 
@@ -612,7 +612,6 @@
     ###
     transformation: (options)->
       Transformation.new( @config()).fromOptions(options).setParent( this)
-
 )
 
 #/**

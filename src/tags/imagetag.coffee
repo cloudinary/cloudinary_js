@@ -2,7 +2,7 @@
   if (typeof define == 'function') && define.amd
     define ['tags/htmltag', 'cloudinary', 'require'], factory
   else if typeof exports == 'object'
-    module.exports = factory(require('tags/htmltag'), require('cloudinary'), require)
+    module.exports = factory(require('./tags/htmltag'), require('./cloudinary'), require)
   else
     root.cloudinary ||= {}
     root.cloudinary.ImageTag = factory(root.cloudinary.HtmlTag, root.cloudinary.Cloudinary, ()-> root.cloudinary.Cloudinary)
@@ -25,7 +25,7 @@
 
     ###* @override ###
     attributes: ()->
-      Cloudinary ||= require('cloudinary') # Circular reference
+      Cloudinary ||= require('./cloudinary') # Circular reference
       attr = super() || []
       attr['src'] ?= new Cloudinary(@getOptions()).url(@publicId)
       attr

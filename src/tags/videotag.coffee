@@ -2,7 +2,7 @@
   if (typeof define == 'function') && define.amd
     define ['tags/htmltag', 'util', 'cloudinary', 'require'], factory
   else if typeof exports == 'object'
-    module.exports = factory(require('tags/htmltag'), require('util'), require('cloudinary'), require)
+    module.exports = factory(require('./tags/htmltag'), require('./util'), require('./cloudinary'), require)
   else
     root.cloudinary ||= {}
     root.cloudinary.VideoTag = factory(root.cloudinary.HtmlTag, root.cloudinary.Util, root.cloudinary.Cloudinary, ()-> root.cloudinary.Cloudinary)
@@ -22,7 +22,7 @@
      * @param {Object} [options]
     ###
     constructor: (publicId, options = {})->
-      Cloudinary ||= require('cloudinary')
+      Cloudinary ||= require('./cloudinary')
       options = Util.defaults({}, options, Cloudinary.DEFAULT_VIDEO_PARAMS)
       super("video", publicId.replace(/\.(mp4|ogv|webm)$/, ''), options)
 
@@ -72,7 +72,7 @@
       sourceTypes = @transformation().getValue('source_types')
       sourceTransformation = @transformation().getValue('source_transformation')
       fallback = @transformation().getValue('fallback_content')
-      Cloudinary ||= require('cloudinary')
+      Cloudinary ||= require('./cloudinary')
 
       if Util.isArray(sourceTypes)
         cld = new Cloudinary(@getOptions())
@@ -87,7 +87,7 @@
       innerTags.join('') + fallback
 
     attributes: ()->
-      Cloudinary ||= require('cloudinary')
+      Cloudinary ||= require('./cloudinary')
       sourceTypes = @getOption('source_types')
       poster = @getOption('poster') ? {}
 
