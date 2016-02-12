@@ -1,6 +1,7 @@
 module.exports = (grunt)->
   repos = [
     'cloudinary-core',
+    'cloudinary-core-shrinkwrap',
     'cloudinary-jquery',
     'cloudinary-jquery-file-upload'
   ]
@@ -10,20 +11,33 @@ module.exports = (grunt)->
    * @param {object|function} repoOptions - options specific for each repository
    * @returns {object} the task configuration
   ###
-  repoTargets = (options, repoOptions)->
-    options ||= {}
+  repoTargets = (options={}, repoOptions={})->
     options = {options: options} unless options.options?
-    repoOptions ||= {}
     for repo in repos
       # noinspection JSUnresolvedFunction
       options[repo] = repoOptions?(repo) || repoOptions
     options
 
-  grunt.initConfig
+  umdHeader = (dependency, dependencyVar)->
+    """
+    ((root, factory) ->
+      if (typeof define == 'function') && define.amd
+        define  ['#{dependency}'], factory
+      else if typeof exports == 'object'
+        module.exports = factory(require('#{dependency}'))
+      else
+        root.cloudinary ||= {}
+        root.cloudinary = factory(#{dependencyVar})
+    )(this,  (#{dependencyVar})->
+
+    """
+
+#  grunt.initConfig
+  gruntOptions =
     pkg: grunt.file.readJSON('package.json')
 
     coffee:
-      compile:
+      sources:
         expand: true
         bare: false
         sourceMap: true
@@ -31,25 +45,73 @@ module.exports = (grunt)->
         src: ['**/*.coffee']
         dest: 'src'
         ext: '.js'
-      compile_test:
+      test:
         expand: true
         cwd: 'test/spec'
         src: ['*.coffee']
         dest: 'test/spec'
         ext: '.js'
+      build:
+        expand: true
+        bare: false
+        sourceMap: true
+        cwd: 'build'
+        src: ['*.coffee']
+        dest: 'build'
+        ext: '.js'
 
     uglify:
-      dist:
+      build:
         options:
           sourceMap: true
+          mangle: false
         files: for repo in repos
           src: ["build/#{repo}.js"]
           dest: "build/#{repo}.min.js"
           ext: '.min.js'
 
     karma: repoTargets
-      reporters: ['dots']
-      configFile: 'karma.<%= grunt.task.current.target %>.coffee'
+        reporters: ['dots']
+        configFile: 'karma.coffee'
+        browserDisconnectTolerance: 3
+        ,
+        (repo)->
+          repoFiles = switch
+            when repo.match /shrink/
+              ["build/#{repo}.js"]
+            when repo.match /upload/
+              [
+                "bower_components/jquery/dist/jquery.js"
+                'bower_components/jquery.ui/ui/widget.js'
+                'bower_components/blueimp-file-upload/js/jquery.fileupload.js'
+                'bower_components/blueimp-file-upload/js/jquery.fileupload-process.js'
+                'bower_components/blueimp-file-upload/js/jquery.iframe-transport.js'
+                'bower_components/blueimp-file-upload/js/jquery.fileupload-image.js'
+                "build/#{repo}.js"
+                'test/spec/cloudinary-jquery-spec.js'
+                'test/spec/cloudinary-jquery-upload-spec.js'
+              ]
+            when repo.match /jquery/
+              [
+                "bower_components/jquery/dist/jquery.js"
+                "build/#{repo}.js"
+                'test/spec/cloudinary-jquery-spec.js'
+              ]
+            else
+              [
+                "bower_components/lodash/lodash.js"
+                "build/#{repo}.js"
+              ]
+          files: [
+            src: repoFiles.concat [
+              'test/spec/cloudinary-spec.js'
+              'test/spec/tagspec.js'
+              'test/spec/videourlspec.js'
+              'test/spec/chaining-spec.js'
+            ]
+          ]
+        ,
+          repos.concat( "#{t}.min" for t in repos) # test minified version too
 
     jsdoc: repoTargets
         options: {}
@@ -66,38 +128,6 @@ module.exports = (grunt)->
             destination: "doc/pkg-#{repo}"
             template: 'template'
             configure: "jsdoc-conf.json"
-
-    requirejs: repoTargets
-        baseUrl: "src"
-        paths: # when optimizing scripts, don't include vendor files
-          'lodash':                   'empty:'
-          'jquery':                   'empty:'
-          'jquery.ui.widget':         'empty:'
-          'jquery.iframe-transport':  'empty:'
-          'jquery.fileupload':        'empty:'
-        skipDirOptimize: true
-        optimize: "none"
-        removeCombined: true
-        out: 'build/<%= grunt.task.current.target %>.js'
-        name: 'namespace/<%= grunt.task.current.target %>'
-        wrap:
-          start:  """
-            /*
-             * Cloudinary's JavaScript library - Version <%= pkg.version %>
-             * Copyright Cloudinary
-             * see https://github.com/cloudinary/cloudinary_js
-             */
-
-            """
-      ,
-        (repo)->
-          options:
-            bundles:
-              # build with the correct util library
-              "#{if repo.match('jquery') then 'util/jquery' else 'util/lodash'}": ['util']
-            onBuildWrite: (moduleName, path, contents)->
-              # make the module anonymous
-              contents.replace("'#{@name}',", "")
 
     clean:
       build: ["build"]
@@ -150,7 +180,81 @@ module.exports = (grunt)->
         files: for repo in repos
           src: ["../pkg/pkg-#{repo}/bower.json", "../pkg/pkg-#{repo}/package.json"]
           dest: "../pkg/pkg-#{repo}/"
+    concat:
+      repoTargets
+          process: (src, path)->
+            "  " + src.replace( /\n/g, "\n  ")
+        ,
+          (repo)->
+            [dependency, dependencyVar, utilFile] = switch
+              when /shrinkwrap/.test(repo)
+                ["","", ["build/lodash-shrinkwrapped.coffee", "src/util/lodash.coffee"]]
+              when /core/.test(repo)
+                ["lodash", '_', "src/util/lodash.coffee"]
+              when /jquery/.test(repo)
+                ["jquery", "jQuery", "src/util/jquery.coffee"]
+              else
+                ["","", ""]
+            srcList = [
+              'src/utf8_encode.coffee',
+              'src/crc32.coffee',
+              utilFile,
+              'src/parameters.coffee',
+              'src/transformation.coffee',
+              'src/configuration.coffee',
+              'src/tags/htmltag.coffee',
+              'src/tags/imagetag.coffee',
+              'src/tags/videotag.coffee',
+              'src/cloudinary.coffee'
+            ]
+            srcList.push('src/cloudinaryjquery.coffee')  if /jquery/.test(repo)
+            srcList.push('src/jquery-file-upload.coffee') if /upload/.test(repo)
 
+            defineArray = requireVar = ""
+            if dependency?.length > 0
+              defineArray = "['#{ dependency }'],"
+              requireVar = "require('#{dependency}')"
+
+            options:
+              banner:
+                """
+                ((root, factory) ->
+                  if (typeof define == 'function') && define.amd
+                    define  #{defineArray} factory
+                  else if typeof exports == 'object'
+                    module.exports = factory(#{requireVar})
+                  else
+                    root.cloudinary ||= {}
+                    root.cloudinary = factory(#{dependencyVar})
+                )(this,  (#{dependencyVar})->
+
+                """
+
+              footer:
+                """
+
+                  cloudinary =
+                    utf8_encode: utf8_encode
+                    crc32: crc32
+                    Util: Util
+                    Transformation: Transformation
+                    Configuration: Configuration
+                    HtmlTag: HtmlTag
+                    ImageTag: ImageTag
+                    VideoTag: VideoTag
+                    Cloudinary: Cloudinary
+                    #{ if /jquery/.test(repo) then "CloudinaryJQuery: CloudinaryJQuery" else ""}
+
+                  cloudinary
+                )
+                """
+            src: srcList
+            dest: "build/#{repo}.coffee"
+
+  console.log(JSON.stringify(gruntOptions))
+  grunt.initConfig(gruntOptions)
+
+  grunt.loadNpmTasks('grunt-contrib-concat')
   grunt.loadNpmTasks('grunt-contrib-coffee')
   grunt.loadNpmTasks('grunt-contrib-uglify')
   grunt.loadNpmTasks('grunt-contrib-requirejs')
@@ -161,5 +265,28 @@ module.exports = (grunt)->
   grunt.loadNpmTasks('grunt-karma')
   grunt.loadNpmTasks('grunt-version')
 
-  grunt.registerTask('default', ['coffee', 'requirejs'])
-  grunt.registerTask('build', ['clean', 'coffee', 'requirejs', 'jsdoc', 'copy:backward-compatible'])
+  grunt.registerTask('default', ['concat', 'coffee'])
+  grunt.registerTask('build', ['clean', 'lodash','concat', 'coffee', 'jsdoc', 'copy:backward-compatible'])
+  grunt.registerTask('lodash', (name, target)->
+    lodashCalls = grunt.file.read('src/util/lodash.coffee').match(/_\.\w+/g)
+    include = []
+    # gather unique function names
+    include.push(func[2..]) for func in lodashCalls when include.indexOf(func[2..]) < 0
+    require('lodash-cli')([
+      "include=#{include.join(',')}",
+      "exports=none",
+      "--output", "build/lodash-shrinkwrapped.js",
+      "--development"]
+    , (data)->
+      outputPath = data.outputPath
+      sourceMap = data.sourceMap
+      console.dir(data)
+      if outputPath
+        grunt.file.write outputPath, data.source
+        grunt.file.write "#{outputPath[0..-4]}.coffee", "\n`#{data.source.replace(/`/g, "'")}`"
+        # .replace(/\n/g, "\n  ")
+        if sourceMap
+          grunt.file.write path.join(path.dirname(outputPath), path.basename(outputPath, '.js') + '.map'), sourceMap
+
+    )
+  )
