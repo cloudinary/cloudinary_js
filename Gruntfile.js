@@ -223,7 +223,7 @@
         ref = (function() {
           switch (false) {
             case !/shrinkwrap/.test(repo):
-              return ["", "", ["build/lodash-shrinkwrapped.coffee", "src/util/lodash.coffee"]];
+              return ["", "", ["build/lodash-shrinkwrap.coffee", "src/util/lodash.coffee"]];
             case !/core/.test(repo):
               return ["lodash", '_', "src/util/lodash.coffee"];
             case !/jquery/.test(repo):
@@ -246,7 +246,7 @@
         }
         return {
           options: {
-            banner: "((root, factory) ->\n  if (typeof define == 'function') && define.amd\n    define  " + defineArray + " factory\n  else if typeof exports == 'object'\n    module.exports = factory(" + requireVar + ")\n  else\n    root.cloudinary ||= {}\n    root.cloudinary = factory(" + dependencyVar + ")\n)(this,  (" + dependencyVar + ")->\n",
+            banner: "###*\n * Cloudinary's JavaScript library - Version <%= pkg.version %>\n * Copyright Cloudinary\n * see https://github.com/cloudinary/cloudinary_js\n *\n###\n\n((root, factory) ->\n  if (typeof define == 'function') && define.amd\n    define  " + defineArray + " factory\n  else if typeof exports == 'object'\n    module.exports = factory(" + requireVar + ")\n  else\n    root.cloudinary ||= {}\n    root.cloudinary = factory(" + dependencyVar + ")\n)(this,  (" + dependencyVar + ")->\n",
             footer: "\n  cloudinary =\n    utf8_encode: utf8_encode\n    crc32: crc32\n    Util: Util\n    Transformation: Transformation\n    Configuration: Configuration\n    HtmlTag: HtmlTag\n    ImageTag: ImageTag\n    VideoTag: VideoTag\n    Cloudinary: Cloudinary\n    " + (/jquery/.test(repo) ? "CloudinaryJQuery: CloudinaryJQuery" : "") + "\n\n  cloudinary\n)"
           },
           src: srcList,
@@ -277,7 +277,7 @@
           include.push(func.slice(2));
         }
       }
-      return require('lodash-cli')(["include=" + (include.join(',')), "exports=none", "--output", "build/lodash-shrinkwrapped.js", "--development"], function(data) {
+      return require('lodash-cli')(["include=" + (include.join(',')), "exports=none", "--output", "build/lodash-shrinkwrap.js", "--development"], function(data) {
         var outputPath, sourceMap;
         outputPath = data.outputPath;
         sourceMap = data.sourceMap;

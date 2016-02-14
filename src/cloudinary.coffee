@@ -574,10 +574,10 @@ class Cloudinary
     this
 
   ###*
-  * Provide a transformation object, initialized with own's options, for chaining purposes.
-  * @function Cloudinary#transformation
-  * @param {Object} options
-  * @return {Transformation}
+   * Provide a transformation object, initialized with own's options, for chaining purposes.
+   * @function Cloudinary#transformation
+   * @param {Object} options
+   * @return {Transformation}
   ###
   transformation: (options)->
     Transformation.new( @config()).fromOptions(options).setParent( this)

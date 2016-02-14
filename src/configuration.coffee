@@ -6,8 +6,8 @@
 class Configuration
 
   ###*
-  * Defaults configuration.
-  * @const {Object} Configuration.DEFAULT_CONFIGURATION_PARAMS
+   * Defaults configuration.
+   * @const {Object} Configuration.DEFAULT_CONFIGURATION_PARAMS
   ###
   DEFAULT_CONFIGURATION_PARAMS ={
     secure: window?.location?.protocol == 'https:'
@@ -116,18 +116,18 @@ class Configuration
     this
 
   ###*
-  * Create or modify the Cloudinary client configuration
-  *
-  * Warning: `config()` returns the actual internal configuration object. modifying it will change the configuration.
-  *
-  * This is a backward compatibility method. For new code, use get(), merge() etc.
-  * @function Configuration#config
-  * @param {hash|string|boolean} new_config
-  * @param {string} new_value
-  * @returns {*} configuration, or value
-  *
-  * @see {@link fromEnvironment} for initialization using environment variables
-  * @see {@link fromDocument} for initialization using HTML meta tags
+   * Create or modify the Cloudinary client configuration
+   *
+   * Warning: `config()` returns the actual internal configuration object. modifying it will change the configuration.
+   *
+   * This is a backward compatibility method. For new code, use get(), merge() etc.
+   * @function Configuration#config
+   * @param {hash|string|boolean} new_config
+   * @param {string} new_value
+   * @returns {*} configuration, or value
+   *
+   * @see {@link fromEnvironment} for initialization using environment variables
+   * @see {@link fromDocument} for initialization using HTML meta tags
   ###
   config: (new_config, new_value) ->
     switch

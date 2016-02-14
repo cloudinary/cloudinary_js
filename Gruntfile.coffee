@@ -188,7 +188,7 @@ module.exports = (grunt)->
           (repo)->
             [dependency, dependencyVar, utilFile] = switch
               when /shrinkwrap/.test(repo)
-                ["","", ["build/lodash-shrinkwrapped.coffee", "src/util/lodash.coffee"]]
+                ["","", ["build/lodash-shrinkwrap.coffee", "src/util/lodash.coffee"]]
               when /core/.test(repo)
                 ["lodash", '_', "src/util/lodash.coffee"]
               when /jquery/.test(repo)
@@ -218,6 +218,13 @@ module.exports = (grunt)->
             options:
               banner:
                 """
+                ###*
+                 * Cloudinary's JavaScript library - Version <%= pkg.version %>
+                 * Copyright Cloudinary
+                 * see https://github.com/cloudinary/cloudinary_js
+                 *
+                ###
+
                 ((root, factory) ->
                   if (typeof define == 'function') && define.amd
                     define  #{defineArray} factory
@@ -275,7 +282,7 @@ module.exports = (grunt)->
     require('lodash-cli')([
       "include=#{include.join(',')}",
       "exports=none",
-      "--output", "build/lodash-shrinkwrapped.js",
+      "--output", "build/lodash-shrinkwrap.js",
       "--development"]
     , (data)->
       outputPath = data.outputPath

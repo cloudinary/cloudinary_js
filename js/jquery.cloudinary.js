@@ -1,3 +1,11 @@
+
+/**
+ * Cloudinary's JavaScript library - Version 2.0.5
+ * Copyright Cloudinary
+ * see https://github.com/cloudinary/cloudinary_js
+ *
+ */
+
 (function() {
   var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
@@ -1493,8 +1501,8 @@
     Configuration = (function() {
 
       /**
-      * Defaults configuration.
-      * @const {Object} Configuration.DEFAULT_CONFIGURATION_PARAMS
+       * Defaults configuration.
+       * @const {Object} Configuration.DEFAULT_CONFIGURATION_PARAMS
        */
       var DEFAULT_CONFIGURATION_PARAMS, ref;
 
@@ -1625,18 +1633,18 @@
 
 
       /**
-      * Create or modify the Cloudinary client configuration
-      *
-      * Warning: `config()` returns the actual internal configuration object. modifying it will change the configuration.
-      *
-      * This is a backward compatibility method. For new code, use get(), merge() etc.
-      * @function Configuration#config
-      * @param {hash|string|boolean} new_config
-      * @param {string} new_value
-      * @returns {*} configuration, or value
-      *
-      * @see {@link fromEnvironment} for initialization using environment variables
-      * @see {@link fromDocument} for initialization using HTML meta tags
+       * Create or modify the Cloudinary client configuration
+       *
+       * Warning: `config()` returns the actual internal configuration object. modifying it will change the configuration.
+       *
+       * This is a backward compatibility method. For new code, use get(), merge() etc.
+       * @function Configuration#config
+       * @param {hash|string|boolean} new_config
+       * @param {string} new_value
+       * @returns {*} configuration, or value
+       *
+       * @see {@link fromEnvironment} for initialization using environment variables
+       * @see {@link fromDocument} for initialization using HTML meta tags
        */
 
       Configuration.prototype.config = function(new_config, new_value) {
@@ -2857,10 +2865,10 @@
 
 
       /**
-      * Provide a transformation object, initialized with own's options, for chaining purposes.
-      * @function Cloudinary#transformation
-      * @param {Object} options
-      * @return {Transformation}
+       * Provide a transformation object, initialized with own's options, for chaining purposes.
+       * @function Cloudinary#transformation
+       * @param {Object} options
+       * @return {Transformation}
        */
 
       Cloudinary.prototype.transformation = function(options) {
@@ -2987,17 +2995,17 @@
     };
 
     /**
-    * Update hidpi (dpr_auto) and responsive (w_auto) fields according to the current container size and the device pixel ratio.
-    * Only images marked with the cld-responsive class have w_auto updated.
-    * options:
-    * - responsive_use_stoppoints:
-    *   - true - always use stoppoints for width
-    *   - "resize" - use exact width on first render and stoppoints on resize (default)
-    *   - false - always use exact width
-    * - responsive:
-    *   - true - enable responsive on this element. Can be done by adding cld-responsive.
-    *            Note that jQuery.cloudinary.responsive() should be called once on the page.
-    * - responsive_preserve_height: if set to true, original css height is perserved. Should only be used if the transformation supports different aspect ratios.
+     * Update hidpi (dpr_auto) and responsive (w_auto) fields according to the current container size and the device pixel ratio.
+     * Only images marked with the cld-responsive class have w_auto updated.
+     * options:
+     * - responsive_use_stoppoints:
+     *   - true - always use stoppoints for width
+     *   - "resize" - use exact width on first render and stoppoints on resize (default)
+     *   - false - always use exact width
+     * - responsive:
+     *   - true - enable responsive on this element. Can be done by adding cld-responsive.
+     *            Note that jQuery.cloudinary.responsive() should be called once on the page.
+     * - responsive_preserve_height: if set to true, original css height is perserved. Should only be used if the transformation supports different aspect ratios.
      */
     jQuery.fn.cloudinary_update = function(options) {
       if (options == null) {

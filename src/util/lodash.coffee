@@ -1,55 +1,55 @@
 
 ###*
-  * Includes utility methods and lodash / jQuery shims
+ * Includes utility methods and lodash / jQuery shims
 ###
 
 ###*
-  * Get data from the DOM element.
-  *
-  * This method will use jQuery's `data()` method if it is available, otherwise it will get the `data-` attribute
-  * @param {Element} element - the element to get the data from
-  * @param {string} name - the name of the data item
-  * @returns the value associated with the `name`
-  *
+ * Get data from the DOM element.
+ *
+ * This method will use jQuery's `data()` method if it is available, otherwise it will get the `data-` attribute
+ * @param {Element} element - the element to get the data from
+ * @param {string} name - the name of the data item
+ * @returns the value associated with the `name`
+ *
 ###
 getData = ( element, name)->
   if _.isElement(element)
     element.getAttribute("data-#{name}")
 
 ###*
-  * Set data in the DOM element.
-  *
-  * This method will use jQuery's `data()` method if it is available, otherwise it will set the `data-` attribute
-  * @param {Element} element - the element to set the data in
-  * @param {string} name - the name of the data item
-  * @param {*} value - the value to be set
-  *
+ * Set data in the DOM element.
+ *
+ * This method will use jQuery's `data()` method if it is available, otherwise it will set the `data-` attribute
+ * @param {Element} element - the element to set the data in
+ * @param {string} name - the name of the data item
+ * @param {*} value - the value to be set
+ *
 ###
 setData = (element, name, value)->
   if _.isElement(element)
     element.setAttribute("data-#{name}", value)
 
 ###*
-  * Get attribute from the DOM element.
-  *
-  * This method will use jQuery's `attr()` method if it is available, otherwise it will get the attribute directly
-  * @param {Element} element - the element to set the attribute for
-  * @param {string} name - the name of the attribute
-  * @returns {*} the value of the attribute
-  *
+ * Get attribute from the DOM element.
+ *
+ * This method will use jQuery's `attr()` method if it is available, otherwise it will get the attribute directly
+ * @param {Element} element - the element to set the attribute for
+ * @param {string} name - the name of the attribute
+ * @returns {*} the value of the attribute
+ *
 ###
 getAttribute = ( element, name)->
   if _.isElement(element)
     element.getAttribute(name)
 
 ###*
-  * Set attribute in the DOM element.
-  *
-  * This method will use jQuery's `attr()` method if it is available, otherwise it will set the attribute directly
-  * @param {Element} element - the element to set the attribute for
-  * @param {string} name - the name of the attribute
-  * @param {*} value - the value to be set
-  *
+ * Set attribute in the DOM element.
+ *
+ * This method will use jQuery's `attr()` method if it is available, otherwise it will set the attribute directly
+ * @param {Element} element - the element to set the attribute for
+ * @param {string} name - the name of the attribute
+ * @param {*} value - the value to be set
+ *
 ###
 setAttribute = (element, name, value)->
   if _.isElement(element)
@@ -212,13 +212,13 @@ Util =
   hasClass: hasClass
   addClass: addClass
   ###*
-    * Get attribute from the DOM element.
-    *
-    * This method will use jQuery's `attr()` method if it is available, otherwise it will get the attribute directly
-    * @param {Element} element - the element to set the attribute for
-    * @param {string} name - the name of the attribute
-    * @returns {*} the value of the attribute
-    *
+   * Get attribute from the DOM element.
+   *
+   * This method will use jQuery's `attr()` method if it is available, otherwise it will get the attribute directly
+   * @param {Element} element - the element to set the attribute for
+   * @param {string} name - the name of the attribute
+   * @returns {*} the value of the attribute
+   *
   ###
   getAttribute: getAttribute
   setAttribute: setAttribute
@@ -241,8 +241,8 @@ Util =
   ###
   assign: _.assign
   ###*
-  * Recursively assign source properties to destination
-  * @param {Object} destination - the object to assign to
+   * Recursively assign source properties to destination
+   * @param {Object} destination - the object to assign to
   ###
   merge: _.merge
   ###*
@@ -277,11 +277,11 @@ Util =
   ###
   contains: _.includes
   ###*
-  * Assign values from sources if they are not defined in the destination.
-  * Once a value is set it does not change
-  * @param {Object} destination - the object to assign defaults to
-  * @param {...Object} source - the source object(s) to assign defaults from
-  * @return {Object} destination after it was modified
+   * Assign values from sources if they are not defined in the destination.
+   * Once a value is set it does not change
+   * @param {Object} destination - the object to assign defaults to
+   * @param {...Object} source - the source object(s) to assign defaults from
+   * @return {Object} destination after it was modified
   ###
   defaults: _.defaults
   ###*
@@ -292,9 +292,9 @@ Util =
   ###
   difference: _.difference
   ###*
-  * Returns true if argument is a function.
-  * @param {*} value - the value to check
-  * @return {boolean} true if the value is a function
+   * Returns true if argument is a function.
+   * @param {*} value - the value to check
+   * @return {boolean} true if the value is a function
   ###
   isFunction: _.isFunction
   ###*
