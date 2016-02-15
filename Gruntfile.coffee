@@ -18,20 +18,6 @@ module.exports = (grunt)->
       options[repo] = repoOptions?(repo) || repoOptions
     options
 
-  umdHeader = (dependency, dependencyVar)->
-    """
-    ((root, factory) ->
-      if (typeof define == 'function') && define.amd
-        define  ['#{dependency}'], factory
-      else if typeof exports == 'object'
-        module.exports = factory(require('#{dependency}'))
-      else
-        root.cloudinary ||= {}
-        root.cloudinary = factory(#{dependencyVar})
-    )(this,  (#{dependencyVar})->
-
-    """
-
 #  grunt.initConfig
   gruntOptions =
     pkg: grunt.file.readJSON('package.json')
@@ -258,7 +244,6 @@ module.exports = (grunt)->
             src: srcList
             dest: "build/#{repo}.coffee"
 
-  console.log(JSON.stringify(gruntOptions))
   grunt.initConfig(gruntOptions)
 
   grunt.loadNpmTasks('grunt-contrib-concat')
@@ -287,7 +272,6 @@ module.exports = (grunt)->
     , (data)->
       outputPath = data.outputPath
       sourceMap = data.sourceMap
-      console.dir(data)
       if outputPath
         grunt.file.write outputPath, data.source
         grunt.file.write "#{outputPath[0..-4]}.coffee", "\n`#{data.source.replace(/`/g, "'")}`"
