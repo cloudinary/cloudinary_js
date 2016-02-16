@@ -1,6 +1,6 @@
 
 /**
- * Cloudinary's JavaScript library - Version 2.0.5
+ * Cloudinary's JavaScript library - Version 2.0.6
  * Copyright Cloudinary
  * see https://github.com/cloudinary/cloudinary_js
  *
@@ -2117,7 +2117,7 @@
     Cloudinary = (function() {
       var AKAMAI_SHARED_CDN, CF_SHARED_CDN, DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_SOURCE_TYPES, OLD_AKAMAI_SHARED_CDN, SHARED_CDN, VERSION, absolutize, applyBreakpoints, cdnSubdomainNumber, closestAbove, cloudinaryUrlPrefix, defaultBreakpoints, finalizeResourceType, parentWidth;
 
-      VERSION = "2.0.5";
+      VERSION = "2.0.6";
 
       CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
 
@@ -3151,7 +3151,10 @@
           return jQuery(e.target).trigger('cloudinarydone', data);
         });
         this.bind('fileuploadsend', function(e, data) {
-          return data.headers['X-Unique-Upload-Id'] = (Math.random() * 10000000000).toString(16);
+          data.headers = $.extend({}, data.headers, {
+            'X-Unique-Upload-Id': (Math.random() * 10000000000).toString(16)
+          });
+          return true;
         });
         this.bind('fileuploadstart', function(e) {
           return jQuery(e.target).trigger('cloudinarystart');

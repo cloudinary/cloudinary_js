@@ -1,4 +1,17 @@
 
+2.0.6 / 2016-02-15
+==================
+
+## New functionality
+  * Support webpack, browserify
+
+## Other Changes
+  * Remove UMD constrcut from the individual source files.
+  * Fix module references for NodeJS
+  * Clone headers instead of modifying them. Fixes handling of multiple chunked uploads in parallel.
+  * Rename `lodash-shrinkwrapped` to `lodash-shrinkwrap`. Fix documentation comments.
+  * Update dependencies
+
 2.0.5 / 2016-01-21
 ==================
 
