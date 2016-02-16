@@ -5,18 +5,6 @@ module.exports = (grunt)->
     'cloudinary-jquery',
     'cloudinary-jquery-file-upload'
   ]
-  ###*
-   * Create a task configuration that includes the given options item + a sibling for each target
-   * @param {object} options - options common for all targets
-   * @param {object|function} repoOptions - options specific for each repository
-   * @returns {object} the task configuration
-  ###
-  repoTargets = (options={}, repoOptions={})->
-    options = {options: options} unless options.options?
-    for repo in repos
-      # noinspection JSUnresolvedFunction
-      options[repo] = repoOptions?(repo) || repoOptions
-    options
 
 #  grunt.initConfig
   gruntOptions =
@@ -56,64 +44,72 @@ module.exports = (grunt)->
           dest: "build/#{repo}.min.js"
           ext: '.min.js'
 
-    karma: repoTargets
+    karmaCommon: [
+      "build/<%= grunt.task.current.target %>.js"
+      'test/spec/cloudinary-spec.js'
+      'test/spec/tagspec.js'
+      'test/spec/videourlspec.js'
+      'test/spec/chaining-spec.js'
+    ]
+    karma:
+      options:
         reporters: ['dots']
         configFile: 'karma.coffee'
         browserDisconnectTolerance: 3
-        ,
-        (repo)->
-          repoFiles = switch
-            when repo.match /shrink/
-              ["build/#{repo}.js"]
-            when repo.match /upload/
-              [
-                "bower_components/jquery/dist/jquery.js"
-                'bower_components/jquery.ui/ui/widget.js'
-                'bower_components/blueimp-file-upload/js/jquery.fileupload.js'
-                'bower_components/blueimp-file-upload/js/jquery.fileupload-process.js'
-                'bower_components/blueimp-file-upload/js/jquery.iframe-transport.js'
-                'bower_components/blueimp-file-upload/js/jquery.fileupload-image.js'
-                "build/#{repo}.js"
-                'test/spec/cloudinary-jquery-spec.js'
-                'test/spec/cloudinary-jquery-upload-spec.js'
-              ]
-            when repo.match /jquery/
-              [
-                "bower_components/jquery/dist/jquery.js"
-                "build/#{repo}.js"
-                'test/spec/cloudinary-jquery-spec.js'
-              ]
-            else
-              [
-                "bower_components/lodash/lodash.js"
-                "build/#{repo}.js"
-              ]
-          files: [
-            src: repoFiles.concat [
-              'test/spec/cloudinary-spec.js'
-              'test/spec/tagspec.js'
-              'test/spec/videourlspec.js'
-              'test/spec/chaining-spec.js'
+      'cloudinary-core':
+        files:
+          src:
+            [
+              "bower_components/lodash/lodash.js"
+              "<%= karmaCommon %>"
             ]
-          ]
-        ,
-          repos.concat( "#{t}.min" for t in repos) # test minified version too
 
-    jsdoc: repoTargets
-        options: {}
-        amd:
-          src: ['src/**/*.js', './README.md']
-          options:
-            destination: 'doc/amd'
-            template: 'template'
-            configure: "jsdoc-conf.json"
-      ,
-        (repo)->
-          src: ["build/#{repo}.js", './README.md']
-          options:
-            destination: "doc/pkg-#{repo}"
-            template: 'template'
-            configure: "jsdoc-conf.json"
+
+      'cloudinary-core-shrinkwrap':
+        files:
+          src: [
+              "<%= karmaCommon %>"
+            ]
+
+      'cloudinary-jquery':
+        files:
+          src: [
+              "bower_components/jquery/dist/jquery.js"
+              "<%= karmaCommon %>"
+              "test/spec/cloudinary-jquery-spec.js"
+            ]
+
+      'cloudinary-jquery-file-upload':
+        files:
+          src: [
+              "bower_components/jquery/dist/jquery.js"
+              "bower_components/jquery.ui/ui/widget.js"
+              "bower_components/blueimp-file-upload/js/jquery.fileupload.js"
+              "bower_components/blueimp-file-upload/js/jquery.fileupload-process.js"
+              "bower_components/blueimp-file-upload/js/jquery.iframe-transport.js"
+              "bower_components/blueimp-file-upload/js/jquery.fileupload-image.js"
+              "<%= karmaCommon %>"
+              "test/spec/cloudinary-jquery-spec.js"
+              "test/spec/cloudinary-jquery-upload-spec.js"
+            ]
+
+
+    jsdoc:
+      options:
+        template: 'template'
+        configure: "jsdoc-conf.json"
+      'cloudinary-core':
+        options:
+          destination: "doc/pkg-<%=grunt.task.current.target%>"
+        src: ["build/<%=grunt.task.current.target%>.js", './README.md']
+      'cloudinary-jquery':
+        options:
+          destination: "doc/pkg-<%=grunt.task.current.target%>"
+        src: ["build/<%=grunt.task.current.target%>.js", './README.md']
+      'cloudinary-jquery-file-upload':
+        options:
+          destination: "doc/pkg-<%=grunt.task.current.target%>"
+        src: ["build/<%=grunt.task.current.target%>.js", './README.md']
 
     clean:
       build: ["build"]
@@ -144,10 +140,10 @@ module.exports = (grunt)->
           }
         ]
       dist:
-        files: for repo in repos
-          {'src': "build/#{repo}.js", 'dest': "../pkg/pkg-#{repo}/#{repo}.js"}
+        files: for repo in repos when !/shrinkwrap/.test(repo)
+          {'cwd': 'build','src': ["#{repo}.js", "#{repo}.min.js", "#{repo}.min.js.map"], 'dest': "../pkg/pkg-#{repo}/", 'expand': true}
       doc:
-        files: for repo in repos
+        files: for repo in repos when !/shrinkwrap/.test(repo)
           expand: true
           cwd: "doc/pkg-#{repo}/"
           src: ["**"]
@@ -163,87 +159,95 @@ module.exports = (grunt)->
           prefix: 'VERSION\\s+=\\s+[\'"]'
         src: ['src/cloudinary.coffee']
       dist:
-        files: for repo in repos
+        files: for repo in repos when !/shrinkwrap/.test(repo)
           src: ["../pkg/pkg-#{repo}/bower.json", "../pkg/pkg-#{repo}/package.json"]
           dest: "../pkg/pkg-#{repo}/"
+    srcList: [
+      'src/utf8_encode.coffee',
+      'src/crc32.coffee',
+      'src/parameters.coffee',
+      'src/transformation.coffee',
+      'src/configuration.coffee',
+      'src/tags/htmltag.coffee',
+      'src/tags/imagetag.coffee',
+      'src/tags/videotag.coffee',
+      'src/cloudinary.coffee'
+    ],
     concat:
-      repoTargets
-          process: (src, path)->
-            "  " + src.replace( /\n/g, "\n  ")
-        ,
-          (repo)->
-            [dependency, dependencyVar, utilFile] = switch
-              when /shrinkwrap/.test(repo)
-                ["","", ["build/lodash-shrinkwrap.coffee", "src/util/lodash.coffee"]]
-              when /core/.test(repo)
-                ["lodash", '_', "src/util/lodash.coffee"]
-              when /jquery/.test(repo)
-                ["jquery", "jQuery", "src/util/jquery.coffee"]
-              else
-                ["","", ""]
-            srcList = [
-              'src/utf8_encode.coffee',
-              'src/crc32.coffee',
-              utilFile,
-              'src/parameters.coffee',
-              'src/transformation.coffee',
-              'src/configuration.coffee',
-              'src/tags/htmltag.coffee',
-              'src/tags/imagetag.coffee',
-              'src/tags/videotag.coffee',
-              'src/cloudinary.coffee'
-            ]
-            srcList.push('src/cloudinaryjquery.coffee')  if /jquery/.test(repo)
-            srcList.push('src/jquery-file-upload.coffee') if /upload/.test(repo)
+      options:
+        dest: "build/<%= grunt.task.current.target %>.coffee"
+        banner:
+          """
+          ###*
+           * Cloudinary's JavaScript library - Version <%= pkg.version %>
+           * Copyright Cloudinary
+           * see https://github.com/cloudinary/cloudinary_js
+           *
+          ###
 
-            defineArray = requireVar = ""
-            if dependency?.length > 0
-              defineArray = "['#{ dependency }'],"
-              requireVar = "require('#{dependency}')"
+          ((root, factory) ->
+            if (typeof define == 'function') && define.amd
+              define  <%= /jquery/.test(grunt.task.current.target) ? "['jquery']," : (/shrink/.test(grunt.task.current.target) ? "" : "['lodash']," )%> factory
+            else if typeof exports == 'object'
+              module.exports = factory(<%= /jquery/.test(grunt.task.current.target) ? "require('jquery')" : (/shrink/.test(grunt.task.current.target) ? "" : "require('lodash')")%>)
+            else
+              root.cloudinary ||= {}
+              root.cloudinary = factory(<%=/jquery/.test(grunt.task.current.target) ? "jQuery" : (/shrink/.test(grunt.task.current.target) ? "" : "_")%>)
+          )(this,  (<%=/jquery/.test(grunt.task.current.target) ? "jQuery" : (/shrink/.test(grunt.task.current.target) ? "" : "_")%>)->
 
-            options:
-              banner:
-                """
-                ###*
-                 * Cloudinary's JavaScript library - Version <%= pkg.version %>
-                 * Copyright Cloudinary
-                 * see https://github.com/cloudinary/cloudinary_js
-                 *
-                ###
+          """
 
-                ((root, factory) ->
-                  if (typeof define == 'function') && define.amd
-                    define  #{defineArray} factory
-                  else if typeof exports == 'object'
-                    module.exports = factory(#{requireVar})
-                  else
-                    root.cloudinary ||= {}
-                    root.cloudinary = factory(#{dependencyVar})
-                )(this,  (#{dependencyVar})->
+        footer:
+          """
 
-                """
+            cloudinary =
+              utf8_encode: utf8_encode
+              crc32: crc32
+              Util: Util
+              Transformation: Transformation
+              Configuration: Configuration
+              HtmlTag: HtmlTag
+              ImageTag: ImageTag
+              VideoTag: VideoTag
+              Cloudinary: Cloudinary
+              <%=  /jquery/.test(grunt.task.current.target) ? "CloudinaryJQuery: CloudinaryJQuery" : ""%>
 
-              footer:
-                """
+            cloudinary
+          )
+          """
+        process: (src, path)->
+          "  " + src.replace( /\n/g, "\n  ")
+      'cloudinary-core':
+        src: [
+          "src/util/lodash.coffee"
+          "<%= srcList%>"
+        ]
+        dest: "build/cloudinary-core.coffee"
+      'cloudinary-core-shrinkwrap':
+        src: [
+          "build/lodash-shrinkwrap.coffee"
+          "src/util/lodash.coffee"
+          "<%= srcList%>"
+        ]
+        dest: "build/cloudinary-core-shrinkwrap.coffee"
+      'cloudinary-jquery':
+        src: [
+          "src/util/jquery.coffee"
+          "<%= srcList%>"
+          "src/cloudinaryjquery.coffee"
+        ]
+        dest: "build/cloudinary-jquery.coffee"
+      'cloudinary-jquery-file-upload':
+        src: [
+          "src/util/jquery.coffee"
+          "<%= srcList%>"
+          "src/cloudinaryjquery.coffee"
+          "src/jquery-file-upload.coffee"
+        ]
+        dest: "build/cloudinary-jquery-file-upload.coffee"
 
-                  cloudinary =
-                    utf8_encode: utf8_encode
-                    crc32: crc32
-                    Util: Util
-                    Transformation: Transformation
-                    Configuration: Configuration
-                    HtmlTag: HtmlTag
-                    ImageTag: ImageTag
-                    VideoTag: VideoTag
-                    Cloudinary: Cloudinary
-                    #{ if /jquery/.test(repo) then "CloudinaryJQuery: CloudinaryJQuery" else ""}
 
-                  cloudinary
-                )
-                """
-            src: srcList
-            dest: "build/#{repo}.coffee"
-
+  console.log(JSON.stringify(gruntOptions))
   grunt.initConfig(gruntOptions)
 
   grunt.loadNpmTasks('grunt-contrib-concat')
