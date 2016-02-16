@@ -219,7 +219,6 @@
         }
       }
     };
-    console.log(JSON.stringify(gruntOptions));
     grunt.initConfig(gruntOptions);
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-coffee');

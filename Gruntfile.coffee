@@ -247,7 +247,6 @@ module.exports = (grunt)->
         dest: "build/cloudinary-jquery-file-upload.coffee"
 
 
-  console.log(JSON.stringify(gruntOptions))
   grunt.initConfig(gruntOptions)
 
   grunt.loadNpmTasks('grunt-contrib-concat')
