@@ -140,8 +140,9 @@ module.exports = (grunt)->
           }
         ]
       dist:
-        files: for repo in repos when !/shrinkwrap/.test(repo)
-          {'cwd': 'build','src': ["#{repo}.js", "#{repo}.min.js", "#{repo}.min.js.map"], 'dest': "../pkg/pkg-#{repo}/", 'expand': true}
+        files: for repo in repos
+          dest = if /shrinkwrap/.test(repo) then "cloudinary-core" else repo
+          {'cwd': 'build','src': ["#{repo}.js", "#{repo}.min.js", "#{repo}.min.js.map"], 'dest': "../pkg/pkg-#{dest}/", 'expand': true}
       doc:
         files: for repo in repos when !/shrinkwrap/.test(repo)
           expand: true
