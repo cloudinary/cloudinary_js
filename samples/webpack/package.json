@@ -1,0 +1,19 @@
+{
+  "name": "cloudinary-webpack-example",
+  "version": "1.0.0",
+  "description": "Cloudinary Webpack example",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cloudinary/pkg-cloudinary-core.git"
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "cloudinary-core": "^2.0.5",
+    "lodash": "^4.3.0"
+  }
+}
