@@ -4,6 +4,7 @@
 
 ## New functionality
   * Support webpack, browserify
+  * Add webpack example to cloudinary-core
 
 ## Other Changes
   * Remove UMD constrcut from the individual source files.
