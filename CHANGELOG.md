@@ -2,9 +2,11 @@
 2.0.6 / 2016-02-15
 ==================
 
-## New functionality
+## New functionality and features
   * Support webpack, browserify
-  * Add webpack example to cloudinary-core
+  * webpack example
+  * Minified version of source
+  * Shrinkwrapped core lib which includes a subset of the lodash functions
 
 ## Other Changes
   * Remove UMD constrcut from the individual source files.
