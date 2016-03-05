@@ -64,6 +64,7 @@ width = (element)->
   jQuery(element).width()
 
 isEmpty = (item)->
+  !item? ||
   (jQuery.isArray(item) || Util.isString(item)) && item.length == 0 ||
   (jQuery.isPlainObject(item) && jQuery.isEmptyObject(item))
 
