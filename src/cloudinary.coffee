@@ -151,6 +151,7 @@ class Cloudinary
   url: (publicId, options = {}) ->
     if (!publicId)
       return publicId
+    options = options.toOptions() if options instanceof Transformation
     options = Util.defaults({}, options, @config(), Cloudinary.DEFAULT_IMAGE_PARAMS)
     if options.type == 'fetch'
       options.fetch_format = options.fetch_format or options.format
@@ -239,9 +240,10 @@ class Cloudinary
    * @return {HTMLImageElement} an image tag element
   ###
   image: (publicId, options={}) ->
-# generate a tag without the image src
-    tag_options = Util.assign( {src: ''}, options)
-    img = @imageTag(publicId, tag_options).toDOM()
+    img = @imageTag(publicId, options)
+    # src must be removed before creating the DOM element to avoid loading the image
+    img.setAttr("src", '') unless options.src?
+    img = img.toDOM()
     # cache the image src
     Util.setData(img, 'src-cache', @url(publicId, options))
     # set image src taking responsiveness in account
@@ -256,8 +258,9 @@ class Cloudinary
    * @return {ImageTag} An ImageTag that is attached (chained) to this Cloudinary instance
   ###
   imageTag: (publicId, options)->
-    options = Util.defaults({}, options, @config())
-    new ImageTag(publicId, options)
+    tag = new ImageTag(publicId, @config())
+    tag.transformation().fromOptions( options)
+    tag
 
   ###*
    * Generate an image tag for the video thumbnail.
@@ -561,7 +564,7 @@ class Cloudinary
             imageWidth = Util.getData(tag, 'width') or 0
             if requestedWidth > imageWidth
               imageWidth = requestedWidth
-            Util.setData(tag, 'width', requestedWidth) # review always set data
+            Util.setData(tag, 'width', requestedWidth)
 
             src = src.replace(/\bw_auto\b/g, 'w_' + imageWidth)
 

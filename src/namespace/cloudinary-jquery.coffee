@@ -15,6 +15,7 @@
   crc32: crc32
   Util: Util
   Transformation: Transformation
+  Condition: Condition
   Configuration: Configuration
   HtmlTag: HtmlTag
   ImageTag: ImageTag

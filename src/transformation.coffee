@@ -4,6 +4,8 @@
 ###
 
 class TransformationBase
+  trans_separator: '/'
+  param_separator: ','
   lastArgCallback = (args)->
     callback = args?[args.length - 1]
     if(Util.isFunction(callback))
@@ -18,21 +20,28 @@ class TransformationBase
   ###
   constructor: (options = {}) ->
     ###* @private ###
-    chainedTo = undefined
+    parent = undefined
     ###* @private ###
     trans = {}
+
+
 
     ###*
      * Return an options object that can be used to create an identical Transformation
      * @function Transformation#toOptions
      * @return {Object} Returns a plain object representing this transformation
     ###
-    @toOptions = ()->
+    @toOptions ||= (withChain = true)->
       opt= {}
       for key, value of trans
         opt[key]= value.origValue
       for key, value of @otherOptions when value != undefined
         opt[key]= value
+      if withChain && !Util.isEmpty(@chained)
+        list = for tr in @chained
+          tr.toOptions()
+        list.push(opt)
+        opt = {transformation: list}
       opt
 
     ###*
@@ -42,9 +51,9 @@ class TransformationBase
      * @param {Object} object - the parent to be assigned to
      * @returns {Transformation} Returns this instance for chaining purposes.
     ###
-    @setParent = (object)->
-      chainedTo = object
-      @fromOptions( object.toOptions?())
+    @setParent ||= (object)->
+      parent = object
+      @fromOptions( object.toOptions?()) if object?
       this
 
     ###*
@@ -53,8 +62,8 @@ class TransformationBase
      * @protected
      * @return {Object} Returns the parent of this object if there is any
     ###
-    @getParent = ()->
-      chainedTo
+    @getParent ||= ()->
+      parent
 
     #
     # Helper methods to create parameter methods
@@ -63,7 +72,7 @@ class TransformationBase
     #
 
     ###* @protected ###
-    @param = (value, name, abbr, defaultValue, process) ->
+    @param ||= (value, name, abbr, defaultValue, process) ->
       unless process?
         if Util.isFunction(defaultValue)
           process = defaultValue
@@ -73,28 +82,29 @@ class TransformationBase
       @
 
     ###* @protected ###
-    @rawParam = (value, name, abbr, defaultValue, process = Util.identity) ->
+    @rawParam ||= (value, name, abbr, defaultValue, process = Util.identity) ->
       process = lastArgCallback(arguments)
       trans[name] = new RawParam(name, abbr, process).set(value)
       @
 
     ###* @protected ###
-    @rangeParam = (value, name, abbr, defaultValue, process = Util.identity) ->
+    @rangeParam ||= (value, name, abbr, defaultValue, process = Util.identity) ->
       process = lastArgCallback(arguments)
       trans[name] = new RangeParam(name, abbr, process).set(value)
       @
 
     ###* @protected ###
-    @arrayParam = (value, name, abbr, sep = ":", defaultValue = [], process = Util.identity) ->
+    @arrayParam ||= (value, name, abbr, sep = ":", defaultValue = [], process = Util.identity) ->
       process = lastArgCallback(arguments)
       trans[name] = new ArrayParam(name, abbr, sep, process).set(value)
       @
 
     ###* @protected ###
-    @transformationParam = (value, name, abbr, sep = ".", defaultValue, process = Util.identity) ->
+    @transformationParam ||= (value, name, abbr, sep = ".", defaultValue, process = Util.identity) ->
       process = lastArgCallback(arguments)
       trans[name] = new TransformationParam(name, abbr, sep, process).set(value)
       @
+
 
     #
     # End Helper methods
@@ -107,7 +117,7 @@ class TransformationBase
      * @return {*} the processed value associated with the given name
      * @description Use {@link get}.origValue for the value originally provided for the parameter
     ###
-    @getValue = (name)->
+    @getValue ||= (name)->
       trans[name]?.value() ? @otherOptions[name]
 
     ###*
@@ -116,7 +126,7 @@ class TransformationBase
      * @param {string} name the name of the transformation parameter
      * @returns {Param} the param object for the given name, or undefined
     ###
-    @get = (name)->
+    @get ||= (name)->
       trans[name]
 
     ###*
@@ -126,7 +136,7 @@ class TransformationBase
      * @return {*} Returns the option that was removed or null if no option by that name was found. The type of the
      *              returned value depends on the value.
     ###
-    @remove = (name)->
+    @remove ||= (name)->
       switch
         when trans[name]?
           temp = trans[name]
@@ -143,7 +153,7 @@ class TransformationBase
      * Return an array of all the keys (option names) in the transformation.
      * @return {Array<string>} the keys in snakeCase format
     ###
-    @keys = ()->
+    @keys ||= ()->
       (Util.snakeCase(key) for key of trans).sort()
 
     ###*
@@ -151,11 +161,16 @@ class TransformationBase
      * @function Transformation#toPlainObject
      * @return {Object} the transformation options as plain object
     ###
-    @toPlainObject = ()->
+    @toPlainObject ||= ()->
       hash = {}
       for key of trans
         hash[key] = trans[key].value()
         hash[key] = Util.cloneDeep(hash[key]) if Util.isPlainObject(hash[key])
+      unless Util.isEmpty(@chained)
+        list = for tr in @chained
+          tr.toPlainObject()
+        list.push(hash)
+        hash = {transformation: list}
       hash
 
     ###*
@@ -168,12 +183,20 @@ class TransformationBase
      * tr.width(10).crop('fit').chain().angle(15).serialize()
      * // produces "c_fit,w_10/a_15"
     ###
-    @chain = ()->
-      tr = new @constructor( @toOptions())
-      trans = []
-      @set("transformation", tr)
+    @chain ||= ()->
+      names = Object.getOwnPropertyNames(trans)
+      unless names.length == 0
+        tr = new @constructor(@toOptions(false))
+        @resetTransformations()
+        @chained.push(tr)
+      @
 
-    @otherOptions = {}
+
+    @resetTransformations ||= ()->
+      trans = {}
+      @
+
+    @otherOptions ||= {}
 
     ###*
      * Transformation Class methods.
@@ -183,7 +206,7 @@ class TransformationBase
      * @ignore
      * @type {Array<string>}
     ###
-    @methods = Util.difference(Util.functions(Transformation.prototype), Util.functions(TransformationBase.prototype))
+    @methods ||= Util.difference(Util.functions(Transformation.prototype), Util.functions(TransformationBase.prototype))
 
     ###*
      * Parameters that are filtered out before passing the options to an HTML tag.
@@ -194,7 +217,9 @@ class TransformationBase
      * @ignore
      * @see toHtmlAttributes
     ###
-    @PARAM_NAMES = (Util.snakeCase(m) for m in @methods).concat( Configuration.CONFIG_PARAMS)
+    @PARAM_NAMES ||= (Util.snakeCase(m) for m in @methods).concat( Configuration.CONFIG_PARAMS)
+
+    @chained = []
 
     # Finished constructing the instance, now process the options
 
@@ -206,14 +231,23 @@ class TransformationBase
    * @returns {Transformation} Returns this instance for chaining
   ###
   fromOptions: (options) ->
-    options or= {}
-    options = {transformation: options } if Util.isString(options) || Util.isArray(options) || options instanceof Transformation
-    options = Util.cloneDeep(options, (value) ->
-      if value instanceof Transformation
-        new value.constructor( value.toOptions())
-    )
-    for key, opt of options
-      @set key, opt
+    if options instanceof TransformationBase
+      @fromTransformation(options)
+    else
+      options or= {}
+      options = {transformation: options } if Util.isString(options) || Util.isArray(options)
+      options = Util.cloneDeep(options, (value) ->
+        if value instanceof TransformationBase
+          new value.constructor( value.toOptions())
+      )
+      for key, opt of options
+        @set key, opt
+    this
+
+  fromTransformation: (other) ->
+    if other instanceof TransformationBase
+      for key in other.keys()
+        @set(key, other.get(key).origValue)
     this
 
   ###*
@@ -234,28 +268,37 @@ class TransformationBase
   hasLayer: ()->
     @getValue("overlay") || @getValue("underlay")
 
+
   ###*
    * Generate a string representation of the transformation.
    * @function Transformation#serialize
    * @return {string} Returns the transformation as a string
   ###
   serialize: ->
-    resultArray = []
+    resultArray = for tr in @chained
+        tr.serialize()
     paramList = @keys()
     transformations = @get("transformation")?.serialize()
-    paramList = Util.without(paramList, "transformation")
+    ifParam = @get("if")?.serialize()
+    paramList = Util.difference(paramList, ["transformation", "if"])
     transformationList = (@get(t)?.serialize() for t in paramList )
     switch
       when Util.isString(transformations)
         transformationList.push( transformations)
       when Util.isArray( transformations)
-        resultArray = (transformations)
-    transformationString = (
+        resultArray = resultArray.concat(transformations)
+    transformationList = (
       for value in transformationList when Util.isArray(value) &&!Util.isEmpty(value) || !Util.isArray(value) && value
         value
-    ).sort().join(',')
+    ).sort()
+    if ifParam == "if_end"
+      transformationList.push(ifParam)
+    else if !Util.isEmpty(ifParam)
+      transformationList.unshift(ifParam)
+
+    transformationString = transformationList.join(@param_separator)
     resultArray.push(transformationString) unless Util.isEmpty(transformationString)
-    Util.compact(resultArray).join('/')
+    Util.compact(resultArray).join(@trans_separator)
 
   ###*
    * Provide a list of all the valid transformation option names
@@ -274,8 +317,12 @@ class TransformationBase
   ###
   toHtmlAttributes: ()->
     options = {}
-    options[key] = value for key, value of @otherOptions when  !Util.contains(@PARAM_NAMES, key)
-    options[key] = @get(key).value for key in Util.difference(@keys(), @PARAM_NAMES)
+    for key, value of @otherOptions when  !Util.contains(@PARAM_NAMES, key)
+      attrName = if /^html_/.test(key) then key.substr(5) else key
+      options[attrName] = value
+    for key in Util.difference(@keys(), @PARAM_NAMES)
+      attrName = if /^html_/.test(key) then key.substr(5) else key
+      options[attrName] = @get(key).value
     # convert all "html_key" to "key" with the same value
     for k in @keys() when /^html_/.exec(k)
       options[k.substr(5)] = @getValue(k)
@@ -367,6 +414,8 @@ class Transformation  extends TransformationBase
     else
       dpr
   effect: (value)->               @arrayParam value,  "effect", "e", ":"
+  else: ()->                      @if('else')
+  endIf: ()->                     @if('end')
   endOffset: (value)->            @rangeParam value,  "end_offset", "eo"
   fallbackContent: (value)->      @param value,   "fallback_content"
   fetchFormat: (value)->          @param value,       "fetch_format", "f"
@@ -380,6 +429,29 @@ class Transformation  extends TransformationBase
       null
   htmlHeight: (value)->           @param value, "html_height"
   htmlWidth:(value)->             @param value, "html_width"
+  if: (value = "")->
+    switch value
+      when "else"
+        @chain()
+        @param value, "if", "if"
+      when "end"
+        @chain()
+        for i in [@chained.length-1..0] by -1
+          ifVal = @chained[i].getValue("if")
+          if ifVal == "end"
+            break
+          else if ifVal?
+            trIf = Transformation.new().if(ifVal)
+            @chained[i].remove("if")
+            trRest = @chained[i]
+            @chained[i] = Transformation.new().transformation([trIf, trRest])
+            break unless ifVal == "else"
+        @param value, "if", "if"
+      when ""
+        Condition.new().setParent(this)
+      else
+        @param value, "if", "if", (value)->
+          Condition.new(value).toString()
   offset: (value)->
     [start_o, end_o] = if( Util.isFunction(value?.split))
       value.split('..')

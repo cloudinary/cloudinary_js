@@ -10,7 +10,7 @@ describe 'cloudinary', ()->
     beforeAll (done)->
       # Open a new window with test HTML. A dynamic title is required in order to open a *new* window each time even if
       # previous window was not closed.
-      testWindow = window.open( "responsive-jquery-test.html","Cloudinary test #{(new Date()).toLocaleString()}", "width=500, height=500")
+      testWindow = window.open( "responsive-core-test.html","Cloudinary test #{(new Date()).toLocaleString()}", "width=500, height=500")
 
       testWindow.addEventListener 'load', ()=>
           testDocument = testWindow.document
@@ -109,6 +109,7 @@ describe 'cloudinary', ()->
             , 200
         , 200
 
+
     it "should not resize images with fixed width containers", (done)->
       image1 = testDocument.getElementById('image1')
       src = image1.getAttribute('src')
@@ -118,7 +119,6 @@ describe 'cloudinary', ()->
         src = image1.getAttribute('src')
         newWidth = src.match(/w_(\d+)/)[1]
         expect(newWidth).toEqual currentWidth
-        testWindow.removeEventListener handler
         done()
       testWindow.addEventListener 'resize', handler
       testWindow.resizeBy(200,0)

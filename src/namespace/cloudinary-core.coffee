@@ -10,13 +10,14 @@
     root.cloudinary ||= {}
     root.cloudinary = factory(_)
 )(this,  (_)->
-utf8_encode: utf8_encode
-crc32: crc32
-Util: Util
-Transformation: Transformation
-Configuration: Configuration
-HtmlTag: HtmlTag
-ImageTag: ImageTag
-VideoTag: VideoTag
-Cloudinary: Cloudinary
+  utf8_encode: utf8_encode
+  crc32: crc32
+  Util: Util
+  Transformation: Transformation
+  Condition: Condition
+  Configuration: Configuration
+  HtmlTag: HtmlTag
+  ImageTag: ImageTag
+  VideoTag: VideoTag
+  Cloudinary: Cloudinary
 )

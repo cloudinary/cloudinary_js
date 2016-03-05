@@ -1,5 +1,5 @@
 
-###*
+###
  * Includes utility methods and lodash / jQuery shims
 ###
 
@@ -207,7 +207,9 @@ without = (array, item)->
   newArray
 
 
-
+###*
+ * @class Util
+###
 Util =
   hasClass: hasClass
   addClass: addClass

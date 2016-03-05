@@ -18,9 +18,11 @@ module.exports = (config) ->
       'bower_components/lodash/lodash.js'
       'build/cloudinary-core.js'
       'test/spec/cloudinary-spec.js'
+      'test/spec/transformation-spec.js'
       'test/spec/tagspec.js'
       'test/spec/videourlspec.js'
       'test/spec/chaining-spec.js'
+      'test/spec/conditional-transformation-spec.js'
     ]
 
     # preprocess matching files before serving them to the browser

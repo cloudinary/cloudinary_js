@@ -10,7 +10,7 @@
   * @param {Element} element - the element to get the data from
   * @param {string} name - the name of the data item
   * @returns the value associated with the `name`
-  *
+  * @function Util.getData
 ###
 getData = ( element, name)->
   jQuery(element).data(name)

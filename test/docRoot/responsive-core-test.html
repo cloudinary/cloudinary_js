@@ -1,7 +1,7 @@
 <html>
 <head>
-    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css">
-    <!--<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">-->
+    <link rel="stylesheet" href="../../bower_components/bootstrap/dist/css/bootstrap.css">
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
 
     <!-- Custom CSS -->
     <link href="css/logo-nav.css" rel="stylesheet">
@@ -46,7 +46,7 @@
 
     <script type="text/javascript">
         window.onload = function(){
-            cl = cloudinary.Cloudinary.new( {cloud_name: "demo"});
+            var cl = cloudinary.Cloudinary.new( {cloud_name: "demo"});
             cl.responsive();
         };
     </script>

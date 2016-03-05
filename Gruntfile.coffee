@@ -11,11 +11,12 @@ module.exports = (grunt)->
     pkg: grunt.file.readJSON('package.json')
 
     coffee:
-      sources:
-        expand: true
-        bare: false
+      options:
+        bare: true
         sourceMap: true
+      sources:
         cwd: 'src'
+        expand: true
         src: ['**/*.coffee']
         dest: 'src'
         ext: '.js'
@@ -47,9 +48,11 @@ module.exports = (grunt)->
     karmaCommon: [
       "build/<%= grunt.task.current.target %>.js"
       'test/spec/cloudinary-spec.js'
+      'test/spec/transformation-spec.js'
       'test/spec/tagspec.js'
       'test/spec/videourlspec.js'
       'test/spec/chaining-spec.js'
+      'test/spec/conditional-transformation-spec.js'
     ]
     karma:
       options:
@@ -76,7 +79,6 @@ module.exports = (grunt)->
           src: [
               "bower_components/jquery/dist/jquery.js"
               "<%= karmaCommon %>"
-              "test/spec/cloudinary-jquery-spec.js"
             ]
 
       'cloudinary-jquery-file-upload':
@@ -89,7 +91,6 @@ module.exports = (grunt)->
               "bower_components/blueimp-file-upload/js/jquery.iframe-transport.js"
               "bower_components/blueimp-file-upload/js/jquery.fileupload-image.js"
               "<%= karmaCommon %>"
-              "test/spec/cloudinary-jquery-spec.js"
               "test/spec/cloudinary-jquery-upload-spec.js"
             ]
 
@@ -167,6 +168,7 @@ module.exports = (grunt)->
       'src/utf8_encode.coffee',
       'src/crc32.coffee',
       'src/parameters.coffee',
+      'src/condition.coffee',
       'src/transformation.coffee',
       'src/configuration.coffee',
       'src/tags/htmltag.coffee',
@@ -205,18 +207,21 @@ module.exports = (grunt)->
               utf8_encode: utf8_encode
               crc32: crc32
               Util: Util
+              Condition: Condition
               Transformation: Transformation
               Configuration: Configuration
               HtmlTag: HtmlTag
               ImageTag: ImageTag
               VideoTag: VideoTag
               Cloudinary: Cloudinary
+              VERSION: "<%= pkg.version %>"
               <%=  /jquery/.test(grunt.task.current.target) ? "CloudinaryJQuery: CloudinaryJQuery" : ""%>
 
             cloudinary
           )
           """
         process: (src, path)->
+          # add indentation to each source file
           "  " + src.replace( /\n/g, "\n  ")
       'cloudinary-core':
         src: [
