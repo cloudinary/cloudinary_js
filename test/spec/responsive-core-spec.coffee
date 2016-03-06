@@ -36,7 +36,6 @@ describe 'cloudinary', ()->
       evt.initUIEvent 'resize', true, false, window, 0
       window.dispatchEvent evt
 
-
     it 'should traverse up the DOM to find a parent that has clientWidth', ->
       aContainer = undefined
       divContainer = undefined
@@ -93,6 +92,7 @@ describe 'cloudinary', ()->
           responsive: true)
       container.appendChild(img)
       expect(img.getAttribute('src')).toBeFalsy()
+      expect(Util.hasClass(img, 'cld-responsive')).toBeTruthy()
       cl.responsive()
       expect(img.getAttribute('src')).toEqual window.location.protocol + '//res.cloudinary.com/demo/image/upload/c_scale,dpr_' + dpr + ',w_101/sample.jpg'
       container.style.width = "111px"
@@ -123,3 +123,8 @@ describe 'cloudinary', ()->
       testWindow.addEventListener 'resize', handler
       testWindow.resizeBy(200,0)
 
+    describe "responsive_class", ->
+      it "should set the class used for responsive functionality", ->
+        img = cl.image( "sample", responsive: true, responsive_class: "cl-foobar")
+        expect(Util.hasClass(img, "cl-foobar")).toBeTruthy()
+      

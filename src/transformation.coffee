@@ -1,6 +1,7 @@
 ###*
- * Transformation class
+ * TransformationBase
  * Depends on 'configuration', 'parameters','util'
+ * @internal
 ###
 
 class TransformationBase

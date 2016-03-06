@@ -32,7 +32,7 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
     * @returns the value associated with the `name`
     * @function Util.getData
    */
-  var ArrayParam, Cloudinary, CloudinaryJQuery, Condition, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, camelCase, cloneDeep, cloudinary, compact, contains, crc32, defaults, difference, functions, getAttribute, getData, hasClass, identity, isEmpty, isString, merge, parameters, reWords, setAttribute, setAttributes, setData, snakeCase, utf8_encode, webp, width, without;
+  var ArrayParam, Cloudinary, CloudinaryJQuery, Condition, Configuration, HtmlTag, ImageTag, Param, RangeParam, RawParam, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, camelCase, cloneDeep, cloudinary, compact, contains, crc32, defaults, difference, functions, getAttribute, getData, hasClass, identity, isEmpty, isString, merge, parameters, reWords, removeAttribute, setAttribute, setAttributes, setData, snakeCase, utf8_encode, webp, width, without;
   getData = function(element, name) {
     return jQuery(element).data(name);
   };
@@ -74,6 +74,9 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
    */
   setAttribute = function(element, name, value) {
     return jQuery(element).attr(name, value);
+  };
+  removeAttribute = function(element, name) {
+    return jQuery(element).removeAttr(name);
   };
   setAttributes = function(element, attributes) {
     return jQuery(element).attr(attributes);
@@ -241,6 +244,7 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
     addClass: addClass,
     getAttribute: getAttribute,
     setAttribute: setAttribute,
+    removeAttribute: removeAttribute,
     setAttributes: setAttributes,
     getData: getData,
     setData: setData,
@@ -986,8 +990,9 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
   })();
 
   /**
-   * Transformation class
+   * TransformationBase
    * Depends on 'configuration', 'parameters','util'
+   * @internal
    */
   TransformationBase = (function() {
     var lastArgCallback;
@@ -1859,10 +1864,11 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
     var DEFAULT_CONFIGURATION_PARAMS, ref;
 
     DEFAULT_CONFIGURATION_PARAMS = {
+      responsive_class: 'cld-responsive',
       secure: (typeof window !== "undefined" && window !== null ? (ref = window.location) != null ? ref.protocol : void 0 : void 0) === 'https:'
     };
 
-    Configuration.CONFIG_PARAMS = ["api_key", "api_secret", "cdn_subdomain", "cloud_name", "cname", "private_cdn", "protocol", "resource_type", "responsive_width", "secure", "secure_cdn_subdomain", "secure_distribution", "shorten", "type", "url_suffix", "use_root_path", "version"];
+    Configuration.CONFIG_PARAMS = ["api_key", "api_secret", "cdn_subdomain", "cloud_name", "cname", "private_cdn", "protocol", "resource_type", "responsive_class", "responsive_width", "secure", "secure_cdn_subdomain", "secure_distribution", "shorten", "type", "url_suffix", "use_root_path", "version"];
 
 
     /**
@@ -2933,18 +2939,24 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
      * @function Cloudinary#responsive
      */
 
-    Cloudinary.prototype.responsive = function(options) {
-      var ref, ref1, responsiveResize, timeout;
+    Cloudinary.prototype.responsive = function(options, bootstrap) {
+      var ref, ref1, ref2, responsiveClass, responsiveResize, timeout;
+      if (bootstrap == null) {
+        bootstrap = true;
+      }
       this.responsiveConfig = Util.merge(this.responsiveConfig || {}, options);
-      this.cloudinary_update('img.cld-responsive, img.cld-hidpi', this.responsiveConfig);
-      responsiveResize = (ref = (ref1 = this.responsiveConfig['responsive_resize']) != null ? ref1 : this.config('responsive_resize')) != null ? ref : true;
+      responsiveClass = (ref = this.responsiveConfig['responsive_class']) != null ? ref : this.config('responsive_class');
+      if (bootstrap) {
+        this.cloudinary_update("img." + responsiveClass + ", img.cld-hidpi", this.responsiveConfig);
+      }
+      responsiveResize = (ref1 = (ref2 = this.responsiveConfig['responsive_resize']) != null ? ref2 : this.config('responsive_resize')) != null ? ref1 : true;
       if (responsiveResize && !this.responsiveResizeInitialized) {
         this.responsiveConfig.resizing = this.responsiveResizeInitialized = true;
         timeout = null;
         return window.addEventListener('resize', (function(_this) {
           return function() {
-            var debounce, ref2, ref3, reset, run, wait, waitFunc;
-            debounce = (ref2 = (ref3 = _this.responsiveConfig['responsive_debounce']) != null ? ref3 : _this.config('responsive_debounce')) != null ? ref2 : 100;
+            var debounce, ref3, ref4, reset, run, wait, waitFunc;
+            debounce = (ref3 = (ref4 = _this.responsiveConfig['responsive_debounce']) != null ? ref4 : _this.config('responsive_debounce')) != null ? ref3 : 100;
             reset = function() {
               if (timeout) {
                 clearTimeout(timeout);
@@ -2952,7 +2964,7 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
               }
             };
             run = function() {
-              return _this.cloudinary_update('img.cld-responsive', _this.responsiveConfig);
+              return _this.cloudinary_update("img." + responsiveClass, _this.responsiveConfig);
             };
             waitFunc = function() {
               reset();
@@ -2960,7 +2972,7 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
             };
             wait = function() {
               reset();
-              return setTimeout(waitFunc, debounce);
+              return timeout = setTimeout(waitFunc, debounce);
             };
             if (debounce) {
               return wait();
@@ -3142,10 +3154,13 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
     };
 
     parentWidth = function(element) {
-      var containerWidth;
+      var containerWidth, style;
       containerWidth = 0;
       while (((element = element != null ? element.parentNode : void 0) instanceof Element) && !containerWidth) {
-        containerWidth = Util.width(element);
+        style = window.getComputedStyle(element);
+        if (!/^inline/.test(style.display)) {
+          containerWidth = Util.width(element);
+        }
       }
       return containerWidth;
     };
@@ -3167,7 +3182,7 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
      */
 
     Cloudinary.prototype.cloudinary_update = function(elements, options) {
-      var containerWidth, imageWidth, j, len, ref, requestedWidth, setUrl, src, tag;
+      var containerWidth, imageWidth, j, len, ref, ref1, requestedWidth, responsiveClass, setUrl, src, tag;
       if (options == null) {
         options = {};
       }
@@ -3183,31 +3198,32 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
             return [elements];
         }
       })();
+      responsiveClass = (ref = this.responsiveConfig['responsive_class']) != null ? ref : this.config('responsive_class');
       for (j = 0, len = elements.length; j < len; j++) {
         tag = elements[j];
-        if (!((ref = tag.tagName) != null ? ref.match(/img/i) : void 0)) {
+        if (!((ref1 = tag.tagName) != null ? ref1.match(/img/i) : void 0)) {
           continue;
         }
         setUrl = true;
         if (options.responsive) {
-          Util.addClass(tag, "cld-responsive");
+          Util.addClass(tag, responsiveClass);
         }
         src = Util.getData(tag, 'src-cache') || Util.getData(tag, 'src');
         if (!Util.isEmpty(src)) {
           src = src.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + this.device_pixel_ratio());
-          if (Util.hasClass(tag, 'cld-responsive') && /\bw_auto\b/.exec(src)) {
+          if (Util.hasClass(tag, responsiveClass) && /\bw_auto\b/.exec(src)) {
             containerWidth = parentWidth(tag);
             if (containerWidth !== 0) {
               requestedWidth = applyBreakpoints.call(this, tag, containerWidth, options);
               imageWidth = Util.getData(tag, 'width') || 0;
               if (requestedWidth > imageWidth) {
                 imageWidth = requestedWidth;
+                Util.setData(tag, 'width', requestedWidth);
               }
-              Util.setData(tag, 'width', requestedWidth);
               src = src.replace(/\bw_auto\b/g, 'w_' + imageWidth);
-              Util.setAttribute(tag, 'width', null);
+              Util.removeAttribute(tag, 'width');
               if (!options.responsive_preserve_height) {
-                Util.setAttribute(tag, 'height', null);
+                Util.removeAttribute(tag, 'height');
               }
             } else {
               setUrl = false;
@@ -3279,17 +3295,18 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
      */
 
     CloudinaryJQuery.prototype.responsive = function(options) {
-      var ref, ref1, responsiveConfig, responsiveResizeInitialized, responsive_resize, timeout;
+      var ref, ref1, ref2, responsiveClass, responsiveConfig, responsiveResizeInitialized, responsive_resize, timeout;
       responsiveConfig = jQuery.extend(responsiveConfig || {}, options);
-      jQuery('img.cld-responsive, img.cld-hidpi').cloudinary_update(responsiveConfig);
-      responsive_resize = (ref = (ref1 = responsiveConfig['responsive_resize']) != null ? ref1 : this.config('responsive_resize')) != null ? ref : true;
+      responsiveClass = (ref = this.responsiveConfig['responsive_class']) != null ? ref : this.config('responsive_class');
+      jQuery("img." + responsiveClass + ", img.cld-hidpi").cloudinary_update(responsiveConfig);
+      responsive_resize = (ref1 = (ref2 = responsiveConfig['responsive_resize']) != null ? ref2 : this.config('responsive_resize')) != null ? ref1 : true;
       if (responsive_resize && !responsiveResizeInitialized) {
         responsiveConfig.resizing = responsiveResizeInitialized = true;
         timeout = null;
         return jQuery(window).on('resize', (function(_this) {
           return function() {
-            var debounce, ref2, ref3, reset, run, wait;
-            debounce = (ref2 = (ref3 = responsiveConfig['responsive_debounce']) != null ? ref3 : _this.config('responsive_debounce')) != null ? ref2 : 100;
+            var debounce, ref3, ref4, reset, run, wait;
+            debounce = (ref3 = (ref4 = responsiveConfig['responsive_debounce']) != null ? ref4 : _this.config('responsive_debounce')) != null ? ref3 : 100;
             reset = function() {
               if (timeout) {
                 clearTimeout(timeout);
@@ -3297,7 +3314,7 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
               }
             };
             run = function() {
-              return jQuery('img.cld-responsive').cloudinary_update(responsiveConfig);
+              return jQuery("img." + responsiveClass).cloudinary_update(responsiveConfig);
             };
             wait = function() {
               reset();

@@ -10,6 +10,7 @@ class Configuration
    * @const {Object} Configuration.DEFAULT_CONFIGURATION_PARAMS
   ###
   DEFAULT_CONFIGURATION_PARAMS ={
+    responsive_class: 'cld-responsive'
     secure: window?.location?.protocol == 'https:'
   }
 
@@ -22,6 +23,7 @@ class Configuration
     "private_cdn"
     "protocol"
     "resource_type"
+    "responsive_class"
     "responsive_width"
     "secure"
     "secure_cdn_subdomain"

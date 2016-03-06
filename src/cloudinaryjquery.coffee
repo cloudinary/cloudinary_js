@@ -28,7 +28,8 @@ class CloudinaryJQuery extends Cloudinary
   ###
   responsive: (options) ->
     responsiveConfig = jQuery.extend(responsiveConfig or {}, options)
-    jQuery('img.cld-responsive, img.cld-hidpi').cloudinary_update responsiveConfig
+    responsiveClass = @responsiveConfig['responsive_class'] ? @config('responsive_class')
+    jQuery("img.#{responsiveClass}, img.cld-hidpi").cloudinary_update responsiveConfig
     responsive_resize = responsiveConfig['responsive_resize'] ? @config('responsive_resize') ? true
     if responsive_resize and !responsiveResizeInitialized
       responsiveConfig.resizing = responsiveResizeInitialized  = true
@@ -42,7 +43,7 @@ class CloudinaryJQuery extends Cloudinary
             timeout = null
 
         run = ->
-          jQuery('img.cld-responsive').cloudinary_update responsiveConfig
+          jQuery("img.#{responsiveClass}").cloudinary_update responsiveConfig
 
         wait = ->
           reset()

@@ -267,7 +267,8 @@ module.exports = (grunt)->
   grunt.loadNpmTasks('grunt-version')
 
   grunt.registerTask('default', ['concat', 'coffee'])
-  grunt.registerTask('build', ['clean', 'lodash','concat', 'coffee', 'jsdoc', 'copy:backward-compatible'])
+  grunt.registerTask('compile', ['clean', 'concat', 'coffee', 'copy:backward-compatible', 'copy:dist'])
+  grunt.registerTask('build', ['clean', 'concat', 'coffee', 'jsdoc', 'copy:backward-compatible'])
   grunt.registerTask('lodash', (name, target)->
     lodashCalls = grunt.file.read('src/util/lodash.coffee').match(/_\.\w+/g)
     include = []

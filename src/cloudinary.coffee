@@ -353,9 +353,10 @@ class Cloudinary
   ###*
    * @function Cloudinary#responsive
   ###
-  responsive: (options) ->
+  responsive: (options, bootstrap = true) ->
     @responsiveConfig = Util.merge(@responsiveConfig or {}, options)
-    @cloudinary_update 'img.cld-responsive, img.cld-hidpi', @responsiveConfig
+    responsiveClass = @responsiveConfig['responsive_class'] ? @config('responsive_class')
+    @cloudinary_update( "img.#{responsiveClass}, img.cld-hidpi", @responsiveConfig) if bootstrap
     responsiveResize = @responsiveConfig['responsive_resize'] ? @config('responsive_resize') ? true
     if responsiveResize and !@responsiveResizeInitialized
       @responsiveConfig.resizing = @responsiveResizeInitialized = true
@@ -369,7 +370,7 @@ class Cloudinary
             timeout = null
 
         run = =>
-          @cloudinary_update 'img.cld-responsive', @responsiveConfig
+          @cloudinary_update "img.#{responsiveClass}", @responsiveConfig
 
         waitFunc = ()->
           reset()
@@ -377,7 +378,7 @@ class Cloudinary
 
         wait = ->
           reset()
-          setTimeout(waitFunc,debounce)
+          timeout = setTimeout(waitFunc,debounce)
         if debounce
           wait()
         else
@@ -520,7 +521,8 @@ class Cloudinary
   parentWidth = (element) ->
     containerWidth = 0
     while ((element = element?.parentNode) instanceof Element) and !containerWidth
-      containerWidth = Util.width(element)
+      style = window.getComputedStyle(element);
+      containerWidth = Util.width(element) unless /^inline/.test(style.display)
     containerWidth
 
   ###*
@@ -548,15 +550,16 @@ class Cloudinary
       else
         [elements]
 
+    responsiveClass = @responsiveConfig['responsive_class'] ? @config('responsive_class')
     for tag in elements when tag.tagName?.match(/img/i)
       setUrl = true
       if options.responsive
-        Util.addClass(tag, "cld-responsive")
+        Util.addClass(tag, responsiveClass)
       src = Util.getData(tag, 'src-cache') or Util.getData(tag, 'src')
       unless Util.isEmpty(src)
-# Update dpr according to the device's devicePixelRatio
+        # Update dpr according to the device's devicePixelRatio
         src = src.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + @device_pixel_ratio())
-        if Util.hasClass(tag, 'cld-responsive') and /\bw_auto\b/.exec(src)
+        if Util.hasClass(tag, responsiveClass) and /\bw_auto\b/.exec(src)
           containerWidth = parentWidth(tag)
           if containerWidth != 0
             requestedWidth = applyBreakpoints.call(this, tag, containerWidth, options)
@@ -564,14 +567,15 @@ class Cloudinary
             imageWidth = Util.getData(tag, 'width') or 0
             if requestedWidth > imageWidth
               imageWidth = requestedWidth
-            Util.setData(tag, 'width', requestedWidth)
+              Util.setData(tag, 'width', requestedWidth)
 
+#            tag.style.setProperty("max-width", requestedWidth)
             src = src.replace(/\bw_auto\b/g, 'w_' + imageWidth)
 
-            Util.setAttribute(tag, 'width', null)
-            Util.setAttribute(tag, 'height', null) unless options.responsive_preserve_height
+            Util.removeAttribute(tag, 'width')
+            Util.removeAttribute(tag, 'height') unless options.responsive_preserve_height
           else
-# Container doesn't know the size yet - usually because the image is hidden or outside the DOM.
+            # Container doesn't know the size yet - usually because the image is hidden or outside the DOM.
             setUrl = false
         Util.setAttribute(tag, 'src', src) if setUrl
     this

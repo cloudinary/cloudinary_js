@@ -97,6 +97,7 @@ describe('cloudinary', function() {
       });
       container.appendChild(img);
       expect(img.getAttribute('src')).toBeFalsy();
+      expect(Util.hasClass(img, 'cld-responsive')).toBeTruthy();
       cl.responsive();
       expect(img.getAttribute('src')).toEqual(window.location.protocol + '//res.cloudinary.com/demo/image/upload/c_scale,dpr_' + dpr + ',w_101/sample.jpg');
       container.style.width = "111px";
@@ -111,7 +112,7 @@ describe('cloudinary', function() {
         }, 200);
       }, 200);
     });
-    return it("should not resize images with fixed width containers", function(done) {
+    it("should not resize images with fixed width containers", function(done) {
       var currentWidth, handler, image1, src;
       image1 = testDocument.getElementById('image1');
       src = image1.getAttribute('src');
@@ -126,6 +127,16 @@ describe('cloudinary', function() {
       };
       testWindow.addEventListener('resize', handler);
       return testWindow.resizeBy(200, 0);
+    });
+    return describe("responsive_class", function() {
+      return it("should set the class used for responsive functionality", function() {
+        var img;
+        img = cl.image("sample", {
+          responsive: true,
+          responsive_class: "cl-foobar"
+        });
+        return expect(Util.hasClass(img, "cl-foobar")).toBeTruthy();
+      });
     });
   });
 });
