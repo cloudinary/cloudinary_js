@@ -55,6 +55,10 @@ setAttribute = (element, name, value)->
   if _.isElement(element)
     element.setAttribute(name, value)
 
+removeAttribute = (element, name)->
+  if _.isElement(element)
+    element.removeAttribute(name)
+
 setAttributes = (element, attributes)->
 
     for name, value of attributes
@@ -183,7 +187,8 @@ getWidthOrHeight = (elem, name, extra) ->
 
     # Check for style in case a browser which returns unreliable values
     # for getComputedStyle silently falls back to the reliable elem.style
-    valueIsBorderBox = isBorderBox and (support.boxSizingReliable() or val is elem.style[name])
+#    valueIsBorderBox = isBorderBox and (support.boxSizingReliable() or val is elem.style[name])
+    valueIsBorderBox = isBorderBox and (val is elem.style[name])
 
     # Normalize "", auto, and prepare for extra
     val = parseFloat(val) or 0
@@ -224,6 +229,7 @@ Util =
   ###
   getAttribute: getAttribute
   setAttribute: setAttribute
+  removeAttribute: removeAttribute
   setAttributes: setAttributes
   getData: getData
   setData: setData

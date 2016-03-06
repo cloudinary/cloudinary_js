@@ -50,6 +50,9 @@ getAttribute = ( element, name)->
 setAttribute = (element, name, value)->
   jQuery(element).attr(name, value)
 
+removeAttribute = (element, name)->
+  jQuery(element).removeAttr(name)
+
 setAttributes = (element, attributes)->
   jQuery(element).attr(attributes)
 
@@ -150,6 +153,7 @@ Util =
   addClass: addClass
   getAttribute: getAttribute
   setAttribute: setAttribute
+  removeAttribute: removeAttribute
   setAttributes: setAttributes
   getData: getData
   setData: setData
