@@ -319,14 +319,11 @@ class TransformationBase
   toHtmlAttributes: ()->
     options = {}
     for key, value of @otherOptions when  !Util.contains(@PARAM_NAMES, key)
-      attrName = if /^html_/.test(key) then key.substr(5) else key
+      attrName = if /^html_/.test(key) then key.slice(5) else key
       options[attrName] = value
-    for key in Util.difference(@keys(), @PARAM_NAMES)
-      attrName = if /^html_/.test(key) then key.substr(5) else key
-      options[attrName] = @get(key).value
     # convert all "html_key" to "key" with the same value
-    for k in @keys() when /^html_/.exec(k)
-      options[k.substr(5)] = @getValue(k)
+    for key in @keys() when /^html_/.test(key)
+      options[key.slice(5)] = @getValue(key)
 
     unless @hasLayer()|| @getValue("angle") || Util.contains( ["fit", "limit", "lfill"],@getValue("crop"))
       width = @get("width")?.origValue
