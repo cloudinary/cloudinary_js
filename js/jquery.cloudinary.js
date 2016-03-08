@@ -1,6 +1,6 @@
 
 /**
- * Cloudinary's JavaScript library - Version 2.0.6
+ * Cloudinary's JavaScript library - Version 2.0.7
  * Copyright Cloudinary
  * see https://github.com/cloudinary/cloudinary_js
  *
@@ -1462,7 +1462,7 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
      */
 
     TransformationBase.prototype.toHtmlAttributes = function() {
-      var attrName, height, j, k, key, l, len, len1, options, ref, ref1, ref2, ref3, ref4, value;
+      var attrName, height, j, key, len, options, ref, ref1, ref2, ref3, value;
       options = {};
       ref = this.otherOptions;
       for (key in ref) {
@@ -1470,25 +1470,19 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
         if (!(!Util.contains(this.PARAM_NAMES, key))) {
           continue;
         }
-        attrName = /^html_/.test(key) ? key.substr(5) : key;
+        attrName = /^html_/.test(key) ? key.slice(5) : key;
         options[attrName] = value;
       }
-      ref1 = Util.difference(this.keys(), this.PARAM_NAMES);
+      ref1 = this.keys();
       for (j = 0, len = ref1.length; j < len; j++) {
         key = ref1[j];
-        attrName = /^html_/.test(key) ? key.substr(5) : key;
-        options[attrName] = this.get(key).value;
-      }
-      ref2 = this.keys();
-      for (l = 0, len1 = ref2.length; l < len1; l++) {
-        k = ref2[l];
-        if (/^html_/.exec(k)) {
-          options[k.substr(5)] = this.getValue(k);
+        if (/^html_/.test(key)) {
+          options[key.slice(5)] = this.getValue(key);
         }
       }
       if (!(this.hasLayer() || this.getValue("angle") || Util.contains(["fit", "limit", "lfill"], this.getValue("crop")))) {
-        width = (ref3 = this.get("width")) != null ? ref3.origValue : void 0;
-        height = (ref4 = this.get("height")) != null ? ref4.origValue : void 0;
+        width = (ref2 = this.get("width")) != null ? ref2.origValue : void 0;
+        height = (ref3 = this.get("height")) != null ? ref3.origValue : void 0;
         if (parseFloat(width) >= 1.0) {
           if (options['width'] == null) {
             options['width'] = width;
@@ -2477,7 +2471,7 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
   Cloudinary = (function() {
     var AKAMAI_SHARED_CDN, CF_SHARED_CDN, DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_SOURCE_TYPES, OLD_AKAMAI_SHARED_CDN, SHARED_CDN, VERSION, absolutize, applyBreakpoints, cdnSubdomainNumber, closestAbove, cloudinaryUrlPrefix, defaultBreakpoints, finalizeResourceType, parentWidth;
 
-    VERSION = "2.0.6";
+    VERSION = "2.0.7";
 
     CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
 
@@ -3657,7 +3651,7 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
     ImageTag: ImageTag,
     VideoTag: VideoTag,
     Cloudinary: Cloudinary,
-    VERSION: "2.0.6",
+    VERSION: "2.0.7",
     CloudinaryJQuery: CloudinaryJQuery
   };
   return cloudinary;

@@ -1,14 +1,38 @@
 
+2.0.7 / 2016-03-08
+==================
+
+New functionality and features
+------------------------------
+
+  * Conditional Transformations
+  * Set breakpoint steps to 100. Default `responsive_use_stoppoints` to `true` instead of `"resize"`.
+  * Round up DPR by default. Add `round_dpr` configuration parameter.
+
+Other Changes
+-------------
+
+  * Add `Condition` class. Add `Transformation.if`, `Transformation.endif`, `Transformation.else`.
+  * Use String.slice() instead of String.substring()
+  * Update Grunt `build` task to not delete the lodash artifacts. Update `compile` task to not clean `jsdoc`.
+  * Add `bootstrap` argument to `responsive()`. Support responsive_class in options (defaults to `cld-responsive`).
+  * Add `Util.removeAttribute`
+  * Add `item == null` to jQuery utils `isEmpty`
+
 2.0.6 / 2016-02-15
 ==================
 
-## New functionality and features
+New functionality and features
+------------------------------
+
   * Support webpack, browserify
   * webpack example
   * Minified version of source
   * Shrinkwrapped core lib which includes a subset of the lodash functions
 
-## Other Changes
+Other Changes
+-------------
+
   * Remove UMD constrcut from the individual source files.
   * Fix module references for NodeJS
   * Clone headers instead of modifying them. Fixes handling of multiple chunked uploads in parallel.
