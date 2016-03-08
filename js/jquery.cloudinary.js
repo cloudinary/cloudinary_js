@@ -1865,10 +1865,11 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
 
     DEFAULT_CONFIGURATION_PARAMS = {
       responsive_class: 'cld-responsive',
+      round_dpr: true,
       secure: (typeof window !== "undefined" && window !== null ? (ref = window.location) != null ? ref.protocol : void 0 : void 0) === 'https:'
     };
 
-    Configuration.CONFIG_PARAMS = ["api_key", "api_secret", "cdn_subdomain", "cloud_name", "cname", "private_cdn", "protocol", "resource_type", "responsive_class", "responsive_width", "secure", "secure_cdn_subdomain", "secure_distribution", "shorten", "type", "url_suffix", "use_root_path", "version"];
+    Configuration.CONFIG_PARAMS = ["api_key", "api_secret", "cdn_subdomain", "cloud_name", "cname", "private_cdn", "protocol", "resource_type", "responsive_class", "responsive_width", "round_dpr", "secure", "secure_cdn_subdomain", "secure_distribution", "shorten", "type", "url_suffix", "use_root_path", "version"];
 
 
     /**
@@ -2529,8 +2530,8 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
      * @param {Object} options - options to configure Cloudinary
      * @see Configuration for more details
      * @example
-     *var cl = new cloudinary.Cloudinary( { cloud_name: "mycloud"});
-     *var imgTag = cl.image("myPicID");
+     *    var cl = new cloudinary.Cloudinary( { cloud_name: "mycloud"});
+     *    var imgTag = cl.image("myPicID");
      */
 
     function Cloudinary(options) {
@@ -3028,24 +3029,27 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
 
     /**
      * @function Cloudinary#device_pixel_ratio
+     * @private
      */
 
-    Cloudinary.prototype.device_pixel_ratio = function() {
-      var dpr, dprString, dprUsed;
+    Cloudinary.prototype.device_pixel_ratio = function(roundDpr) {
+      var dpr, dprString;
+      if (roundDpr == null) {
+        roundDpr = true;
+      }
       dpr = (typeof window !== "undefined" && window !== null ? window.devicePixelRatio : void 0) || 1;
-      dprString = this.devicePixelRatioCache[dpr];
-      if (!dprString) {
-        dprUsed = closestAbove(this.supported_dpr_values, dpr);
-        dprString = dprUsed.toString();
-        if (dprString.match(/^\d+$/)) {
-          dprString += '.0';
-        }
-        this.devicePixelRatioCache[dpr] = dprString;
+      if (roundDpr) {
+        dpr = Math.ceil(dpr);
+      }
+      if (dpr <= 0 || dpr === NaN) {
+        dpr = 1;
+      }
+      dprString = dpr.toString();
+      if (dprString.match(/^\d+$/)) {
+        dprString += '.0';
       }
       return dprString;
     };
-
-    Cloudinary.prototype.supported_dpr_values = [0.75, 1.0, 1.3, 1.5, 2.0, 3.0];
 
     defaultBreakpoints = function(width) {
       return 10 * Math.ceil(width / 10);
@@ -3182,7 +3186,7 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
      */
 
     Cloudinary.prototype.cloudinary_update = function(elements, options) {
-      var containerWidth, imageWidth, j, len, ref, ref1, requestedWidth, responsiveClass, setUrl, src, tag;
+      var containerWidth, imageWidth, j, len, ref, ref1, ref2, ref3, requestedWidth, responsiveClass, roundDpr, setUrl, src, tag;
       if (options == null) {
         options = {};
       }
@@ -3198,10 +3202,11 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
             return [elements];
         }
       })();
-      responsiveClass = (ref = this.responsiveConfig['responsive_class']) != null ? ref : this.config('responsive_class');
+      responsiveClass = (ref = (ref1 = this.responsiveConfig['responsive_class']) != null ? ref1 : options['responsive_class']) != null ? ref : this.config('responsive_class');
+      roundDpr = (ref2 = options['round_dpr']) != null ? ref2 : this.config('round_dpr');
       for (j = 0, len = elements.length; j < len; j++) {
         tag = elements[j];
-        if (!((ref1 = tag.tagName) != null ? ref1.match(/img/i) : void 0)) {
+        if (!((ref3 = tag.tagName) != null ? ref3.match(/img/i) : void 0)) {
           continue;
         }
         setUrl = true;
@@ -3210,7 +3215,7 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
         }
         src = Util.getData(tag, 'src-cache') || Util.getData(tag, 'src');
         if (!Util.isEmpty(src)) {
-          src = src.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + this.device_pixel_ratio());
+          src = src.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + this.device_pixel_ratio(roundDpr));
           if (Util.hasClass(tag, responsiveClass) && /\bw_auto\b/.exec(src)) {
             containerWidth = parentWidth(tag);
             if (containerWidth !== 0) {

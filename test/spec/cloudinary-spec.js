@@ -309,32 +309,51 @@ describe('Cloudinary', function() {
     expect(cl.url(null)).toEqual(null);
     return expect(cl.url(void 0)).toEqual(void 0);
   });
-  if (typeof jQuery !== "undefined" && jQuery !== null) {
-    return describe('window.devicePixelRatio', function() {
-      var dpr, options;
-      dpr = window.devicePixelRatio;
-      options = {};
-      beforeEach(function() {
-        window.devicePixelRatio = 2;
-        return options = {
-          dpr: 'auto'
-        };
+  return describe('window.devicePixelRatio', function() {
+    var dpr, options;
+    dpr = window.devicePixelRatio;
+    options = {};
+    beforeEach(function() {
+      window.devicePixelRatio = 2;
+      return options = {
+        dpr: 'auto'
+      };
+    });
+    afterEach(function() {
+      return window.devicePixelRatio = dpr;
+    });
+    it('should update dpr when creating an image tag using $.cloudinary.image()', function() {
+      var result;
+      result = cl.image('test', options);
+      return expect(cloudinary.Util.getAttribute(result, 'src')).toBe(protocol + '//res.cloudinary.com/test123/image/upload/dpr_2.0/test');
+    });
+    describe("round_dpr", function() {
+      describe("false", function() {
+        return it("should not round up dpr", function() {
+          var result;
+          window.devicePixelRatio = 1.3;
+          options.round_dpr = false;
+          result = cl.image('test', options);
+          return expect(cloudinary.Util.getAttribute(result, 'src')).toBe(protocol + '//res.cloudinary.com/test123/image/upload/dpr_1.3/test');
+        });
       });
-      afterEach(function() {
-        return window.devicePixelRatio = dpr;
+      return describe("true", function() {
+        return it("should round up DPR values", function() {
+          var result;
+          options.round_dpr = true;
+          result = cl.image('test', options);
+          return expect(cloudinary.Util.getAttribute(result, 'src')).toBe(protocol + '//res.cloudinary.com/test123/image/upload/dpr_2.0/test');
+        });
       });
-      it('should update dpr when creating an image tag using $.cloudinary.image()', function() {
-        var result;
-        result = $.cloudinary.image('test', options);
-        return expect($(result).attr('src')).toBe(protocol + '//res.cloudinary.com/test123/image/upload/dpr_2.0/test');
-      });
+    });
+    if (typeof jQuery !== "undefined" && jQuery !== null) {
       return it('should update dpr when creating an image tag using $(\'<img/>\').attr(\'data-src\', \'test\').cloudinary(options)', function() {
         var result;
         result = $('<img/>').attr('data-src', 'test').cloudinary(options);
         return expect($(result).attr('src')).toEqual(protocol + '//res.cloudinary.com/test123/image/upload/dpr_2.0/test');
       });
-    });
-  }
+    }
+  });
 });
 
 //# sourceMappingURL=cloudinary-spec.js.map

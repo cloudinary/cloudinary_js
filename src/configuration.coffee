@@ -11,6 +11,7 @@ class Configuration
   ###
   DEFAULT_CONFIGURATION_PARAMS ={
     responsive_class: 'cld-responsive'
+    round_dpr: true
     secure: window?.location?.protocol == 'https:'
   }
 
@@ -25,6 +26,7 @@ class Configuration
     "resource_type"
     "responsive_class"
     "responsive_width"
+    "round_dpr"
     "secure"
     "secure_cdn_subdomain"
     "secure_distribution"

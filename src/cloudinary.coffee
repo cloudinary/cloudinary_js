@@ -37,8 +37,8 @@ class Cloudinary
    * @param {Object} options - options to configure Cloudinary
    * @see Configuration for more details
    * @example
-   *var cl = new cloudinary.Cloudinary( { cloud_name: "mycloud"});
-   *var imgTag = cl.image("myPicID");
+   *    var cl = new cloudinary.Cloudinary( { cloud_name: "mycloud"});
+   *    var imgTag = cl.image("myPicID");
   ###
   constructor: (options)->
 
@@ -408,26 +408,17 @@ class Cloudinary
 
   ###*
    * @function Cloudinary#device_pixel_ratio
+   * @private
   ###
-  device_pixel_ratio: ->
+  device_pixel_ratio: (roundDpr = true)->
     dpr = window?.devicePixelRatio or 1
-    dprString = @devicePixelRatioCache[dpr]
-    if !dprString
-# Find closest supported DPR (to work correctly with device zoom)
-      dprUsed = closestAbove(@supported_dpr_values, dpr)
-      dprString = dprUsed.toString()
-      if dprString.match(/^\d+$/)
-        dprString += '.0'
-      @devicePixelRatioCache[dpr] = dprString
+    dpr = Math.ceil(dpr) if roundDpr
+    if( dpr <= 0 || dpr == NaN)
+      dpr = 1
+    dprString = dpr.toString()
+    if dprString.match(/^\d+$/)
+      dprString += '.0'
     dprString
-  supported_dpr_values: [
-    0.75
-    1.0
-    1.3
-    1.5
-    2.0
-    3.0
-  ]
 
   defaultBreakpoints = (width) ->
     10 * Math.ceil(width / 10)
@@ -550,7 +541,9 @@ class Cloudinary
       else
         [elements]
 
-    responsiveClass = @responsiveConfig['responsive_class'] ? @config('responsive_class')
+    responsiveClass = @responsiveConfig['responsive_class']  ? options['responsive_class'] ? @config('responsive_class')
+    roundDpr = options['round_dpr'] ? @config('round_dpr')
+
     for tag in elements when tag.tagName?.match(/img/i)
       setUrl = true
       if options.responsive
@@ -558,7 +551,7 @@ class Cloudinary
       src = Util.getData(tag, 'src-cache') or Util.getData(tag, 'src')
       unless Util.isEmpty(src)
         # Update dpr according to the device's devicePixelRatio
-        src = src.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + @device_pixel_ratio())
+        src = src.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + @device_pixel_ratio(roundDpr))
         if Util.hasClass(tag, responsiveClass) and /\bw_auto\b/.exec(src)
           containerWidth = parentWidth(tag)
           if containerWidth != 0

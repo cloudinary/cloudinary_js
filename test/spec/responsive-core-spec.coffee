@@ -92,7 +92,7 @@ describe 'cloudinary', ()->
           responsive: true)
       container.appendChild(img)
       expect(img.getAttribute('src')).toBeFalsy()
-      expect(Util.hasClass(img, 'cld-responsive')).toBeTruthy()
+      expect(cloudinary.Util.hasClass(img, 'cld-responsive')).toBeTruthy()
       cl.responsive()
       expect(img.getAttribute('src')).toEqual window.location.protocol + '//res.cloudinary.com/demo/image/upload/c_scale,dpr_' + dpr + ',w_101/sample.jpg'
       container.style.width = "111px"
@@ -109,7 +109,6 @@ describe 'cloudinary', ()->
             , 200
         , 200
 
-
     it "should not resize images with fixed width containers", (done)->
       image1 = testDocument.getElementById('image1')
       src = image1.getAttribute('src')
@@ -117,6 +116,7 @@ describe 'cloudinary', ()->
       currentWidth = src.match(/w_(\d+)/)[1]
       handler = ()->
         src = image1.getAttribute('src')
+        expect(src).toBeDefined()
         newWidth = src.match(/w_(\d+)/)[1]
         expect(newWidth).toEqual currentWidth
         done()
@@ -126,5 +126,5 @@ describe 'cloudinary', ()->
     describe "responsive_class", ->
       it "should set the class used for responsive functionality", ->
         img = cl.image( "sample", responsive: true, responsive_class: "cl-foobar")
-        expect(Util.hasClass(img, "cl-foobar")).toBeTruthy()
+        expect(cloudinary.Util.hasClass(img, "cl-foobar")).toBeTruthy()
       

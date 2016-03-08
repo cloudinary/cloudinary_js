@@ -254,21 +254,33 @@ describe 'Cloudinary', ->
     expect(cl.url(null)).toEqual null
     expect(cl.url(undefined)).toEqual undefined
 
-  if jQuery?
-    describe 'window.devicePixelRatio', ->
-      dpr = window.devicePixelRatio
-      options = {}
-      beforeEach ->
-        window.devicePixelRatio = 2
-        options = dpr: 'auto'
+  describe 'window.devicePixelRatio', ->
+    dpr = window.devicePixelRatio
+    options = {}
+    beforeEach ->
+      window.devicePixelRatio = 2
+      options = dpr: 'auto'
 
-      afterEach ->
-        window.devicePixelRatio = dpr
+    afterEach ->
+      window.devicePixelRatio = dpr
 
-      it 'should update dpr when creating an image tag using $.cloudinary.image()', ->
-        result = $.cloudinary.image('test', options)
-        expect($(result).attr('src')).toBe protocol + '//res.cloudinary.com/test123/image/upload/dpr_2.0/test'
+    it 'should update dpr when creating an image tag using $.cloudinary.image()', ->
+      result = cl.image('test', options)
+      expect(cloudinary.Util.getAttribute(result, 'src')).toBe protocol + '//res.cloudinary.com/test123/image/upload/dpr_2.0/test'
+    describe "round_dpr", ->
+      describe "false", ->
+        it "should not round up dpr", ->
+          window.devicePixelRatio = 1.3
+          options.round_dpr = false
+          result = cl.image('test', options)
+          expect(cloudinary.Util.getAttribute(result, 'src')).toBe protocol + '//res.cloudinary.com/test123/image/upload/dpr_1.3/test'
+      describe "true", ->
+        it "should round up DPR values", ->
+          options.round_dpr = true
+          result = cl.image('test', options)
+          expect(cloudinary.Util.getAttribute(result, 'src')).toBe protocol + '//res.cloudinary.com/test123/image/upload/dpr_2.0/test'
 
+    if jQuery?
       it 'should update dpr when creating an image tag using $(\'<img/>\').attr(\'data-src\', \'test\').cloudinary(options)', ->
         result = $('<img/>').attr('data-src', 'test').cloudinary(options)
         expect($(result).attr('src')).toEqual protocol + '//res.cloudinary.com/test123/image/upload/dpr_2.0/test'
