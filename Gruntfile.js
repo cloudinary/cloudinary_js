@@ -108,7 +108,7 @@
         }
       },
       clean: {
-        build: ["build"],
+        build: ["build/*", "!build/lodash*"],
         doc: ["doc"],
         js: ["js"]
       },
@@ -231,7 +231,7 @@
     grunt.loadNpmTasks('grunt-karma');
     grunt.loadNpmTasks('grunt-version');
     grunt.registerTask('default', ['concat', 'coffee']);
-    grunt.registerTask('compile', ['clean', 'concat', 'coffee', 'copy:backward-compatible', 'copy:dist']);
+    grunt.registerTask('compile', ['clean:build', 'clean:js', 'concat', 'coffee', 'copy:backward-compatible', 'copy:dist']);
     grunt.registerTask('build', ['clean', 'concat', 'coffee', 'jsdoc', 'copy:backward-compatible']);
     return grunt.registerTask('lodash', function(name, target) {
       var func, i, include, len, lodashCalls;
