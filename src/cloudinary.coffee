@@ -421,7 +421,7 @@ class Cloudinary
     dprString
 
   defaultBreakpoints = (width) ->
-    10 * Math.ceil(width / 10)
+    100 * Math.ceil(width / 100)
 
   closestAbove = (list, value) ->
     i = list.length - 2
@@ -503,7 +503,7 @@ class Cloudinary
     this
 
   applyBreakpoints = (tag, width, options)->
-    responsive_use_breakpoints = options['responsive_use_breakpoints'] ? options['responsive_use_stoppoints'] ? @config('responsive_use_breakpoints') ? @config('responsive_use_stoppoints') ? 'resize'
+    responsive_use_breakpoints = options['responsive_use_breakpoints'] ? options['responsive_use_stoppoints'] ? @config('responsive_use_breakpoints') ? @config('responsive_use_stoppoints')
     if (!responsive_use_breakpoints) || (responsive_use_breakpoints == 'resize' and !options.resizing)
       width
     else
@@ -522,9 +522,9 @@ class Cloudinary
   * @function Cloudinary#cloudinary_update
   * @param {(Array|string|NodeList)} elements - the elements to modify
   * @param {Object} options
-  * @param {boolean|string} [options.responsive_use_breakpoints='resize']
+  * @param {boolean|string} [options.responsive_use_breakpoints=true]
   *  - when `true`, always use breakpoints for width
-  * - when `"resize"` use exact width on first render and breakpoints on resize (default)
+  * - when `"resize"` use exact width on first render and breakpoints on resize
   * - when `false` always use exact width
   * @param {boolean} [options.responsive] - if `true`, enable responsive on this element. Can be done by adding cld-responsive.
   * @param {boolean} [options.responsive_preserve_height] - if set to true, original css height is preserved.

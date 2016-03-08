@@ -11,6 +11,7 @@ class Configuration
   ###
   DEFAULT_CONFIGURATION_PARAMS ={
     responsive_class: 'cld-responsive'
+    responsive_use_stoppoints: true
     round_dpr: true
     secure: window?.location?.protocol == 'https:'
   }
@@ -25,6 +26,7 @@ class Configuration
     "protocol"
     "resource_type"
     "responsive_class"
+    "responsive_use_stoppoints"
     "responsive_width"
     "round_dpr"
     "secure"

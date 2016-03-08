@@ -66,9 +66,9 @@ describe('cloudinary', function() {
       var el;
       el = document.createElement('img');
       fixtureContainer.appendChild(el);
-      expect(cl.calc_breakpoint(el, 1)).toEqual(10);
-      expect(cl.calc_breakpoint(el, 10)).toEqual(10);
-      expect(cl.calc_breakpoint(el, 11)).toEqual(20);
+      expect(cl.calc_breakpoint(el, 1)).toEqual(100);
+      expect(cl.calc_breakpoint(el, 10)).toEqual(100);
+      expect(cl.calc_breakpoint(el, 110)).toEqual(200);
       cl.config('breakpoints', [50, 150]);
       expect(cl.calc_breakpoint(el, 1)).toEqual(50);
       expect(cl.calc_breakpoint(el, 100)).toEqual(150);

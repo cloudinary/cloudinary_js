@@ -1865,11 +1865,12 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
 
     DEFAULT_CONFIGURATION_PARAMS = {
       responsive_class: 'cld-responsive',
+      responsive_use_stoppoints: true,
       round_dpr: true,
       secure: (typeof window !== "undefined" && window !== null ? (ref = window.location) != null ? ref.protocol : void 0 : void 0) === 'https:'
     };
 
-    Configuration.CONFIG_PARAMS = ["api_key", "api_secret", "cdn_subdomain", "cloud_name", "cname", "private_cdn", "protocol", "resource_type", "responsive_class", "responsive_width", "round_dpr", "secure", "secure_cdn_subdomain", "secure_distribution", "shorten", "type", "url_suffix", "use_root_path", "version"];
+    Configuration.CONFIG_PARAMS = ["api_key", "api_secret", "cdn_subdomain", "cloud_name", "cname", "private_cdn", "protocol", "resource_type", "responsive_class", "responsive_use_stoppoints", "responsive_width", "round_dpr", "secure", "secure_cdn_subdomain", "secure_distribution", "shorten", "type", "url_suffix", "use_root_path", "version"];
 
 
     /**
@@ -3052,7 +3053,7 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
     };
 
     defaultBreakpoints = function(width) {
-      return 10 * Math.ceil(width / 10);
+      return 100 * Math.ceil(width / 100);
     };
 
     closestAbove = function(list, value) {
@@ -3148,8 +3149,8 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
     };
 
     applyBreakpoints = function(tag, width, options) {
-      var ref, ref1, ref2, ref3, responsive_use_breakpoints;
-      responsive_use_breakpoints = (ref = (ref1 = (ref2 = (ref3 = options['responsive_use_breakpoints']) != null ? ref3 : options['responsive_use_stoppoints']) != null ? ref2 : this.config('responsive_use_breakpoints')) != null ? ref1 : this.config('responsive_use_stoppoints')) != null ? ref : 'resize';
+      var ref, ref1, ref2, responsive_use_breakpoints;
+      responsive_use_breakpoints = (ref = (ref1 = (ref2 = options['responsive_use_breakpoints']) != null ? ref2 : options['responsive_use_stoppoints']) != null ? ref1 : this.config('responsive_use_breakpoints')) != null ? ref : this.config('responsive_use_stoppoints');
       if ((!responsive_use_breakpoints) || (responsive_use_breakpoints === 'resize' && !options.resizing)) {
         return width;
       } else {
@@ -3176,9 +3177,9 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
     * @function Cloudinary#cloudinary_update
     * @param {(Array|string|NodeList)} elements - the elements to modify
     * @param {Object} options
-    * @param {boolean|string} [options.responsive_use_breakpoints='resize']
+    * @param {boolean|string} [options.responsive_use_breakpoints=true]
     *  - when `true`, always use breakpoints for width
-    * - when `"resize"` use exact width on first render and breakpoints on resize (default)
+    * - when `"resize"` use exact width on first render and breakpoints on resize
     * - when `false` always use exact width
     * @param {boolean} [options.responsive] - if `true`, enable responsive on this element. Can be done by adding cld-responsive.
     * @param {boolean} [options.responsive_preserve_height] - if set to true, original css height is preserved.
