@@ -373,7 +373,8 @@ describe("Transformation", function() {
               effect: "brightness:50"
             }, {
               effect: "shadow",
-              color: "red",
+              color: "red"
+            }, {
               "if": "end"
             }
           ]
@@ -462,7 +463,7 @@ describe("Transformation", function() {
       return describe('endIf()', function() {
         it("should serialize to 'if_end'", function() {
           var url;
-          url = this.cl.url("sample", cloudinary.Transformation["new"]()["if"]().width("gt", 100).and().width("lt", 200).then().chain().width(50).crop("scale").chain().endIf());
+          url = this.cl.url("sample", cloudinary.Transformation["new"]()["if"]().width("gt", 100).and().width("lt", 200).then().width(50).crop("scale").endIf());
           return expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_w_gt_100_and_w_lt_200/c_scale,w_50/if_end/sample");
         });
         it("force the if clause to be chained", function() {

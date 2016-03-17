@@ -275,7 +275,8 @@ describe "Transformation", ->
         url = @cl.url("sample", transformation: [{if: "w_lt_200"},
           {crop: "fill", height: 120, width: 80,effect: "sharpen"},
           {effect: "brightness:50"},
-          {effect: "shadow",color: "red", if: "end"}])
+          {effect: "shadow",color: "red"},
+          { if: "end"}])
         expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_w_lt_200/c_fill,e_sharpen,h_120,w_80/e_brightness:50/co_red,e_shadow/if_end/sample")
       it "should support if_else with transformation parameters", ->
         url = @cl.url("sample", transformation: [{if: "w_lt_200",crop: "fill",height: 120,width: 80},
@@ -340,7 +341,7 @@ describe "Transformation", ->
 
       describe 'endIf()', ->
         it "should serialize to 'if_end'", ->
-          url = @cl.url("sample", cloudinary.Transformation.new().if().width( "gt", 100).and().width("lt", 200).then().chain().width(50).crop("scale").chain().endIf())
+          url = @cl.url("sample", cloudinary.Transformation.new().if().width( "gt", 100).and().width("lt", 200).then().width(50).crop("scale").endIf())
           expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_w_gt_100_and_w_lt_200/c_scale,w_50/if_end/sample")
         it "force the if clause to be chained", ->
           url = @cl.url("sample", cloudinary.Transformation.new().if().width( "gt", 100).and().width("lt", 200).then().width(50).crop("scale").endIf())
