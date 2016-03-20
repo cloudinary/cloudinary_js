@@ -96,7 +96,7 @@ describe 'cloudinary', ()->
       cl.responsive()
       expect(img.getAttribute('src')).toEqual window.location.protocol + '//res.cloudinary.com/demo/image/upload/c_scale,dpr_' + dpr + ',w_200/sample.jpg'
       container.style.width = "211px"
-      expect(img.getAttribute('src')).toEqual window.location.protocol + '//res.cloudinary.com/demo/image/upload/c_scale,dpr_' + dpr + ',w_300/sample.jpg'
+      expect(img.getAttribute('src')).toEqual window.location.protocol + '//res.cloudinary.com/demo/image/upload/c_scale,dpr_' + dpr + ',w_200/sample.jpg'
       triggerResize window
       window.setTimeout ()->
           # wait(200)

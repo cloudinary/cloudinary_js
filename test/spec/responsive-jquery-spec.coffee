@@ -57,9 +57,9 @@ describe 'Cloudinary', ()->
 
     it 'should compute breakpoints correctly', ->
       el = $('<img/>')
-      expect(cl.calc_breakpoint(el, 1)).toEqual 10
-      expect(cl.calc_breakpoint(el, 10)).toEqual 10
-      expect(cl.calc_breakpoint(el, 11)).toEqual 20
+      expect(cl.calc_breakpoint(el, 1)).toEqual 100
+      expect(cl.calc_breakpoint(el, 10)).toEqual 100
+      expect(cl.calc_breakpoint(el, 110)).toEqual 200
       cl.config().breakpoints = [
           50
           150
@@ -90,17 +90,17 @@ describe 'Cloudinary', ()->
       img.appendTo(container)
       expect(img.attr('src')).toBeFalsy()
       cl.responsive()
-      expect(img.attr('src')).toEqual window.location.protocol + '//res.cloudinary.com/demo/image/upload/c_scale,dpr_' + dpr + ',w_101/sample.jpg'
-      container.css 'width', 111
-      expect(img.attr('src')).toEqual window.location.protocol + '//res.cloudinary.com/demo/image/upload/c_scale,dpr_' + dpr + ',w_101/sample.jpg'
+      expect(img.attr('src')).toEqual window.location.protocol + '//res.cloudinary.com/demo/image/upload/c_scale,dpr_' + dpr + ',w_200/sample.jpg'
+      container.css 'width', 211
+      expect(img.attr('src')).toEqual window.location.protocol + '//res.cloudinary.com/demo/image/upload/c_scale,dpr_' + dpr + ',w_200/sample.jpg'
       $(window).resize()
       window.setTimeout (->
         # wait(200)
-        expect(img.attr('src')).toEqual window.location.protocol + '//res.cloudinary.com/demo/image/upload/c_scale,dpr_' + dpr + ',w_120/sample.jpg'
+        expect(img.attr('src')).toEqual window.location.protocol + '//res.cloudinary.com/demo/image/upload/c_scale,dpr_' + dpr + ',w_300/sample.jpg'
         container.css 'width', 101
         window.setTimeout (->
           # wait(200)
-          expect(img.attr('src')).toEqual window.location.protocol + '//res.cloudinary.com/demo/image/upload/c_scale,dpr_' + dpr + ',w_120/sample.jpg'
+          expect(img.attr('src')).toEqual window.location.protocol + '//res.cloudinary.com/demo/image/upload/c_scale,dpr_' + dpr + ',w_300/sample.jpg'
           done()
         ), 200
       ), 200
