@@ -283,11 +283,12 @@ describe "Transformation", ->
           {if: "else",crop: "fill",height: 90, width: 100}])
         expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_w_lt_200,c_fill,h_120,w_80/if_else,c_fill,h_90,w_100/sample")
       it "if_else should be without any transformation parameters", ->
-        url = @cl.url("sample", transformation: [{if: "w_lt_200"},
+        url = @cl.url("sample", transformation: [
+          {if: "aspect_ratio_lt_0.7"},
           {crop: "fill",height: 120,width: 80},
           {if: "else"},
           {crop: "fill",height: 90,width: 100}])
-        expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_w_lt_200/c_fill,h_120,w_80/if_else/c_fill,h_90,w_100/sample")
+        expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_ar_lt_0.7/c_fill,h_120,w_80/if_else/c_fill,h_90,w_100/sample")
 
     describe 'Chaining with literal conditions', ->
       it "should add an if parameter", ->
@@ -335,7 +336,7 @@ describe "Transformation", ->
           .then().effect("grayscale").serialize()).toEqual( allOperators)
 
         expect(cloudinary.Transformation.new()
-          .if("w = 0 && w != 0 || w < 0 and w > 0 and w <= 0 and w >= 0")
+          .if("width = 0 && w != 0 || w < 0 and w > 0 and w <= 0 and w >= 0")
           .effect("grayscale")
           .serialize()).toEqual(allOperators)
 

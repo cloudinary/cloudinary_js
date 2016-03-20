@@ -405,7 +405,7 @@ describe("Transformation", function() {
         url = this.cl.url("sample", {
           transformation: [
             {
-              "if": "w_lt_200"
+              "if": "aspect_ratio_lt_0.7"
             }, {
               crop: "fill",
               height: 120,
@@ -419,7 +419,7 @@ describe("Transformation", function() {
             }
           ]
         });
-        return expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_w_lt_200/c_fill,h_120,w_80/if_else/c_fill,h_90,w_100/sample");
+        return expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_ar_lt_0.7/c_fill,h_120,w_80/if_else/c_fill,h_90,w_100/sample");
       });
     });
     describe('Chaining with literal conditions', function() {
@@ -458,7 +458,7 @@ describe("Transformation", function() {
         var allOperators;
         allOperators = 'if_' + 'w_eq_0_and' + '_w_ne_0_or' + '_w_lt_0_and' + '_w_gt_0_and' + '_w_lte_0_and' + '_w_gte_0' + ',e_grayscale';
         expect(cloudinary.Transformation["new"]()["if"]().width("=", 0).and().width("!=", 0).or().width("<", 0).and().width(">", 0).and().width("<=", 0).and().width(">=", 0).then().effect("grayscale").serialize()).toEqual(allOperators);
-        return expect(cloudinary.Transformation["new"]()["if"]("w = 0 && w != 0 || w < 0 and w > 0 and w <= 0 and w >= 0").effect("grayscale").serialize()).toEqual(allOperators);
+        return expect(cloudinary.Transformation["new"]()["if"]("width = 0 && w != 0 || w < 0 and w > 0 and w <= 0 and w >= 0").effect("grayscale").serialize()).toEqual(allOperators);
       });
       return describe('endIf()', function() {
         it("should serialize to 'if_end'", function() {

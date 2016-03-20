@@ -12,6 +12,16 @@ class Condition
     "&&": 'and'
     "||": 'or'
 
+  @PARAMETERS =
+    "width": "w"
+    "height": "h"
+    "aspect_ratio": "ar"
+    "aspectRatio": "ar"
+    "pages": "pg"
+    "faces": "faces"
+
+  @BOUNDRY = "[ _]+"
+
   ###*
    * Represents a transformation condition
    * @param {string} conditionStr - a condition in string format
@@ -52,6 +62,8 @@ class Condition
    * @return {string} the normalized form of the value condition, e.g. "w_gt_100"
   ###
   normalize: (value)->
+    for longName, shortName of Condition.PARAMETERS
+      value = value.replace(new RegExp(longName, "g"), shortName)
     list = value.split(/[ _]+/)
     list = for v in list
       if Condition.OPERATORS[v]? then Condition.OPERATORS[v] else v
