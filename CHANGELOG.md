@@ -1,4 +1,15 @@
 
+2.0.8 / 2016-03-22
+==================
+
+  * Create local variables for `lodash` and `_` for the shrinkwrap version.
+  * Add `face_count` and `page_count` to Condition. Use replace with callback to process condition.
+  * Add `transformation-spec.js` to karma configuration
+  * Add translation of parameter names in conditional transformation
+  * Fix responsive tests
+  * Update tests
+  * Set default `responsive_use_breakpoints` instead of `responsive_use_stoppoints`.
+
 2.0.7 / 2016-03-08
 ==================
 
