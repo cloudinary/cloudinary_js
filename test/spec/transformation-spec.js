@@ -451,14 +451,14 @@ describe("Transformation", function() {
         expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_ar_gt_3:4_and_w_lte_100_or_w_gt_200,c_scale,w_50/sample");
         url = this.cl.url("sample", cloudinary.Transformation["new"]()["if"]().aspectRatio(">", "3:4").and().width("<=", 100).or().width(">", 200).then().width(50).crop("scale"));
         expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_ar_gt_3:4_and_w_lte_100_or_w_gt_200,c_scale,w_50/sample");
-        url = this.cl.url("sample", cloudinary.Transformation["new"]()["if"]().aspectRatio(">=", "3:4").and().pages(">=", 100).or().pages("!=", 0).then().width(50).crop("scale"));
-        return expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_ar_gte_3:4_and_pg_gte_100_or_pg_ne_0,c_scale,w_50/sample");
+        url = this.cl.url("sample", cloudinary.Transformation["new"]()["if"]().aspectRatio(">=", "3:4").and().pageCount(">=", 100).or().pageCount("!=", 0).then().width(50).crop("scale"));
+        return expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_ar_gte_3:4_and_pc_gte_100_or_pc_ne_0,c_scale,w_50/sample");
       });
       it("should support and translate operators:  '=', '!=', '<', '>', '<=', '>=', '&&', '||'", function() {
         var allOperators;
-        allOperators = 'if_' + 'w_eq_0_and' + '_w_ne_0_or' + '_w_lt_0_and' + '_w_gt_0_and' + '_w_lte_0_and' + '_w_gte_0' + ',e_grayscale';
-        expect(cloudinary.Transformation["new"]()["if"]().width("=", 0).and().width("!=", 0).or().width("<", 0).and().width(">", 0).and().width("<=", 0).and().width(">=", 0).then().effect("grayscale").serialize()).toEqual(allOperators);
-        return expect(cloudinary.Transformation["new"]()["if"]("width = 0 && w != 0 || w < 0 and w > 0 and w <= 0 and w >= 0").effect("grayscale").serialize()).toEqual(allOperators);
+        allOperators = 'if_' + 'w_eq_0_and' + '_h_ne_0_or' + '_ar_lt_0_and' + '_pc_gt_0_and' + '_fc_lte_0_and' + '_w_gte_0' + ',e_grayscale';
+        expect(cloudinary.Transformation["new"]()["if"]().width("=", 0).and().height("!=", 0).or().aspectRatio("<", 0).and().pageCount(">", 0).and().faceCount("<=", 0).and().width(">=", 0).then().effect("grayscale").serialize()).toEqual(allOperators);
+        return expect(cloudinary.Transformation["new"]()["if"]("w = 0 && height != 0 || aspectRatio < 0 and pageCount > 0 and faceCount <= 0 and width >= 0").effect("grayscale").serialize()).toEqual(allOperators);
       });
       return describe('endIf()', function() {
         it("should serialize to 'if_end'", function() {

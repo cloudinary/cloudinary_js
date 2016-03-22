@@ -17,8 +17,10 @@ class Condition
     "height": "h"
     "aspect_ratio": "ar"
     "aspectRatio": "ar"
-    "pages": "pg"
-    "faces": "faces"
+    "page_count": "pc"
+    "pageCount": "pc"
+    "face_count": "fc"
+    "faceCount": "fc"
 
   @BOUNDRY = "[ _]+"
 
@@ -62,12 +64,10 @@ class Condition
    * @return {string} the normalized form of the value condition, e.g. "w_gt_100"
   ###
   normalize: (value)->
-    for longName, shortName of Condition.PARAMETERS
-      value = value.replace(new RegExp(longName, "g"), shortName)
-    list = value.split(/[ _]+/)
-    list = for v in list
-      if Condition.OPERATORS[v]? then Condition.OPERATORS[v] else v
-    list.join('_')
+    replaceRE = new RegExp("(" + Object.keys(Condition.PARAMETERS).join("|") + "|[=<>&|!]+)", "g")
+    value = value.replace replaceRE, (match)->
+      Condition.OPERATORS[match] || Condition.PARAMETERS[match]
+    value.replace(/[ _]+/g,'_')
 
   ###*
    * Get the parent transformation of this condition
@@ -151,7 +151,7 @@ class Condition
    * @param {string|number} value the right hand side value
    * @return {Condition} this condition
   ###
-  pages: (operator, value)-> @predicate("pg", operator, value)
+  pageCount: (operator, value)-> @predicate("pc", operator, value)
 
   ###*
    * @function Condition#faces
@@ -159,6 +159,6 @@ class Condition
    * @param {string|number} value the right hand side value
    * @return {Condition} this condition
   ###
-  faces: (operator, value)-> @predicate("faces", operator, value)
+  faceCount: (operator, value)-> @predicate("fc", operator, value)
 
 
