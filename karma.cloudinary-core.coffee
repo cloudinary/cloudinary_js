@@ -22,7 +22,6 @@ module.exports = (config) ->
       'test/spec/tagspec.js'
       'test/spec/videourlspec.js'
       'test/spec/chaining-spec.js'
-      'test/spec/conditional-transformation-spec.js'
     ]
 
     # preprocess matching files before serving them to the browser

@@ -19,6 +19,7 @@ module.exports = (config) ->
       'build/cloudinary-jquery.js'
       'test/spec/cloudinary-spec.js'
       'test/spec/cloudinary-jquery-spec.js'
+      'test/spec/transformation-spec.js'
       'test/spec/tagspec.js'
       'test/spec/videourlspec.js'
       'test/spec/chaining-spec.js'
