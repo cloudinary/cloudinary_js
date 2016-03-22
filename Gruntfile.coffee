@@ -277,6 +277,7 @@ module.exports = (grunt)->
     require('lodash-cli')([
       "include=#{include.join(',')}",
       "exports=none",
+      "iife=var lodash = _ = (function() {%output%; \nreturn lodash;\n}.call(this));",
       "--output", "build/lodash-shrinkwrap.js",
       "--development"]
     , (data)->

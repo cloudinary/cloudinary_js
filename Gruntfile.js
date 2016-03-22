@@ -243,7 +243,7 @@
           include.push(func.slice(2));
         }
       }
-      return require('lodash-cli')(["include=" + (include.join(',')), "exports=none", "--output", "build/lodash-shrinkwrap.js", "--development"], function(data) {
+      return require('lodash-cli')(["include=" + (include.join(',')), "exports=none", "iife=var lodash = _ = (function() {%output%; \nreturn lodash;\n}.call(this));", "--output", "build/lodash-shrinkwrap.js", "--development"], function(data) {
         var outputPath, sourceMap;
         outputPath = data.outputPath;
         sourceMap = data.sourceMap;
