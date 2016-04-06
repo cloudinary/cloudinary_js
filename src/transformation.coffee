@@ -106,6 +106,9 @@ class TransformationBase
       trans[name] = new TransformationParam(name, abbr, sep, process).set(value)
       @
 
+    @layerParam ||= (value, name, abbr) ->
+       trans[name] = new LayerParam(name, abbr).set(value)
+       @
 
     #
     # End Helper methods
@@ -460,7 +463,7 @@ class Transformation  extends TransformationBase
     @startOffset(start_o) if start_o?
     @endOffset(end_o) if end_o?
   opacity: (value)->              @param value, "opacity",  "o"
-  overlay: (value)->              @param value, "overlay",  "l"
+  overlay: (value)->              @layerParam value, "overlay",  "l"
   page: (value)->                 @param value, "page",     "pg"
   poster: (value)->               @param value, "poster"
   prefix: (value)->               @param value, "prefix",   "p"
@@ -476,7 +479,7 @@ class Transformation  extends TransformationBase
   sourceTransformation: (value)-> @param value, "source_transformation"
   startOffset: (value)->          @rangeParam value, "start_offset", "so"
   transformation: (value)->       @transformationParam value, "transformation", "t"
-  underlay: (value)->             @param value, "underlay", "u"
+  underlay: (value)->             @layerParam value, "underlay", "u"
   videoCodec: (value)->           @param value, "video_codec", "vc", Param.process_video_params
   videoSampling: (value)->        @param value, "video_sampling", "vs"
   width: (value)->                @param value, "width", "w", =>

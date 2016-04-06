@@ -44,7 +44,7 @@ class HtmlTag
    * @protected
    * @param {string} key - attribute name
    * @param {*|boolean} value - the value of the attribute. If the value is boolean `true`, return the key only.
-   * @returns {string} the attribute
+   * @returns {string} the attribute  
    *
   ###
   toAttribute = (key, value) ->

@@ -3,6 +3,8 @@ describe "Transformation", ->
   cl = {}
   fixtureContainer = undefined
   protocol = if window.location.protocol == "file:" then "http:" else window.location.protocol
+  # copy cloudinary namespace for easy access
+  cloudinary.Util.assign(self, cloudinary)
 
   test_cloudinary_url = (public_id, options, expected_url, expected_options) ->
     result = cl.url(public_id, options)
@@ -186,22 +188,6 @@ describe "Transformation", ->
       10
     ] }, protocol + '//res.cloudinary.com/test123/image/upload/e_sepia:10/test', {}
 
-  layers =
-    overlay: 'l'
-    underlay: 'u'
-  for layer of layers
-    it 'should support ' + layer, ->
-      options = {}
-      options[layer] = 'text:hello'
-      test_cloudinary_url 'test', options, protocol + '//res.cloudinary.com/test123/image/upload/' + layers[layer] + '_text:hello/test', {}
-
-    it 'should not pass width/height to html for ' + layer, ->
-      options =
-        height: 100
-        width: 100
-      options[layer] = 'text:hello'
-      test_cloudinary_url 'test', options, protocol + '//res.cloudinary.com/test123/image/upload/h_100,' + layers[layer] + '_text:hello,w_100/test', {}
-
   it 'should support density', ->
     test_cloudinary_url 'test', { density: 150 }, protocol + '//res.cloudinary.com/test123/image/upload/dn_150/test', {}
 
@@ -351,3 +337,70 @@ describe "Transformation", ->
         it "force the if_else clause to be chained", ->
           url = @cl.url("sample", cloudinary.Transformation.new().if().width( "gt", 100).and().width("lt", 200).then().width(50).crop("scale").else().width(100).crop("crop").endIf())
           expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_w_gt_100_and_w_lt_200/c_scale,w_50/if_else/c_crop,w_100/if_end/sample")
+
+  describe "Layers", ->
+    it "should accept a string", ->
+      transformation = new Transformation().overlay("text:hello")
+      result = transformation.serialize()
+      expect(result).toEqual("l_text:hello")
+    it "should not pass width/height to html if overlay", ->
+      transformation = new Transformation().overlay("text:hello").width(100).height(100);
+      result = transformation.serialize()
+      expect(result).toEqual(  "h_100,l_text:hello,w_100")
+      expect(transformation.toHtmlAttributes().height).toBeUndefined()
+      expect(transformation.toHtmlAttributes().width).toBeUndefined()
+
+
+    describe "chained functions", ->
+      it "should produce a layer string", ->
+        tests = [
+          [new Layer().publicId("logo"), "logo"],
+          [new Layer().publicId("folder/logo"), "folder:logo"],
+          [new Layer().publicId("logo").type("private"), "private:logo"],
+          [new Layer().publicId("logo").format("png"), "logo.png"],
+          [new Layer().resourceType("video").publicId("cat"), "video:cat"],
+          [new TextLayer().text("Hello World, Nice to meet you?").fontFamily("Arial").fontSize(18), "text:Arial_18:Hello%20World%E2%80%9A%20Nice%20to%20meet%20you%3F"],
+          [new TextLayer().text("Hello World, Nice to meet you?").fontFamily("Arial").fontSize(18).fontWeight("bold").fontStyle("italic").letterSpacing("4"),
+            "text:Arial_18_bold_italic_letter_spacing_4:Hello%20World%E2%80%9A%20Nice%20to%20meet%20you%3F"],
+          [new SubtitlesLayer().publicId("sample_sub_en.srt"), "subtitles:sample_sub_en.srt"],
+          [new SubtitlesLayer().publicId("sample_sub_he.srt").fontFamily("Arial").fontSize(40), "subtitles:Arial_40:sample_sub_he.srt"]
+        ]
+
+        for [layer, expected] in tests
+          expect(layer.toString()).toEqual(expected )
+
+      describe "TextLayer", ->
+        describe "fontStyle", ->
+          it "should throw an exception if fontFamily is not provided", ->
+            expect( -> new TextLayer().fontStyle("italic").toString()).toThrow()
+
+    describe "using options", ->
+      text_layer   = "Hello World, /Nice to meet you?"
+      text_encoded = "Hello%20World%252C%20%252FNice%20to%20meet%20you%3F"
+
+      layers =
+        overlay: 'l'
+        underlay: 'u'
+      for param, short of layers
+        describe param, ->
+          layers_options= [
+            ["string", "text:test_text:hello", "text:test_text:hello"],
+            ["explicit layer parameter", "text:test_text:#{text_encoded}", "text:test_text:#{text_encoded}"],
+            ["text parameter", { public_id: "test_text", text: text_layer }, "text:test_text:#{text_encoded}"],
+            ["text with font family and size parameters", { text: text_layer, font_family: "Arial", font_size: "18" }, "text:Arial_18:#{text_encoded}"],
+            ["text with text style parameter", { text: text_layer, font_family: "Arial", font_size: "18", font_weight: "bold", font_style: "italic", letter_spacing: 4, line_spacing: 2 }, "text:Arial_18_bold_italic_letter_spacing_4_line_spacing_2:#{text_encoded}"],
+            ["subtitles", { resource_type: "subtitles", public_id: "subtitles.srt" }, "subtitles:subtitles.srt"],
+            ["subtitles with font family and size", { resource_type: "subtitles", public_id: "subtitles.srt", font_family: "Arial", font_size: "40" }, "subtitles:Arial_40:subtitles.srt"]
+          ]
+          for [name, options, result] in layers_options
+            it "should support #{name}", ->
+              testOptions = {}
+              testOptions[param] = options
+              expect(new cloudinary.Transformation(testOptions).serialize()).toEqual( "#{short}_#{result}")
+
+          it 'should not pass width/height to html for ' + param, ->
+            testOptions =
+              height: 100
+              width: 100
+            testOptions[param] = 'text:hello'
+            test_cloudinary_url 'test', testOptions, protocol + '//res.cloudinary.com/test123/image/upload/h_100,' + layers[param] + '_text:hello,w_100/test', {}

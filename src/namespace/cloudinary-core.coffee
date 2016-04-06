@@ -19,5 +19,8 @@
   HtmlTag: HtmlTag
   ImageTag: ImageTag
   VideoTag: VideoTag
+  Layer: Layer
+  TextLayer: TextLayer
+  SubtitlesLayer: SubtitlesLayer
   Cloudinary: Cloudinary
 )

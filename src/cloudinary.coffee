@@ -148,6 +148,7 @@ class Cloudinary
    * @param {Object} [options.resource_type='image'] - the type of the resource
    * @return {string} The resource URL
   ###
+
   url: (publicId, options = {}) ->
     if (!publicId)
       return publicId
@@ -174,7 +175,7 @@ class Cloudinary
       else
         publicId = encodeURIComponent(publicId).replace(/%3A/g, ':').replace(/%2F/g, '/')
     else
-# Make sure publicId is URI encoded.
+      # Make sure publicId is URI encoded.
       publicId = encodeURIComponent(decodeURIComponent(publicId)).replace(/%3A/g, ':').replace(/%2F/g, '/')
       if options.url_suffix
         if options.url_suffix.match(/[\.\/]/)

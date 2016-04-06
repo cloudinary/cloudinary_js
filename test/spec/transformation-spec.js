@@ -1,8 +1,9 @@
 describe("Transformation", function() {
-  var cl, fixtureContainer, layer, layers, protocol, test_cloudinary_url;
+  var cl, fixtureContainer, protocol, test_cloudinary_url;
   cl = {};
   fixtureContainer = void 0;
   protocol = window.location.protocol === "file:" ? "http:" : window.location.protocol;
+  cloudinary.Util.assign(self, cloudinary);
   test_cloudinary_url = function(public_id, options, expected_url, expected_options) {
     var result;
     result = cl.url(public_id, options);
@@ -201,27 +202,6 @@ describe("Transformation", function() {
       effect: ['sepia', 10]
     }, protocol + '//res.cloudinary.com/test123/image/upload/e_sepia:10/test', {});
   });
-  layers = {
-    overlay: 'l',
-    underlay: 'u'
-  };
-  for (layer in layers) {
-    it('should support ' + layer, function() {
-      var options;
-      options = {};
-      options[layer] = 'text:hello';
-      return test_cloudinary_url('test', options, protocol + '//res.cloudinary.com/test123/image/upload/' + layers[layer] + '_text:hello/test', {});
-    });
-    it('should not pass width/height to html for ' + layer, function() {
-      var options;
-      options = {
-        height: 100,
-        width: 100
-      };
-      options[layer] = 'text:hello';
-      return test_cloudinary_url('test', options, protocol + '//res.cloudinary.com/test123/image/upload/h_100,' + layers[layer] + '_text:hello,w_100/test', {});
-    });
-  }
   it('should support density', function() {
     return test_cloudinary_url('test', {
       density: 150
@@ -298,7 +278,7 @@ describe("Transformation", function() {
       return expect(cloudinary.Util.getAttribute(result, 'src')).toBe(protocol + '//res.cloudinary.com/test123/image/upload/dpr_2.0/test');
     });
   });
-  return describe('Conditional Transformation', function() {
+  describe('Conditional Transformation', function() {
     beforeEach(function() {
       return this.cl = cloudinary.Cloudinary["new"]({
         cloud_name: "sdk-test"
@@ -477,6 +457,114 @@ describe("Transformation", function() {
           return expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_w_gt_100_and_w_lt_200/c_scale,w_50/if_else/c_crop,w_100/if_end/sample");
         });
       });
+    });
+  });
+  return describe("Layers", function() {
+    it("should accept a string", function() {
+      var result, transformation;
+      transformation = new Transformation().overlay("text:hello");
+      result = transformation.serialize();
+      return expect(result).toEqual("l_text:hello");
+    });
+    it("should not pass width/height to html if overlay", function() {
+      var result, transformation;
+      transformation = new Transformation().overlay("text:hello").width(100).height(100);
+      result = transformation.serialize();
+      expect(result).toEqual("h_100,l_text:hello,w_100");
+      expect(transformation.toHtmlAttributes().height).toBeUndefined();
+      return expect(transformation.toHtmlAttributes().width).toBeUndefined();
+    });
+    describe("chained functions", function() {
+      it("should produce a layer string", function() {
+        var expected, i, layer, len, ref, results, tests;
+        tests = [[new Layer().publicId("logo"), "logo"], [new Layer().publicId("folder/logo"), "folder:logo"], [new Layer().publicId("logo").type("private"), "private:logo"], [new Layer().publicId("logo").format("png"), "logo.png"], [new Layer().resourceType("video").publicId("cat"), "video:cat"], [new TextLayer().text("Hello World, Nice to meet you?").fontFamily("Arial").fontSize(18), "text:Arial_18:Hello%20World%E2%80%9A%20Nice%20to%20meet%20you%3F"], [new TextLayer().text("Hello World, Nice to meet you?").fontFamily("Arial").fontSize(18).fontWeight("bold").fontStyle("italic").letterSpacing("4"), "text:Arial_18_bold_italic_letter_spacing_4:Hello%20World%E2%80%9A%20Nice%20to%20meet%20you%3F"], [new SubtitlesLayer().publicId("sample_sub_en.srt"), "subtitles:sample_sub_en.srt"], [new SubtitlesLayer().publicId("sample_sub_he.srt").fontFamily("Arial").fontSize(40), "subtitles:Arial_40:sample_sub_he.srt"]];
+        results = [];
+        for (i = 0, len = tests.length; i < len; i++) {
+          ref = tests[i], layer = ref[0], expected = ref[1];
+          results.push(expect(layer.toString()).toEqual(expected));
+        }
+        return results;
+      });
+      return describe("TextLayer", function() {
+        return describe("fontStyle", function() {
+          return it("should throw an exception if fontFamily is not provided", function() {
+            return expect(function() {
+              return new TextLayer().fontStyle("italic").toString();
+            }).toThrow();
+          });
+        });
+      });
+    });
+    return describe("using options", function() {
+      var layers, param, results, short, text_encoded, text_layer;
+      text_layer = "Hello World, /Nice to meet you?";
+      text_encoded = "Hello%20World%252C%20%252FNice%20to%20meet%20you%3F";
+      layers = {
+        overlay: 'l',
+        underlay: 'u'
+      };
+      results = [];
+      for (param in layers) {
+        short = layers[param];
+        results.push(describe(param, function() {
+          var i, layers_options, len, name, options, ref, result;
+          layers_options = [
+            ["string", "text:test_text:hello", "text:test_text:hello"], ["explicit layer parameter", "text:test_text:" + text_encoded, "text:test_text:" + text_encoded], [
+              "text parameter", {
+                public_id: "test_text",
+                text: text_layer
+              }, "text:test_text:" + text_encoded
+            ], [
+              "text with font family and size parameters", {
+                text: text_layer,
+                font_family: "Arial",
+                font_size: "18"
+              }, "text:Arial_18:" + text_encoded
+            ], [
+              "text with text style parameter", {
+                text: text_layer,
+                font_family: "Arial",
+                font_size: "18",
+                font_weight: "bold",
+                font_style: "italic",
+                letter_spacing: 4,
+                line_spacing: 2
+              }, "text:Arial_18_bold_italic_letter_spacing_4_line_spacing_2:" + text_encoded
+            ], [
+              "subtitles", {
+                resource_type: "subtitles",
+                public_id: "subtitles.srt"
+              }, "subtitles:subtitles.srt"
+            ], [
+              "subtitles with font family and size", {
+                resource_type: "subtitles",
+                public_id: "subtitles.srt",
+                font_family: "Arial",
+                font_size: "40"
+              }, "subtitles:Arial_40:subtitles.srt"
+            ]
+          ];
+          for (i = 0, len = layers_options.length; i < len; i++) {
+            ref = layers_options[i], name = ref[0], options = ref[1], result = ref[2];
+            it("should support " + name, function() {
+              var testOptions;
+              testOptions = {};
+              testOptions[param] = options;
+              return expect(new cloudinary.Transformation(testOptions).serialize()).toEqual(short + "_" + result);
+            });
+          }
+          return it('should not pass width/height to html for ' + param, function() {
+            var testOptions;
+            testOptions = {
+              height: 100,
+              width: 100
+            };
+            testOptions[param] = 'text:hello';
+            return test_cloudinary_url('test', testOptions, protocol + '//res.cloudinary.com/test123/image/upload/h_100,' + layers[param] + '_text:hello,w_100/test', {});
+          });
+        }));
+      }
+      return results;
     });
   });
 });

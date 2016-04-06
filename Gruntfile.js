@@ -192,12 +192,12 @@
           })()
         }
       },
-      srcList: ['src/utf8_encode.coffee', 'src/crc32.coffee', 'src/parameters.coffee', 'src/condition.coffee', 'src/transformation.coffee', 'src/configuration.coffee', 'src/tags/htmltag.coffee', 'src/tags/imagetag.coffee', 'src/tags/videotag.coffee', 'src/cloudinary.coffee'],
+      srcList: ['src/utf8_encode.coffee', 'src/crc32.coffee', 'src/parameters.coffee', 'src/condition.coffee', 'src/transformation.coffee', 'src/configuration.coffee', 'src/tags/htmltag.coffee', 'src/tags/imagetag.coffee', 'src/tags/videotag.coffee', 'src/layer/layer.coffee', 'src/layer/Textlayer.coffee', 'src/layer/Subtitleslayer.coffee', 'src/cloudinary.coffee'],
       concat: {
         options: {
           dest: "build/<%= grunt.task.current.target %>.coffee",
           banner: "###*\n * Cloudinary's JavaScript library - Version <%= pkg.version %>\n * Copyright Cloudinary\n * see https://github.com/cloudinary/cloudinary_js\n *\n###\n\n((root, factory) ->\n  if (typeof define == 'function') && define.amd\n    define  <%= /jquery/.test(grunt.task.current.target) ? \"['jquery'],\" : (/shrink/.test(grunt.task.current.target) ? \"\" : \"['lodash'],\" )%> factory\n  else if typeof exports == 'object'\n    module.exports = factory(<%= /jquery/.test(grunt.task.current.target) ? \"require('jquery')\" : (/shrink/.test(grunt.task.current.target) ? \"\" : \"require('lodash')\")%>)\n  else\n    root.cloudinary ||= {}\n    root.cloudinary = factory(<%=/jquery/.test(grunt.task.current.target) ? \"jQuery\" : (/shrink/.test(grunt.task.current.target) ? \"\" : \"_\")%>)\n)(this,  (<%=/jquery/.test(grunt.task.current.target) ? \"jQuery\" : (/shrink/.test(grunt.task.current.target) ? \"\" : \"_\")%>)->\n",
-          footer: "\n  cloudinary =\n    utf8_encode: utf8_encode\n    crc32: crc32\n    Util: Util\n    Condition: Condition\n    Transformation: Transformation\n    Configuration: Configuration\n    HtmlTag: HtmlTag\n    ImageTag: ImageTag\n    VideoTag: VideoTag\n    Cloudinary: Cloudinary\n    VERSION: \"<%= pkg.version %>\"\n    <%=  /jquery/.test(grunt.task.current.target) ? \"CloudinaryJQuery: CloudinaryJQuery\" : \"\"%>\n\n  cloudinary\n)",
+          footer: "\n  cloudinary =\n    utf8_encode: utf8_encode\n    crc32: crc32\n    Util: Util\n    Condition: Condition\n    Transformation: Transformation\n    Configuration: Configuration\n    HtmlTag: HtmlTag\n    ImageTag: ImageTag\n    VideoTag: VideoTag\n    Layer: Layer\n    TextLayer: TextLayer\n    SubtitlesLayer: SubtitlesLayer\n    Cloudinary: Cloudinary\n    VERSION: \"<%= pkg.version %>\"\n    <%=  /jquery/.test(grunt.task.current.target) ? \"CloudinaryJQuery: CloudinaryJQuery\" : \"\"%>\n\n  cloudinary\n)",
           process: function(src, path) {
             return "  " + src.replace(/\n/g, "\n  ");
           }

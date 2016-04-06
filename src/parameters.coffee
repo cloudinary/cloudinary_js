@@ -9,10 +9,10 @@ class Param
    * @param {string} name - The name of the parameter in snake_case
    * @param {string} short - The name of the serialized form of the parameter.
    *                         If a value is not provided, the parameter will not be serialized.
-   * @param {function} [process=Util.identity ] - Manipulate origValue when value is called
+   * @param {function} [process=cloudinary.Util.identity ] - Manipulate origValue when value is called
    * @ignore
   ###
-  constructor: (name, short, process = Util.identity)->
+  constructor: (name, short, process = cloudinary.Util.identity)->
     ###*
      * The name of the parameter in snake_case
      * @member {string} Param#name
@@ -46,8 +46,8 @@ class Param
   ###
   serialize: ->
     val = @value()
-    valid = if Util.isArray(val) || Util.isPlainObject(val) || Util.isString(val)
-        !Util.isEmpty(val)
+    valid = if cloudinary.Util.isArray(val) || cloudinary.Util.isPlainObject(val) || cloudinary.Util.isString(val)
+        !cloudinary.Util.isEmpty(val)
       else
         val?
     if @short? && valid
@@ -65,7 +65,7 @@ class Param
   @norm_color: (value) -> value?.replace(/^#/, 'rgb:')
 
   build_array: (arg = []) ->
-    if Util.isArray(arg)
+    if cloudinary.Util.isArray(arg)
       arg
     else
       [arg]
@@ -104,7 +104,7 @@ class ArrayParam extends Param
    * @param {string} short - The name of the serialized form of the parameter
    *                         If a value is not provided, the parameter will not be serialized.
    * @param {string} [sep='.'] - The separator to use when joining the array elements together
-   * @param {function} [process=Util.identity ] - Manipulate origValue when value is called
+   * @param {function} [process=cloudinary.Util.identity ] - Manipulate origValue when value is called
    * @class ArrayParam
    * @extends Param
    * @ignore
@@ -116,11 +116,11 @@ class ArrayParam extends Param
   serialize: ->
     if @short?
       array = @value()
-      if Util.isEmpty(array)
+      if cloudinary.Util.isEmpty(array)
         ''
       else
         flat = for t in @value()
-          if Util.isFunction( t.serialize)
+          if cloudinary.Util.isFunction( t.serialize)
             t.serialize() # Param or Transformation
           else
             t
@@ -129,7 +129,7 @@ class ArrayParam extends Param
       ''
 
   set: (origValue)->
-    if !origValue? || Util.isArray(origValue)
+    if !origValue? || cloudinary.Util.isArray(origValue)
       super(origValue)
     else
       super([origValue])
@@ -140,7 +140,7 @@ class TransformationParam extends Param
    * @param {string} name - The name of the parameter in snake_case
    * @param {string} [short='t'] - The name of the serialized form of the parameter
    * @param {string} [sep='.'] - The separator to use when joining the array elements together
-   * @param {function} [process=Util.identity ] - Manipulate origValue when value is called
+   * @param {function} [process=cloudinary.Util.identity ] - Manipulate origValue when value is called
    * @class TransformationParam
    * @extends Param
    * @ignore
@@ -150,26 +150,26 @@ class TransformationParam extends Param
     super(name, short, process)
 
   serialize: ->
-    if Util.isEmpty(@value())
+    if cloudinary.Util.isEmpty(@value())
       ''
-    else if Util.allStrings(@value())
+    else if cloudinary.Util.allStrings(@value())
       joined = @value().join(@sep)
-      if !Util.isEmpty(joined)
+      if !cloudinary.Util.isEmpty(joined)
         "#{@short}_#{joined}"
       else
         ''
     else
       result = for t in @value() when t?
-        if Util.isString( t) && !Util.isEmpty(t)
+        if cloudinary.Util.isString( t) && !cloudinary.Util.isEmpty(t)
           "#{@short}_#{t}"
-        else if Util.isFunction( t.serialize)
+        else if cloudinary.Util.isFunction( t.serialize)
           t.serialize()
-        else if Util.isPlainObject(t) && !Util.isEmpty(t)
+        else if cloudinary.Util.isPlainObject(t) && !cloudinary.Util.isEmpty(t)
           new Transformation(t).serialize()
-      Util.compact(result)
+      cloudinary.Util.compact(result)
 
   set: (@origValue)->
-    if Util.isArray(@origValue)
+    if cloudinary.Util.isArray(@origValue)
       super(@origValue)
     else
       super([@origValue])
@@ -196,11 +196,79 @@ class RangeParam extends Param
     value
 
 class RawParam extends Param
-  constructor: (name, short, process = Util.identity)->
+  constructor: (name, short, process = cloudinary.Util.identity)->
     super(name, short, process)
   serialize: ->
     @value()
 
+class LayerParam extends Param
+
+  # Parse layer options
+  # @return [string] layer transformation string
+  # @private
+  value: ()->
+    layer = @origValue
+    if cloudinary.Util.isPlainObject(layer)
+      publicId     = layer.public_id
+      format        = layer.format
+      resourceType = layer.resource_type || "image"
+      type          = layer.type || "upload"
+      text          = layer.text
+      textStyle    = null
+      components    = []
+
+      if publicId?
+        publicId = publicId.replace(/\//g, ":")
+        publicId = "#{publicId}.#{format}" if format?
+
+      if !text? && resourceType != "text"
+        if cloudinary.Util.isEmpty(publicId)
+          throw "Must supply public_id for resource_type layer_parameter"
+        if resourceType == "subtitles"
+          textStyle = @textStyle(layer)
+
+      else
+        resourceType = "text"
+        type          = null
+        # // type is ignored for text layers
+        textStyle    = @textStyle(layer)
+        if text?
+          unless publicId? ^ textStyle?
+            throw "Must supply either style parameters or a public_id when providing text parameter in a text overlay/underlay"
+          text = cloudinary.Util.smart_escape( cloudinary.Util.smart_escape(text, /([,\/])/))
+
+      components.push(resourceType) if resourceType != "image"
+      components.push(type) if type != "upload"
+      components.push(textStyle)
+      components.push(publicId)
+      components.push(text)
+      layer = cloudinary.Util.compact(components).join(":")
+    layer
+
+  LAYER_KEYWORD_PARAMS =[
+    ["font_weight", "normal"],
+    ["font_style", "normal"],
+    ["text_decoration", "none"],
+    ["text_align", null],
+    ["stroke", "none"],
+  ]
+
+  textStyle: (layer)->
+    fontFamily = layer.font_family
+    fontSize   = layer.font_size
+    keywords    =
+      layer[attr] for [attr, defaultValue] in LAYER_KEYWORD_PARAMS when layer[attr] != defaultValue
+
+    letterSpacing = layer.letter_spacing
+    keywords.push("letter_spacing_#{letterSpacing}") unless cloudinary.Util.isEmpty(letterSpacing)
+    lineSpacing = layer.line_spacing
+    keywords.push("line_spacing_#{lineSpacing}") unless cloudinary.Util.isEmpty(lineSpacing)
+    if !cloudinary.Util.isEmpty(fontSize) || !cloudinary.Util.isEmpty(fontFamily) || !cloudinary.Util.isEmpty(keywords)
+      throw "Must supply font_family for text in overlay/underlay" if cloudinary.Util.isEmpty(fontFamily)
+      throw "Must supply font_size for text in overlay/underlay" if cloudinary.Util.isEmpty(fontSize)
+      keywords.unshift(fontSize)
+      keywords.unshift(fontFamily)
+      cloudinary.Util.compact(keywords).join("_")
 
 
 parameters = {}
@@ -209,4 +277,5 @@ parameters.ArrayParam = ArrayParam
 parameters.RangeParam = RangeParam
 parameters.RawParam = RawParam
 parameters.TransformationParam = TransformationParam
+parameters.LayerParam = LayerParam
 

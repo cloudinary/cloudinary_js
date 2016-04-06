@@ -174,6 +174,9 @@ module.exports = (grunt)->
       'src/tags/htmltag.coffee',
       'src/tags/imagetag.coffee',
       'src/tags/videotag.coffee',
+      'src/layer/layer.coffee',
+      'src/layer/Textlayer.coffee',
+      'src/layer/Subtitleslayer.coffee',
       'src/cloudinary.coffee'
     ],
     concat:
@@ -213,6 +216,9 @@ module.exports = (grunt)->
               HtmlTag: HtmlTag
               ImageTag: ImageTag
               VideoTag: VideoTag
+              Layer: Layer
+              TextLayer: TextLayer
+              SubtitlesLayer: SubtitlesLayer
               Cloudinary: Cloudinary
               VERSION: "<%= pkg.version %>"
               <%=  /jquery/.test(grunt.task.current.target) ? "CloudinaryJQuery: CloudinaryJQuery" : ""%>
