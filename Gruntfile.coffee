@@ -198,7 +198,8 @@ module.exports = (grunt)->
               module.exports = factory(<%= /jquery/.test(grunt.task.current.target) ? "require('jquery')" : (/shrink/.test(grunt.task.current.target) ? "" : "require('lodash')")%>)
             else
               root.cloudinary ||= {}
-              root.cloudinary = factory(<%=/jquery/.test(grunt.task.current.target) ? "jQuery" : (/shrink/.test(grunt.task.current.target) ? "" : "_")%>)
+              for name, value of factory(<%=/jquery/.test(grunt.task.current.target) ? "jQuery" : (/shrink/.test(grunt.task.current.target) ? "" : "_")%>)
+                root.cloudinary[name] = value
           )(this,  (<%=/jquery/.test(grunt.task.current.target) ? "jQuery" : (/shrink/.test(grunt.task.current.target) ? "" : "_")%>)->
 
           """

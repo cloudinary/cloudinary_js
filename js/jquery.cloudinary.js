@@ -9,13 +9,20 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
   hasProp = {}.hasOwnProperty;
 
 (function(root, factory) {
+  var name, ref, results, value;
   if ((typeof define === 'function') && define.amd) {
     return define(['jquery'], factory);
   } else if (typeof exports === 'object') {
     return module.exports = factory(require('jquery'));
   } else {
     root.cloudinary || (root.cloudinary = {});
-    return root.cloudinary = factory(jQuery);
+    ref = factory(jQuery);
+    results = [];
+    for (name in ref) {
+      value = ref[name];
+      results.push(root.cloudinary[name] = value);
+    }
+    return results;
   }
 })(this, function(jQuery) {
 
