@@ -1,4 +1,19 @@
 
+2.0.9 / 2016-06-05
+==================
+
+New functionality and features
+------------------------------
+
+  * Add structured overlay and underlay
+  * Add `keyframe_interval` and `streaming_profile` transformation parameters
+
+Other Changes
+-------------
+
+  * Fix missing `cloudinary-jquery-file-upload.coffee.js.map` error. Fixes cloudinary/cloudinary_gem#199.
+  * Don't overwrite `root.cloudinary` when initializing. Allows the cloudinary upload widget to be loaded before the JS library. Fixes #88
+
 2.0.8 / 2016-03-22
 ==================
 

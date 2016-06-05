@@ -1,5 +1,5 @@
 ###*
- * Cloudinary's JavaScript library - Version 2.0.8
+ * Cloudinary's JavaScript library - Version 2.0.9
  * Copyright Cloudinary
  * see https://github.com/cloudinary/cloudinary_js
  *
@@ -1915,7 +1915,7 @@
       @options.resourceType = "subtitles"
   
   class Cloudinary
-    VERSION = "2.0.8"
+    VERSION = "2.0.9"
     CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net"
     OLD_AKAMAI_SHARED_CDN = "cloudinary-a.akamaihd.net"
     AKAMAI_SHARED_CDN = "res.cloudinary.com"
@@ -2834,7 +2834,7 @@
     TextLayer: TextLayer
     SubtitlesLayer: SubtitlesLayer
     Cloudinary: Cloudinary
-    VERSION: "2.0.8"
+    VERSION: "2.0.9"
     CloudinaryJQuery: CloudinaryJQuery
 
   cloudinary
