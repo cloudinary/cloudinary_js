@@ -32,6 +32,15 @@
           src: ['*.coffee'],
           dest: 'build',
           ext: '.js'
+        },
+        legacy: {
+          expand: false,
+          bare: false,
+          sourceMap: true,
+          cwd: '.',
+          src: 'js/jquery.cloudinary.coffee',
+          dest: 'js/jquery.cloudinary.js',
+          ext: '.js'
         }
       },
       uglify: {
@@ -121,8 +130,8 @@
               src: ["bower_components/blueimp-canvas-to-blob/js/canvas-to-blob.min.js", "bower_components/blueimp-load-image/js/load-image.all.min.js", "bower_components/blueimp-file-upload/js/jquery.fileupload-image.js", "bower_components/blueimp-file-upload/js/jquery.fileupload-process.js", "bower_components/blueimp-file-upload/js/jquery.fileupload-validate.js", "bower_components/blueimp-file-upload/js/jquery.fileupload.js", "bower_components/blueimp-file-upload/js/jquery.iframe-transport.js", "bower_components/blueimp-file-upload/js/vendor/jquery.ui.widget.js"],
               dest: "js/"
             }, {
-              src: 'build/cloudinary-jquery-file-upload.js',
-              dest: 'js/jquery.cloudinary.js'
+              src: 'build/cloudinary-jquery-file-upload.coffee',
+              dest: 'js/jquery.cloudinary.coffee'
             }
           ]
         },
@@ -231,8 +240,8 @@
     grunt.loadNpmTasks('grunt-karma');
     grunt.loadNpmTasks('grunt-version');
     grunt.registerTask('default', ['concat', 'coffee']);
-    grunt.registerTask('compile', ['clean:build', 'clean:js', 'concat', 'coffee', 'copy:backward-compatible', 'copy:dist']);
-    grunt.registerTask('build', ['clean', 'concat', 'coffee', 'jsdoc', 'copy:backward-compatible']);
+    grunt.registerTask('compile', ['clean:build', 'clean:js', 'concat', 'copy:backward-compatible', 'coffee', 'copy:dist']);
+    grunt.registerTask('build', ['clean', 'concat', 'copy:backward-compatible', 'coffee', 'jsdoc']);
     return grunt.registerTask('lodash', function(name, target) {
       var func, i, include, len, lodashCalls;
       lodashCalls = grunt.file.read('src/util/lodash.coffee').match(/_\.\w+/g);

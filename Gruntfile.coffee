@@ -34,6 +34,15 @@ module.exports = (grunt)->
         src: ['*.coffee']
         dest: 'build'
         ext: '.js'
+      legacy:
+        expand: false
+        bare: false
+        sourceMap: true
+        cwd: '.'
+        src: 'js/jquery.cloudinary.coffee'
+        dest: 'js/jquery.cloudinary.js'
+        ext: '.js'
+
 
     uglify:
       build:
@@ -136,8 +145,8 @@ module.exports = (grunt)->
             dest: "js/"
           }
           {
-            src: 'build/cloudinary-jquery-file-upload.js'
-            dest: 'js/jquery.cloudinary.js'
+            src: 'build/cloudinary-jquery-file-upload.coffee'
+            dest: 'js/jquery.cloudinary.coffee'
           }
         ]
       dist:
@@ -274,8 +283,8 @@ module.exports = (grunt)->
   grunt.loadNpmTasks('grunt-version')
 
   grunt.registerTask('default', ['concat', 'coffee'])
-  grunt.registerTask('compile', ['clean:build', 'clean:js', 'concat', 'coffee', 'copy:backward-compatible', 'copy:dist'])
-  grunt.registerTask('build', ['clean', 'concat', 'coffee', 'jsdoc', 'copy:backward-compatible'])
+  grunt.registerTask('compile', ['clean:build', 'clean:js', 'concat', 'copy:backward-compatible', 'coffee', 'copy:dist'])
+  grunt.registerTask('build', ['clean', 'concat', 'copy:backward-compatible', 'coffee', 'jsdoc'])
   grunt.registerTask('lodash', (name, target)->
     lodashCalls = grunt.file.read('src/util/lodash.coffee').match(/_\.\w+/g)
     include = []

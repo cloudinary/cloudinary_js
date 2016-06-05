@@ -4020,4 +4020,4 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
   return cloudinary;
 });
 
-//# sourceMappingURL=cloudinary-jquery-file-upload.js.map
+//# sourceMappingURL=jquery.cloudinary.js.map
