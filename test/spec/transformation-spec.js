@@ -252,6 +252,26 @@ describe("Transformation", function() {
       dpr: 1.5
     }, protocol + '//res.cloudinary.com/test123/image/upload/dpr_1.5/test', {});
   });
+  describe("keyframe_interval", function() {
+    it('should support keyframe_interval in options', function() {
+      return expect(Transformation["new"]({
+        keyframe_interval: 10
+      }).toString()).toEqual("ki_10");
+    });
+    return it('should support keyframeInterval()', function() {
+      return expect(Transformation["new"]().keyframeInterval(10).toString()).toEqual("ki_10");
+    });
+  });
+  describe("streaming_profile", function() {
+    it('should support streaming_profile in options', function() {
+      return expect(Transformation["new"]({
+        streaming_profile: "somë-profilé"
+      }).toString()).toEqual("sp_somë-profilé");
+    });
+    return it('should support streamingProfile()', function() {
+      return expect(Transformation["new"]().streamingProfile("somë-profilé").toString()).toEqual("sp_somë-profilé");
+    });
+  });
   describe('zoom', function() {
     return it('should support a decimal value', function() {
       return test_cloudinary_url('test', {

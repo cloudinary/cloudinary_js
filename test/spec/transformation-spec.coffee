@@ -1,4 +1,3 @@
-
 describe "Transformation", ->
   cl = {}
   fixtureContainer = undefined
@@ -215,6 +214,17 @@ describe "Transformation", ->
     test_cloudinary_url 'test', { dpr: 1 }, protocol + '//res.cloudinary.com/test123/image/upload/dpr_1.0/test', {}
     test_cloudinary_url 'test', { dpr: 'auto' }, protocol + '//res.cloudinary.com/test123/image/upload/dpr_1.0/test', {}
     test_cloudinary_url 'test', { dpr: 1.5 }, protocol + '//res.cloudinary.com/test123/image/upload/dpr_1.5/test', {}
+
+  describe "keyframe_interval", ->
+    it 'should support keyframe_interval in options', ->
+      expect(Transformation.new( keyframe_interval: 10).toString()).toEqual("ki_10")
+    it 'should support keyframeInterval()', ->
+      expect(Transformation.new().keyframeInterval(10).toString()).toEqual("ki_10")
+  describe "streaming_profile", ->
+    it 'should support streaming_profile in options', ->
+      expect(Transformation.new( streaming_profile: "somë-profilé").toString()).toEqual("sp_somë-profilé")
+    it 'should support streamingProfile()', ->
+      expect(Transformation.new().streamingProfile("somë-profilé").toString()).toEqual("sp_somë-profilé")
 
   describe 'zoom', ->
     it 'should support a decimal value', ->

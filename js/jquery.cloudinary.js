@@ -1851,6 +1851,10 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
       }
     };
 
+    Transformation.prototype.keyframeInterval = function(value) {
+      return this.param(value, "keyframe_interval", "ki");
+    };
+
     Transformation.prototype.offset = function(value) {
       var end_o, ref, start_o;
       ref = Util.isFunction(value != null ? value.split : void 0) ? value.split('..') : Util.isArray(value) ? value : [null, null], start_o = ref[0], end_o = ref[1];
@@ -1913,6 +1917,10 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
 
     Transformation.prototype.startOffset = function(value) {
       return this.rangeParam(value, "start_offset", "so");
+    };
+
+    Transformation.prototype.streamingProfile = function(value) {
+      return this.param(value, "streaming_profile", "sp");
     };
 
     Transformation.prototype.transformation = function(value) {

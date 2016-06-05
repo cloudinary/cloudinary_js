@@ -453,6 +453,7 @@ class Transformation  extends TransformationBase
       else
         @param value, "if", "if", (value)->
           Condition.new(value).toString()
+  keyframeInterval: (value)->     @param value, "keyframe_interval",  "ki"
   offset: (value)->
     [start_o, end_o] = if( Util.isFunction(value?.split))
       value.split('..')
@@ -478,6 +479,7 @@ class Transformation  extends TransformationBase
   sourceTypes: (value)->          @param value, "source_types"
   sourceTransformation: (value)-> @param value, "source_transformation"
   startOffset: (value)->          @rangeParam value, "start_offset", "so"
+  streamingProfile: (value)->     @param value, "streaming_profile",  "sp"
   transformation: (value)->       @transformationParam value, "transformation", "t"
   underlay: (value)->             @layerParam value, "underlay", "u"
   videoCodec: (value)->           @param value, "video_codec", "vc", Param.process_video_params
