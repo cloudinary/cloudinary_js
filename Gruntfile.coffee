@@ -34,14 +34,6 @@ module.exports = (grunt)->
         src: ['*.coffee']
         dest: 'build'
         ext: '.js'
-      legacy:
-        expand: false
-        bare: false
-        sourceMap: true
-        cwd: '.'
-        src: 'js/jquery.cloudinary.coffee'
-        dest: 'js/jquery.cloudinary.js'
-        ext: '.js'
 
 
     uglify:
@@ -128,6 +120,12 @@ module.exports = (grunt)->
     copy:
       'backward-compatible':
         # For backward compatibility, copy jquery.cloudianry.js and vendor files to the js folder
+        options:
+          process: (content, srcpath) ->
+            if /build.cloudinary-jquery-file-upload\.js/.test(srcpath)
+              content.replace( /\/\/# sourceMappingURL=cloudinary-jquery-file-upload.js.map/g, "")
+            else
+              content
         files: [
           {
             expand: true
@@ -145,8 +143,8 @@ module.exports = (grunt)->
             dest: "js/"
           }
           {
-            src: 'build/cloudinary-jquery-file-upload.coffee'
-            dest: 'js/jquery.cloudinary.coffee'
+            src: 'build/cloudinary-jquery-file-upload.js'
+            dest: 'js/jquery.cloudinary.js'
           }
         ]
       dist:
@@ -283,8 +281,8 @@ module.exports = (grunt)->
   grunt.loadNpmTasks('grunt-version')
 
   grunt.registerTask('default', ['concat', 'coffee'])
-  grunt.registerTask('compile', ['clean:build', 'clean:js', 'concat', 'copy:backward-compatible', 'coffee', 'copy:dist'])
-  grunt.registerTask('build', ['clean', 'concat', 'copy:backward-compatible', 'coffee', 'jsdoc'])
+  grunt.registerTask('compile', ['clean:build', 'clean:js', 'concat', 'coffee', 'copy:backward-compatible', 'copy:dist'])
+  grunt.registerTask('build', ['clean', 'concat', 'coffee', 'copy:backward-compatible', 'jsdoc'])
   grunt.registerTask('lodash', (name, target)->
     lodashCalls = grunt.file.read('src/util/lodash.coffee').match(/_\.\w+/g)
     include = []
