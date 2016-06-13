@@ -32,7 +32,7 @@
         });
         require(['jquery','../build/cloudinary-jquery-file-upload'], function ($,cloudinary) {
             window.cloudinary = cloudinary;
-            require(['spec/chaining-spec', 'spec/cloudinary-spec', 'spec/tagspec', 'spec/videourlspec'], function () {
+            require(['spec/spec-helper', 'spec/chaining-spec', 'spec/cloudinary-spec', 'spec/tagspec', 'spec/videourlspec'], function () {
                 bootJasmine();
             })
         })

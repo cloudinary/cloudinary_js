@@ -48,6 +48,7 @@ module.exports = (grunt)->
 
     karmaCommon: [
       "build/<%= grunt.task.current.target %>.js"
+      'test/spec/spec-helper.js'
       'test/spec/cloudinary-spec.js'
       'test/spec/transformation-spec.js'
       'test/spec/tagspec.js'

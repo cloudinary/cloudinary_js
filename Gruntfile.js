@@ -55,7 +55,7 @@
           })()
         }
       },
-      karmaCommon: ["build/<%= grunt.task.current.target %>.js", 'test/spec/cloudinary-spec.js', 'test/spec/transformation-spec.js', 'test/spec/tagspec.js', 'test/spec/videourlspec.js', 'test/spec/chaining-spec.js', 'test/spec/conditional-transformation-spec.js'],
+      karmaCommon: ["build/<%= grunt.task.current.target %>.js", 'test/spec/spec-helper.js', 'test/spec/cloudinary-spec.js', 'test/spec/transformation-spec.js', 'test/spec/tagspec.js', 'test/spec/videourlspec.js', 'test/spec/chaining-spec.js', 'test/spec/conditional-transformation-spec.js'],
       karma: {
         options: {
           reporters: ['dots'],

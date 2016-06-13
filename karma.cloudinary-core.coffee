@@ -17,6 +17,7 @@ module.exports = (config) ->
     files: [
       'bower_components/lodash/lodash.js'
       'build/cloudinary-core.js'
+      'test/spec/spec-helper.js'
       'test/spec/cloudinary-spec.js'
       'test/spec/transformation-spec.js'
       'test/spec/tagspec.js'
