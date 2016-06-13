@@ -1,8 +1,9 @@
 describe("Transformation", function() {
-  var cl, fixtureContainer, protocol, test_cloudinary_url;
+  var cl, fixtureContainer, protocol, test_cloudinary_url, upload_path;
   cl = {};
   fixtureContainer = void 0;
   protocol = window.location.protocol === "file:" ? "http:" : window.location.protocol;
+  upload_path = protocol + "//res.cloudinary.com/test123/image/upload";
   cloudinary.Util.assign(self, cloudinary);
   test_cloudinary_url = function(public_id, options, expected_url, expected_options) {
     var result;
@@ -84,13 +85,35 @@ describe("Transformation", function() {
       }, protocol + '//res.cloudinary.com/test123/image/upload/c_fit,h_100,w_100/test', {});
       return test_cloudinary_url('test', cloudinary.Transformation["new"]().width(100).height(100).crop('fit'), protocol + '//res.cloudinary.com/test123/image/upload/c_fit,h_100,w_100/test', {});
     });
-    return it('should not pass width and height to html in case angle was used', function() {
+    it('should not pass width and height to html in case angle was used', function() {
       return test_cloudinary_url('test', {
         width: 100,
         height: 100,
         crop: 'scale',
         angle: 'auto'
       }, protocol + '//res.cloudinary.com/test123/image/upload/a_auto,c_scale,h_100,w_100/test', {});
+    });
+    return it("should support auto width", function() {
+      test_cloudinary_url("test", {
+        width: "auto:20",
+        crop: 'fill'
+      }, upload_path + "/c_fill,w_auto:20/test", {});
+      test_cloudinary_url("test", {
+        width: "auto:20:350",
+        crop: 'fill'
+      }, upload_path + "/c_fill,w_auto:20:350/test", {});
+      test_cloudinary_url("test", {
+        width: "auto:breakpoints",
+        crop: 'fill'
+      }, upload_path + "/c_fill,w_auto:breakpoints/test", {});
+      test_cloudinary_url("test", {
+        width: "auto:breakpoints_100_1900_20_15",
+        crop: 'fill'
+      }, upload_path + "/c_fill,w_auto:breakpoints_100_1900_20_15/test", {});
+      return test_cloudinary_url("test", {
+        width: "auto:breakpoints:json",
+        crop: 'fill'
+      }, upload_path + "/c_fill,w_auto:breakpoints:json/test", {});
     });
   });
   it('should support aspect_ratio', function() {
@@ -110,6 +133,44 @@ describe("Transformation", function() {
       quality: 0.4,
       prefix: 'a'
     }, protocol + '//res.cloudinary.com/test123/image/upload/g_center,p_a,q_0.4,r_3,x_1,y_2/test', {});
+  });
+  describe(":quality", function() {
+    it("support a percent value", function() {
+      test_cloudinary_url("test", {
+        x: 1,
+        y: 2,
+        radius: 3,
+        gravity: "center",
+        quality: 80,
+        prefix: "a"
+      }, upload_path + "/g_center,p_a,q_80,r_3,x_1,y_2/test", {});
+      return test_cloudinary_url("test", {
+        x: 1,
+        y: 2,
+        radius: 3,
+        gravity: "center",
+        quality: "80:444",
+        prefix: "a"
+      }, upload_path + "/g_center,p_a,q_80:444,r_3,x_1,y_2/test", {});
+    });
+    return it("should support auto value", function() {
+      test_cloudinary_url("test", {
+        x: 1,
+        y: 2,
+        radius: 3,
+        gravity: "center",
+        quality: "auto",
+        prefix: "a"
+      }, upload_path + "/g_center,p_a,q_auto,r_3,x_1,y_2/test", {});
+      return test_cloudinary_url("test", {
+        x: 1,
+        y: 2,
+        radius: 3,
+        gravity: "center",
+        quality: "auto:good",
+        prefix: "a"
+      }, upload_path + "/g_center,p_a,q_auto:good,r_3,x_1,y_2/test", {});
+    });
   });
   it('should support named tranformation', function() {
     return test_cloudinary_url('test', {

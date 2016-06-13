@@ -49,16 +49,90 @@ describe("Cloudinary.HtmlTag", function() {
   });
 });
 
+sharedExamples("client_hints", function(options) {
+  console.log("define shared");
+  it("should not use data-src or set responsive class", function() {
+    var tag;
+    tag = cl.image('image_id', options).outerHTML;
+    console.log("should not use data-src or set responsive class");
+    expect(tag).toMatch(/<img.*>/);
+    expect(tag).not.toMatch(/<.*class.*>/);
+    expect(tag).not.toMatch(/<.*data-src.*>/);
+    return expect(tag).toMatch(/src=["']http:\/\/res.cloudinary.com\/test\/image\/upload\/dpr_auto,w_auto\/sample.jpg["']/);
+  });
+  return it("should override responsive", function() {
+    var tag;
+    tag = cl.image('image_id', simpleAssign({
+      responsive: true
+    }, options)).outerHTML;
+    expect(tag).toMatch(/<img.*>/);
+    expect(tag).not.toMatch(/<.*class.*>/);
+    expect(tag).not.toMatch(/<.*data-src.*>/);
+    return expect(tag).toMatch(/src=["']http:\/\/res.cloudinary.com\/test\/image\/upload\/dpr_auto,w_auto\/sample.jpg["']/);
+  });
+});
+
 describe("Cloudinary.ImageTag", function() {
-  var DEFAULT_UPLOAD_PATH, options;
-  DEFAULT_UPLOAD_PATH = protocol + "//res.cloudinary.com/test123/image/upload/";
-  options = {
+  var DEFAULT_UPLOAD_PATH, config;
+  config = {
     'cloud_name': 'test123'
   };
-  return it("should create an image tag", function() {
+  beforeEach(function() {
+    return cl = new cloudinary.Cloudinary(config);
+  });
+  DEFAULT_UPLOAD_PATH = protocol + "//res.cloudinary.com/test123/image/upload/";
+  it("should create an image tag", function() {
     var tag;
-    tag = new cloudinary.ImageTag('image_id', options).toHtml();
+    tag = new cloudinary.ImageTag('image_id', config).toHtml();
     return expect(tag).toBe("<img src=\"" + DEFAULT_UPLOAD_PATH + "image_id\">");
+  });
+  return describe(":client_hints", function() {
+    console.log("describe client hints");
+    describe("as option", function() {
+      console.log("as options");
+      return includeContext("client_hints", {
+        dpr: "auto",
+        cloud_name: "test",
+        width: "auto",
+        client_hints: true
+      });
+    });
+    describe("as global configuration", function() {
+      console.log("as global configuration");
+      beforeEach(function() {
+        return cl.config.client_hints = true;
+      });
+      return includeContext("client_hints", {
+        dpr: "auto",
+        cloud_name: "test",
+        width: "auto"
+      });
+    });
+    describe("false", function() {
+      return it("should use normal responsive behaviour", function() {
+        var tag;
+        tag = cl.image('image_id', {
+          width: "auto",
+          cloud_name: "test",
+          client_hints: false
+        }).outerHTML;
+        expect(tag).toMatch(/<img.*>/);
+        expect(tag).toMatch(/class=["']cld-responsive["']/);
+        return expect(tag).toMatch(/data-src=["']http:\/\/res.cloudinary.com\/test\/image\/upload\/dpr_auto,w_auto\/sample.jpg["']/);
+      });
+    });
+    return describe("width", function() {
+      return it("supports auto width", function() {
+        var tag;
+        tag = cl.image('image_id', {
+          dpr: "auto",
+          cloud_name: "test",
+          width: "auto:breakpoints",
+          client_hints: true
+        }).toHtml();
+        return expect(tag).toMatch(/src=["']http:\/\/res.cloudinary.com\/test\/image\/upload\/dpr_auto,w_auto:breakpoints\/sample.jpg["']/);
+      });
+    });
   });
 });
 

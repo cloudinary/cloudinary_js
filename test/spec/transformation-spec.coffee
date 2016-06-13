@@ -2,6 +2,7 @@ describe "Transformation", ->
   cl = {}
   fixtureContainer = undefined
   protocol = if window.location.protocol == "file:" then "http:" else window.location.protocol
+  upload_path = "#{protocol }//res.cloudinary.com/test123/image/upload"
   # copy cloudinary namespace for easy access
   cloudinary.Util.assign(self, cloudinary)
 
@@ -92,6 +93,12 @@ describe "Transformation", ->
         crop: 'scale'
         angle: 'auto'
       }, protocol + '//res.cloudinary.com/test123/image/upload/a_auto,c_scale,h_100,w_100/test', {}
+    it "should support auto width", ->
+      test_cloudinary_url("test", { width: "auto:20", crop: 'fill' }, "#{upload_path}/c_fill,w_auto:20/test", {})
+      test_cloudinary_url("test", { width: "auto:20:350", crop: 'fill' }, "#{upload_path}/c_fill,w_auto:20:350/test", {})
+      test_cloudinary_url("test", { width: "auto:breakpoints", crop: 'fill' }, "#{upload_path}/c_fill,w_auto:breakpoints/test", {})
+      test_cloudinary_url("test", { width: "auto:breakpoints_100_1900_20_15", crop: 'fill' }, "#{upload_path}/c_fill,w_auto:breakpoints_100_1900_20_15/test", {})
+      test_cloudinary_url("test", { width: "auto:breakpoints:json", crop: 'fill' }, "#{upload_path}/c_fill,w_auto:breakpoints:json/test", {})
 
   it 'should support aspect_ratio', ->
     test_cloudinary_url 'test', {
@@ -110,6 +117,22 @@ describe "Transformation", ->
       quality: 0.4
       prefix: 'a'
     }, protocol + '//res.cloudinary.com/test123/image/upload/g_center,p_a,q_0.4,r_3,x_1,y_2/test', {}
+  describe ":quality", ->
+
+    it "support a percent value", ->
+      test_cloudinary_url "test", { x: 1, y: 2, radius: 3, gravity:"center", quality: 80, prefix: "a" },
+        "#{upload_path}/g_center,p_a,q_80,r_3,x_1,y_2/test", {}
+
+      test_cloudinary_url "test", { x: 1, y: 2, radius: 3, gravity:"center", quality: "80:444", prefix: "a" },
+        "#{upload_path}/g_center,p_a,q_80:444,r_3,x_1,y_2/test", {}
+    it "should support auto value", ->
+
+      test_cloudinary_url "test", { x: 1, y: 2, radius: 3, gravity:"center", quality: "auto", prefix: "a" },
+        "#{upload_path}/g_center,p_a,q_auto,r_3,x_1,y_2/test", {}
+
+      test_cloudinary_url "test", { x: 1, y: 2, radius: 3, gravity:"center", quality: "auto:good", prefix: "a" },
+        "#{upload_path}/g_center,p_a,q_auto:good,r_3,x_1,y_2/test", {}
+
 
   it 'should support named tranformation', ->
     test_cloudinary_url 'test', { transformation: 'blip' }, protocol + '//res.cloudinary.com/test123/image/upload/t_blip/test', {}
