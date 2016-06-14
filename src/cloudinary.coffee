@@ -242,13 +242,15 @@ class Cloudinary
   ###
   image: (publicId, options={}) ->
     img = @imageTag(publicId, options)
+    client_hints = options.client_hints ? @config('client_hints') ? false
     # src must be removed before creating the DOM element to avoid loading the image
-    img.setAttr("src", '') unless options.src?
+    img.setAttr("src", '') unless options.src? || client_hints
     img = img.toDOM()
-    # cache the image src
-    Util.setData(img, 'src-cache', @url(publicId, options))
-    # set image src taking responsiveness in account
-    @cloudinary_update(img, options)
+    unless client_hints
+      # cache the image src
+      Util.setData(img, 'src-cache', @url(publicId, options))
+      # set image src taking responsiveness in account
+      @cloudinary_update(img, options)
     img
 
   ###*
@@ -547,13 +549,15 @@ class Cloudinary
 
     for tag in elements when tag.tagName?.match(/img/i)
       setUrl = true
-      if options.responsive
+      client_hints = options.client_hints ? @config('client_hints') ? false
+      responsive = options.responsive ? @config('responsive') ? false
+      if responsive && !client_hints
         Util.addClass(tag, responsiveClass)
-      src = Util.getData(tag, 'src-cache') or Util.getData(tag, 'src')
-      unless Util.isEmpty(src)
+      dataSrc = Util.getData(tag, 'src-cache') or Util.getData(tag, 'src')
+      unless Util.isEmpty(dataSrc)
         # Update dpr according to the device's devicePixelRatio
-        src = src.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + @device_pixel_ratio(roundDpr))
-        if Util.hasClass(tag, responsiveClass) and /\bw_auto\b/.exec(src)
+        dataSrc = dataSrc.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + @device_pixel_ratio(roundDpr))
+        if Util.hasClass(tag, responsiveClass) and /\bw_auto\b/.exec(dataSrc)
           containerWidth = parentWidth(tag)
           if containerWidth != 0
             requestedWidth = applyBreakpoints.call(this, tag, containerWidth, options)
@@ -564,14 +568,14 @@ class Cloudinary
               Util.setData(tag, 'width', requestedWidth)
 
 #            tag.style.setProperty("max-width", requestedWidth)
-            src = src.replace(/\bw_auto\b/g, 'w_' + imageWidth)
+            dataSrc = dataSrc.replace(/\bw_auto\b/g, 'w_' + imageWidth)
 
             Util.removeAttribute(tag, 'width')
             Util.removeAttribute(tag, 'height') unless options.responsive_preserve_height
           else
             # Container doesn't know the size yet - usually because the image is hidden or outside the DOM.
             setUrl = false
-        Util.setAttribute(tag, 'src', src) if setUrl
+        Util.setAttribute(tag, 'src', dataSrc) if setUrl
     this
 
   ###*

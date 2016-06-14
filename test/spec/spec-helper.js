@@ -6,7 +6,7 @@ sharedExamples = (function() {
     if (this.allExamples == null) {
       this.allExamples = {};
     }
-    if (_.isFunction(examples)) {
+    if (cloudinary.Util.isFunction(examples)) {
       this.allExamples[name] = examples;
       examples;
     } else {

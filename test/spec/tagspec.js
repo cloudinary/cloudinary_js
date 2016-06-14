@@ -50,25 +50,24 @@ describe("Cloudinary.HtmlTag", function() {
 });
 
 sharedExamples("client_hints", function(options) {
-  console.log("define shared");
   it("should not use data-src or set responsive class", function() {
-    var tag;
-    tag = cl.image('image_id', options).outerHTML;
-    console.log("should not use data-src or set responsive class");
+    var image, tag;
+    image = cl.image('sample.jpg', options);
+    tag = image.outerHTML;
     expect(tag).toMatch(/<img.*>/);
     expect(tag).not.toMatch(/<.*class.*>/);
-    expect(tag).not.toMatch(/<.*data-src.*>/);
-    return expect(tag).toMatch(/src=["']http:\/\/res.cloudinary.com\/test\/image\/upload\/dpr_auto,w_auto\/sample.jpg["']/);
+    expect(cloudinary.Util.getData(image, "src")).toBeFalsy();
+    return expect(tag).toMatch(/src=["']http:\/\/res.cloudinary.com\/test\/image\/upload\/c_scale,dpr_auto,w_auto\/sample.jpg["']/);
   });
   return it("should override responsive", function() {
-    var tag;
-    tag = cl.image('image_id', simpleAssign({
-      responsive: true
-    }, options)).outerHTML;
+    var image, tag;
+    cl.config().responsive = true;
+    image = cl.image('sample.jpg', options);
+    tag = image.outerHTML;
     expect(tag).toMatch(/<img.*>/);
     expect(tag).not.toMatch(/<.*class.*>/);
-    expect(tag).not.toMatch(/<.*data-src.*>/);
-    return expect(tag).toMatch(/src=["']http:\/\/res.cloudinary.com\/test\/image\/upload\/dpr_auto,w_auto\/sample.jpg["']/);
+    expect(cloudinary.Util.getData(image, "src")).toBeFalsy();
+    return expect(tag).toMatch(/src=["']http:\/\/res.cloudinary.com\/test\/image\/upload\/c_scale,dpr_auto,w_auto\/sample.jpg["']/);
   });
 });
 
@@ -87,50 +86,53 @@ describe("Cloudinary.ImageTag", function() {
     return expect(tag).toBe("<img src=\"" + DEFAULT_UPLOAD_PATH + "image_id\">");
   });
   return describe(":client_hints", function() {
-    console.log("describe client hints");
     describe("as option", function() {
-      console.log("as options");
       return includeContext("client_hints", {
         dpr: "auto",
         cloud_name: "test",
         width: "auto",
+        crop: "scale",
         client_hints: true
       });
     });
     describe("as global configuration", function() {
-      console.log("as global configuration");
       beforeEach(function() {
-        return cl.config.client_hints = true;
+        return cl.config().client_hints = true;
       });
       return includeContext("client_hints", {
         dpr: "auto",
         cloud_name: "test",
-        width: "auto"
+        width: "auto",
+        crop: "scale"
       });
     });
     describe("false", function() {
       return it("should use normal responsive behaviour", function() {
-        var tag;
-        tag = cl.image('image_id', {
+        var image, tag;
+        cl.config().responsive = true;
+        image = cl.image('sample.jpg', {
           width: "auto",
+          crop: "scale",
           cloud_name: "test",
           client_hints: false
-        }).outerHTML;
+        });
+        tag = image.outerHTML;
         expect(tag).toMatch(/<img.*>/);
         expect(tag).toMatch(/class=["']cld-responsive["']/);
-        return expect(tag).toMatch(/data-src=["']http:\/\/res.cloudinary.com\/test\/image\/upload\/dpr_auto,w_auto\/sample.jpg["']/);
+        return expect(cloudinary.Util.getData(image, "src-cache")).toMatch(/http:\/\/res.cloudinary.com\/test\/image\/upload\/c_scale,w_auto\/sample.jpg/);
       });
     });
     return describe("width", function() {
       return it("supports auto width", function() {
         var tag;
-        tag = cl.image('image_id', {
+        tag = cl.image('sample.jpg', {
+          crop: "scale",
           dpr: "auto",
           cloud_name: "test",
           width: "auto:breakpoints",
           client_hints: true
-        }).toHtml();
-        return expect(tag).toMatch(/src=["']http:\/\/res.cloudinary.com\/test\/image\/upload\/dpr_auto,w_auto:breakpoints\/sample.jpg["']/);
+        }).outerHTML;
+        return expect(tag).toMatch(/src=["']http:\/\/res.cloudinary.com\/test\/image\/upload\/c_scale,dpr_auto,w_auto:breakpoints\/sample.jpg["']/);
       });
     });
   });

@@ -1748,16 +1748,18 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
     };
 
     Transformation.prototype.dpr = function(value) {
-      return this.param(value, "dpr", "dpr", function(dpr) {
-        dpr = dpr.toString();
-        if (dpr === "auto") {
-          return "1.0";
-        } else if (dpr != null ? dpr.match(/^\d+$/) : void 0) {
-          return dpr + ".0";
-        } else {
-          return dpr;
-        }
-      });
+      return this.param(value, "dpr", "dpr", (function(_this) {
+        return function(dpr) {
+          dpr = dpr.toString();
+          if ((dpr === "auto") && _this.getValue("client_hints") !== true) {
+            return "1.0";
+          } else if (dpr != null ? dpr.match(/^\d+$/) : void 0) {
+            return dpr + ".0";
+          } else {
+            return dpr;
+          }
+        };
+      })(this));
     };
 
     Transformation.prototype.effect = function(value) {
@@ -3137,17 +3139,20 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
      */
 
     Cloudinary.prototype.image = function(publicId, options) {
-      var img;
+      var client_hints, img, ref, ref1;
       if (options == null) {
         options = {};
       }
       img = this.imageTag(publicId, options);
-      if (options.src == null) {
+      client_hints = (ref = (ref1 = options.client_hints) != null ? ref1 : this.config('client_hints')) != null ? ref : false;
+      if (!((options.src != null) || client_hints)) {
         img.setAttr("src", '');
       }
       img = img.toDOM();
-      Util.setData(img, 'src-cache', this.url(publicId, options));
-      this.cloudinary_update(img, options);
+      if (!client_hints) {
+        Util.setData(img, 'src-cache', this.url(publicId, options));
+        this.cloudinary_update(img, options);
+      }
       return img;
     };
 
@@ -3549,7 +3554,7 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
      */
 
     Cloudinary.prototype.cloudinary_update = function(elements, options) {
-      var containerWidth, imageWidth, j, len, ref, ref1, ref2, ref3, requestedWidth, responsiveClass, roundDpr, setUrl, src, tag;
+      var client_hints, containerWidth, dataSrc, imageWidth, j, len, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, requestedWidth, responsive, responsiveClass, roundDpr, setUrl, tag;
       if (options == null) {
         options = {};
       }
@@ -3573,13 +3578,15 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
           continue;
         }
         setUrl = true;
-        if (options.responsive) {
+        client_hints = (ref4 = (ref5 = options.client_hints) != null ? ref5 : this.config('client_hints')) != null ? ref4 : false;
+        responsive = (ref6 = (ref7 = options.responsive) != null ? ref7 : this.config('responsive')) != null ? ref6 : false;
+        if (responsive && !client_hints) {
           Util.addClass(tag, responsiveClass);
         }
-        src = Util.getData(tag, 'src-cache') || Util.getData(tag, 'src');
-        if (!Util.isEmpty(src)) {
-          src = src.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + this.device_pixel_ratio(roundDpr));
-          if (Util.hasClass(tag, responsiveClass) && /\bw_auto\b/.exec(src)) {
+        dataSrc = Util.getData(tag, 'src-cache') || Util.getData(tag, 'src');
+        if (!Util.isEmpty(dataSrc)) {
+          dataSrc = dataSrc.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + this.device_pixel_ratio(roundDpr));
+          if (Util.hasClass(tag, responsiveClass) && /\bw_auto\b/.exec(dataSrc)) {
             containerWidth = parentWidth(tag);
             if (containerWidth !== 0) {
               requestedWidth = applyBreakpoints.call(this, tag, containerWidth, options);
@@ -3588,7 +3595,7 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
                 imageWidth = requestedWidth;
                 Util.setData(tag, 'width', requestedWidth);
               }
-              src = src.replace(/\bw_auto\b/g, 'w_' + imageWidth);
+              dataSrc = dataSrc.replace(/\bw_auto\b/g, 'w_' + imageWidth);
               Util.removeAttribute(tag, 'width');
               if (!options.responsive_preserve_height) {
                 Util.removeAttribute(tag, 'height');
@@ -3598,7 +3605,7 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
             }
           }
           if (setUrl) {
-            Util.setAttribute(tag, 'src', src);
+            Util.setAttribute(tag, 'src', dataSrc);
           }
         }
       }
@@ -3645,16 +3652,20 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
      */
 
     CloudinaryJQuery.prototype.image = function(publicId, options) {
-      var img, tag_options, url;
+      var client_hints, img, ref, ref1;
       if (options == null) {
         options = {};
       }
-      tag_options = Util.merge({
-        src: ''
-      }, options);
-      img = this.imageTag(publicId, tag_options).toHtml();
-      url = this.url(publicId, options);
-      return jQuery(img).data('src-cache', url).cloudinary_update(options);
+      img = this.imageTag(publicId, options);
+      client_hints = (ref = (ref1 = options.client_hints) != null ? ref1 : this.config('client_hints')) != null ? ref : false;
+      if (!((options.src != null) || client_hints)) {
+        img.setAttr("src", '');
+      }
+      img = jQuery(img.toHtml());
+      if (!client_hints) {
+        img.data('src-cache', this.url(publicId, options)).cloudinary_update(options);
+      }
+      return img;
     };
 
 

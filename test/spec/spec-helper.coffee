@@ -1,7 +1,7 @@
 class sharedExamples
   constructor: (name, examples)->
     @allExamples ?= {}
-    if _.isFunction(examples)
+    if cloudinary.Util.isFunction(examples)
       @allExamples[name] = examples
       examples
     else

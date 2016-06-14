@@ -46,7 +46,7 @@ describe 'cloudinary', ()->
       aContainer = document.createElement('a')
       divContainer.appendChild( aContainer)
       img = cl.image('sample.jpg',
-        width: 'auto'
+        width: 'auto:breakpoints'
         dpr: 'auto'
         crop: 'scale'
         responsive: true

@@ -27,20 +27,21 @@ describe "Cloudinary.HtmlTag", ->
       expect( -> new cloudinary.HtmlTag( 'div', {})).not.toThrow()
 
 sharedExamples "client_hints", (options)->
-  console.log("define shared")
   it "should not use data-src or set responsive class", ->
-    tag = cl.image('image_id', options).outerHTML
-    console.log("should not use data-src or set responsive class")
+    image = cl.image('sample.jpg', options)
+    tag = image.outerHTML
     expect(tag).toMatch( /<img.*>/)
     expect(tag).not.toMatch(/<.*class.*>/)
-    expect(tag).not.toMatch(/<.*data-src.*>/)
-    expect(tag).toMatch( /src=["']http:\/\/res.cloudinary.com\/test\/image\/upload\/dpr_auto,w_auto\/sample.jpg["']/)
+    expect(cloudinary.Util.getData(image, "src")).toBeFalsy()
+    expect(tag).toMatch( /src=["']http:\/\/res.cloudinary.com\/test\/image\/upload\/c_scale,dpr_auto,w_auto\/sample.jpg["']/)
   it "should override responsive", ->
-    tag = cl.image( 'image_id', simpleAssign(responsive: true, options)).outerHTML
+    cl.config().responsive = true
+    image = cl.image('sample.jpg', options)
+    tag = image.outerHTML
     expect(tag).toMatch( /<img.*>/)
     expect(tag).not.toMatch(/<.*class.*>/)
-    expect(tag).not.toMatch(/<.*data-src.*>/)
-    expect(tag).toMatch( /src=["']http:\/\/res.cloudinary.com\/test\/image\/upload\/dpr_auto,w_auto\/sample.jpg["']/)
+    expect(cloudinary.Util.getData(image, "src")).toBeFalsy()
+    expect(tag).toMatch( /src=["']http:\/\/res.cloudinary.com\/test\/image\/upload\/c_scale,dpr_auto,w_auto\/sample.jpg["']/)
 
 describe "Cloudinary.ImageTag", ->
   config =
@@ -53,26 +54,25 @@ describe "Cloudinary.ImageTag", ->
     tag = new cloudinary.ImageTag( 'image_id', config).toHtml()
     expect(tag).toBe("<img src=\"#{DEFAULT_UPLOAD_PATH}image_id\">")
   describe ":client_hints", ->
-    console.log("describe client hints")
     describe "as option", ->
-      console.log("as options")
-      includeContext "client_hints", {dpr: "auto", cloud_name: "test", width: "auto", client_hints: true}
+      includeContext "client_hints", {dpr: "auto", cloud_name: "test", width: "auto", crop: "scale", client_hints: true}
     describe "as global configuration", ->
-      console.log("as global configuration")
       beforeEach ->
-        cl.config.client_hints = true
-      includeContext "client_hints", {dpr: "auto", cloud_name: "test", width: "auto"}
+        cl.config().client_hints = true
+      includeContext "client_hints", {dpr: "auto", cloud_name: "test", width: "auto", crop: "scale"}
 
     describe "false", ->
       it "should use normal responsive behaviour", ->
-        tag = cl.image( 'image_id', {width: "auto", cloud_name: "test", client_hints: false}).outerHTML
+        cl.config().responsive = true
+        image = cl.image('sample.jpg', {width: "auto", crop: "scale", cloud_name: "test", client_hints: false})
+        tag = image.outerHTML
         expect(tag).toMatch( /<img.*>/)
         expect(tag).toMatch( /class=["']cld-responsive["']/)
-        expect(tag).toMatch( /data-src=["']http:\/\/res.cloudinary.com\/test\/image\/upload\/dpr_auto,w_auto\/sample.jpg["']/)
+        expect(cloudinary.Util.getData(image, "src-cache")).toMatch( /http:\/\/res.cloudinary.com\/test\/image\/upload\/c_scale,w_auto\/sample.jpg/)
     describe "width", ->
       it "supports auto width", ->
-        tag = cl.image( 'image_id', {dpr: "auto", cloud_name: "test", width: "auto:breakpoints", client_hints: true}).toHtml()
-        expect(tag).toMatch( /src=["']http:\/\/res.cloudinary.com\/test\/image\/upload\/dpr_auto,w_auto:breakpoints\/sample.jpg["']/)
+        tag = cl.image( 'sample.jpg', {crop: "scale", dpr: "auto", cloud_name: "test", width: "auto:breakpoints", client_hints: true}).outerHTML
+        expect(tag).toMatch( /src=["']http:\/\/res.cloudinary.com\/test\/image\/upload\/c_scale,dpr_auto,w_auto:breakpoints\/sample.jpg["']/)
     
 
 describe "Cloudinary.VideoTag", ->

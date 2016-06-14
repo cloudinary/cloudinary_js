@@ -14,12 +14,16 @@
 ###
 getData = ( element, name)->
   switch
-    when _.isFunction(element?.data)
-      element.data(name)
-    when _.isFunction(element?.getAttribute)
+    when !element?
+      undefined
+    when _.isFunction(element.getAttribute)
       element.getAttribute("data-#{name}")
-    when _.isFunction(element?.getAttr)
+    when _.isFunction(element.getAttr)
       element.getAttr("data-#{name}")
+    when _.isFunction(element.data)
+      element.data(name)
+    when _.isFunction( jQuery?.fn?.data) && _.isElement(element)
+      jQuery(element).data(name)
 
 ###*
  * Set data in the DOM element.
@@ -32,12 +36,16 @@ getData = ( element, name)->
 ###
 setData = (element, name, value)->
   switch
-    when _.isFunction(element?.data)
-      element.data(name, value)
-    when _.isFunction(element?.setAttribute)
+    when !element?
+      undefined
+    when _.isFunction(element.setAttribute)
       element.setAttribute("data-#{name}", value)
-    when _.isFunction(element?.setAttr)
+    when _.isFunction(element.setAttr)
       element.setAttr("data-#{name}", value)
+    when _.isFunction(element.data)
+      element.data(name, value)
+    when _.isFunction( jQuery?.fn?.data) && _.isElement(element)
+      jQuery(element).data(name, value)
 
 ###*
  * Get attribute from the DOM element.
@@ -50,11 +58,13 @@ setData = (element, name, value)->
 ###
 getAttribute = ( element, name)->
   switch
-    when _.isFunction(element?.getAttribute)
+    when !element?
+      undefined
+    when _.isFunction(element.getAttribute)
       element.getAttribute(name)
-    when _.isFunction(element?.attr)
+    when _.isFunction(element.attr)
       element.attr(name)
-    when _.isFunction(element?.getAttr)
+    when _.isFunction(element.getAttr)
       element.getAttr(name)
 
 ###*
@@ -68,23 +78,30 @@ getAttribute = ( element, name)->
 ###
 setAttribute = (element, name, value)->
   switch
-    when _.isFunction(element?.setAttribute)
+    when !element?
+      undefined
+    when _.isFunction(element.setAttribute)
       element.setAttribute(name, value)
-    when _.isFunction(element?.attr)
+    when _.isFunction(element.attr)
       element.attr(name, value)
-    when _.isFunction(element?.setAttr)
+    when _.isFunction(element.setAttr)
       element.setAttr(name, value)
 
 removeAttribute = (element, name)->
-  if _.isElement(element)
-    element.removeAttribute(name)
+  switch
+    when !element?
+      undefined
+    when _.isFunction(element.removeAttribute)
+      element.removeAttribute(name)
+    else
+      setAttribute(element, undefined)
 
 setAttributes = (element, attributes)->
     for name, value of attributes
       if value?
         setAttribute(element, name, value)
       else
-        element.removeAttribute(name)
+        removeAttribute(element, name)
 
 hasClass = (element, name)->
   if _.isElement(element)

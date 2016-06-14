@@ -15,13 +15,16 @@ class CloudinaryJQuery extends Cloudinary
    * @override
   ###
   image: (publicId, options={})->
+    img = @imageTag(publicId, options)
+    client_hints = options.client_hints ? @config('client_hints') ? false
     # generate a tag without the image src
-    tag_options = Util.merge( {src: ''}, options)
-    img = @imageTag(publicId, tag_options).toHtml()
-    # cache the image src
-    url = @url(publicId, options)
-    # set image src taking responsiveness in account
-    jQuery(img).data('src-cache', url).cloudinary_update(options);
+    img.setAttr("src", '') unless options.src? || client_hints
+    img = jQuery(img.toHtml())
+    unless client_hints
+      # cache the image src
+      # set image src taking responsiveness in account
+      img.data('src-cache', @url(publicId, options)).cloudinary_update(options)
+    img
 
   ###*
    * @override
