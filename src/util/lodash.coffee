@@ -13,8 +13,13 @@
  *
 ###
 getData = ( element, name)->
-  if _.isElement(element)
-    element.getAttribute("data-#{name}")
+  switch
+    when _.isFunction(element?.data)
+      element.data(name)
+    when _.isFunction(element?.getAttribute)
+      element.getAttribute("data-#{name}")
+    when _.isFunction(element?.getAttr)
+      element.getAttr("data-#{name}")
 
 ###*
  * Set data in the DOM element.
@@ -26,8 +31,13 @@ getData = ( element, name)->
  *
 ###
 setData = (element, name, value)->
-  if _.isElement(element)
-    element.setAttribute("data-#{name}", value)
+  switch
+    when _.isFunction(element?.data)
+      element.data(name, value)
+    when _.isFunction(element?.setAttribute)
+      element.setAttribute("data-#{name}", value)
+    when _.isFunction(element?.setAttr)
+      element.setAttr("data-#{name}", value)
 
 ###*
  * Get attribute from the DOM element.
@@ -39,8 +49,13 @@ setData = (element, name, value)->
  *
 ###
 getAttribute = ( element, name)->
-  if _.isElement(element)
-    element.getAttribute(name)
+  switch
+    when _.isFunction(element?.getAttribute)
+      element.getAttribute(name)
+    when _.isFunction(element?.attr)
+      element.attr(name)
+    when _.isFunction(element?.getAttr)
+      element.getAttr(name)
 
 ###*
  * Set attribute in the DOM element.
@@ -52,15 +67,19 @@ getAttribute = ( element, name)->
  *
 ###
 setAttribute = (element, name, value)->
-  if _.isElement(element)
-    element.setAttribute(name, value)
+  switch
+    when _.isFunction(element?.setAttribute)
+      element.setAttribute(name, value)
+    when _.isFunction(element?.attr)
+      element.attr(name, value)
+    when _.isFunction(element?.setAttr)
+      element.setAttr(name, value)
 
 removeAttribute = (element, name)->
   if _.isElement(element)
     element.removeAttribute(name)
 
 setAttributes = (element, attributes)->
-
     for name, value of attributes
       if value?
         setAttribute(element, name, value)
