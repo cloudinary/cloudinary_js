@@ -4027,5 +4027,3 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
   };
   return cloudinary;
 });
-
-//# sourceMappingURL=jquery.cloudinary.js.map
