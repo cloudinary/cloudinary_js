@@ -5,7 +5,7 @@ module.exports = (config) ->
   config.set
 
     # base path that will be used to resolve all patterns (eg. files, exclude)
-    basePath: ''
+#    basePath: '.'
 
 
     # frameworks to use
@@ -23,6 +23,9 @@ module.exports = (config) ->
       'test/spec/tagspec.js'
       'test/spec/videourlspec.js'
       'test/spec/chaining-spec.js'
+      'test/spec/responsive-core-spec.js'
+      { pattern: 'test/docRoot/responsive-core-test.html', watched: false, included: false, served: true, nocache: false}
+      { pattern: 'bower_components/bootstrap/dist/css/*', watched: false, included: false, served: true, nocache: false}
     ]
 
     # preprocess matching files before serving them to the browser

@@ -13,7 +13,7 @@ sharedExamples 'client side responsive', ->
     beforeAll (done)->
       # Open a new window with test HTML. A dynamic title is required in order to open a *new* window each time even if
       # previous window was not closed.
-      testURL = "responsive-core-test.html"
+      testURL = "responsive-shrinkwrap-test.html"
       testURL = "/base/test/docRoot/#{testURL}" if typeof __karma__ != "undefined"
       testWindow = window.open(testURL, "Cloudinary test #{(new Date()).toLocaleString()}", "width=500, height=500")
       testWindow.addEventListener 'karma-ready', ()=>

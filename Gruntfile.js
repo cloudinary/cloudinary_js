@@ -60,21 +60,60 @@
         options: {
           reporters: ['dots'],
           configFile: 'karma.coffee',
-          browserDisconnectTolerance: 3
+          browserDisconnectTolerance: 3,
+          files: [
+            {
+              pattern: 'test/docRoot/*',
+              watched: false,
+              included: false,
+              served: true,
+              nocache: false
+            }, {
+              pattern: 'test/docRoot/css/*',
+              watched: false,
+              included: false,
+              served: true,
+              nocache: false
+            }, {
+              pattern: 'bower_components/bootstrap/dist/css/*',
+              watched: false,
+              included: false,
+              served: true,
+              nocache: false
+            }, {
+              pattern: 'bower_components/bootstrap/dist/js/*',
+              watched: false,
+              included: false,
+              served: true,
+              nocache: false
+            }, {
+              pattern: 'bower_components/blueimp-file-upload/js/*',
+              watched: false,
+              included: false,
+              served: true,
+              nocache: false
+            }, {
+              pattern: 'bower_components/jquery.ui/ui/*',
+              watched: false,
+              included: false,
+              served: true,
+              nocache: false
+            }
+          ]
         },
         'cloudinary-core': {
           files: {
-            src: ["bower_components/lodash/lodash.js", "<%= karmaCommon %>"]
+            src: ["bower_components/lodash/lodash.js", "<%= karmaCommon %>", "test/spec/responsive-core-spec.js"]
           }
         },
         'cloudinary-core-shrinkwrap': {
           files: {
-            src: ["<%= karmaCommon %>"]
+            src: ["<%= karmaCommon %>", "test/spec/responsive-shrinkwrap-spec.js"]
           }
         },
         'cloudinary-jquery': {
           files: {
-            src: ["bower_components/jquery/dist/jquery.js", "<%= karmaCommon %>"]
+            src: ["bower_components/jquery/dist/jquery.js", "<%= karmaCommon %>", "test/spec/responsive-jquery-spec.js"]
           }
         },
         'cloudinary-jquery-file-upload': {
@@ -151,24 +190,6 @@
             }
             return results;
           })()
-        },
-        doc: {
-          files: (function() {
-            var i, len, results;
-            results = [];
-            for (i = 0, len = repos.length; i < len; i++) {
-              repo = repos[i];
-              if (!/shrinkwrap/.test(repo)) {
-                results.push({
-                  expand: true,
-                  cwd: "doc/pkg-" + repo + "/",
-                  src: ["**"],
-                  dest: "../pkg/pkg-" + repo + "/"
-                });
-              }
-            }
-            return results;
-          })()
         }
       },
       version: {
@@ -240,7 +261,7 @@
     grunt.loadNpmTasks('grunt-karma');
     grunt.loadNpmTasks('grunt-version');
     grunt.registerTask('default', ['concat', 'coffee']);
-    grunt.registerTask('compile', ['clean:build', 'clean:js', 'concat', 'coffee', 'copy:backward-compatible', 'copy:dist']);
+    grunt.registerTask('compile', ['clean:build', 'clean:js', 'concat', 'coffee', 'copy:backward-compatible']);
     grunt.registerTask('build', ['clean', 'concat', 'coffee', 'copy:backward-compatible', 'jsdoc']);
     return grunt.registerTask('lodash', function(name, target) {
       var func, i, include, len, lodashCalls;

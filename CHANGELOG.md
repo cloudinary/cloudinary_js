@@ -1,4 +1,24 @@
 
+2.1.0 / 2016-06-22
+==================
+
+New functionality and features
+------------------------------
+
+  * New configuration parameter `:client_hints`
+  * Enhanced auto `width` values
+  * Enhanced `quality` values
+
+Other Changes
+-------------
+
+  * Use duck-typing to set/get attributes.
+  * Updated dependencies
+  * Add `client_hints`, `width`, `quality` tests
+  * Create spec-helper.coffee. Add `sharedExamples`.
+  * Fix assets compilation issue with Cloudinary GEM cloudinary/cloudinary_gem#203
+  * Remove map reference in `js` folder. Fixes cloudinary/cloudinary_gem#199
+
 2.0.9 / 2016-06-05
 ==================
 

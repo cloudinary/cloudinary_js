@@ -1,5 +1,5 @@
 class Cloudinary
-  VERSION = "2.0.9"
+  VERSION = "2.1.0"
   CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net"
   OLD_AKAMAI_SHARED_CDN = "cloudinary-a.akamaihd.net"
   AKAMAI_SHARED_CDN = "res.cloudinary.com"
@@ -392,10 +392,10 @@ class Cloudinary
    * @private
    * @ignore
   ###
-  calc_breakpoint: (element, width) ->
+  calc_breakpoint: (element, width, steps) ->
     breakpoints = Util.getData(element, 'breakpoints') or Util.getData(element, 'stoppoints') or @config('breakpoints') or @config('stoppoints') or defaultBreakpoints
     if Util.isFunction breakpoints
-      breakpoints(width)
+      breakpoints(width, steps)
     else
       if Util.isString breakpoints
         breakpoints = (parseInt(point) for point in breakpoints.split(',')).sort((a, b) -> a - b)
@@ -423,8 +423,8 @@ class Cloudinary
       dprString += '.0'
     dprString
 
-  defaultBreakpoints = (width) ->
-    100 * Math.ceil(width / 100)
+  defaultBreakpoints = (width, steps = 100) ->
+    steps * Math.ceil(width / steps)
 
   closestAbove = (list, value) ->
     i = list.length - 2
@@ -505,19 +505,29 @@ class Cloudinary
     @cloudinary_update( images, options)
     this
 
-  applyBreakpoints = (tag, width, options)->
+  applyBreakpoints = (tag, width, steps, options)->
     responsive_use_breakpoints = options['responsive_use_breakpoints'] ? options['responsive_use_stoppoints'] ? @config('responsive_use_breakpoints') ? @config('responsive_use_stoppoints')
     if (!responsive_use_breakpoints) || (responsive_use_breakpoints == 'resize' and !options.resizing)
       width
     else
-      @calc_breakpoint(tag, width)
+      @calc_breakpoint(tag, width, steps)
 
-  parentWidth = (element) ->
+  findContainerWidth = (element) ->
     containerWidth = 0
     while ((element = element?.parentNode) instanceof Element) and !containerWidth
       style = window.getComputedStyle(element);
       containerWidth = Util.width(element) unless /^inline/.test(style.display)
     containerWidth
+
+  updateDpr = (dataSrc, roundDpr) ->
+    dataSrc.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + @device_pixel_ratio(roundDpr))
+
+  maxWidth = (requiredWidth, tag) ->
+    imageWidth = Util.getData(tag, 'width') or 0
+    if requiredWidth > imageWidth
+      imageWidth = requiredWidth
+      Util.setData(tag, 'width', requiredWidth)
+    requiredWidth
 
   ###*
   * Update hidpi (dpr_auto) and responsive (w_auto) fields according to the current container size and the device pixel ratio.
@@ -534,6 +544,12 @@ class Cloudinary
   *   Should only be used if the transformation supports different aspect ratios.
   ###
   cloudinary_update: (elements, options = {}) ->
+    client_hints = options.client_hints ? @config('client_hints') ? false
+    client_hints = client_hints || document?.querySelector('meta[http-equiv="Accept-CH"]')
+    return if client_hints
+
+    responsive = options.responsive ? @config('responsive') ? false
+
     elements = switch
       when Util.isArray(elements)
         elements
@@ -549,26 +565,24 @@ class Cloudinary
 
     for tag in elements when tag.tagName?.match(/img/i)
       setUrl = true
-      client_hints = options.client_hints ? @config('client_hints') ? false
-      responsive = options.responsive ? @config('responsive') ? false
+
       if responsive && !client_hints
         Util.addClass(tag, responsiveClass)
       dataSrc = Util.getData(tag, 'src-cache') or Util.getData(tag, 'src')
       unless Util.isEmpty(dataSrc)
         # Update dpr according to the device's devicePixelRatio
-        dataSrc = dataSrc.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + @device_pixel_ratio(roundDpr))
-        if Util.hasClass(tag, responsiveClass) and /\bw_auto\b/.exec(dataSrc)
-          containerWidth = parentWidth(tag)
+        dataSrc = updateDpr.call(this, dataSrc, roundDpr)
+        if HtmlTag.isResponsive(tag, responsiveClass)
+          containerWidth = findContainerWidth(tag)
           if containerWidth != 0
-            requestedWidth = applyBreakpoints.call(this, tag, containerWidth, options)
-
-            imageWidth = Util.getData(tag, 'width') or 0
-            if requestedWidth > imageWidth
-              imageWidth = requestedWidth
-              Util.setData(tag, 'width', requestedWidth)
-
-#            tag.style.setProperty("max-width", requestedWidth)
-            dataSrc = dataSrc.replace(/\bw_auto\b/g, 'w_' + imageWidth)
+            switch
+              when /w_auto:breakpoints/.test(dataSrc)
+                requiredWidth = maxWidth(containerWidth, tag)
+                dataSrc = dataSrc.replace( /w_auto:breakpoints([_0-9]*)(:[0-9]+)?/, "w_auto:breakpoints$1:#{requiredWidth}")
+              when match = /w_auto(:(\d+))?/.exec(dataSrc)
+                requiredWidth = applyBreakpoints.call(this, tag, containerWidth, match[2] , options)
+                requiredWidth = maxWidth(requiredWidth, tag)
+                dataSrc = dataSrc.replace( /w_auto[^,\/]*/g, "w_#{requiredWidth}")
 
             Util.removeAttribute(tag, 'width')
             Util.removeAttribute(tag, 'height') unless options.responsive_preserve_height

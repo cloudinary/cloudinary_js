@@ -1,7 +1,11 @@
-describe('cloudinary', function() {
+sharedExamples('client side responsive', function() {
   var cl, defaultConfig;
+  if (navigator.userAgent.toLowerCase().indexOf('phantom') > -1) {
+    console.warn("Skipping responsive tests in PhantomJS");
+    return;
+  }
   defaultConfig = {
-    cloud_name: 'demo'
+    cloud_name: 'sdk-test'
   };
   cl = null;
   return describe("responsive", function() {
@@ -11,13 +15,18 @@ describe('cloudinary', function() {
     container = void 0;
     testWindow = null;
     beforeAll(function(done) {
-      testWindow = window.open("responsive-core-test.html", "Cloudinary test " + ((new Date()).toLocaleString()), "width=500, height=500");
-      return testWindow.addEventListener('load', (function(_this) {
+      var testURL;
+      testURL = "responsive-core-test.html";
+      if (typeof __karma__ !== "undefined") {
+        testURL = "/base/test/docRoot/" + testURL;
+      }
+      testWindow = window.open(testURL, "Cloudinary test " + ((new Date()).toLocaleString()), "width=500, height=500");
+      return testWindow.addEventListener('karma-ready', (function(_this) {
         return function() {
           var image1;
           testDocument = testWindow.document;
           image1 = testDocument.getElementById('image1');
-          expect(image1.getAttribute('src')).toBeDefined();
+          expect(image1).toBeDefined();
           return done();
         };
       })(this), false);
@@ -26,9 +35,7 @@ describe('cloudinary', function() {
       return testWindow.close();
     });
     beforeEach(function() {
-      cl = new cloudinary.Cloudinary({
-        cloud_name: 'demo'
-      });
+      cl = new cloudinary.Cloudinary(defaultConfig);
       fixtureContainer = document.createElement('div');
       fixtureContainer.id = "fixture";
       return document.body.appendChild(fixtureContainer);
@@ -53,7 +60,7 @@ describe('cloudinary', function() {
       aContainer = document.createElement('a');
       divContainer.appendChild(aContainer);
       img = cl.image('sample.jpg', {
-        width: 'auto:breakpoints',
+        width: 'auto',
         dpr: 'auto',
         crop: 'scale',
         responsive: true
@@ -99,15 +106,15 @@ describe('cloudinary', function() {
       expect(img.getAttribute('src')).toBeFalsy();
       expect(cloudinary.Util.hasClass(img, 'cld-responsive')).toBeTruthy();
       cl.responsive();
-      expect(img.getAttribute('src')).toEqual(window.location.protocol + '//res.cloudinary.com/demo/image/upload/c_scale,dpr_' + dpr + ',w_200/sample.jpg');
+      expect(img.getAttribute('src')).toEqual(window.location.protocol + '//res.cloudinary.com/sdk-test/image/upload/c_scale,dpr_' + dpr + ',w_200/sample.jpg');
       container.style.width = "211px";
-      expect(img.getAttribute('src')).toEqual(window.location.protocol + '//res.cloudinary.com/demo/image/upload/c_scale,dpr_' + dpr + ',w_200/sample.jpg');
+      expect(img.getAttribute('src')).toEqual(window.location.protocol + '//res.cloudinary.com/sdk-test/image/upload/c_scale,dpr_' + dpr + ',w_200/sample.jpg');
       triggerResize(window);
       return window.setTimeout(function() {
-        expect(img.getAttribute('src')).toEqual(window.location.protocol + '//res.cloudinary.com/demo/image/upload/c_scale,dpr_' + dpr + ',w_300/sample.jpg');
+        expect(img.getAttribute('src')).toEqual(window.location.protocol + '//res.cloudinary.com/sdk-test/image/upload/c_scale,dpr_' + dpr + ',w_300/sample.jpg');
         container.style.width = "101px";
         return window.setTimeout(function() {
-          expect(img.getAttribute('src')).toEqual(window.location.protocol + '//res.cloudinary.com/demo/image/upload/c_scale,dpr_' + dpr + ',w_300/sample.jpg');
+          expect(img.getAttribute('src')).toEqual(window.location.protocol + '//res.cloudinary.com/sdk-test/image/upload/c_scale,dpr_' + dpr + ',w_300/sample.jpg');
           return done();
         }, 200);
       }, 200);
@@ -117,7 +124,8 @@ describe('cloudinary', function() {
       image1 = testDocument.getElementById('image1');
       src = image1.getAttribute('src');
       expect(src).toBeDefined();
-      currentWidth = src.match(/w_(\d+)/)[1];
+      expect(src).not.toBe('');
+      currentWidth = src.match(/w_(auto:)?(breakpoints[_\d]*:)?(\d+)/)[3];
       handler = function() {
         var newWidth;
         src = image1.getAttribute('src');
@@ -138,6 +146,20 @@ describe('cloudinary', function() {
         });
         return expect(cloudinary.Util.hasClass(img, "cl-foobar")).toBeTruthy();
       });
+    });
+  });
+});
+
+describe('Client side responsive', function() {
+  return describe('client_hints', function() {
+    describe('false', function() {
+      return itBehavesLike('client side responsive');
+    });
+    return describe('true', function() {
+      beforeEach(function() {
+        return cl.config().client_hints = true;
+      });
+      return itBehavesLike('client side responsive');
     });
   });
 });

@@ -1,5 +1,8 @@
-describe 'Cloudinary', ()->
-  defaultConfig = cloud_name: 'demo'
+sharedExamples 'client side responsive', ->
+  if navigator.userAgent.toLowerCase().indexOf('phantom') > -1
+    console.warn("Skipping responsive tests in PhantomJS")
+    return
+  defaultConfig = cloud_name: 'sdk-test'
   cl =null
   describe "responsive", ()->
     fixtureContainer = undefined
@@ -9,12 +12,14 @@ describe 'Cloudinary', ()->
     beforeAll (done)->
       # Open a new window with test HTML. A dynamic title is required in order to open a *new* window each time even if
       # previous window was not closed.
-      testWindow = window.open( "responsive-jquery-test.html","Cloudinary test #{(new Date()).toLocaleString()}", "width=500, height=500")
+      testURL = "responsive-jquery-test.html"
+      testURL = "/base/test/docRoot/#{testURL}" if typeof __karma__ != "undefined"
+      testWindow = window.open( testURL,"Cloudinary test #{(new Date()).toLocaleString()}", "width=500, height=500")
 
-      testWindow.addEventListener 'load', ()=>
+      testWindow.addEventListener 'karma-ready', ()=>
           testDocument = testWindow.document
           image1 = testDocument.getElementById('image1')
-          expect(image1.getAttribute('src')).toBeDefined()
+          expect(image1).toBeDefined()
           done()
         , false
 
@@ -90,17 +95,17 @@ describe 'Cloudinary', ()->
       img.appendTo(container)
       expect(img.attr('src')).toBeFalsy()
       cl.responsive()
-      expect(img.attr('src')).toEqual window.location.protocol + '//res.cloudinary.com/demo/image/upload/c_scale,dpr_' + dpr + ',w_200/sample.jpg'
+      expect(img.attr('src')).toEqual window.location.protocol + '//res.cloudinary.com/sdk-test/image/upload/c_scale,dpr_' + dpr + ',w_200/sample.jpg'
       container.css 'width', 211
-      expect(img.attr('src')).toEqual window.location.protocol + '//res.cloudinary.com/demo/image/upload/c_scale,dpr_' + dpr + ',w_200/sample.jpg'
+      expect(img.attr('src')).toEqual window.location.protocol + '//res.cloudinary.com/sdk-test/image/upload/c_scale,dpr_' + dpr + ',w_200/sample.jpg'
       $(window).resize()
       window.setTimeout (->
         # wait(200)
-        expect(img.attr('src')).toEqual window.location.protocol + '//res.cloudinary.com/demo/image/upload/c_scale,dpr_' + dpr + ',w_300/sample.jpg'
+        expect(img.attr('src')).toEqual window.location.protocol + '//res.cloudinary.com/sdk-test/image/upload/c_scale,dpr_' + dpr + ',w_300/sample.jpg'
         container.css 'width', 101
         window.setTimeout (->
           # wait(200)
-          expect(img.attr('src')).toEqual window.location.protocol + '//res.cloudinary.com/demo/image/upload/c_scale,dpr_' + dpr + ',w_300/sample.jpg'
+          expect(img.attr('src')).toEqual window.location.protocol + '//res.cloudinary.com/sdk-test/image/upload/c_scale,dpr_' + dpr + ',w_300/sample.jpg'
           done()
         ), 200
       ), 200
@@ -109,12 +114,27 @@ describe 'Cloudinary', ()->
       image1 = testDocument.getElementById('image1')
       src = image1.getAttribute('src')
       expect(src).toBeDefined()
-      currentWidth = src.match(/w_(\d+)/)[1]
+      currentWidth = src.match(/w_(auto:)?(breakpoints[_\d]*:)?(\d+)/)[3]
       handler = ()->
         src = image1.getAttribute('src')
+        expect(src).toBeDefined()
         newWidth = src.match(/w_(\d+)/)[1]
         expect(newWidth).toEqual currentWidth
         done()
       testWindow.addEventListener 'resize', handler
       testWindow.resizeBy(200,0)
+
+    describe "responsive_class", ->
+      it "should set the class used for responsive functionality", ->
+        img = cl.image( "sample", responsive: true, responsive_class: "cl-foobar")
+        expect(cloudinary.Util.hasClass(img, "cl-foobar")).toBeTruthy()
+
+describe 'Client side responsive', ->
+  describe 'client_hints', ->
+    describe 'false', ->
+      itBehavesLike 'client side responsive'
+    describe 'true', ->
+      beforeEach ->
+        cl.config().client_hints = true
+      itBehavesLike 'client side responsive'
 

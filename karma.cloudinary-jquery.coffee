@@ -17,12 +17,15 @@ module.exports = (config) ->
     files: [
       'bower_components/jquery/dist/jquery.js'
       'build/cloudinary-jquery.js'
+      'test/spec/spec-helper.js'
       'test/spec/cloudinary-spec.js'
       'test/spec/cloudinary-jquery-spec.js'
       'test/spec/transformation-spec.js'
       'test/spec/tagspec.js'
       'test/spec/videourlspec.js'
       'test/spec/chaining-spec.js'
+      'test/spec/responsive-jquery-spec.js'
+      {pattern: 'test/docRoot/responsive-jquery-test.html', watched: false, included: false, served: true, nocache: false}
     ]
 
 

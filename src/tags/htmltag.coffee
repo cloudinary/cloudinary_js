@@ -162,3 +162,7 @@ class HtmlTag
     element = document.createElement(@name)
     element[name] = value for name, value of @attributes()
     element
+
+  @isResponsive: (tag, responsiveClass)->
+    dataSrc = Util.getData(tag, 'src-cache') or Util.getData(tag, 'src')
+    Util.hasClass(tag, responsiveClass) and /\bw_auto\b/.exec(dataSrc)

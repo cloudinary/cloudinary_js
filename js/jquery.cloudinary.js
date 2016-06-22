@@ -1,6 +1,6 @@
 
 /**
- * Cloudinary's JavaScript library - Version 2.0.9
+ * Cloudinary's JavaScript library - Version 2.1.0
  * Copyright Cloudinary
  * see https://github.com/cloudinary/cloudinary_js
  *
@@ -2391,6 +2391,12 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
       return element;
     };
 
+    HtmlTag.isResponsive = function(tag, responsiveClass) {
+      var dataSrc;
+      dataSrc = Util.getData(tag, 'src-cache') || Util.getData(tag, 'src');
+      return Util.hasClass(tag, responsiveClass) && /\bw_auto\b/.exec(dataSrc);
+    };
+
     return HtmlTag;
 
   })();
@@ -2839,9 +2845,9 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
 
   })(TextLayer);
   Cloudinary = (function() {
-    var AKAMAI_SHARED_CDN, CF_SHARED_CDN, DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_SOURCE_TYPES, OLD_AKAMAI_SHARED_CDN, SHARED_CDN, VERSION, absolutize, applyBreakpoints, cdnSubdomainNumber, closestAbove, cloudinaryUrlPrefix, defaultBreakpoints, finalizeResourceType, parentWidth;
+    var AKAMAI_SHARED_CDN, CF_SHARED_CDN, DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_SOURCE_TYPES, OLD_AKAMAI_SHARED_CDN, SHARED_CDN, VERSION, absolutize, applyBreakpoints, cdnSubdomainNumber, closestAbove, cloudinaryUrlPrefix, defaultBreakpoints, finalizeResourceType, findContainerWidth, maxWidth, updateDpr;
 
-    VERSION = "2.0.9";
+    VERSION = "2.1.0";
 
     CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
 
@@ -3360,11 +3366,11 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
      * @ignore
      */
 
-    Cloudinary.prototype.calc_breakpoint = function(element, width) {
+    Cloudinary.prototype.calc_breakpoint = function(element, width, steps) {
       var breakpoints, point;
       breakpoints = Util.getData(element, 'breakpoints') || Util.getData(element, 'stoppoints') || this.config('breakpoints') || this.config('stoppoints') || defaultBreakpoints;
       if (Util.isFunction(breakpoints)) {
-        return breakpoints(width);
+        return breakpoints(width, steps);
       } else {
         if (Util.isString(breakpoints)) {
           breakpoints = ((function() {
@@ -3419,8 +3425,11 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
       return dprString;
     };
 
-    defaultBreakpoints = function(width) {
-      return 100 * Math.ceil(width / 100);
+    defaultBreakpoints = function(width, steps) {
+      if (steps == null) {
+        steps = 100;
+      }
+      return steps * Math.ceil(width / steps);
     };
 
     closestAbove = function(list, value) {
@@ -3515,17 +3524,17 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
       return this;
     };
 
-    applyBreakpoints = function(tag, width, options) {
+    applyBreakpoints = function(tag, width, steps, options) {
       var ref, ref1, ref2, responsive_use_breakpoints;
       responsive_use_breakpoints = (ref = (ref1 = (ref2 = options['responsive_use_breakpoints']) != null ? ref2 : options['responsive_use_stoppoints']) != null ? ref1 : this.config('responsive_use_breakpoints')) != null ? ref : this.config('responsive_use_stoppoints');
       if ((!responsive_use_breakpoints) || (responsive_use_breakpoints === 'resize' && !options.resizing)) {
         return width;
       } else {
-        return this.calc_breakpoint(tag, width);
+        return this.calc_breakpoint(tag, width, steps);
       }
     };
 
-    parentWidth = function(element) {
+    findContainerWidth = function(element) {
       var containerWidth, style;
       containerWidth = 0;
       while (((element = element != null ? element.parentNode : void 0) instanceof Element) && !containerWidth) {
@@ -3535,6 +3544,20 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
         }
       }
       return containerWidth;
+    };
+
+    updateDpr = function(dataSrc, roundDpr) {
+      return dataSrc.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + this.device_pixel_ratio(roundDpr));
+    };
+
+    maxWidth = function(requiredWidth, tag) {
+      var imageWidth;
+      imageWidth = Util.getData(tag, 'width') || 0;
+      if (requiredWidth > imageWidth) {
+        imageWidth = requiredWidth;
+        Util.setData(tag, 'width', requiredWidth);
+      }
+      return requiredWidth;
     };
 
 
@@ -3554,10 +3577,16 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
      */
 
     Cloudinary.prototype.cloudinary_update = function(elements, options) {
-      var client_hints, containerWidth, dataSrc, imageWidth, j, len, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, requestedWidth, responsive, responsiveClass, roundDpr, setUrl, tag;
+      var client_hints, containerWidth, dataSrc, j, len, match, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, requiredWidth, responsive, responsiveClass, roundDpr, setUrl, tag;
       if (options == null) {
         options = {};
       }
+      client_hints = (ref = (ref1 = options.client_hints) != null ? ref1 : this.config('client_hints')) != null ? ref : false;
+      client_hints = client_hints || (typeof document !== "undefined" && document !== null ? document.querySelector('meta[http-equiv="Accept-CH"]') : void 0);
+      if (client_hints) {
+        return;
+      }
+      responsive = (ref2 = (ref3 = options.responsive) != null ? ref3 : this.config('responsive')) != null ? ref2 : false;
       elements = (function() {
         switch (false) {
           case !Util.isArray(elements):
@@ -3570,32 +3599,33 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
             return [elements];
         }
       })();
-      responsiveClass = (ref = (ref1 = this.responsiveConfig['responsive_class']) != null ? ref1 : options['responsive_class']) != null ? ref : this.config('responsive_class');
-      roundDpr = (ref2 = options['round_dpr']) != null ? ref2 : this.config('round_dpr');
+      responsiveClass = (ref4 = (ref5 = this.responsiveConfig['responsive_class']) != null ? ref5 : options['responsive_class']) != null ? ref4 : this.config('responsive_class');
+      roundDpr = (ref6 = options['round_dpr']) != null ? ref6 : this.config('round_dpr');
       for (j = 0, len = elements.length; j < len; j++) {
         tag = elements[j];
-        if (!((ref3 = tag.tagName) != null ? ref3.match(/img/i) : void 0)) {
+        if (!((ref7 = tag.tagName) != null ? ref7.match(/img/i) : void 0)) {
           continue;
         }
         setUrl = true;
-        client_hints = (ref4 = (ref5 = options.client_hints) != null ? ref5 : this.config('client_hints')) != null ? ref4 : false;
-        responsive = (ref6 = (ref7 = options.responsive) != null ? ref7 : this.config('responsive')) != null ? ref6 : false;
         if (responsive && !client_hints) {
           Util.addClass(tag, responsiveClass);
         }
         dataSrc = Util.getData(tag, 'src-cache') || Util.getData(tag, 'src');
         if (!Util.isEmpty(dataSrc)) {
-          dataSrc = dataSrc.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + this.device_pixel_ratio(roundDpr));
-          if (Util.hasClass(tag, responsiveClass) && /\bw_auto\b/.exec(dataSrc)) {
-            containerWidth = parentWidth(tag);
+          dataSrc = updateDpr.call(this, dataSrc, roundDpr);
+          if (HtmlTag.isResponsive(tag, responsiveClass)) {
+            containerWidth = findContainerWidth(tag);
             if (containerWidth !== 0) {
-              requestedWidth = applyBreakpoints.call(this, tag, containerWidth, options);
-              imageWidth = Util.getData(tag, 'width') || 0;
-              if (requestedWidth > imageWidth) {
-                imageWidth = requestedWidth;
-                Util.setData(tag, 'width', requestedWidth);
+              switch (false) {
+                case !/w_auto:breakpoints/.test(dataSrc):
+                  requiredWidth = maxWidth(containerWidth, tag);
+                  dataSrc = dataSrc.replace(/w_auto:breakpoints([_0-9]*)(:[0-9]+)?/, "w_auto:breakpoints$1:" + requiredWidth);
+                  break;
+                case !(match = /w_auto(:(\d+))?/.exec(dataSrc)):
+                  requiredWidth = applyBreakpoints.call(this, tag, containerWidth, match[2], options);
+                  requiredWidth = maxWidth(requiredWidth, tag);
+                  dataSrc = dataSrc.replace(/w_auto[^,\/]*/g, "w_" + requiredWidth);
               }
-              dataSrc = dataSrc.replace(/\bw_auto\b/g, 'w_' + imageWidth);
               Util.removeAttribute(tag, 'width');
               if (!options.responsive_preserve_height) {
                 Util.removeAttribute(tag, 'height');
@@ -4033,7 +4063,7 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
     TextLayer: TextLayer,
     SubtitlesLayer: SubtitlesLayer,
     Cloudinary: Cloudinary,
-    VERSION: "2.0.9",
+    VERSION: "2.1.0",
     CloudinaryJQuery: CloudinaryJQuery
   };
   return cloudinary;

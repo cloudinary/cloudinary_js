@@ -1,18 +1,18 @@
 <html>
 <head>
-    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css">
-    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="../../bower_components/bootstrap/dist/css/bootstrap.css">
+    <!--<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">-->
 
     <!-- Custom CSS -->
     <link href="css/logo-nav.css" rel="stylesheet">
-    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="../../bower_components/jquery/dist/jquery.js"></script>
     <script type="text/javascript" src="../../bower_components/jquery.ui/ui/widget.js"></script>
 
     <script type="text/javascript" src="../../bower_components/blueimp-file-upload/js/jquery.fileupload.js"></script>
     <script type="text/javascript" src="../../bower_components/blueimp-file-upload/js/jquery.iframe-transport.js"></script>
     <script type="text/javascript" src="../../bower_components/blueimp-file-upload/js/jquery.fileupload-process.js"></script>
     <script type="text/javascript" src="../../bower_components/blueimp-file-upload/js/jquery.fileupload-image.js"></script>
-    <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="../../bower_components/bootstrap/dist/js/bootstrap.js"></script>
     <!--<script src="js/main.js"></script>-->
     <script src="../../build/cloudinary-jquery-file-upload.js"></script>
 </head>
@@ -30,7 +30,7 @@
                 <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab"
                                                           data-toggle="tab">Home</a></li>
                 <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">
-                    <img id="image1" data-src="http://res.cloudinary.com/demo/image/upload/w_auto/smiling_man.jpg"
+                    <img id="image1" data-src="http://res.cloudinary.com/demo/image/upload/c_scale,w_auto/smiling_man.jpg"
                          class="cld-responsive"></a></li>
                 <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">
                     <img id="image2" data-src="http://res.cloudinary.com/demo/image/upload/w_auto/sample.jpg"
@@ -42,7 +42,13 @@
 
             <!-- Tab panes -->
             <div class="tab-content">
-                <div role="tabpanel" class="tab-pane active" id="home">...</div>
+                <div role="tabpanel" class="tab-pane active" id="home">
+                    <a href="#" ><img id="tabImage2" data-src="http://demo-res.cloudinary.com/image/upload/c_scale,w_auto:breakpoints/sample.jpg"
+                                                                            class="cld-responsive">
+                </a>
+                    <img id="tabImage3" data-src="http://res.cloudinary.com/demo/image/upload/c_scale,e_sepia,w_auto/sample.jpg"
+                     class="cld-responsive">
+                </div>
                 <div role="tabpanel" class="tab-pane" id="profile">...</div>
                 <div role="tabpanel" class="tab-pane" id="messages">...</div>
                 <div role="tabpanel" class="tab-pane" id="settings">...</div>
@@ -54,8 +60,11 @@
 
     <script type="text/javascript">
         $(function () {
+            $.cloudinary.config( {cloud_name: "demo"});
             $.cloudinary.responsive();
-        })
+            var event = new Event('karma-ready');
+            window.dispatchEvent(event);
+        });
     </script>
 </div>
 </body>

@@ -57,7 +57,7 @@ sharedExamples("client_hints", function(options) {
     expect(tag).toMatch(/<img.*>/);
     expect(tag).not.toMatch(/<.*class.*>/);
     expect(cloudinary.Util.getData(image, "src")).toBeFalsy();
-    return expect(tag).toMatch(/src=["']http:\/\/res.cloudinary.com\/test\/image\/upload\/c_scale,dpr_auto,w_auto\/sample.jpg["']/);
+    return expect(tag).toMatch(/src=["']http:\/\/res.cloudinary.com\/sdk-test\/image\/upload\/c_scale,dpr_auto,w_auto\/sample.jpg["']/);
   });
   return it("should override responsive", function() {
     var image, tag;
@@ -67,7 +67,7 @@ sharedExamples("client_hints", function(options) {
     expect(tag).toMatch(/<img.*>/);
     expect(tag).not.toMatch(/<.*class.*>/);
     expect(cloudinary.Util.getData(image, "src")).toBeFalsy();
-    return expect(tag).toMatch(/src=["']http:\/\/res.cloudinary.com\/test\/image\/upload\/c_scale,dpr_auto,w_auto\/sample.jpg["']/);
+    return expect(tag).toMatch(/src=["']http:\/\/res.cloudinary.com\/sdk-test\/image\/upload\/c_scale,dpr_auto,w_auto\/sample.jpg["']/);
   });
 });
 
@@ -89,7 +89,7 @@ describe("Cloudinary.ImageTag", function() {
     describe("as option", function() {
       return includeContext("client_hints", {
         dpr: "auto",
-        cloud_name: "test",
+        cloud_name: "sdk-test",
         width: "auto",
         crop: "scale",
         client_hints: true
@@ -101,7 +101,7 @@ describe("Cloudinary.ImageTag", function() {
       });
       return includeContext("client_hints", {
         dpr: "auto",
-        cloud_name: "test",
+        cloud_name: "sdk-test",
         width: "auto",
         crop: "scale"
       });
@@ -113,13 +113,13 @@ describe("Cloudinary.ImageTag", function() {
         image = cl.image('sample.jpg', {
           width: "auto",
           crop: "scale",
-          cloud_name: "test",
+          cloud_name: "sdk-test",
           client_hints: false
         });
         tag = image.outerHTML;
         expect(tag).toMatch(/<img.*>/);
         expect(tag).toMatch(/class=["']cld-responsive["']/);
-        return expect(cloudinary.Util.getData(image, "src-cache")).toMatch(/http:\/\/res.cloudinary.com\/test\/image\/upload\/c_scale,w_auto\/sample.jpg/);
+        return expect(cloudinary.Util.getData(image, "src-cache")).toMatch(/http:\/\/res.cloudinary.com\/sdk-test\/image\/upload\/c_scale,w_auto\/sample.jpg/);
       });
     });
     return describe("width", function() {
@@ -128,11 +128,11 @@ describe("Cloudinary.ImageTag", function() {
         tag = cl.image('sample.jpg', {
           crop: "scale",
           dpr: "auto",
-          cloud_name: "test",
+          cloud_name: "sdk-test",
           width: "auto:breakpoints",
           client_hints: true
         }).outerHTML;
-        return expect(tag).toMatch(/src=["']http:\/\/res.cloudinary.com\/test\/image\/upload\/c_scale,dpr_auto,w_auto:breakpoints\/sample.jpg["']/);
+        return expect(tag).toMatch(/src=["']http:\/\/res.cloudinary.com\/sdk-test\/image\/upload\/c_scale,dpr_auto,w_auto:breakpoints\/sample.jpg["']/);
       });
     });
   });

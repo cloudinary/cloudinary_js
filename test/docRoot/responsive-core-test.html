@@ -7,6 +7,7 @@
     <link href="css/logo-nav.css" rel="stylesheet">
     <script type="text/javascript" src="../../bower_components/lodash/lodash.js"></script>
     <script src="../../build/cloudinary-core.js"></script>
+    <title>Responsive Test</title>
 </head>
 
 <body>
@@ -22,7 +23,7 @@
                 <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab"
                                                           data-toggle="tab">Home</a></li>
                 <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">
-                    <img id="image1" data-src="http://res.cloudinary.com/demo/image/upload/w_auto/smiling_man.jpg"
+                    <img id="image1" data-src="http://res.cloudinary.com/demo/image/upload/c_scale,w_auto/smiling_man.jpg"
                          class="cld-responsive"></a></li>
                 <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">
                     <img id="image2" data-src="http://res.cloudinary.com/demo/image/upload/w_auto/sample.jpg"
@@ -35,10 +36,10 @@
             <!-- Tab panes -->
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane active" id="home">
-                    <a href="#"><img id="tabImage2" data-src="http://res.cloudinary.com/demo/image/upload/w_auto,c_scale/sample.jpg"
+                    <a href="#"><img id="tabImage2" data-src="http://demo-res.cloudinary.com/image/upload/c_scale,w_auto:breakpoints/sample.jpg"
                                                                             class="cld-responsive">
                 </a>
-                    <img id="tabImage3" data-src="http://res.cloudinary.com/demo/image/upload/w_auto,c_scale,e_sepia/sample.jpg"
+                    <img id="tabImage3" data-src="http://res.cloudinary.com/demo/image/upload/c_scale,e_sepia,w_auto/sample.jpg"
                                                                             class="cld-responsive">
                 </div>
                 <div role="tabpanel" class="tab-pane" id="profile">...</div>
@@ -54,6 +55,8 @@
         window.onload = function(){
             var cl = cloudinary.Cloudinary.new( {cloud_name: "demo"});
             cl.responsive();
+            var event = new Event('karma-ready');
+            window.dispatchEvent(event);
         };
     </script>
 </div>

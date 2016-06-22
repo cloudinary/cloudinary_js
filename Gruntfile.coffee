@@ -61,12 +61,22 @@ module.exports = (grunt)->
         reporters: ['dots']
         configFile: 'karma.coffee'
         browserDisconnectTolerance: 3
+        files: [
+          { pattern: 'test/docRoot/*', watched: false, included: false, served: true, nocache: false}
+          { pattern: 'test/docRoot/css/*', watched: false, included: false, served: true, nocache: false}
+          { pattern: 'bower_components/bootstrap/dist/css/*', watched: false, included: false, served: true, nocache: false}
+          { pattern: 'bower_components/bootstrap/dist/js/*', watched: false, included: false, served: true, nocache: false}
+          { pattern: 'bower_components/blueimp-file-upload/js/*', watched: false, included: false, served: true, nocache: false}
+          { pattern: 'bower_components/jquery.ui/ui/*', watched: false, included: false, served: true, nocache: false}
+        ]
+
       'cloudinary-core':
         files:
           src:
             [
               "bower_components/lodash/lodash.js"
               "<%= karmaCommon %>"
+              "test/spec/responsive-core-spec.js"
             ]
 
 
@@ -74,6 +84,7 @@ module.exports = (grunt)->
         files:
           src: [
               "<%= karmaCommon %>"
+              "test/spec/responsive-shrinkwrap-spec.js"
             ]
 
       'cloudinary-jquery':
@@ -81,6 +92,7 @@ module.exports = (grunt)->
           src: [
               "bower_components/jquery/dist/jquery.js"
               "<%= karmaCommon %>"
+              "test/spec/responsive-jquery-spec.js"
             ]
 
       'cloudinary-jquery-file-upload':
@@ -152,12 +164,12 @@ module.exports = (grunt)->
         files: for repo in repos
           dest = if /shrinkwrap/.test(repo) then "cloudinary-core" else repo
           {'cwd': 'build','src': ["#{repo}.js", "#{repo}.min.js", "#{repo}.min.js.map"], 'dest': "../pkg/pkg-#{dest}/", 'expand': true}
-      doc:
-        files: for repo in repos when !/shrinkwrap/.test(repo)
-          expand: true
-          cwd: "doc/pkg-#{repo}/"
-          src: ["**"]
-          dest: "../pkg/pkg-#{repo}/"
+#      doc:
+#        files: for repo in repos when !/shrinkwrap/.test(repo)
+#          expand: true
+#          cwd: "doc/pkg-#{repo}/"
+#          src: ["**"]
+#          dest: "../pkg/pkg-#{repo}/"
 
     version:
       options:
@@ -282,7 +294,7 @@ module.exports = (grunt)->
   grunt.loadNpmTasks('grunt-version')
 
   grunt.registerTask('default', ['concat', 'coffee'])
-  grunt.registerTask('compile', ['clean:build', 'clean:js', 'concat', 'coffee', 'copy:backward-compatible', 'copy:dist'])
+  grunt.registerTask('compile', ['clean:build', 'clean:js', 'concat', 'coffee', 'copy:backward-compatible'])
   grunt.registerTask('build', ['clean', 'concat', 'coffee', 'copy:backward-compatible', 'jsdoc'])
   grunt.registerTask('lodash', (name, target)->
     lodashCalls = grunt.file.read('src/util/lodash.coffee').match(/_\.\w+/g)
