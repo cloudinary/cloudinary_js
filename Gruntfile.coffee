@@ -164,6 +164,12 @@ module.exports = (grunt)->
         files: for repo in repos
           dest = if /shrinkwrap/.test(repo) then "cloudinary-core" else repo
           {'cwd': 'build','src': ["#{repo}.js", "#{repo}.min.js", "#{repo}.min.js.map"], 'dest': "../pkg/pkg-#{dest}/", 'expand': true}
+        options:
+          process: (content, srcpath) ->
+            if /min.js/.test(srcpath)
+              content
+            else
+              content.replace( /\/\/# sourceMappingURL=.+js\.map/g, "")
 #      doc:
 #        files: for repo in repos when !/shrinkwrap/.test(repo)
 #          expand: true
@@ -295,7 +301,7 @@ module.exports = (grunt)->
 
   grunt.registerTask('default', ['concat', 'coffee'])
   grunt.registerTask('compile', ['clean:build', 'clean:js', 'concat', 'coffee', 'copy:backward-compatible'])
-  grunt.registerTask('build', ['clean', 'concat', 'coffee', 'copy:backward-compatible', 'jsdoc'])
+  grunt.registerTask('build', ['clean', 'concat', 'coffee', 'uglify', 'copy:backward-compatible', 'jsdoc'])
   grunt.registerTask('lodash', (name, target)->
     lodashCalls = grunt.file.read('src/util/lodash.coffee').match(/_\.\w+/g)
     include = []
