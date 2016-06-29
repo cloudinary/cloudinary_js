@@ -60,6 +60,7 @@ module.exports = (grunt)->
       options:
         reporters: ['dots']
         configFile: 'karma.coffee'
+        browsers: grunt.option("browsers")?.toString().split(",") || ['Chrome' , 'Firefox', 'Safari', 'PhantomJS']
         browserDisconnectTolerance: 3
         files: [
           { pattern: 'test/docRoot/*', watched: false, included: false, served: true, nocache: false}
