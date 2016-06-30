@@ -1,4 +1,13 @@
 
+2.1.1 / 2016-06-30
+==================
+
+  * Add TravisCI configuration
+  * Allow browsers to be defined in commandline for karma runs.
+  * Remove map reference created by the coffee compiler from distribution files.
+    * Fixes cloudinary/pkg-cloudinary-core#6.
+    * Fixes mileszim/ember-cli-cloudinary#3.
+
 2.1.0 / 2016-06-22
 ==================
 
