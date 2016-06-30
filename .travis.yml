@@ -3,10 +3,10 @@ node_js:
   - "5"
   - "4"
 before_script:
-  - npm install grunt-cli -g
-  - npm install bower -g
+  - npm install -g grunt-cli
 install:
   - npm install
+  - npm install -g bower
   - bower install
 env:
   matrix:

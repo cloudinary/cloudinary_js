@@ -232,7 +232,7 @@
           })()
         }
       },
-      srcList: ['src/utf8_encode.coffee', 'src/crc32.coffee', 'src/parameters.coffee', 'src/condition.coffee', 'src/transformation.coffee', 'src/configuration.coffee', 'src/tags/htmltag.coffee', 'src/tags/imagetag.coffee', 'src/tags/videotag.coffee', 'src/layer/layer.coffee', 'src/layer/Textlayer.coffee', 'src/layer/Subtitleslayer.coffee', 'src/cloudinary.coffee'],
+      srcList: ['src/utf8_encode.coffee', 'src/crc32.coffee', 'src/parameters.coffee', 'src/condition.coffee', 'src/transformation.coffee', 'src/configuration.coffee', 'src/tags/htmltag.coffee', 'src/tags/imagetag.coffee', 'src/tags/videotag.coffee', 'src/layer/layer.coffee', 'src/layer/textlayer.coffee', 'src/layer/subtitleslayer.coffee', 'src/cloudinary.coffee'],
       concat: {
         options: {
           dest: "build/<%= grunt.task.current.target %>.coffee",

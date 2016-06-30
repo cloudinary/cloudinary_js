@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "pretest": "grunt compile",
+    "pretest": "grunt lodash && grunt compile",
     "test": "grunt karma --browsers=PhantomJS"
   },
   "repository": {
@@ -43,7 +43,7 @@
     "karma-phantomjs-launcher": "^1.0.0",
     "karma-safari-launcher": "^1.0.0",
     "karma-story-reporter": "~0.3",
-    "phantomjs": "~2.1",
+    "lodash-cli": "^4.13.1",
     "phantomjs-prebuilt": "^2.1.7",
     "requirejs": "^2.2.0"
   }

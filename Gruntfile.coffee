@@ -202,8 +202,8 @@ module.exports = (grunt)->
       'src/tags/imagetag.coffee',
       'src/tags/videotag.coffee',
       'src/layer/layer.coffee',
-      'src/layer/Textlayer.coffee',
-      'src/layer/Subtitleslayer.coffee',
+      'src/layer/textlayer.coffee',
+      'src/layer/subtitleslayer.coffee',
       'src/cloudinary.coffee'
     ],
     concat:
