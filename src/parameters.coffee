@@ -7,12 +7,12 @@ class Param
    * Represents a single parameter
    * @class Param
    * @param {string} name - The name of the parameter in snake_case
-   * @param {string} short - The name of the serialized form of the parameter.
+   * @param {string} shortName - The name of the serialized form of the parameter.
    *                         If a value is not provided, the parameter will not be serialized.
    * @param {function} [process=cloudinary.Util.identity ] - Manipulate origValue when value is called
    * @ignore
   ###
-  constructor: (name, short, process = cloudinary.Util.identity)->
+  constructor: (name, shortName, process = cloudinary.Util.identity)->
     ###*
      * The name of the parameter in snake_case
      * @member {string} Param#name
@@ -20,9 +20,9 @@ class Param
     @name = name
     ###*
      * The name of the serialized form of the parameter
-     * @member {string} Param#short
+     * @member {string} Param#shortName
     ###
-    @short = short
+    @shortName = shortName
     ###*
      * Manipulate origValue when value is called
      * @member {function} Param#process
@@ -50,8 +50,8 @@ class Param
         !cloudinary.Util.isEmpty(val)
       else
         val?
-    if @short? && valid
-      "#{@short}_#{val}"
+    if @shortName? && valid
+      "#{@shortName}_#{val}"
     else
       ''
 
@@ -101,7 +101,7 @@ class ArrayParam extends Param
   ###*
    * A parameter that represents an array
    * @param {string} name - The name of the parameter in snake_case
-   * @param {string} short - The name of the serialized form of the parameter
+   * @param {string} shortName - The name of the serialized form of the parameter
    *                         If a value is not provided, the parameter will not be serialized.
    * @param {string} [sep='.'] - The separator to use when joining the array elements together
    * @param {function} [process=cloudinary.Util.identity ] - Manipulate origValue when value is called
@@ -109,12 +109,12 @@ class ArrayParam extends Param
    * @extends Param
    * @ignore
   ###
-  constructor: (name, short, sep = '.', process) ->
+  constructor: (name, shortName, sep = '.', process) ->
     @sep = sep
-    super(name, short, process)
+    super(name, shortName, process)
 
   serialize: ->
-    if @short?
+    if @shortName?
       array = @value()
       if cloudinary.Util.isEmpty(array)
         ''
@@ -124,7 +124,7 @@ class ArrayParam extends Param
             t.serialize() # Param or Transformation
           else
             t
-        "#{@short}_#{flat.join(@sep)}"
+        "#{@shortName}_#{flat.join(@sep)}"
     else
       ''
 
@@ -138,16 +138,16 @@ class TransformationParam extends Param
   ###*
    * A parameter that represents a transformation
    * @param {string} name - The name of the parameter in snake_case
-   * @param {string} [short='t'] - The name of the serialized form of the parameter
+   * @param {string} [shortName='t'] - The name of the serialized form of the parameter
    * @param {string} [sep='.'] - The separator to use when joining the array elements together
    * @param {function} [process=cloudinary.Util.identity ] - Manipulate origValue when value is called
    * @class TransformationParam
    * @extends Param
    * @ignore
   ###
-  constructor: (name, short = "t", sep = '.', process) ->
+  constructor: (name, shortName = "t", sep = '.', process) ->
     @sep = sep
-    super(name, short, process)
+    super(name, shortName, process)
 
   serialize: ->
     if cloudinary.Util.isEmpty(@value())
@@ -155,13 +155,13 @@ class TransformationParam extends Param
     else if cloudinary.Util.allStrings(@value())
       joined = @value().join(@sep)
       if !cloudinary.Util.isEmpty(joined)
-        "#{@short}_#{joined}"
+        "#{@shortName}_#{joined}"
       else
         ''
     else
       result = for t in @value() when t?
         if cloudinary.Util.isString( t) && !cloudinary.Util.isEmpty(t)
-          "#{@short}_#{t}"
+          "#{@shortName}_#{t}"
         else if cloudinary.Util.isFunction( t.serialize)
           t.serialize()
         else if cloudinary.Util.isPlainObject(t) && !cloudinary.Util.isEmpty(t)
@@ -178,15 +178,15 @@ class RangeParam extends Param
   ###*
    * A parameter that represents a range
    * @param {string} name - The name of the parameter in snake_case
-   * @param {string} short - The name of the serialized form of the parameter
+   * @param {string} shortName - The name of the serialized form of the parameter
    *                         If a value is not provided, the parameter will not be serialized.
    * @param {function} [process=norm_range_value ] - Manipulate origValue when value is called
    * @class RangeParam
    * @extends Param
    * @ignore
   ###
-  constructor: (name, short, process = @norm_range_value)->
-    super(name, short, process)
+  constructor: (name, shortName, process = @norm_range_value)->
+    super(name, shortName, process)
 
   @norm_range_value: (value) ->
     offset = String(value).match(new RegExp('^' + offset_any_pattern + '$'))
@@ -196,8 +196,8 @@ class RangeParam extends Param
     value
 
 class RawParam extends Param
-  constructor: (name, short, process = cloudinary.Util.identity)->
-    super(name, short, process)
+  constructor: (name, shortName, process = cloudinary.Util.identity)->
+    super(name, shortName, process)
   serialize: ->
     @value()
 
