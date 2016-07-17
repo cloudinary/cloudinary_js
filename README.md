@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/cloudinary/cloudinary_js.svg?branch=master)](https://travis-ci.org/cloudinary/cloudinary_js)
+[![Build Status](https://travis-ci.org/cloudinary/cloudinary_js.svg)](https://travis-ci.org/cloudinary/cloudinary_js)
 
 # Cloudinary Client Side JavaScript Library
 
