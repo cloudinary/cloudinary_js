@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/cloudinary/cloudinary_js.svg)](https://travis-ci.org/cloudinary/cloudinary_js)
+[![Build Status](https://travis-ci.org/cloudinary/cloudinary_js.svg)](https://travis-ci.org/cloudinary/cloudinary_js) [![npm](https://img.shields.io/npm/v/cloudinary_js.svg?maxAge=2592000)]() [![Bower](https://img.shields.io/bower/v/cloudinary_js.svg?maxAge=2592000)]() [![license](https://img.shields.io/github/license/cloudinary/cloudinary_js.svg?maxAge=2592000)]()
 
 # Cloudinary Client Side JavaScript Library
 
