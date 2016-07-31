@@ -88,7 +88,7 @@ jQuery.fn.cloudinary_fileupload = (options) ->
 
     @bind 'fileuploadsend', (e, data) ->
       # add a common unique ID to all chunks of the same uploaded file
-      data.headers = $.extend({}, data.headers, {'X-Unique-Upload-Id': (Math.random() * 10000000000).toString(16)})
+      data.headers = jQuery.extend({}, data.headers, {'X-Unique-Upload-Id': (Math.random() * 10000000000).toString(16)})
       return true;
 
     @bind 'fileuploadstart', (e) ->
