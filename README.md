@@ -282,7 +282,7 @@ Also, add the following javascript:
 
 ```javascript
 $(document).ready(function() {
-  $('.cloudinary-fileupload').fileupload({
+  $('.cloudinary-fileupload').cloudinary_fileupload({
     disableImageResize: false,
     imageMaxWidth: 800,                           // 800 is an example value
     imageMaxHeight: 600,                          // 600 is an example value
