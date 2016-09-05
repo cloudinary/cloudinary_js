@@ -1,6 +1,6 @@
 
 /**
- * Cloudinary's JavaScript library - Version 2.1.2
+ * Cloudinary's JavaScript library - Version 2.1.3
  * Copyright Cloudinary
  * see https://github.com/cloudinary/cloudinary_js
  *
@@ -2847,7 +2847,7 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
   Cloudinary = (function() {
     var AKAMAI_SHARED_CDN, CF_SHARED_CDN, DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_SOURCE_TYPES, OLD_AKAMAI_SHARED_CDN, SHARED_CDN, VERSION, absolutize, applyBreakpoints, cdnSubdomainNumber, closestAbove, cloudinaryUrlPrefix, defaultBreakpoints, finalizeResourceType, findContainerWidth, maxWidth, updateDpr;
 
-    VERSION = "2.1.2";
+    VERSION = "2.1.3";
 
     CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
 
@@ -3935,7 +3935,7 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
         return jQuery(e.target).trigger('cloudinarydone', data);
       });
       this.bind('fileuploadsend', function(e, data) {
-        data.headers = $.extend({}, data.headers, {
+        data.headers = jQuery.extend({}, data.headers, {
           'X-Unique-Upload-Id': (Math.random() * 10000000000).toString(16)
         });
         return true;
@@ -4063,7 +4063,7 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
     TextLayer: TextLayer,
     SubtitlesLayer: SubtitlesLayer,
     Cloudinary: Cloudinary,
-    VERSION: "2.1.2",
+    VERSION: "2.1.3",
     CloudinaryJQuery: CloudinaryJQuery
   };
   return cloudinary;

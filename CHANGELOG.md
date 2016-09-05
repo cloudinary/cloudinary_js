@@ -1,4 +1,15 @@
 
+2.1.3 / 2016-09-05
+==================
+
+  * Add TravisCI label for npm, bower and license.
+  * Add license file
+  * Add missing `rmargin` variable. Fixes #76
+  * Fix README reference to `fileupload()`
+  * Merge pull request #95 from crazile/patch-1
+    * Remove shorthand jQuery reference ($)
+  * Update packages.
+
 2.1.2 / 2016-07-16
 ==================
 
