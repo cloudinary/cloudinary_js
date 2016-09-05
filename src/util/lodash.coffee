@@ -199,6 +199,7 @@ augmentWidthOrHeight = (elem, name, extra, isBorderBox, styles) ->
         val += cssValue( elem, "border#{side}Width", true, styles)  if extra isnt "padding"
     val
 
+rmargin = (/^margin/)
 pnum = (/[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/).source
 rnumnonpx = new RegExp( "^(" + pnum + ")(?!px)[a-z%]+$", "i" )
 
