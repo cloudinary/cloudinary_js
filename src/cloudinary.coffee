@@ -527,7 +527,7 @@ class Cloudinary
     if requiredWidth > imageWidth
       imageWidth = requiredWidth
       Util.setData(tag, 'width', requiredWidth)
-    requiredWidth
+    imageWidth
 
   ###*
   * Update hidpi (dpr_auto) and responsive (w_auto) fields according to the current container size and the device pixel ratio.
