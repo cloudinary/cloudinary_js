@@ -1751,9 +1751,7 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
       return this.param(value, "dpr", "dpr", (function(_this) {
         return function(dpr) {
           dpr = dpr.toString();
-          if ((dpr === "auto") && _this.getValue("client_hints") !== true) {
-            return "1.0";
-          } else if (dpr != null ? dpr.match(/^\d+$/) : void 0) {
+          if (dpr != null ? dpr.match(/^\d+$/) : void 0) {
             return dpr + ".0";
           } else {
             return dpr;

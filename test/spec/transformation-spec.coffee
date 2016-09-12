@@ -235,7 +235,7 @@ describe "Transformation", ->
 
   it 'should support dpr', ->
     test_cloudinary_url 'test', { dpr: 1 }, protocol + '//res.cloudinary.com/test123/image/upload/dpr_1.0/test', {}
-    test_cloudinary_url 'test', { dpr: 'auto' }, protocol + '//res.cloudinary.com/test123/image/upload/dpr_1.0/test', {}
+    test_cloudinary_url 'test', { dpr: 'auto' }, protocol + '//res.cloudinary.com/test123/image/upload/dpr_auto/test', {}
     test_cloudinary_url 'test', { dpr: 1.5 }, protocol + '//res.cloudinary.com/test123/image/upload/dpr_1.5/test', {}
 
   describe "keyframe_interval", ->
