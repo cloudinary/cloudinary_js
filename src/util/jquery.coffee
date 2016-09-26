@@ -72,10 +72,6 @@ isEmpty = (item)->
   (jQuery.isPlainObject(item) && jQuery.isEmptyObject(item))
 
 
-allStrings = (list)->
-  for item in list
-    return false unless Util.isString(item)
-  return true
 
 isString = (item)->
   typeof item == 'string' || item?.toString() == '[object String]'
@@ -141,14 +137,12 @@ functions = (object)->
 
 identity = (value)-> value
 
-without = (array, item)->
-  newArray = []
-  i = -1; length = array.length;
-  while ++i < length
-    newArray.push(array[i]) if array[i] != item
-  newArray
 
-Util =
+
+###*
+ * @class Util
+###
+Util = $.extend BaseUtil,
   hasClass: hasClass
   addClass: addClass
   getAttribute: getAttribute
@@ -158,11 +152,6 @@ Util =
   getData: getData
   setData: setData
   width: width
-  ###*
-   * Return true if all items in list are strings
-   * @param {Array} list - an array of items
-  ###
-  allStrings: allStrings
   isString: isString
   isArray: jQuery.isArray
   isEmpty: isEmpty
@@ -249,10 +238,3 @@ Util =
    * @return {string} the `text` without leading or trailing spaces
   ###
   trim: jQuery.trim
-  ###*
-   * Creates a new array without the given item.
-   * @param {Array} array - original array
-   * @param {*} item - the item to exclude from the new array
-   * @return {Array} a new array made of the original array's items except for `item`
-  ###
-  without: without

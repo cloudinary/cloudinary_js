@@ -194,6 +194,9 @@ module.exports = (grunt)->
     srcList: [
       'src/utf8_encode.coffee',
       'src/crc32.coffee',
+      'src/layer/layer.coffee',
+      'src/layer/textlayer.coffee',
+      'src/layer/subtitleslayer.coffee',
       'src/parameters.coffee',
       'src/condition.coffee',
       'src/transformation.coffee',
@@ -201,9 +204,6 @@ module.exports = (grunt)->
       'src/tags/htmltag.coffee',
       'src/tags/imagetag.coffee',
       'src/tags/videotag.coffee',
-      'src/layer/layer.coffee',
-      'src/layer/textlayer.coffee',
-      'src/layer/subtitleslayer.coffee',
       'src/cloudinary.coffee'
     ],
     concat:
@@ -259,6 +259,7 @@ module.exports = (grunt)->
           "  " + src.replace( /\n/g, "\n  ")
       'cloudinary-core':
         src: [
+          "src/util/baseutil.coffee"
           "src/util/lodash.coffee"
           "<%= srcList%>"
         ]
@@ -266,12 +267,14 @@ module.exports = (grunt)->
       'cloudinary-core-shrinkwrap':
         src: [
           "build/lodash-shrinkwrap.coffee"
+          "src/util/baseutil.coffee"
           "src/util/lodash.coffee"
           "<%= srcList%>"
         ]
         dest: "build/cloudinary-core-shrinkwrap.coffee"
       'cloudinary-jquery':
         src: [
+          "src/util/baseutil.coffee"
           "src/util/jquery.coffee"
           "<%= srcList%>"
           "src/cloudinaryjquery.coffee"
@@ -279,6 +282,7 @@ module.exports = (grunt)->
         dest: "build/cloudinary-jquery.coffee"
       'cloudinary-jquery-file-upload':
         src: [
+          "src/util/baseutil.coffee"
           "src/util/jquery.coffee"
           "<%= srcList%>"
           "src/cloudinaryjquery.coffee"

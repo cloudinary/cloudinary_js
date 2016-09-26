@@ -236,23 +236,13 @@ getWidthOrHeight = (elem, name, extra) ->
 width = (element)->
   getWidthOrHeight(element, "width", "content")
 
-allStrings = (list)->
-  for item in list
-    return false unless Util.isString(item)
-  return true
 
-without = (array, item)->
-  newArray = []
-  i = -1; length = array.length;
-  while ++i < length
-    newArray.push(array[i]) if array[i] != item
-  newArray
 
 
 ###*
  * @class Util
 ###
-Util =
+Util = _.assign BaseUtil,
   hasClass: hasClass
   addClass: addClass
   ###*
@@ -271,11 +261,6 @@ Util =
   getData: getData
   setData: setData
   width: width
-  ###*
-   * Return true if all items in list are strings
-   * @param {Array} list - an array of items
-  ###
-  allStrings: allStrings
   isString: _.isString
   isArray: _.isArray
   isEmpty: _.isEmpty
@@ -288,6 +273,7 @@ Util =
   ###*
    * Recursively assign source properties to destination
    * @param {Object} destination - the object to assign to
+   * @param {...Object} [sources] The source objects.
   ###
   merge: _.merge
   ###*
@@ -361,10 +347,3 @@ Util =
    * @return {string} the `text` without leading or trailing spaces
   ###
   trim: _.trim
-  ###*
-   * Creates a new array without the given item.
-   * @param {Array} array - original array
-   * @param {*} item - the item to exclude from the new array
-   * @return {Array} a new array made of the original array's items except for `item`
-  ###
-  without: without
