@@ -392,14 +392,15 @@ describe "Transformation", ->
           [new Layer().publicId("logo").type("private"), "private:logo"],
           [new Layer().publicId("logo").format("png"), "logo.png"],
           [new Layer().resourceType("video").publicId("cat"), "video:cat"],
-          [new TextLayer().text("Hello World, Nice to meet you?").fontFamily("Arial").fontSize(18), "text:Arial_18:Hello%20World%E2%80%9A%20Nice%20to%20meet%20you%3F"],
-          [new TextLayer().text("Hello World, Nice to meet you?").fontFamily("Arial").fontSize(18).fontWeight("bold").fontStyle("italic").letterSpacing("4"),
-            "text:Arial_18_bold_italic_letter_spacing_4:Hello%20World%E2%80%9A%20Nice%20to%20meet%20you%3F"],
+          [new TextLayer().text("Hello World, Nice to meet you?").fontFamily("Arial").fontSize(18), "text:Arial_18:Hello%20World%252C%20Nice%20to%20meet%20you%3F"],
+          [new TextLayer().text("Hello World, Nice to meet you?").fontFamily("Arial").fontSize(19).fontWeight("bold").fontStyle("italic").letterSpacing("4"),
+            "text:Arial_19_bold_italic_letter_spacing_4:Hello%20World%252C%20Nice%20to%20meet%20you%3F"],
           [new SubtitlesLayer().publicId("sample_sub_en.srt"), "subtitles:sample_sub_en.srt"],
           [new SubtitlesLayer().publicId("sample_sub_he.srt").fontFamily("Arial").fontSize(40), "subtitles:Arial_40:sample_sub_he.srt"]
         ]
 
-        for [layer, expected] in tests
+        tests.forEach (test)->
+          [layer, expected] = test
           expect(layer.toString()).toEqual(expected )
 
       describe "TextLayer", ->
@@ -410,30 +411,32 @@ describe "Transformation", ->
     describe "using options", ->
       text_layer   = "Hello World, /Nice to meet you?"
       text_encoded = "Hello%20World%252C%20%252FNice%20to%20meet%20you%3F"
+      layers_options= [
+        ["string", "text:test_text:hello", "text:test_text:hello"],
+        ["explicit layer parameter", "text:test_text:#{text_encoded}", "text:test_text:#{text_encoded}"],
+        ["text parameter", { public_id: "test_text", text: text_layer }, "text:test_text:#{text_encoded}"],
+        ["text with font family and size parameters", { text: text_layer, font_family: "Arial", font_size: "18" }, "text:Arial_18:#{text_encoded}"],
+        ["text with text style parameter", { text: text_layer, font_family: "Arial", font_size: "18", font_weight: "bold", font_style: "italic", letter_spacing: 4, line_spacing: 2 }, "text:Arial_18_bold_italic_letter_spacing_4_line_spacing_2:#{text_encoded}"],
+        ["subtitles", { resource_type: "subtitles", public_id: "subtitles.srt" }, "subtitles:subtitles.srt"],
+        ["subtitles with font family and size", { resource_type: "subtitles", public_id: "subtitles.srt", font_family: "Arial", font_size: "40" }, "subtitles:Arial_40:subtitles.srt"]
+      ]
 
-      layers =
-        overlay: 'l'
-        underlay: 'u'
-      for param, short of layers
+      layers =[
+        ['overlay', 'l'],
+        ['underlay', 'u']
+      ]
+      layers.forEach (layer)->
+        [param, short] = layer
         describe param, ->
-          layers_options= [
-            ["string", "text:test_text:hello", "text:test_text:hello"],
-            ["explicit layer parameter", "text:test_text:#{text_encoded}", "text:test_text:#{text_encoded}"],
-            ["text parameter", { public_id: "test_text", text: text_layer }, "text:test_text:#{text_encoded}"],
-            ["text with font family and size parameters", { text: text_layer, font_family: "Arial", font_size: "18" }, "text:Arial_18:#{text_encoded}"],
-            ["text with text style parameter", { text: text_layer, font_family: "Arial", font_size: "18", font_weight: "bold", font_style: "italic", letter_spacing: 4, line_spacing: 2 }, "text:Arial_18_bold_italic_letter_spacing_4_line_spacing_2:#{text_encoded}"],
-            ["subtitles", { resource_type: "subtitles", public_id: "subtitles.srt" }, "subtitles:subtitles.srt"],
-            ["subtitles with font family and size", { resource_type: "subtitles", public_id: "subtitles.srt", font_family: "Arial", font_size: "40" }, "subtitles:Arial_40:subtitles.srt"]
-          ]
-          for [name, options, result] in layers_options
-            it "should support #{name}", ->
+          layers_options.forEach (test)->
+            [name, options, result] = test
+            it "should support #{name}", ()->
               testOptions = {}
               testOptions[param] = options
               expect(new cloudinary.Transformation(testOptions).serialize()).toEqual( "#{short}_#{result}")
-
-          it 'should not pass width/height to html for ' + param, ->
+          it 'should not pass width/height to html for ' + param, ()->
             testOptions =
               height: 100
               width: 100
             testOptions[param] = 'text:hello'
-            test_cloudinary_url 'test', testOptions, protocol + '//res.cloudinary.com/test123/image/upload/h_100,' + layers[param] + '_text:hello,w_100/test', {}
+            test_cloudinary_url 'test', testOptions, "#{protocol}//res.cloudinary.com/test123/image/upload/h_100,#{short}_text:hello,w_100/test", {}

@@ -557,14 +557,13 @@ describe("Transformation", function() {
     });
     describe("chained functions", function() {
       it("should produce a layer string", function() {
-        var expected, i, layer, len, ref, results, tests;
-        tests = [[new Layer().publicId("logo"), "logo"], [new Layer().publicId("folder/logo"), "folder:logo"], [new Layer().publicId("logo").type("private"), "private:logo"], [new Layer().publicId("logo").format("png"), "logo.png"], [new Layer().resourceType("video").publicId("cat"), "video:cat"], [new TextLayer().text("Hello World, Nice to meet you?").fontFamily("Arial").fontSize(18), "text:Arial_18:Hello%20World%E2%80%9A%20Nice%20to%20meet%20you%3F"], [new TextLayer().text("Hello World, Nice to meet you?").fontFamily("Arial").fontSize(18).fontWeight("bold").fontStyle("italic").letterSpacing("4"), "text:Arial_18_bold_italic_letter_spacing_4:Hello%20World%E2%80%9A%20Nice%20to%20meet%20you%3F"], [new SubtitlesLayer().publicId("sample_sub_en.srt"), "subtitles:sample_sub_en.srt"], [new SubtitlesLayer().publicId("sample_sub_he.srt").fontFamily("Arial").fontSize(40), "subtitles:Arial_40:sample_sub_he.srt"]];
-        results = [];
-        for (i = 0, len = tests.length; i < len; i++) {
-          ref = tests[i], layer = ref[0], expected = ref[1];
-          results.push(expect(layer.toString()).toEqual(expected));
-        }
-        return results;
+        var tests;
+        tests = [[new Layer().publicId("logo"), "logo"], [new Layer().publicId("folder/logo"), "folder:logo"], [new Layer().publicId("logo").type("private"), "private:logo"], [new Layer().publicId("logo").format("png"), "logo.png"], [new Layer().resourceType("video").publicId("cat"), "video:cat"], [new TextLayer().text("Hello World, Nice to meet you?").fontFamily("Arial").fontSize(18), "text:Arial_18:Hello%20World%252C%20Nice%20to%20meet%20you%3F"], [new TextLayer().text("Hello World, Nice to meet you?").fontFamily("Arial").fontSize(19).fontWeight("bold").fontStyle("italic").letterSpacing("4"), "text:Arial_19_bold_italic_letter_spacing_4:Hello%20World%252C%20Nice%20to%20meet%20you%3F"], [new SubtitlesLayer().publicId("sample_sub_en.srt"), "subtitles:sample_sub_en.srt"], [new SubtitlesLayer().publicId("sample_sub_he.srt").fontFamily("Arial").fontSize(40), "subtitles:Arial_40:sample_sub_he.srt"]];
+        return tests.forEach(function(test) {
+          var expected, layer;
+          layer = test[0], expected = test[1];
+          return expect(layer.toString()).toEqual(expected);
+        });
       });
       return describe("TextLayer", function() {
         return describe("fontStyle", function() {
@@ -577,63 +576,60 @@ describe("Transformation", function() {
       });
     });
     return describe("using options", function() {
-      var layers, param, results, short, text_encoded, text_layer;
+      var layers, layers_options, text_encoded, text_layer;
       text_layer = "Hello World, /Nice to meet you?";
       text_encoded = "Hello%20World%252C%20%252FNice%20to%20meet%20you%3F";
-      layers = {
-        overlay: 'l',
-        underlay: 'u'
-      };
-      results = [];
-      for (param in layers) {
-        short = layers[param];
-        results.push(describe(param, function() {
-          var i, layers_options, len, name, options, ref, result;
-          layers_options = [
-            ["string", "text:test_text:hello", "text:test_text:hello"], ["explicit layer parameter", "text:test_text:" + text_encoded, "text:test_text:" + text_encoded], [
-              "text parameter", {
-                public_id: "test_text",
-                text: text_layer
-              }, "text:test_text:" + text_encoded
-            ], [
-              "text with font family and size parameters", {
-                text: text_layer,
-                font_family: "Arial",
-                font_size: "18"
-              }, "text:Arial_18:" + text_encoded
-            ], [
-              "text with text style parameter", {
-                text: text_layer,
-                font_family: "Arial",
-                font_size: "18",
-                font_weight: "bold",
-                font_style: "italic",
-                letter_spacing: 4,
-                line_spacing: 2
-              }, "text:Arial_18_bold_italic_letter_spacing_4_line_spacing_2:" + text_encoded
-            ], [
-              "subtitles", {
-                resource_type: "subtitles",
-                public_id: "subtitles.srt"
-              }, "subtitles:subtitles.srt"
-            ], [
-              "subtitles with font family and size", {
-                resource_type: "subtitles",
-                public_id: "subtitles.srt",
-                font_family: "Arial",
-                font_size: "40"
-              }, "subtitles:Arial_40:subtitles.srt"
-            ]
-          ];
-          for (i = 0, len = layers_options.length; i < len; i++) {
-            ref = layers_options[i], name = ref[0], options = ref[1], result = ref[2];
-            it("should support " + name, function() {
+      layers_options = [
+        ["string", "text:test_text:hello", "text:test_text:hello"], ["explicit layer parameter", "text:test_text:" + text_encoded, "text:test_text:" + text_encoded], [
+          "text parameter", {
+            public_id: "test_text",
+            text: text_layer
+          }, "text:test_text:" + text_encoded
+        ], [
+          "text with font family and size parameters", {
+            text: text_layer,
+            font_family: "Arial",
+            font_size: "18"
+          }, "text:Arial_18:" + text_encoded
+        ], [
+          "text with text style parameter", {
+            text: text_layer,
+            font_family: "Arial",
+            font_size: "18",
+            font_weight: "bold",
+            font_style: "italic",
+            letter_spacing: 4,
+            line_spacing: 2
+          }, "text:Arial_18_bold_italic_letter_spacing_4_line_spacing_2:" + text_encoded
+        ], [
+          "subtitles", {
+            resource_type: "subtitles",
+            public_id: "subtitles.srt"
+          }, "subtitles:subtitles.srt"
+        ], [
+          "subtitles with font family and size", {
+            resource_type: "subtitles",
+            public_id: "subtitles.srt",
+            font_family: "Arial",
+            font_size: "40"
+          }, "subtitles:Arial_40:subtitles.srt"
+        ]
+      ];
+      layers = [['overlay', 'l'], ['underlay', 'u']];
+      return layers.forEach(function(layer) {
+        var param, short;
+        param = layer[0], short = layer[1];
+        return describe(param, function() {
+          layers_options.forEach(function(test) {
+            var name, options, result;
+            name = test[0], options = test[1], result = test[2];
+            return it("should support " + name, function() {
               var testOptions;
               testOptions = {};
               testOptions[param] = options;
               return expect(new cloudinary.Transformation(testOptions).serialize()).toEqual(short + "_" + result);
             });
-          }
+          });
           return it('should not pass width/height to html for ' + param, function() {
             var testOptions;
             testOptions = {
@@ -641,11 +637,10 @@ describe("Transformation", function() {
               width: 100
             };
             testOptions[param] = 'text:hello';
-            return test_cloudinary_url('test', testOptions, protocol + '//res.cloudinary.com/test123/image/upload/h_100,' + layers[param] + '_text:hello,w_100/test', {});
+            return test_cloudinary_url('test', testOptions, protocol + "//res.cloudinary.com/test123/image/upload/h_100," + short + "_text:hello,w_100/test", {});
           });
-        }));
-      }
-      return results;
+        });
+      });
     });
   });
 });
