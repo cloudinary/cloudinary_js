@@ -37,7 +37,7 @@ BaseUtil =
   ###
   without: without
   ###*
-  * Return true is value is a number or a string represetantion of a number.
+  * Return true is value is a number or a string representation of a number.
   * @example
   *    Util.isNumber(0) // true
   *    Util.isNumber("1.3") // true
