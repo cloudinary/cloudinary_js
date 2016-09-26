@@ -16,7 +16,22 @@ module.exports = (config) ->
     # list of files / patterns to load in the browser
     files: [
       'bower_components/lodash/lodash.js'
-      'build/cloudinary-core.js'
+      'src/utf8_encode.js'
+      'src/crc32.js'
+      'src/util/baseutil.js'
+      'src/util/lodash.js'
+      'src/layer/layer.js'
+      'src/layer/textlayer.js'
+      'src/layer/subtitleslayer.js'
+      'src/parameters.js'
+      'src/transformation.js'
+      'src/condition.js'
+      'src/configuration.js'
+      'src/tags/htmltag.js'
+      'src/tags/imagetag.js'
+      'src/tags/videotag.js'
+      'src/cloudinary.js'
+      'src/namespace/cloudinary-core.js'
       'test/spec/spec-helper.js'
       'test/spec/cloudinary-spec.js'
       'test/spec/transformation-spec.js'
@@ -28,13 +43,16 @@ module.exports = (config) ->
       { pattern: 'test/docRoot/responsive-core-test.html', watched: false, included: false, served: true, nocache: false}
       { pattern: 'bower_components/bootstrap/dist/css/*', watched: false, included: false, served: true, nocache: false}
     ]
+    coffeePreprocessor:
+      options:
+        sourceMap: true
 
-    # preprocess matching files before serving them to the browser
+
+# preprocess matching files before serving them to the browser
     # available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      'js/*.js': ['coverage']
+      'src/**/*.js': ['coverage']
     }
-
 
     # test results reporter to use
     # possible values: 'dots', 'progress'
