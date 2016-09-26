@@ -26,6 +26,73 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
   }
 })(this, function(jQuery) {
 
+  /*
+   * Includes common utility methods and shims
+   */
+  var ArrayParam, BaseUtil, Cloudinary, CloudinaryJQuery, Condition, Configuration, HtmlTag, ImageTag, Layer, LayerParam, Param, RangeParam, RawParam, SubtitlesLayer, TextLayer, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, camelCase, cloneDeep, cloudinary, compact, contains, crc32, defaults, difference, functions, getAttribute, getData, hasClass, identity, isEmpty, isNumberLike, isString, merge, parameters, reWords, removeAttribute, setAttribute, setAttributes, setData, smartEscape, snakeCase, utf8_encode, webp, width, without;
+  allStrings = function(list) {
+    var item, j, len;
+    for (j = 0, len = list.length; j < len; j++) {
+      item = list[j];
+      if (!Util.isString(item)) {
+        return false;
+      }
+    }
+    return true;
+  };
+  without = function(array, item) {
+    var i, length, newArray;
+    newArray = [];
+    i = -1;
+    length = array.length;
+    while (++i < length) {
+      if (array[i] !== item) {
+        newArray.push(array[i]);
+      }
+    }
+    return newArray;
+  };
+  isNumberLike = function(value) {
+    return (value != null) && !isNaN(parseFloat(value));
+  };
+  smartEscape = function(string, unsafe) {
+    if (unsafe == null) {
+      unsafe = /([^a-zA-Z0-9_.\-\/:]+)/g;
+    }
+    return string.replace(unsafe, function(match) {
+      return match.split("").map(function(c) {
+        return "%" + c.charCodeAt(0).toString(16).toUpperCase();
+      }).join("");
+    });
+  };
+  BaseUtil = {
+
+    /**
+     * Return true if all items in list are strings
+     * @param {Array} list - an array of items
+     */
+    allStrings: allStrings,
+
+    /**
+    * Creates a new array without the given item.
+    * @param {Array} array - original array
+    * @param {*} item - the item to exclude from the new array
+    * @return {Array} a new array made of the original array's items except for `item`
+     */
+    without: without,
+
+    /**
+    * Return true is value is a number or a string represetantion of a number.
+    * @example
+    *    Util.isNumber(0) // true
+    *    Util.isNumber("1.3") // true
+    *    Util.isNumber("") // false
+    *    Util.isNumber(undefined) // false
+     */
+    isNumberLike: isNumberLike,
+    smartEscape: smartEscape
+  };
+
   /**
     * Includes utility methods and lodash / jQuery shims
    */
@@ -39,7 +106,6 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
     * @returns the value associated with the `name`
     * @function Util.getData
    */
-  var ArrayParam, Cloudinary, CloudinaryJQuery, Condition, Configuration, HtmlTag, ImageTag, Layer, LayerParam, Param, RangeParam, RawParam, SubtitlesLayer, TextLayer, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, camelCase, cloneDeep, cloudinary, compact, contains, crc32, defaults, difference, functions, getAttribute, getData, hasClass, identity, isEmpty, isString, merge, parameters, reWords, removeAttribute, setAttribute, setAttributes, setData, snakeCase, utf8_encode, webp, width, without;
   getData = function(element, name) {
     return jQuery(element).data(name);
   };
@@ -99,16 +165,6 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
   };
   isEmpty = function(item) {
     return (item == null) || (jQuery.isArray(item) || Util.isString(item)) && item.length === 0 || (jQuery.isPlainObject(item) && jQuery.isEmptyObject(item));
-  };
-  allStrings = function(list) {
-    var item, j, len;
-    for (j = 0, len = list.length; j < len; j++) {
-      item = list[j];
-      if (!Util.isString(item)) {
-        return false;
-      }
-    }
-    return true;
   };
   isString = function(item) {
     return typeof item === 'string' || (item != null ? item.toString() : void 0) === '[object String]';
@@ -234,19 +290,11 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
   identity = function(value) {
     return value;
   };
-  without = function(array, item) {
-    var i, length, newArray;
-    newArray = [];
-    i = -1;
-    length = array.length;
-    while (++i < length) {
-      if (array[i] !== item) {
-        newArray.push(array[i]);
-      }
-    }
-    return newArray;
-  };
-  Util = {
+
+  /**
+   * @class Util
+   */
+  Util = $.extend(BaseUtil, {
     hasClass: hasClass,
     addClass: addClass,
     getAttribute: getAttribute,
@@ -256,12 +304,6 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
     getData: getData,
     setData: setData,
     width: width,
-
-    /**
-     * Return true if all items in list are strings
-     * @param {Array} list - an array of items
-     */
-    allStrings: allStrings,
     isString: isString,
     isArray: jQuery.isArray,
     isEmpty: isEmpty,
@@ -360,16 +402,8 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
      * @param {string} text
      * @return {string} the `text` without leading or trailing spaces
      */
-    trim: jQuery.trim,
-
-    /**
-     * Creates a new array without the given item.
-     * @param {Array} array - original array
-     * @param {*} item - the item to exclude from the new array
-     * @return {Array} a new array made of the original array's items except for `item`
-     */
-    without: without
-  };
+    trim: jQuery.trim
+  });
 
   /**
    * UTF8 encoder
@@ -439,6 +473,264 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
     }
     return crc;
   };
+  Layer = (function() {
+
+    /**
+     * Layer
+     * @constructor Layer
+     * @param {Object} options - layer parameters
+     */
+    function Layer(options) {
+      this.options = {};
+      if (options != null) {
+        ["resourceType", "type", "publicId", "format"].forEach((function(_this) {
+          return function(key) {
+            var ref;
+            return _this.options[key] = (ref = options[key]) != null ? ref : options[Util.snakeCase(key)];
+          };
+        })(this));
+      }
+    }
+
+    Layer.prototype.resourceType = function(value) {
+      this.options.resourceType = value;
+      return this;
+    };
+
+    Layer.prototype.type = function(value) {
+      this.options.type = value;
+      return this;
+    };
+
+    Layer.prototype.publicId = function(value) {
+      this.options.publicId = value;
+      return this;
+    };
+
+
+    /**
+     * Get the public ID, formatted for layer parameter
+     * @function Layer#getPublicId
+     * @return {String} public ID
+     */
+
+    Layer.prototype.getPublicId = function() {
+      var ref;
+      return (ref = this.options.publicId) != null ? ref.replace(/\//g, ":") : void 0;
+    };
+
+
+    /**
+     * Get the public ID, with format if present
+     * @function Layer#getFullPublicId
+     * @return {String} public ID
+     */
+
+    Layer.prototype.getFullPublicId = function() {
+      if (this.options.format != null) {
+        return this.getPublicId() + "." + this.options.format;
+      } else {
+        return this.getPublicId();
+      }
+    };
+
+    Layer.prototype.format = function(value) {
+      this.options.format = value;
+      return this;
+    };
+
+
+    /**
+     * generate the string representation of the layer
+     * @function Layer#toString
+     */
+
+    Layer.prototype.toString = function() {
+      var components;
+      components = [];
+      if (this.options.publicId == null) {
+        throw "Must supply publicId";
+      }
+      if (!(this.options.resourceType === "image")) {
+        components.push(this.options.resourceType);
+      }
+      if (!(this.options.type === "upload")) {
+        components.push(this.options.type);
+      }
+      components.push(this.getFullPublicId());
+      return Util.compact(components).join(":");
+    };
+
+    return Layer;
+
+  })();
+  TextLayer = (function(superClass) {
+    extend(TextLayer, superClass);
+
+
+    /**
+     * @constructor TextLayer
+     * @param {Object} options - layer parameters
+     */
+
+    function TextLayer(options) {
+      var keys;
+      TextLayer.__super__.constructor.call(this, options);
+      keys = ["resourceType", "resourceType", "fontFamily", "fontSize", "fontWeight", "fontStyle", "textDecoration", "textAlign", "stroke", "letterSpacing", "lineSpacing", "text"];
+      if (options != null) {
+        keys.forEach((function(_this) {
+          return function(key) {
+            var ref;
+            return _this.options[key] = (ref = options[key]) != null ? ref : options[Util.snakeCase(key)];
+          };
+        })(this));
+      }
+      this.options.resourceType = "text";
+    }
+
+    TextLayer.prototype.resourceType = function(resourceType) {
+      throw "Cannot modify resourceType for text layers";
+    };
+
+    TextLayer.prototype.type = function(type) {
+      throw "Cannot modify type for text layers";
+    };
+
+    TextLayer.prototype.format = function(format) {
+      throw "Cannot modify format for text layers";
+    };
+
+    TextLayer.prototype.fontFamily = function(fontFamily) {
+      this.options.fontFamily = fontFamily;
+      return this;
+    };
+
+    TextLayer.prototype.fontSize = function(fontSize) {
+      this.options.fontSize = fontSize;
+      return this;
+    };
+
+    TextLayer.prototype.fontWeight = function(fontWeight) {
+      this.options.fontWeight = fontWeight;
+      return this;
+    };
+
+    TextLayer.prototype.fontStyle = function(fontStyle) {
+      this.options.fontStyle = fontStyle;
+      return this;
+    };
+
+    TextLayer.prototype.textDecoration = function(textDecoration) {
+      this.options.textDecoration = textDecoration;
+      return this;
+    };
+
+    TextLayer.prototype.textAlign = function(textAlign) {
+      this.options.textAlign = textAlign;
+      return this;
+    };
+
+    TextLayer.prototype.stroke = function(stroke) {
+      this.options.stroke = stroke;
+      return this;
+    };
+
+    TextLayer.prototype.letterSpacing = function(letterSpacing) {
+      this.options.letterSpacing = letterSpacing;
+      return this;
+    };
+
+    TextLayer.prototype.lineSpacing = function(lineSpacing) {
+      this.options.lineSpacing = lineSpacing;
+      return this;
+    };
+
+    TextLayer.prototype.text = function(text) {
+      this.options.text = text;
+      return this;
+    };
+
+
+    /**
+     * generate the string representation of the layer
+     * @function TextLayer#toString
+     * @return {String}
+     */
+
+    TextLayer.prototype.toString = function() {
+      var components, hasPublicId, hasStyle, publicId, style, text;
+      style = this.textStyleIdentifier();
+      if (this.options.publicId != null) {
+        publicId = this.getFullPublicId();
+      }
+      if (this.options.text != null) {
+        hasPublicId = Util.isEmpty(publicId);
+        hasStyle = Util.isEmpty(style);
+        if (hasPublicId && hasStyle || !hasPublicId && !hasStyle) {
+          throw "Must supply either style parameters or a public_id when providing text parameter in a text overlay/underlay, but not both!";
+        }
+        text = Util.smartEscape(Util.smartEscape(this.options.text, /[,\/]/g));
+      }
+      components = [this.options.resourceType, style, publicId, text];
+      return Util.compact(components).join(":");
+    };
+
+    TextLayer.prototype.textStyleIdentifier = function() {
+      var components;
+      components = [];
+      if (this.options.fontWeight !== "normal") {
+        components.push(this.options.fontWeight);
+      }
+      if (this.options.fontStyle !== "normal") {
+        components.push(this.options.fontStyle);
+      }
+      if (this.options.textDecoration !== "none") {
+        components.push(this.options.textDecoration);
+      }
+      components.push(this.options.textAlign);
+      if (this.options.stroke !== "none") {
+        components.push(this.options.stroke);
+      }
+      if (!(Util.isEmpty(this.options.letterSpacing) && !Util.isNumberLike(this.options.letterSpacing))) {
+        components.push("letter_spacing_" + this.options.letterSpacing);
+      }
+      if (!(Util.isEmpty(this.options.lineSpacing) && !Util.isNumberLike(this.options.lineSpacing))) {
+        components.push("line_spacing_" + this.options.lineSpacing);
+      }
+      if (!Util.isEmpty(Util.compact(components))) {
+        if (Util.isEmpty(this.options.fontFamily)) {
+          throw "Must supply fontFamily. " + components;
+        }
+        if (Util.isEmpty(this.options.fontSize) && !Util.isNumberLike(this.options.fontSize)) {
+          throw "Must supply fontSize.";
+        }
+      }
+      components.unshift(this.options.fontFamily, this.options.fontSize);
+      components = Util.compact(components).join("_");
+      return components;
+    };
+
+    return TextLayer;
+
+  })(Layer);
+  SubtitlesLayer = (function(superClass) {
+    extend(SubtitlesLayer, superClass);
+
+
+    /**
+     * Represent a subtitles layer
+     * @constructor SubtitlesLayer
+     * @param {Object} options - layer parameters
+     */
+
+    function SubtitlesLayer(options) {
+      SubtitlesLayer.__super__.constructor.call(this, options);
+      this.options.resourceType = "subtitles";
+    }
+
+    return SubtitlesLayer;
+
+  })(TextLayer);
 
   /**
    * Transformation parameters
@@ -773,90 +1065,26 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
     }
 
     LayerParam.prototype.value = function() {
-      var components, format, layer, publicId, resourceType, text, textStyle, type;
-      layer = this.origValue;
-      if (cloudinary.Util.isPlainObject(layer)) {
-        publicId = layer.public_id;
-        format = layer.format;
-        resourceType = layer.resource_type || "image";
-        type = layer.type || "upload";
-        text = layer.text;
-        textStyle = null;
-        components = [];
-        if (publicId != null) {
-          publicId = publicId.replace(/\//g, ":");
-          if (format != null) {
-            publicId = publicId + "." + format;
-          }
-        }
-        if ((text == null) && resourceType !== "text") {
-          if (cloudinary.Util.isEmpty(publicId)) {
-            throw "Must supply public_id for resource_type layer_parameter";
-          }
-          if (resourceType === "subtitles") {
-            textStyle = this.textStyle(layer);
-          }
+      var layerOptions, result;
+      layerOptions = this.origValue;
+      if (cloudinary.Util.isPlainObject(layerOptions)) {
+        if (layerOptions.resource_type === "text" || (layerOptions.text != null)) {
+          result = new cloudinary.TextLayer(layerOptions).toString();
+        } else if (layerOptions.resource_type === "subtitles") {
+          result = new cloudinary.SubtitlesLayer(layerOptions).toString();
         } else {
-          resourceType = "text";
-          type = null;
-          textStyle = this.textStyle(layer);
-          if (text != null) {
-            if (!((publicId != null) ^ (textStyle != null))) {
-              throw "Must supply either style parameters or a public_id when providing text parameter in a text overlay/underlay";
-            }
-            text = cloudinary.Util.smart_escape(cloudinary.Util.smart_escape(text, /([,\/])/));
-          }
+          result = new cloudinary.Layer(layerOptions).toString();
         }
-        if (resourceType !== "image") {
-          components.push(resourceType);
-        }
-        if (type !== "upload") {
-          components.push(type);
-        }
-        components.push(textStyle);
-        components.push(publicId);
-        components.push(text);
-        layer = cloudinary.Util.compact(components).join(":");
+      } else {
+        result = layerOptions;
       }
-      return layer;
+      return result;
     };
 
-    LAYER_KEYWORD_PARAMS = [["font_weight", "normal"], ["font_style", "normal"], ["text_decoration", "none"], ["text_align", null], ["stroke", "none"]];
+    LAYER_KEYWORD_PARAMS = [["font_weight", "normal"], ["font_style", "normal"], ["text_decoration", "none"], ["text_align", null], ["stroke", "none"], ["letter_spacing", null], ["line_spacing", null]];
 
     LayerParam.prototype.textStyle = function(layer) {
-      var attr, defaultValue, fontFamily, fontSize, keywords, letterSpacing, lineSpacing;
-      fontFamily = layer.font_family;
-      fontSize = layer.font_size;
-      keywords = (function() {
-        var j, len, ref, results;
-        results = [];
-        for (j = 0, len = LAYER_KEYWORD_PARAMS.length; j < len; j++) {
-          ref = LAYER_KEYWORD_PARAMS[j], attr = ref[0], defaultValue = ref[1];
-          if (layer[attr] !== defaultValue) {
-            results.push(layer[attr]);
-          }
-        }
-        return results;
-      })();
-      letterSpacing = layer.letter_spacing;
-      if (!cloudinary.Util.isEmpty(letterSpacing)) {
-        keywords.push("letter_spacing_" + letterSpacing);
-      }
-      lineSpacing = layer.line_spacing;
-      if (!cloudinary.Util.isEmpty(lineSpacing)) {
-        keywords.push("line_spacing_" + lineSpacing);
-      }
-      if (!cloudinary.Util.isEmpty(fontSize) || !cloudinary.Util.isEmpty(fontFamily) || !cloudinary.Util.isEmpty(keywords)) {
-        if (cloudinary.Util.isEmpty(fontFamily)) {
-          throw "Must supply font_family for text in overlay/underlay";
-        }
-        if (cloudinary.Util.isEmpty(fontSize)) {
-          throw "Must supply font_size for text in overlay/underlay";
-        }
-        keywords.unshift(fontSize);
-        keywords.unshift(fontFamily);
-        return cloudinary.Util.compact(keywords).join("_");
-      }
+      return (new cloudinary.TextLayer(layer)).textStyleIdentifier();
     };
 
     return LayerParam;
@@ -2598,252 +2826,6 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
     return VideoTag;
 
   })(HtmlTag);
-  Layer = (function() {
-
-    /**
-     * Layer
-     * @constructor Layer
-     * @param {Object} options - layer parameters
-     */
-    function Layer(options) {
-      this.options = {};
-      if (options != null) {
-        this.options.resourceType = options["resource_type"];
-        this.options.type = options["type"];
-        this.options.publicId = options["public_id"];
-        this.options.format = options["format"];
-      }
-    }
-
-    Layer.prototype.resourceType = function(value) {
-      this.options.resourceType = value;
-      return this;
-    };
-
-    Layer.prototype.type = function(value) {
-      this.options.type = value;
-      return this;
-    };
-
-    Layer.prototype.publicId = function(value) {
-      this.options.publicId = value;
-      return this;
-    };
-
-
-    /**
-     * Get the public ID, formatted for layer parameter
-     * @function Layer#getPublicId
-     * @return {String} public ID
-     */
-
-    Layer.prototype.getPublicId = function() {
-      var ref;
-      return (ref = this.options.publicId) != null ? ref.replace(/\//g, ":") : void 0;
-    };
-
-
-    /**
-     * Get the public ID, with format if present
-     * @function Layer#getFullPublicId
-     * @return {String} public ID
-     */
-
-    Layer.prototype.getFullPublicId = function() {
-      if (this.options.format != null) {
-        return this.getPublicId() + "." + this.options.format;
-      } else {
-        return this.getPublicId();
-      }
-    };
-
-    Layer.prototype.format = function(value) {
-      this.options.format = value;
-      return this;
-    };
-
-
-    /**
-     * generate the string representation of the layer
-     * @function Layer#toString
-     */
-
-    Layer.prototype.toString = function() {
-      var components;
-      components = [];
-      if (this.options.publicId == null) {
-        throw "Must supply publicId";
-      }
-      if (!(this.options.resourceType === "image")) {
-        components.push(this.options.resourceType);
-      }
-      if (!(this.options.type === "upload")) {
-        components.push(this.options.type);
-      }
-      components.push(this.getFullPublicId());
-      return Util.compact(components).join(":");
-    };
-
-    return Layer;
-
-  })();
-  TextLayer = (function(superClass) {
-    var textStyleIdentifier;
-
-    extend(TextLayer, superClass);
-
-
-    /**
-     * @constructor TextLayer
-     * @param {Object} options - layer parameters
-     */
-
-    function TextLayer(options) {
-      TextLayer.__super__.constructor.call(this, options);
-      this.options.resourceType = "text";
-    }
-
-    TextLayer.prototype.resourceType = function(resourceType) {
-      throw "Cannot modify resourceType for text layers";
-    };
-
-    TextLayer.prototype.type = function(type) {
-      throw "Cannot modify type for text layers";
-    };
-
-    TextLayer.prototype.format = function(format) {
-      throw "Cannot modify format for text layers";
-    };
-
-    TextLayer.prototype.fontFamily = function(fontFamily) {
-      this.options.fontFamily = fontFamily;
-      return this;
-    };
-
-    TextLayer.prototype.fontSize = function(fontSize) {
-      this.options.fontSize = fontSize;
-      return this;
-    };
-
-    TextLayer.prototype.fontWeight = function(fontWeight) {
-      this.options.fontWeight = fontWeight;
-      return this;
-    };
-
-    TextLayer.prototype.fontStyle = function(fontStyle) {
-      this.options.fontStyle = fontStyle;
-      return this;
-    };
-
-    TextLayer.prototype.textDecoration = function(textDecoration) {
-      this.options.textDecoration = textDecoration;
-      return this;
-    };
-
-    TextLayer.prototype.textAlign = function(textAlign) {
-      this.options.textAlign = textAlign;
-      return this;
-    };
-
-    TextLayer.prototype.stroke = function(stroke) {
-      this.options.stroke = stroke;
-      return this;
-    };
-
-    TextLayer.prototype.letterSpacing = function(letterSpacing) {
-      this.options.letterSpacing = letterSpacing;
-      return this;
-    };
-
-    TextLayer.prototype.lineSpacing = function(lineSpacing) {
-      this.options.lineSpacing = lineSpacing;
-      return this;
-    };
-
-    TextLayer.prototype.text = function(text) {
-      this.options.text = text;
-      return this;
-    };
-
-
-    /**
-     * generate the string representation of the layer
-     * @function TextLayer#toString
-     * @return {String}
-     */
-
-    TextLayer.prototype.toString = function() {
-      var components, publicId, text;
-      if (this.options.publicId != null) {
-        publicId = this.getFullPublicId();
-      } else if (this.options.text != null) {
-        text = encodeURIComponent(this.options.text).replace(/%2C/g, "%E2%80%9A").replace(/\//g, "%E2%81%84");
-      } else {
-        throw "Must supply either text or public_id.";
-      }
-      components = [this.options.resourceType, textStyleIdentifier.call(this), publicId, text];
-      return Util.compact(components).join(":");
-    };
-
-    textStyleIdentifier = function() {
-      var components, fontSize;
-      components = [];
-      if (this.options.fontWeight !== "normal") {
-        components.push(this.options.fontWeight);
-      }
-      if (this.options.fontStyle !== "normal") {
-        components.push(this.options.fontStyle);
-      }
-      if (this.options.textDecoration !== "none") {
-        components.push(this.options.textDecoration);
-      }
-      components.push(this.options.textAlign);
-      if (this.options.stroke !== "none") {
-        components.push(this.options.stroke);
-      }
-      if (!Util.isEmpty(this.options.letterSpacing)) {
-        components.push("letter_spacing_" + this.options.letterSpacing);
-      }
-      if (this.options.lineSpacing != null) {
-        components.push("line_spacing_" + this.options.lineSpacing);
-      }
-      if (this.options.fontSize != null) {
-        fontSize = "" + this.options.fontSize;
-      }
-      components.unshift(this.options.fontFamily, fontSize);
-      components = Util.compact(components).join("_");
-      if (!Util.isEmpty(components)) {
-        if (Util.isEmpty(this.options.fontFamily)) {
-          throw "Must supply fontFamily.";
-        }
-        if (Util.isEmpty(fontSize)) {
-          throw "Must supply fontSize.";
-        }
-      }
-      return components;
-    };
-
-    return TextLayer;
-
-  })(Layer);
-  SubtitlesLayer = (function(superClass) {
-    extend(SubtitlesLayer, superClass);
-
-
-    /**
-     * Represent a subtitles layer
-     * @constructor SubtitlesLayer
-     * @param {Object} options - layer parameters
-     */
-
-    function SubtitlesLayer(options) {
-      SubtitlesLayer.__super__.constructor.call(this, options);
-      this.options.resourceType = "subtitles";
-    }
-
-    return SubtitlesLayer;
-
-  })(TextLayer);
   Cloudinary = (function() {
     var AKAMAI_SHARED_CDN, CF_SHARED_CDN, DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_SOURCE_TYPES, OLD_AKAMAI_SHARED_CDN, SHARED_CDN, VERSION, absolutize, applyBreakpoints, cdnSubdomainNumber, closestAbove, cloudinaryUrlPrefix, defaultBreakpoints, finalizeResourceType, findContainerWidth, maxWidth, updateDpr;
 
@@ -3557,7 +3539,7 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
         imageWidth = requiredWidth;
         Util.setData(tag, 'width', requiredWidth);
       }
-      return requiredWidth;
+      return imageWidth;
     };
 
 

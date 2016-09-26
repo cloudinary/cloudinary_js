@@ -5,6 +5,23 @@ class TextLayer extends Layer
   ###
   constructor: (options)->
     super(options)
+    keys =[
+      "resourceType",
+      "resourceType",
+      "fontFamily",
+      "fontSize",
+      "fontWeight",
+      "fontStyle",
+      "textDecoration",
+      "textAlign",
+      "stroke",
+      "letterSpacing",
+      "lineSpacing",
+      "text"
+    ]
+    if options?
+      keys.forEach (key)=>
+        @options[key] = options[key] ? options[Util.snakeCase(key)]
     @options.resourceType = "text"
 
 
@@ -63,32 +80,32 @@ class TextLayer extends Layer
    * @return {String}
   ###
   toString: ()->
+    style = @textStyleIdentifier()
     if @options.publicId?
       publicId = @getFullPublicId()
-    else if @options.text?
-      text = encodeURIComponent(@options.text).replace(/%2C/g, "%E2%80%9A").replace(/\//g, "%E2%81%84")
-    else
-      throw "Must supply either text or public_id."
+    if @options.text?
+      hasPublicId = !Util.isEmpty(publicId)
+      hasStyle = !Util.isEmpty(style)
+      if hasPublicId && hasStyle || !hasPublicId && !hasStyle
+        throw "Must supply either style parameters or a public_id when providing text parameter in a text overlay/underlay, but not both!"
+      text = Util.smartEscape(Util.smartEscape(@options.text, /[,/]/g))
 
-    components = [@options.resourceType, textStyleIdentifier.call(@), publicId, text]
+    components = [@options.resourceType, style, publicId, text]
     return Util.compact(components).join( ":")
 
-  textStyleIdentifier = ()->
+  textStyleIdentifier: ()->
     components = []
     components.push(@options.fontWeight) unless @options.fontWeight == "normal"
     components.push(@options.fontStyle) unless @options.fontStyle == "normal"
     components.push(@options.textDecoration) unless @options.textDecoration == "none"
     components.push(@options.textAlign)
-    components.push(@options.stroke) unless @options.stroke =="none"
-    components.push("letter_spacing_" + @options.letterSpacing) unless Util.isEmpty(@options.letterSpacing)
-    components.push("line_spacing_" + @options.lineSpacing) if @options.lineSpacing?
-    fontSize = "" + @options.fontSize if @options.fontSize?
-    components.unshift(@options.fontFamily, fontSize)
+    components.push(@options.stroke) unless @options.stroke == "none"
+    components.push("letter_spacing_" + @options.letterSpacing) unless Util.isEmpty(@options.letterSpacing) && !Util.isNumberLike(@options.letterSpacing)
+    components.push("line_spacing_" + @options.lineSpacing) unless Util.isEmpty(@options.lineSpacing) && !Util.isNumberLike(@options.lineSpacing)
 
+    unless Util.isEmpty(Util.compact(components))
+      throw "Must supply fontFamily. #{components}" if Util.isEmpty(@options.fontFamily)
+      throw "Must supply fontSize." if Util.isEmpty(@options.fontSize) && !Util.isNumberLike(@options.fontSize)
+    components.unshift(@options.fontFamily, @options.fontSize)
     components = Util.compact(components).join("_")
-
-    unless Util.isEmpty(components)
-      throw "Must supply fontFamily." if Util.isEmpty(@options.fontFamily)
-      throw "Must supply fontSize." if Util.isEmpty(fontSize)
-
     return components

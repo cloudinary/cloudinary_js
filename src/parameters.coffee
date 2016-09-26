@@ -207,43 +207,17 @@ class LayerParam extends Param
   # @return [string] layer transformation string
   # @private
   value: ()->
-    layer = @origValue
-    if cloudinary.Util.isPlainObject(layer)
-      publicId     = layer.public_id
-      format        = layer.format
-      resourceType = layer.resource_type || "image"
-      type          = layer.type || "upload"
-      text          = layer.text
-      textStyle    = null
-      components    = []
-
-      if publicId?
-        publicId = publicId.replace(/\//g, ":")
-        publicId = "#{publicId}.#{format}" if format?
-
-      if !text? && resourceType != "text"
-        if cloudinary.Util.isEmpty(publicId)
-          throw "Must supply public_id for resource_type layer_parameter"
-        if resourceType == "subtitles"
-          textStyle = @textStyle(layer)
-
+    layerOptions = @origValue
+    if cloudinary.Util.isPlainObject(layerOptions)
+      if layerOptions.resource_type == "text" || layerOptions.text?
+        result = new cloudinary.TextLayer(layerOptions).toString()
+      else if layerOptions.resource_type == "subtitles"
+        result = new cloudinary.SubtitlesLayer(layerOptions).toString()
       else
-        resourceType = "text"
-        type          = null
-        # // type is ignored for text layers
-        textStyle    = @textStyle(layer)
-        if text?
-          unless publicId? ^ textStyle?
-            throw "Must supply either style parameters or a public_id when providing text parameter in a text overlay/underlay"
-          text = cloudinary.Util.smart_escape( cloudinary.Util.smart_escape(text, /([,\/])/))
-
-      components.push(resourceType) if resourceType != "image"
-      components.push(type) if type != "upload"
-      components.push(textStyle)
-      components.push(publicId)
-      components.push(text)
-      layer = cloudinary.Util.compact(components).join(":")
-    layer
+        result = new cloudinary.Layer(layerOptions).toString()
+    else
+      result = layerOptions
+    result
 
   LAYER_KEYWORD_PARAMS =[
     ["font_weight", "normal"],
@@ -251,24 +225,28 @@ class LayerParam extends Param
     ["text_decoration", "none"],
     ["text_align", null],
     ["stroke", "none"],
+    ["letter_spacing", null],
+    ["line_spacing", null]
   ]
 
   textStyle: (layer)->
-    fontFamily = layer.font_family
-    fontSize   = layer.font_size
-    keywords    =
-      layer[attr] for [attr, defaultValue] in LAYER_KEYWORD_PARAMS when layer[attr] != defaultValue
+    (new cloudinary.TextLayer(layer)).textStyleIdentifier()
 
-    letterSpacing = layer.letter_spacing
-    keywords.push("letter_spacing_#{letterSpacing}") unless cloudinary.Util.isEmpty(letterSpacing)
-    lineSpacing = layer.line_spacing
-    keywords.push("line_spacing_#{lineSpacing}") unless cloudinary.Util.isEmpty(lineSpacing)
-    if !cloudinary.Util.isEmpty(fontSize) || !cloudinary.Util.isEmpty(fontFamily) || !cloudinary.Util.isEmpty(keywords)
-      throw "Must supply font_family for text in overlay/underlay" if cloudinary.Util.isEmpty(fontFamily)
-      throw "Must supply font_size for text in overlay/underlay" if cloudinary.Util.isEmpty(fontSize)
-      keywords.unshift(fontSize)
-      keywords.unshift(fontFamily)
-      cloudinary.Util.compact(keywords).join("_")
+#    fontFamily = layer.font_family
+#    fontSize   = layer.font_size
+#    keywords    =
+#      layer[attr] for [attr, defaultValue] in LAYER_KEYWORD_PARAMS when layer[attr] != defaultValue
+#
+#    letterSpacing = layer.letter_spacing
+#    keywords.push("letter_spacing_#{letterSpacing}") unless cloudinary.Util.isEmpty(letterSpacing)
+#    lineSpacing = layer.line_spacing
+#    keywords.push("line_spacing_#{lineSpacing}") unless cloudinary.Util.isEmpty(lineSpacing)
+#    if !cloudinary.Util.isEmpty(fontSize) || !cloudinary.Util.isEmpty(fontFamily) || !cloudinary.Util.isEmpty(keywords)
+#      throw "Must supply font_family for text in overlay/underlay" if cloudinary.Util.isEmpty(fontFamily)
+#      throw "Must supply font_size for text in overlay/underlay" if cloudinary.Util.isEmpty(fontSize)
+#      keywords.unshift(fontSize)
+#      keywords.unshift(fontFamily)
+#    cloudinary.Util.compact(keywords).join("_")
 
 
 parameters = {}

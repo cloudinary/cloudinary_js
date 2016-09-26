@@ -24,6 +24,7 @@ module.exports = (config) ->
       'test/spec/tagspec.js'
       'test/spec/videourlspec.js'
       'test/spec/chaining-spec.js'
+      'test/spec/layer-spec.js'
       'test/spec/responsive-jquery-spec.js'
       {pattern: 'test/docRoot/responsive-jquery-test.html', watched: false, included: false, served: true, nocache: false}
     ]

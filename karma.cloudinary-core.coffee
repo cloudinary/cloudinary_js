@@ -23,6 +23,7 @@ module.exports = (config) ->
       'test/spec/tagspec.js'
       'test/spec/videourlspec.js'
       'test/spec/chaining-spec.js'
+      'test/spec/layer-spec.js'
       'test/spec/responsive-core-spec.js'
       { pattern: 'test/docRoot/responsive-core-test.html', watched: false, included: false, served: true, nocache: false}
       { pattern: 'bower_components/bootstrap/dist/css/*', watched: false, included: false, served: true, nocache: false}

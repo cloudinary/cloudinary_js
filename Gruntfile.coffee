@@ -55,6 +55,7 @@ module.exports = (grunt)->
       'test/spec/videourlspec.js'
       'test/spec/chaining-spec.js'
       'test/spec/conditional-transformation-spec.js'
+      'test/spec/layer-spec.js'
     ]
     karma:
       options:

@@ -7,10 +7,8 @@ class Layer
   constructor: (options)->
     @options = {}
     if options?
-      @options.resourceType = options["resource_type"]
-      @options.type = options["type"]
-      @options.publicId = options["public_id"]
-      @options.format = options["format"]
+      ["resourceType", "type", "publicId", "format"].forEach (key)=>
+        @options[key] = options[key] ? options[Util.snakeCase(key)]
 
   resourceType: (value)->
     @options.resourceType = value
