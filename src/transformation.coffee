@@ -202,27 +202,6 @@ class TransformationBase
 
     @otherOptions ||= {}
 
-    ###*
-     * Transformation Class methods.
-     * This is a list of the parameters defined in Transformation.
-     * Values are camelCased.
-     * @private
-     * @ignore
-     * @type {Array<string>}
-    ###
-    @methods ||= Util.difference(Util.functions(Transformation.prototype), Util.functions(TransformationBase.prototype))
-
-    ###*
-     * Parameters that are filtered out before passing the options to an HTML tag.
-     *
-     * The list of parameters is a combination of `Transformation::methods` and `Configuration::CONFIG_PARAMS`
-     * @const {Array<string>} Transformation.PARAM_NAMES
-     * @private
-     * @ignore
-     * @see toHtmlAttributes
-    ###
-    @PARAM_NAMES ||= (Util.snakeCase(m) for m in @methods).concat( Configuration.CONFIG_PARAMS)
-
     @chained = []
 
     # Finished constructing the instance, now process the options
@@ -263,7 +242,7 @@ class TransformationBase
   ###
   set: (key, value)->
     camelKey = Util.camelCase( key)
-    if Util.contains( @methods, camelKey)
+    if Util.contains( Transformation.methods, camelKey)
       this[camelKey](value)
     else
       @otherOptions[key] = value
@@ -311,7 +290,7 @@ class TransformationBase
    * @return {Array<string>} a array of all the valid option names
   ###
   listNames: ->
-    @methods
+    Transformation.methods
 
 
   ###*
@@ -321,12 +300,12 @@ class TransformationBase
   ###
   toHtmlAttributes: ()->
     options = {}
-    for key, value of @otherOptions when  !Util.contains(@PARAM_NAMES, key)
+    for key, value of @otherOptions when  !Util.contains(Transformation.PARAM_NAMES, Util.snakeCase(key))
       attrName = if /^html_/.test(key) then key.slice(5) else key
-      options[attrName] = value
+      options[Util.camelCase(attrName)] = value
     # convert all "html_key" to "key" with the same value
     for key in @keys() when /^html_/.test(key)
-      options[key.slice(5)] = @getValue(key)
+      options[Util.camelCase(key.slice(5))] = @getValue(key)
 
     unless @hasLayer()|| @getValue("angle") || Util.contains( ["fit", "limit", "lfill"],@getValue("crop"))
       width = @get("width")?.origValue
@@ -338,7 +317,7 @@ class TransformationBase
     options
 
   isValidParamName: (name) ->
-    @methods.indexOf(Util.camelCase(name)) >= 0
+    Transformation.methods.indexOf(Util.camelCase(name)) >= 0
 
   ###*
    * Delegate to the parent (up the call chain) to produce HTML
@@ -359,6 +338,27 @@ class TransformationBase
   toString: ()->
     @serialize()
 
+
+    ###*
+     * Transformation Class methods.
+     * This is a list of the parameters defined in Transformation.
+     * Values are camelCased.
+     * @const Transformation.methods
+     * @private
+     * @ignore
+     * @type {Array<string>}
+    ###
+
+    ###*
+     * Parameters that are filtered out before passing the options to an HTML tag.
+     *
+     * The list of parameters is a combination of `Transformation::methods` and `Configuration::CONFIG_PARAMS`
+     * @const {Array<string>} Transformation.PARAM_NAMES
+     * @private
+     * @ignore
+     * @see toHtmlAttributes
+    ###
+
 class Transformation  extends TransformationBase
 
   ###*
@@ -374,6 +374,7 @@ class Transformation  extends TransformationBase
   ###
   constructor: (options = {})->
     super(options)
+    @
 
   ###*
    * Convenience constructor
@@ -493,3 +494,16 @@ class Transformation  extends TransformationBase
   y: (value)->                    @param value, "y", "y"
   zoom: (value)->                 @param value, "zoom", "z"
 
+###*
+ * Transformation Class methods.
+ * This is a list of the parameters defined in Transformation.
+ * Values are camelCased.
+###
+Transformation.methods ||= Util.difference(Util.functions(Transformation.prototype), Util.functions(TransformationBase.prototype))
+
+###*
+ * Parameters that are filtered out before passing the options to an HTML tag.
+ *
+ * The list of parameters is a combination of `Transformation::methods` and `Configuration::CONFIG_PARAMS`
+###
+Transformation.PARAM_NAMES ||= (Util.snakeCase(m) for m in Transformation.methods).concat( Configuration.CONFIG_PARAMS)

@@ -81,26 +81,6 @@ merge = ()->
   args.unshift(true) # deep extend
   jQuery.extend.apply(this, args )
 
-###* Used to match words to create compound words. ###
-
-reWords = do ->
-  upper = '[A-Z\\xc0-\\xd6\\xd8-\\xde]'
-  lower = '[a-z\\xdf-\\xf6\\xf8-\\xff]+'
-  RegExp upper + '+(?=' + upper + lower + ')|' + upper + '?' + lower + '|' + upper + '+|[0-9]+', 'g'
-
-camelCase = (source)->
-  words = source.match(reWords)
-  words = for word, i in words
-    word = word.toLocaleLowerCase()
-    if i then word.charAt(0).toLocaleUpperCase() + word.slice(1) else word
-  words.join('')
-
-snakeCase = (source)->
-  words = source.match(reWords)
-  words = for word, i in words
-    word.toLocaleLowerCase()
-  words.join('_')
-
 compact = (arr)->
   for item in arr when item
     item
@@ -115,17 +95,6 @@ contains = (arr, item)->
   for i in arr when i == item
     return true
   return false
-
-defaults = ()->
-  args = []
-  return arguments[0] if arguments.length == 1
-  # reverse the order of the arguments
-  for a in arguments
-    args.unshift(a)
-  # bring destination object back to the start
-  first = args.pop()
-  args.unshift(first)
-  jQuery.extend.apply(this, args)
 
 difference = (arr, values)->
   for item in arr when !contains(values, item)
@@ -168,18 +137,6 @@ Util = $.extend BaseUtil,
   ###
   merge: merge
   ###*
-   * Convert string to camelCase
-   * @param {string} string - the string to convert
-   * @return {string} in camelCase format
-  ###
-  camelCase: camelCase
-  ###*
-   * Convert string to snake_case
-   * @param {string} string - the string to convert
-   * @return {string} in snake_case format
-  ###
-  snakeCase: snakeCase
-  ###*
    * Create a new copy of the given object, including all internal objects.
    * @param {Object} value - the object to clone
    * @return {Object} a new deep copy of the object
@@ -198,14 +155,6 @@ Util = $.extend BaseUtil,
    * @return {boolean} true if the item is included in the array
   ###
   contains: contains
-  ###*
-   * Assign values from sources if they are not defined in the destination.
-   * Once a value is set it does not change
-   * @param {Object} destination - the object to assign defaults to
-   * @param {...Object} source - the source object(s) to assign defaults from
-   * @return {Object} destination after it was modified
-  ###
-  defaults: defaults
   ###*
    * Returns values in the given array that are not included in the other array
    * @param {Array} arr - the array to select from

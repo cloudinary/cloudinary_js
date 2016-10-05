@@ -133,6 +133,7 @@ domStyle = (elem, name) ->
     elem.style[name]
 
 curCSS = (elem, name, computed) ->
+  rmargin = (/^margin/)
   width = undefined
   minWidth = undefined
   maxWidth = undefined
@@ -199,7 +200,6 @@ augmentWidthOrHeight = (elem, name, extra, isBorderBox, styles) ->
         val += cssValue( elem, "border#{side}Width", true, styles)  if extra isnt "padding"
     val
 
-rmargin = (/^margin/)
 pnum = (/[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/).source
 rnumnonpx = new RegExp( "^(" + pnum + ")(?!px)[a-z%]+$", "i" )
 
@@ -277,18 +277,6 @@ Util = _.assign BaseUtil,
   ###
   merge: _.merge
   ###*
-   * Convert string to camelCase
-   * @param {string} string - the string to convert
-   * @return {string} in camelCase format
-  ###
-  camelCase: _.camelCase
-  ###*
-   * Convert string to snake_case
-   * @param {string} string - the string to convert
-   * @return {string} in snake_case format
-  ###
-  snakeCase: _.snakeCase
-  ###*
    * Create a new copy of the given object, including all internal objects.
    * @param {Object} value - the object to clone
    * @return {Object} a new deep copy of the object
@@ -307,14 +295,6 @@ Util = _.assign BaseUtil,
    * @return {boolean} true if the item is included in the array
   ###
   contains: _.includes
-  ###*
-   * Assign values from sources if they are not defined in the destination.
-   * Once a value is set it does not change
-   * @param {Object} destination - the object to assign defaults to
-   * @param {...Object} source - the source object(s) to assign defaults from
-   * @return {Object} destination after it was modified
-  ###
-  defaults: _.defaults
   ###*
    * Returns values in the given array that are not included in the other array
    * @param {Array} arr - the array to select from
