@@ -1,11 +1,12 @@
 
 /**
- * Cloudinary's JavaScript library - Version 2.1.3
+ * Cloudinary's JavaScript library - Version 2.1.4
  * Copyright Cloudinary
  * see https://github.com/cloudinary/cloudinary_js
  *
  */
-var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+var slice = [].slice,
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 (function(root, factory) {
@@ -29,7 +30,7 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
   /*
    * Includes common utility methods and shims
    */
-  var ArrayParam, BaseUtil, Cloudinary, CloudinaryJQuery, Condition, Configuration, HtmlTag, ImageTag, Layer, LayerParam, Param, RangeParam, RawParam, SubtitlesLayer, TextLayer, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, camelCase, cloneDeep, cloudinary, compact, contains, crc32, defaults, difference, functions, getAttribute, getData, hasClass, identity, isEmpty, isNumberLike, isString, merge, parameters, reWords, removeAttribute, setAttribute, setAttributes, setData, smartEscape, snakeCase, utf8_encode, webp, width, without;
+  var ArrayParam, BaseUtil, Cloudinary, CloudinaryJQuery, Condition, Configuration, HtmlTag, ImageTag, Layer, LayerParam, Param, RangeParam, RawParam, SubtitlesLayer, TextLayer, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, camelCase, cloneDeep, cloudinary, compact, contains, convertKeys, crc32, defaults, difference, functions, getAttribute, getData, hasClass, identity, isEmpty, isNumberLike, isString, m, merge, parameters, reWords, removeAttribute, setAttribute, setAttributes, setData, smartEscape, snakeCase, utf8_encode, webp, width, withCamelCaseKeys, withSnakeCaseKeys, without;
   allStrings = function(list) {
     var item, j, len;
     for (j = 0, len = list.length; j < len; j++) {
@@ -65,6 +66,82 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
       }).join("");
     });
   };
+  defaults = function() {
+    var destination, sources;
+    destination = arguments[0], sources = 2 <= arguments.length ? slice.call(arguments, 1) : [];
+    return sources.reduce(function(dest, source) {
+      var key, value;
+      for (key in source) {
+        value = source[key];
+        if (dest[key] === void 0) {
+          dest[key] = value;
+        }
+      }
+      return dest;
+    }, destination);
+  };
+
+  /** Used to match words to create compound words. */
+  reWords = (function() {
+    var lower, upper;
+    upper = '[A-Z]';
+    lower = '[a-z]+';
+    return RegExp(upper + '+(?=' + upper + lower + ')|' + upper + '?' + lower + '|' + upper + '+|[0-9]+', 'g');
+  })();
+  camelCase = function(source) {
+    var i, word, words;
+    words = source.match(reWords);
+    words = (function() {
+      var j, len, results;
+      results = [];
+      for (i = j = 0, len = words.length; j < len; i = ++j) {
+        word = words[i];
+        word = word.toLocaleLowerCase();
+        if (i) {
+          results.push(word.charAt(0).toLocaleUpperCase() + word.slice(1));
+        } else {
+          results.push(word);
+        }
+      }
+      return results;
+    })();
+    return words.join('');
+  };
+  snakeCase = function(source) {
+    var i, word, words;
+    words = source.match(reWords);
+    words = (function() {
+      var j, len, results;
+      results = [];
+      for (i = j = 0, len = words.length; j < len; i = ++j) {
+        word = words[i];
+        results.push(word.toLocaleLowerCase());
+      }
+      return results;
+    })();
+    return words.join('_');
+  };
+  convertKeys = function(source, converter) {
+    var key, result, value;
+    if (converter == null) {
+      converter = Util.identity;
+    }
+    result = {};
+    for (key in source) {
+      value = source[key];
+      key = converter(key);
+      if (!Util.isEmpty(key)) {
+        result[key] = value;
+      }
+    }
+    return result;
+  };
+  withCamelCaseKeys = function(source) {
+    return convertKeys(source, Util.camelCase);
+  };
+  withSnakeCaseKeys = function(source) {
+    return convertKeys(source, Util.snakeCase);
+  };
   BaseUtil = {
 
     /**
@@ -72,6 +149,30 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
      * @param {Array} list - an array of items
      */
     allStrings: allStrings,
+
+    /**
+    * Convert string to camelCase
+    * @param {string} string - the string to convert
+    * @return {string} in camelCase format
+     */
+    camelCase: camelCase,
+    convertKeys: convertKeys,
+
+    /**
+     * Assign values from sources if they are not defined in the destination.
+     * Once a value is set it does not change
+     * @param {Object} destination - the object to assign defaults to
+     * @param {...Object} source - the source object(s) to assign defaults from
+     * @return {Object} destination after it was modified
+     */
+    defaults: defaults,
+
+    /**
+     * Convert string to snake_case
+     * @param {string} string - the string to convert
+     * @return {string} in snake_case format
+     */
+    snakeCase: snakeCase,
 
     /**
     * Creates a new array without the given item.
@@ -82,7 +183,7 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
     without: without,
 
     /**
-    * Return true is value is a number or a string represetantion of a number.
+    * Return true is value is a number or a string representation of a number.
     * @example
     *    Util.isNumber(0) // true
     *    Util.isNumber("1.3") // true
@@ -90,7 +191,9 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
     *    Util.isNumber(undefined) // false
      */
     isNumberLike: isNumberLike,
-    smartEscape: smartEscape
+    smartEscape: smartEscape,
+    withCamelCaseKeys: withCamelCaseKeys,
+    withSnakeCaseKeys: withSnakeCaseKeys
   };
 
   /**
@@ -183,47 +286,6 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
     args.unshift(true);
     return jQuery.extend.apply(this, args);
   };
-
-  /** Used to match words to create compound words. */
-  reWords = (function() {
-    var lower, upper;
-    upper = '[A-Z\\xc0-\\xd6\\xd8-\\xde]';
-    lower = '[a-z\\xdf-\\xf6\\xf8-\\xff]+';
-    return RegExp(upper + '+(?=' + upper + lower + ')|' + upper + '?' + lower + '|' + upper + '+|[0-9]+', 'g');
-  })();
-  camelCase = function(source) {
-    var i, word, words;
-    words = source.match(reWords);
-    words = (function() {
-      var j, len, results;
-      results = [];
-      for (i = j = 0, len = words.length; j < len; i = ++j) {
-        word = words[i];
-        word = word.toLocaleLowerCase();
-        if (i) {
-          results.push(word.charAt(0).toLocaleUpperCase() + word.slice(1));
-        } else {
-          results.push(word);
-        }
-      }
-      return results;
-    })();
-    return words.join('');
-  };
-  snakeCase = function(source) {
-    var i, word, words;
-    words = source.match(reWords);
-    words = (function() {
-      var j, len, results;
-      results = [];
-      for (i = j = 0, len = words.length; j < len; i = ++j) {
-        word = words[i];
-        results.push(word.toLocaleLowerCase());
-      }
-      return results;
-    })();
-    return words.join('_');
-  };
   compact = function(arr) {
     var item, j, len, results;
     results = [];
@@ -251,20 +313,6 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
       }
     }
     return false;
-  };
-  defaults = function() {
-    var a, args, first, j, len;
-    args = [];
-    if (arguments.length === 1) {
-      return arguments[0];
-    }
-    for (j = 0, len = arguments.length; j < len; j++) {
-      a = arguments[j];
-      args.unshift(a);
-    }
-    first = args.pop();
-    args.unshift(first);
-    return jQuery.extend.apply(this, args);
   };
   difference = function(arr, values) {
     var item, j, len, results;
@@ -323,20 +371,6 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
     merge: merge,
 
     /**
-     * Convert string to camelCase
-     * @param {string} string - the string to convert
-     * @return {string} in camelCase format
-     */
-    camelCase: camelCase,
-
-    /**
-     * Convert string to snake_case
-     * @param {string} string - the string to convert
-     * @return {string} in snake_case format
-     */
-    snakeCase: snakeCase,
-
-    /**
      * Create a new copy of the given object, including all internal objects.
      * @param {Object} value - the object to clone
      * @return {Object} a new deep copy of the object
@@ -357,15 +391,6 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
      * @return {boolean} true if the item is included in the array
      */
     contains: contains,
-
-    /**
-     * Assign values from sources if they are not defined in the destination.
-     * Once a value is set it does not change
-     * @param {Object} destination - the object to assign defaults to
-     * @param {...Object} source - the source object(s) to assign defaults from
-     * @return {Object} destination after it was modified
-     */
-    defaults: defaults,
 
     /**
      * Returns values in the given array that are not included in the other array
@@ -664,8 +689,8 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
         publicId = this.getFullPublicId();
       }
       if (this.options.text != null) {
-        hasPublicId = Util.isEmpty(publicId);
-        hasStyle = Util.isEmpty(style);
+        hasPublicId = !Util.isEmpty(publicId);
+        hasStyle = !Util.isEmpty(style);
         if (hasPublicId && hasStyle || !hasPublicId && !hasStyle) {
           throw "Must supply either style parameters or a public_id when providing text parameter in a text overlay/underlay, but not both!";
         }
@@ -1328,6 +1353,192 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
   })();
 
   /**
+   * Cloudinary configuration class
+   * Depends on 'utils'
+   */
+  Configuration = (function() {
+
+    /**
+     * Defaults configuration.
+     * @const {Object} Configuration.DEFAULT_CONFIGURATION_PARAMS
+     */
+    var DEFAULT_CONFIGURATION_PARAMS, ref;
+
+    DEFAULT_CONFIGURATION_PARAMS = {
+      responsive_class: 'cld-responsive',
+      responsive_use_breakpoints: true,
+      round_dpr: true,
+      secure: (typeof window !== "undefined" && window !== null ? (ref = window.location) != null ? ref.protocol : void 0 : void 0) === 'https:'
+    };
+
+    Configuration.CONFIG_PARAMS = ["api_key", "api_secret", "cdn_subdomain", "cloud_name", "cname", "private_cdn", "protocol", "resource_type", "responsive_class", "responsive_use_breakpoints", "responsive_width", "round_dpr", "secure", "secure_cdn_subdomain", "secure_distribution", "shorten", "type", "url_suffix", "use_root_path", "version"];
+
+
+    /**
+     * Cloudinary configuration class
+     * @constructor Configuration
+     * @param {Object} options - configuration parameters
+     */
+
+    function Configuration(options) {
+      if (options == null) {
+        options = {};
+      }
+      this.configuration = Util.cloneDeep(options);
+      Util.defaults(this.configuration, DEFAULT_CONFIGURATION_PARAMS);
+    }
+
+
+    /**
+     * Initialize the configuration.
+     * The function first tries to retrieve the configuration form the environment and then from the document.
+     * @function Configuration#init
+     * @return {Configuration} returns this for chaining
+     * @see fromDocument
+     * @see fromEnvironment
+     */
+
+    Configuration.prototype.init = function() {
+      this.fromEnvironment();
+      this.fromDocument();
+      return this;
+    };
+
+
+    /**
+     * Set a new configuration item
+     * @function Configuration#set
+     * @param {string} name - the name of the item to set
+     * @param {*} value - the value to be set
+     * @return {Configuration}
+     *
+     */
+
+    Configuration.prototype.set = function(name, value) {
+      this.configuration[name] = value;
+      return this;
+    };
+
+
+    /**
+     * Get the value of a configuration item
+     * @function Configuration#get
+     * @param {string} name - the name of the item to set
+     * @return {*} the configuration item
+     */
+
+    Configuration.prototype.get = function(name) {
+      return this.configuration[name];
+    };
+
+    Configuration.prototype.merge = function(config) {
+      if (config == null) {
+        config = {};
+      }
+      Util.assign(this.configuration, Util.cloneDeep(config));
+      return this;
+    };
+
+
+    /**
+     * Initialize Cloudinary from HTML meta tags.
+     * @function Configuration#fromDocument
+     * @return {Configuration}
+     * @example <meta name="cloudinary_cloud_name" content="mycloud">
+     *
+     */
+
+    Configuration.prototype.fromDocument = function() {
+      var el, j, len, meta_elements;
+      meta_elements = typeof document !== "undefined" && document !== null ? document.querySelectorAll('meta[name^="cloudinary_"]') : void 0;
+      if (meta_elements) {
+        for (j = 0, len = meta_elements.length; j < len; j++) {
+          el = meta_elements[j];
+          this.configuration[el.getAttribute('name').replace('cloudinary_', '')] = el.getAttribute('content');
+        }
+      }
+      return this;
+    };
+
+
+    /**
+     * Initialize Cloudinary from the `CLOUDINARY_URL` environment variable.
+     *
+     * This function will only run under Node.js environment.
+     * @function Configuration#fromEnvironment
+     * @requires Node.js
+     */
+
+    Configuration.prototype.fromEnvironment = function() {
+      var cloudinary_url, k, ref1, ref2, uri, v;
+      cloudinary_url = typeof process !== "undefined" && process !== null ? (ref1 = process.env) != null ? ref1.CLOUDINARY_URL : void 0 : void 0;
+      if (cloudinary_url != null) {
+        uri = require('url').parse(cloudinary_url, true);
+        this.configuration = {
+          cloud_name: uri.host,
+          api_key: uri.auth && uri.auth.split(":")[0],
+          api_secret: uri.auth && uri.auth.split(":")[1],
+          private_cdn: uri.pathname != null,
+          secure_distribution: uri.pathname && uri.pathname.substring(1)
+        };
+        if (uri.query != null) {
+          ref2 = uri.query;
+          for (k in ref2) {
+            v = ref2[k];
+            this.configuration[k] = v;
+          }
+        }
+      }
+      return this;
+    };
+
+
+    /**
+     * Create or modify the Cloudinary client configuration
+     *
+     * Warning: `config()` returns the actual internal configuration object. modifying it will change the configuration.
+     *
+     * This is a backward compatibility method. For new code, use get(), merge() etc.
+     * @function Configuration#config
+     * @param {hash|string|boolean} new_config
+     * @param {string} new_value
+     * @returns {*} configuration, or value
+     *
+     * @see {@link fromEnvironment} for initialization using environment variables
+     * @see {@link fromDocument} for initialization using HTML meta tags
+     */
+
+    Configuration.prototype.config = function(new_config, new_value) {
+      switch (false) {
+        case new_value === void 0:
+          this.set(new_config, new_value);
+          return this.configuration;
+        case !Util.isString(new_config):
+          return this.get(new_config);
+        case !Util.isPlainObject(new_config):
+          this.merge(new_config);
+          return this.configuration;
+        default:
+          return this.configuration;
+      }
+    };
+
+
+    /**
+     * Returns a copy of the configuration parameters
+     * @function Configuration#toOptions
+     * @returns {Object} a key:value collection of the configuration parameters
+     */
+
+    Configuration.prototype.toOptions = function() {
+      return Util.cloneDeep(this.configuration);
+    };
+
+    return Configuration;
+
+  })();
+
+  /**
    * TransformationBase
    * Depends on 'configuration', 'parameters','util'
    * @internal
@@ -1357,7 +1568,7 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
      */
 
     function TransformationBase(options) {
-      var m, parent, trans;
+      var parent, trans;
       if (options == null) {
         options = {};
       }
@@ -1619,36 +1830,6 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
         return this;
       });
       this.otherOptions || (this.otherOptions = {});
-
-      /**
-       * Transformation Class methods.
-       * This is a list of the parameters defined in Transformation.
-       * Values are camelCased.
-       * @private
-       * @ignore
-       * @type {Array<string>}
-       */
-      this.methods || (this.methods = Util.difference(Util.functions(Transformation.prototype), Util.functions(TransformationBase.prototype)));
-
-      /**
-       * Parameters that are filtered out before passing the options to an HTML tag.
-       *
-       * The list of parameters is a combination of `Transformation::methods` and `Configuration::CONFIG_PARAMS`
-       * @const {Array<string>} Transformation.PARAM_NAMES
-       * @private
-       * @ignore
-       * @see toHtmlAttributes
-       */
-      this.PARAM_NAMES || (this.PARAM_NAMES = ((function() {
-        var j, len, ref, results;
-        ref = this.methods;
-        results = [];
-        for (j = 0, len = ref.length; j < len; j++) {
-          m = ref[j];
-          results.push(Util.snakeCase(m));
-        }
-        return results;
-      }).call(this)).concat(Configuration.CONFIG_PARAMS));
       this.chained = [];
       if (!Util.isEmpty(options)) {
         this.fromOptions(options);
@@ -1710,7 +1891,7 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
     TransformationBase.prototype.set = function(key, value) {
       var camelKey;
       camelKey = Util.camelCase(key);
-      if (Util.contains(this.methods, camelKey)) {
+      if (Util.contains(Transformation.methods, camelKey)) {
         this[camelKey](value);
       } else {
         this.otherOptions[key] = value;
@@ -1793,7 +1974,7 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
      */
 
     TransformationBase.prototype.listNames = function() {
-      return this.methods;
+      return Transformation.methods;
     };
 
 
@@ -1809,17 +1990,17 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
       ref = this.otherOptions;
       for (key in ref) {
         value = ref[key];
-        if (!(!Util.contains(this.PARAM_NAMES, key))) {
+        if (!(!Util.contains(Transformation.PARAM_NAMES, Util.snakeCase(key)))) {
           continue;
         }
         attrName = /^html_/.test(key) ? key.slice(5) : key;
-        options[attrName] = value;
+        options[Util.camelCase(attrName)] = value;
       }
       ref1 = this.keys();
       for (j = 0, len = ref1.length; j < len; j++) {
         key = ref1[j];
         if (/^html_/.test(key)) {
-          options[key.slice(5)] = this.getValue(key);
+          options[Util.camelCase(key.slice(5))] = this.getValue(key);
         }
       }
       if (!(this.hasLayer() || this.getValue("angle") || Util.contains(["fit", "limit", "lfill"], this.getValue("crop")))) {
@@ -1840,7 +2021,7 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
     };
 
     TransformationBase.prototype.isValidParamName = function(name) {
-      return this.methods.indexOf(Util.camelCase(name)) >= 0;
+      return Transformation.methods.indexOf(Util.camelCase(name)) >= 0;
     };
 
 
@@ -1864,6 +2045,26 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
 
     TransformationBase.prototype.toString = function() {
       return this.serialize();
+
+      /**
+       * Transformation Class methods.
+       * This is a list of the parameters defined in Transformation.
+       * Values are camelCased.
+       * @const Transformation.methods
+       * @private
+       * @ignore
+       * @type {Array<string>}
+       */
+
+      /**
+       * Parameters that are filtered out before passing the options to an HTML tag.
+       *
+       * The list of parameters is a combination of `Transformation::methods` and `Configuration::CONFIG_PARAMS`
+       * @const {Array<string>} Transformation.PARAM_NAMES
+       * @private
+       * @ignore
+       * @see toHtmlAttributes
+       */
     };
 
     return TransformationBase;
@@ -1890,6 +2091,7 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
         options = {};
       }
       Transformation.__super__.constructor.call(this, options);
+      this;
     }
 
 
@@ -2198,190 +2400,27 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
   })(TransformationBase);
 
   /**
-   * Cloudinary configuration class
-   * Depends on 'utils'
+   * Transformation Class methods.
+   * This is a list of the parameters defined in Transformation.
+   * Values are camelCased.
    */
-  Configuration = (function() {
+  Transformation.methods || (Transformation.methods = Util.difference(Util.functions(Transformation.prototype), Util.functions(TransformationBase.prototype)));
 
-    /**
-     * Defaults configuration.
-     * @const {Object} Configuration.DEFAULT_CONFIGURATION_PARAMS
-     */
-    var DEFAULT_CONFIGURATION_PARAMS, ref;
-
-    DEFAULT_CONFIGURATION_PARAMS = {
-      responsive_class: 'cld-responsive',
-      responsive_use_breakpoints: true,
-      round_dpr: true,
-      secure: (typeof window !== "undefined" && window !== null ? (ref = window.location) != null ? ref.protocol : void 0 : void 0) === 'https:'
-    };
-
-    Configuration.CONFIG_PARAMS = ["api_key", "api_secret", "cdn_subdomain", "cloud_name", "cname", "private_cdn", "protocol", "resource_type", "responsive_class", "responsive_use_breakpoints", "responsive_width", "round_dpr", "secure", "secure_cdn_subdomain", "secure_distribution", "shorten", "type", "url_suffix", "use_root_path", "version"];
-
-
-    /**
-     * Cloudinary configuration class
-     * @constructor Configuration
-     * @param {Object} options - configuration parameters
-     */
-
-    function Configuration(options) {
-      if (options == null) {
-        options = {};
-      }
-      this.configuration = Util.cloneDeep(options);
-      Util.defaults(this.configuration, DEFAULT_CONFIGURATION_PARAMS);
+  /**
+   * Parameters that are filtered out before passing the options to an HTML tag.
+   *
+   * The list of parameters is a combination of `Transformation::methods` and `Configuration::CONFIG_PARAMS`
+   */
+  Transformation.PARAM_NAMES || (Transformation.PARAM_NAMES = ((function() {
+    var j, len, ref, results;
+    ref = Transformation.methods;
+    results = [];
+    for (j = 0, len = ref.length; j < len; j++) {
+      m = ref[j];
+      results.push(Util.snakeCase(m));
     }
-
-
-    /**
-     * Initialize the configuration.
-     * The function first tries to retrieve the configuration form the environment and then from the document.
-     * @function Configuration#init
-     * @return {Configuration} returns this for chaining
-     * @see fromDocument
-     * @see fromEnvironment
-     */
-
-    Configuration.prototype.init = function() {
-      this.fromEnvironment();
-      this.fromDocument();
-      return this;
-    };
-
-
-    /**
-     * Set a new configuration item
-     * @function Configuration#set
-     * @param {string} name - the name of the item to set
-     * @param {*} value - the value to be set
-     * @return {Configuration}
-     *
-     */
-
-    Configuration.prototype.set = function(name, value) {
-      this.configuration[name] = value;
-      return this;
-    };
-
-
-    /**
-     * Get the value of a configuration item
-     * @function Configuration#get
-     * @param {string} name - the name of the item to set
-     * @return {*} the configuration item
-     */
-
-    Configuration.prototype.get = function(name) {
-      return this.configuration[name];
-    };
-
-    Configuration.prototype.merge = function(config) {
-      if (config == null) {
-        config = {};
-      }
-      Util.assign(this.configuration, Util.cloneDeep(config));
-      return this;
-    };
-
-
-    /**
-     * Initialize Cloudinary from HTML meta tags.
-     * @function Configuration#fromDocument
-     * @return {Configuration}
-     * @example <meta name="cloudinary_cloud_name" content="mycloud">
-     *
-     */
-
-    Configuration.prototype.fromDocument = function() {
-      var el, j, len, meta_elements;
-      meta_elements = typeof document !== "undefined" && document !== null ? document.querySelectorAll('meta[name^="cloudinary_"]') : void 0;
-      if (meta_elements) {
-        for (j = 0, len = meta_elements.length; j < len; j++) {
-          el = meta_elements[j];
-          this.configuration[el.getAttribute('name').replace('cloudinary_', '')] = el.getAttribute('content');
-        }
-      }
-      return this;
-    };
-
-
-    /**
-     * Initialize Cloudinary from the `CLOUDINARY_URL` environment variable.
-     *
-     * This function will only run under Node.js environment.
-     * @function Configuration#fromEnvironment
-     * @requires Node.js
-     */
-
-    Configuration.prototype.fromEnvironment = function() {
-      var cloudinary_url, k, ref1, ref2, uri, v;
-      cloudinary_url = typeof process !== "undefined" && process !== null ? (ref1 = process.env) != null ? ref1.CLOUDINARY_URL : void 0 : void 0;
-      if (cloudinary_url != null) {
-        uri = require('url').parse(cloudinary_url, true);
-        this.configuration = {
-          cloud_name: uri.host,
-          api_key: uri.auth && uri.auth.split(":")[0],
-          api_secret: uri.auth && uri.auth.split(":")[1],
-          private_cdn: uri.pathname != null,
-          secure_distribution: uri.pathname && uri.pathname.substring(1)
-        };
-        if (uri.query != null) {
-          ref2 = uri.query;
-          for (k in ref2) {
-            v = ref2[k];
-            this.configuration[k] = v;
-          }
-        }
-      }
-      return this;
-    };
-
-
-    /**
-     * Create or modify the Cloudinary client configuration
-     *
-     * Warning: `config()` returns the actual internal configuration object. modifying it will change the configuration.
-     *
-     * This is a backward compatibility method. For new code, use get(), merge() etc.
-     * @function Configuration#config
-     * @param {hash|string|boolean} new_config
-     * @param {string} new_value
-     * @returns {*} configuration, or value
-     *
-     * @see {@link fromEnvironment} for initialization using environment variables
-     * @see {@link fromDocument} for initialization using HTML meta tags
-     */
-
-    Configuration.prototype.config = function(new_config, new_value) {
-      switch (false) {
-        case new_value === void 0:
-          this.set(new_config, new_value);
-          return this.configuration;
-        case !Util.isString(new_config):
-          return this.get(new_config);
-        case !Util.isPlainObject(new_config):
-          this.merge(new_config);
-          return this.configuration;
-        default:
-          return this.configuration;
-      }
-    };
-
-
-    /**
-     * Returns a copy of the configuration parameters
-     * @function Configuration#toOptions
-     * @returns {Object} a key:value collection of the configuration parameters
-     */
-
-    Configuration.prototype.toOptions = function() {
-      return Util.cloneDeep(this.configuration);
-    };
-
-    return Configuration;
-
-  })();
+    return results;
+  })()).concat(Configuration.CONFIG_PARAMS));
 
   /**
    * Generic HTML tag
@@ -2829,7 +2868,7 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
   Cloudinary = (function() {
     var AKAMAI_SHARED_CDN, CF_SHARED_CDN, DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_SOURCE_TYPES, OLD_AKAMAI_SHARED_CDN, SHARED_CDN, VERSION, absolutize, applyBreakpoints, cdnSubdomainNumber, closestAbove, cloudinaryUrlPrefix, defaultBreakpoints, finalizeResourceType, findContainerWidth, maxWidth, updateDpr;
 
-    VERSION = "2.1.3";
+    VERSION = "2.1.4";
 
     CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
 
@@ -4045,7 +4084,7 @@ var extend = function(child, parent) { for (var key in parent) { if (hasProp.cal
     TextLayer: TextLayer,
     SubtitlesLayer: SubtitlesLayer,
     Cloudinary: Cloudinary,
-    VERSION: "2.1.3",
+    VERSION: "2.1.4",
     CloudinaryJQuery: CloudinaryJQuery
   };
   return cloudinary;

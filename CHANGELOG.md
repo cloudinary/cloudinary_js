@@ -1,4 +1,16 @@
 
+2.1.4 / 2016-10-06
+==================
+
+  * Move `configuration` before `transformation` in build and test scripts.
+  * Refactor Util.
+  * Modify karma configuration to support coverage reporting.
+  * Fix typo.
+  * Make Layer classes support camelCase and snake_case parameters. Add Layer text.
+  * Add `baseutil.js` as a common source for lodash and jQuery utils.
+  * Fix Layer tests
+  * Fix bug in `maxWidth`
+
 2.1.3 / 2016-09-05
 ==================
 
