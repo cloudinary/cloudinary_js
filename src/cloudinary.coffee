@@ -481,6 +481,8 @@ class Cloudinary
 
   ###*
   * Finds all `img` tags under each node and sets it up to provide the image through Cloudinary
+  * @param {Element[]} nodes the parent nodes to search for img under
+  * @param {Object} [options={}] options and transformations params
   * @function Cloudinary#processImageTags
   ###
   processImageTags: (nodes, options = {}) ->
