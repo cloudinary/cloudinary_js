@@ -409,9 +409,7 @@ class Transformation  extends TransformationBase
   duration: (value)->             @rangeParam value, "duration", "du"
   dpr: (value)->                  @param value, "dpr", "dpr", (dpr) =>
     dpr = dpr.toString()
-    if (dpr == "auto") && @getValue("client_hints") != true
-      "1.0"
-    else if (dpr?.match(/^\d+$/))
+    if (dpr?.match(/^\d+$/))
       dpr + ".0"
     else
       dpr
