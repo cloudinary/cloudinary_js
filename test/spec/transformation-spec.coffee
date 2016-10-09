@@ -99,6 +99,8 @@ describe "Transformation", ->
       test_cloudinary_url("test", { width: "auto:breakpoints", crop: 'fill' }, "#{upload_path}/c_fill,w_auto:breakpoints/test", {})
       test_cloudinary_url("test", { width: "auto:breakpoints_100_1900_20_15", crop: 'fill' }, "#{upload_path}/c_fill,w_auto:breakpoints_100_1900_20_15/test", {})
       test_cloudinary_url("test", { width: "auto:breakpoints:json", crop: 'fill' }, "#{upload_path}/c_fill,w_auto:breakpoints:json/test", {})
+    it 'should support oh,ow', ->
+      test_cloudinary_url("test", {width: "ow", height: "oh", crop: "crop"}, "#{upload_path}/c_crop,h_oh,w_ow/test", {})
 
   it 'should support aspect_ratio', ->
     test_cloudinary_url 'test', {

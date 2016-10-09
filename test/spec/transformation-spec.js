@@ -93,7 +93,7 @@ describe("Transformation", function() {
         angle: 'auto'
       }, protocol + '//res.cloudinary.com/test123/image/upload/a_auto,c_scale,h_100,w_100/test', {});
     });
-    return it("should support auto width", function() {
+    it("should support auto width", function() {
       test_cloudinary_url("test", {
         width: "auto:20",
         crop: 'fill'
@@ -114,6 +114,13 @@ describe("Transformation", function() {
         width: "auto:breakpoints:json",
         crop: 'fill'
       }, upload_path + "/c_fill,w_auto:breakpoints:json/test", {});
+    });
+    return it('should support oh,ow', function() {
+      return test_cloudinary_url("test", {
+        width: "ow",
+        height: "oh",
+        crop: "crop"
+      }, upload_path + "/c_crop,h_oh,w_ow/test", {});
     });
   });
   it('should support aspect_ratio', function() {
