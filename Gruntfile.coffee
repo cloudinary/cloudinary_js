@@ -172,12 +172,12 @@ module.exports = (grunt)->
               content
             else
               content.replace( /\/\/# sourceMappingURL=.+js\.map/g, "")
-#      doc:
-#        files: for repo in repos when !/shrinkwrap/.test(repo)
-#          expand: true
-#          cwd: "doc/pkg-#{repo}/"
-#          src: ["**"]
-#          dest: "../pkg/pkg-#{repo}/"
+      docs:
+        files: for repo in repos when !/shrinkwrap/.test(repo)
+          expand: true
+          cwd: "doc/pkg-#{repo}/"
+          src: ["**"]
+          dest: "../pkg/pkg-#{repo}/docs"
 
     version:
       options:

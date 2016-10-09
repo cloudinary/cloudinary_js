@@ -3508,6 +3508,8 @@ var slice = [].slice,
 
     /**
     * Finds all `img` tags under each node and sets it up to provide the image through Cloudinary
+    * @param {Element[]} nodes the parent nodes to search for img under
+    * @param {Object} [options={}] options and transformations params
     * @function Cloudinary#processImageTags
      */
 
@@ -3515,6 +3517,9 @@ var slice = [].slice,
       var images, imgOptions, node, publicId, url;
       if (options == null) {
         options = {};
+      }
+      if (Util.isEmpty(nodes)) {
+        return this;
       }
       options = Util.defaults({}, options, this.config());
       images = (function() {
@@ -3604,8 +3609,8 @@ var slice = [].slice,
       }
       client_hints = (ref = (ref1 = options.client_hints) != null ? ref1 : this.config('client_hints')) != null ? ref : false;
       client_hints = client_hints || (typeof document !== "undefined" && document !== null ? document.querySelector('meta[http-equiv="Accept-CH"]') : void 0);
-      if (client_hints) {
-        return;
+      if (client_hints || Util.isEmpty(elements)) {
+        return this;
       }
       responsive = (ref2 = (ref3 = options.responsive) != null ? ref3 : this.config('responsive')) != null ? ref2 : false;
       elements = (function() {
