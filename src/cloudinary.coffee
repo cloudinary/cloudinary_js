@@ -487,6 +487,7 @@ class Cloudinary
   ###
   processImageTags: (nodes, options = {}) ->
 # similar to `$.fn.cloudinary`
+    return this if Util.isEmpty(nodes)
     options = Util.defaults({}, options, @config())
     images = for node in nodes when node.tagName?.toUpperCase() == 'IMG'
       imgOptions = Util.assign(
@@ -548,7 +549,7 @@ class Cloudinary
   cloudinary_update: (elements, options = {}) ->
     client_hints = options.client_hints ? @config('client_hints') ? false
     client_hints = client_hints || document?.querySelector('meta[http-equiv="Accept-CH"]')
-    return if client_hints
+    return this if client_hints || Util.isEmpty(elements)
 
     responsive = options.responsive ? @config('responsive') ? false
 
