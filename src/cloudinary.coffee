@@ -354,7 +354,14 @@ class Cloudinary
     @url publicId, options
 
   ###*
+  * Initialize the responsive behaviour.<br>
+  * Calls {@link Cloudinary#cloudinary_update} to modify image tags.
    * @function Cloudinary#responsive
+  * @param {Object} options
+  * @param {String} [options.responsive_class='cld-responsive'] - provide an alternative class used to locate img tags
+  * @param {number} [options.responsive_debounce=100] - the debounce interval in milliseconds.
+  * @param {boolean} [bootstrap=true] if true processes the img tags by calling cloudinary_update. When false the tags will be processed only after a resize event.
+  * @see {@link Cloudinary#cloudinary_update} for additional configuration parameters
   ###
   responsive: (options, bootstrap = true) ->
     @responsiveConfig = Util.merge(@responsiveConfig or {}, options)
