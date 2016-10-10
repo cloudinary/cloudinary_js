@@ -182,16 +182,12 @@ module.exports = (grunt)->
     version:
       options:
         release: 'patch'
+        flags: 'ig'
       package:
-        src: ['bower.json', 'package.json']
-      source:
-        options:
-          prefix: 'VERSION\\s+=\\s+[\'"]'
-        src: ['src/cloudinary.coffee']
-      dist:
-        files: for repo in repos when !/shrinkwrap/.test(repo)
-          src: ["../pkg/pkg-#{repo}/bower.json", "../pkg/pkg-#{repo}/package.json"]
-          dest: "../pkg/pkg-#{repo}/"
+        files: [
+          {src: ['bower.json', 'package.json', 'src/cloudinary.coffee']},
+          {expand: true, src: ['../pkg/pkg-*/bower.json', '../pkg/pkg-*/package.json']}
+          ]
     srcList: [
       'src/utf8_encode.coffee',
       'src/crc32.coffee',
