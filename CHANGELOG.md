@@ -1,4 +1,16 @@
 
+2.1.5 / 2016-10-10
+==================
+
+  * Refactor `grunt version`
+  * Test width value 'ow' and height value 'oh'
+  * Update documentation
+  * Merge branch 'dpr_auto'
+  * preview URL shows dpr_1.0 when setting DPR to auto 
+  * Re-introduce the copy:docs task
+  * Guard for null or empty param in `cloudinary_update` and  `processImageTags` as mentioned in #99
+  * Fix documentation for `processImageTags` as mentioned in #99
+
 2.1.4 / 2016-10-06
 ==================
 
