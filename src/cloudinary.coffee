@@ -556,7 +556,7 @@ class Cloudinary
   cloudinary_update: (elements, options = {}) ->
     client_hints = options.client_hints ? @config('client_hints') ? false
     client_hints = client_hints || document?.querySelector('meta[http-equiv="Accept-CH"]')
-    return this if client_hints || Util.isEmpty(elements)
+    return this if client_hints || elements == null
 
     responsive = options.responsive ? @config('responsive') ? false
 

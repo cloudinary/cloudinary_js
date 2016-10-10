@@ -3330,7 +3330,14 @@ var slice = [].slice,
 
 
     /**
+    * Initialize the responsive behaviour.<br>
+    * Calls {@link Cloudinary#cloudinary_update} to modify image tags.
      * @function Cloudinary#responsive
+    * @param {Object} options
+    * @param {String} [options.responsive_class='cld-responsive'] - provide an alternative class used to locate img tags
+    * @param {number} [options.responsive_debounce=100] - the debounce interval in milliseconds.
+    * @param {boolean} [bootstrap=true] if true processes the img tags by calling cloudinary_update. When false the tags will be processed only after a resize event.
+    * @see {@link Cloudinary#cloudinary_update} for additional configuration parameters
      */
 
     Cloudinary.prototype.responsive = function(options, bootstrap) {
@@ -3607,7 +3614,7 @@ var slice = [].slice,
       }
       client_hints = (ref = (ref1 = options.client_hints) != null ? ref1 : this.config('client_hints')) != null ? ref : false;
       client_hints = client_hints || (typeof document !== "undefined" && document !== null ? document.querySelector('meta[http-equiv="Accept-CH"]') : void 0);
-      if (client_hints || Util.isEmpty(elements)) {
+      if (client_hints || elements === null) {
         return this;
       }
       responsive = (ref2 = (ref3 = options.responsive) != null ? ref3 : this.config('responsive')) != null ? ref2 : false;
