@@ -1,5 +1,5 @@
 class Cloudinary
-  VERSION = "2.1.5"
+  VERSION = "2.1.6"
   CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net"
   OLD_AKAMAI_SHARED_CDN = "cloudinary-a.akamaihd.net"
   AKAMAI_SHARED_CDN = "res.cloudinary.com"

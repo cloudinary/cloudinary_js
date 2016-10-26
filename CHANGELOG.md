@@ -1,4 +1,10 @@
 
+2.1.6 / 2016-10-26
+==================
+
+  * Change client hints behavior. Fixes #107.
+  * Remove dependency on 'jquery.ui' Fixes #104.
+
 2.1.5 / 2016-10-10
 ==================
 
