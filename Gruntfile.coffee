@@ -64,12 +64,13 @@ module.exports = (grunt)->
         browsers: grunt.option("browsers")?.toString().split(",") || ['Chrome' , 'Firefox', 'Safari', 'PhantomJS']
         browserDisconnectTolerance: 3
         files: [
+          { pattern: 'build/*', watched: false, included: false, served: true, nocache: false}
           { pattern: 'test/docRoot/*', watched: false, included: false, served: true, nocache: false}
           { pattern: 'test/docRoot/css/*', watched: false, included: false, served: true, nocache: false}
           { pattern: 'bower_components/bootstrap/dist/css/*', watched: false, included: false, served: true, nocache: false}
           { pattern: 'bower_components/bootstrap/dist/js/*', watched: false, included: false, served: true, nocache: false}
           { pattern: 'bower_components/blueimp-file-upload/js/*', watched: false, included: false, served: true, nocache: false}
-          { pattern: 'bower_components/jquery.ui/ui/*', watched: false, included: false, served: true, nocache: false}
+          { pattern: 'bower_components/jquery/dist/jquery.js', watched: false, included: false, served: true, nocache: false}
         ]
 
       'cloudinary-core':
@@ -101,7 +102,7 @@ module.exports = (grunt)->
         files:
           src: [
               "bower_components/jquery/dist/jquery.js"
-              "bower_components/jquery.ui/ui/widget.js"
+              "bower_components/blueimp-file-upload/js/vendor/jquery.ui.widget.js"
               "bower_components/blueimp-file-upload/js/jquery.fileupload.js"
               "bower_components/blueimp-file-upload/js/jquery.fileupload-process.js"
               "bower_components/blueimp-file-upload/js/jquery.iframe-transport.js"

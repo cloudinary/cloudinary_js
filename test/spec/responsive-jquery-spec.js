@@ -1,5 +1,11 @@
-sharedExamples('client side responsive', function() {
-  var cl, defaultConfig;
+var cl, topPosition;
+
+topPosition = 0;
+
+cl = null;
+
+describe('client side responsive', function() {
+  var defaultConfig;
   if (navigator.userAgent.toLowerCase().indexOf('phantom') > -1) {
     console.warn("Skipping responsive tests in PhantomJS");
     return;
@@ -7,20 +13,22 @@ sharedExamples('client side responsive', function() {
   defaultConfig = {
     cloud_name: 'sdk-test'
   };
-  cl = null;
   return describe("responsive", function() {
-    var container, fixtureContainer, testDocument, testWindow, triggerResize;
+    var container, fixtureContainer, handler, originalTimeout, testDocument, testWindow, triggerResize;
     fixtureContainer = void 0;
     testDocument = null;
     container = void 0;
     testWindow = null;
+    originalTimeout = 0;
+    handler = void 0;
     beforeAll(function(done) {
       var testURL;
       testURL = "responsive-jquery-test.html";
       if (typeof __karma__ !== "undefined") {
         testURL = "/base/test/docRoot/" + testURL;
       }
-      testWindow = window.open(testURL, "Cloudinary test " + ((new Date()).toLocaleString()), "width=500, height=500");
+      testWindow = window.open(testURL, "Cloudinary test " + ((new Date()).toLocaleString()), "width=500, height=500, top=" + topPosition, false);
+      topPosition = 500;
       return testWindow.addEventListener('karma-ready', (function(_this) {
         return function() {
           var image1;
@@ -29,19 +37,26 @@ sharedExamples('client side responsive', function() {
           expect(image1).toBeDefined();
           return done();
         };
-      })(this), false);
+      })(this), {
+        capture: false,
+        once: true
+      });
     });
     afterAll(function() {
+      testWindow.removeEventListener('resize', handler);
       return testWindow.close();
     });
     beforeEach(function() {
+      originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+      jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
       cl = $.cloudinary = new cloudinary.CloudinaryJQuery(defaultConfig);
       fixtureContainer = document.createElement('div');
       fixtureContainer.id = "fixture";
       return document.body.appendChild(fixtureContainer);
     });
     afterEach(function() {
-      return fixtureContainer.remove();
+      fixtureContainer.remove();
+      return jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
     });
     triggerResize = function(window) {
       var evt;
@@ -117,7 +132,7 @@ sharedExamples('client side responsive', function() {
       }), 200);
     });
     it("should not resize images with fixed width containers", function(done) {
-      var currentWidth, handler, image1, src;
+      var currentWidth, image1, src;
       image1 = testDocument.getElementById('image1');
       src = image1.getAttribute('src');
       expect(src).toBeDefined();
@@ -142,20 +157,6 @@ sharedExamples('client side responsive', function() {
         });
         return expect(cloudinary.Util.hasClass(img, "cl-foobar")).toBeTruthy();
       });
-    });
-  });
-});
-
-describe('Client side responsive', function() {
-  return describe('client_hints', function() {
-    describe('false', function() {
-      return itBehavesLike('client side responsive');
-    });
-    return describe('true', function() {
-      beforeEach(function() {
-        return cl.config().client_hints = true;
-      });
-      return itBehavesLike('client side responsive');
     });
   });
 });

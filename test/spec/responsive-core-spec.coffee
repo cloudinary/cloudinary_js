@@ -1,4 +1,4 @@
-sharedExamples 'client side responsive', ->
+describe 'client side responsive', ->
   if navigator.userAgent.toLowerCase().indexOf('phantom') > -1
     console.warn("Skipping responsive tests in PhantomJS")
     return
@@ -132,13 +132,4 @@ sharedExamples 'client side responsive', ->
       it "should set the class used for responsive functionality", ->
         img = cl.image( "sample", responsive: true, responsive_class: "cl-foobar")
         expect(cloudinary.Util.hasClass(img, "cl-foobar")).toBeTruthy()
-
-describe 'Client side responsive', ->
-  describe 'client_hints', ->
-    describe 'false', ->
-      itBehavesLike 'client side responsive'
-    describe 'true', ->
-      beforeEach ->
-        cl.config().client_hints = true
-      itBehavesLike 'client side responsive'
 

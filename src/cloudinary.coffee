@@ -554,9 +554,7 @@ class Cloudinary
   *   Should only be used if the transformation supports different aspect ratios.
   ###
   cloudinary_update: (elements, options = {}) ->
-    client_hints = options.client_hints ? @config('client_hints') ? false
-    client_hints = client_hints || document?.querySelector('meta[http-equiv="Accept-CH"]')
-    return this if client_hints || elements == null
+    return this if elements == null
 
     responsive = options.responsive ? @config('responsive') ? false
 
@@ -576,7 +574,7 @@ class Cloudinary
     for tag in elements when tag.tagName?.match(/img/i)
       setUrl = true
 
-      if responsive && !client_hints
+      if responsive
         Util.addClass(tag, responsiveClass)
       dataSrc = Util.getData(tag, 'src-cache') or Util.getData(tag, 'src')
       unless Util.isEmpty(dataSrc)

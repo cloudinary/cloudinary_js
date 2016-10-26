@@ -46,8 +46,7 @@
   "dependencies": {
     "jquery": ">=1.6",
     "blueimp-file-upload": ">=7.2.1",
-    "lodash": "3.10.x",
-    "jquery.ui": "1.11.4"
+    "lodash": "3.10.x"
   },
   "devDependencies": {
     "jasmine": "~2.3.x",

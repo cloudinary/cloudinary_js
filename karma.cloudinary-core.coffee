@@ -5,7 +5,7 @@ module.exports = (config) ->
   config.set
 
     # base path that will be used to resolve all patterns (eg. files, exclude)
-#    basePath: '.'
+    #    basePath: '.'
 
 
     # frameworks to use
@@ -16,22 +16,7 @@ module.exports = (config) ->
     # list of files / patterns to load in the browser
     files: [
       'bower_components/lodash/lodash.js'
-      'src/utf8_encode.js'
-      'src/crc32.js'
-      'src/util/baseutil.js'
-      'src/util/lodash.js'
-      'src/layer/layer.js'
-      'src/layer/textlayer.js'
-      'src/layer/subtitleslayer.js'
-      'src/parameters.js'
-      'src/configuration.js'
-      'src/condition.js'
-      'src/transformation.js'
-      'src/tags/htmltag.js'
-      'src/tags/imagetag.js'
-      'src/tags/videotag.js'
-      'src/cloudinary.js'
-      'src/namespace/cloudinary-core.js'
+      'build/cloudinary-core.js'
       'test/spec/spec-helper.js'
       'test/spec/cloudinary-spec.js'
       'test/spec/transformation-spec.js'
@@ -40,8 +25,11 @@ module.exports = (config) ->
       'test/spec/chaining-spec.js'
       'test/spec/layer-spec.js'
       'test/spec/responsive-core-spec.js'
-      { pattern: 'test/docRoot/responsive-core-test.html', watched: false, included: false, served: true, nocache: false}
-      { pattern: 'bower_components/bootstrap/dist/css/*', watched: false, included: false, served: true, nocache: false}
+      {pattern: 'build/*', watched: false, included: false, served: true, nocache: false}
+      {pattern: 'test/docRoot/responsive-core-test.html', watched: false, included: false, served: true, nocache: false}
+      {pattern: 'bower_components/bootstrap/dist/css/*', watched: false, included: false, served: true, nocache: false}
+      {pattern: 'bower_components/bootstrap/dist/js/*', watched: false, included: false, served: true, nocache: false}
+      {pattern: 'test/docRoot/css/logo-nav.css', watched: false, included: false, served: true, nocache: false}
     ]
     coffeePreprocessor:
       options:

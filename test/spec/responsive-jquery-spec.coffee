@@ -1,32 +1,39 @@
-sharedExamples 'client side responsive', ->
+topPosition = 0
+
+cl =null
+describe 'client side responsive', ->
   if navigator.userAgent.toLowerCase().indexOf('phantom') > -1
     console.warn("Skipping responsive tests in PhantomJS")
     return
   defaultConfig = cloud_name: 'sdk-test'
-  cl =null
   describe "responsive", ()->
     fixtureContainer = undefined
     testDocument = null
     container = undefined
     testWindow = null
+    originalTimeout = 0
+    handler = undefined
     beforeAll (done)->
       # Open a new window with test HTML. A dynamic title is required in order to open a *new* window each time even if
       # previous window was not closed.
       testURL = "responsive-jquery-test.html"
       testURL = "/base/test/docRoot/#{testURL}" if typeof __karma__ != "undefined"
-      testWindow = window.open( testURL,"Cloudinary test #{(new Date()).toLocaleString()}", "width=500, height=500")
-
+      testWindow = window.open( testURL,"Cloudinary test #{(new Date()).toLocaleString()}", "width=500, height=500, top=" + topPosition, false)
+      topPosition = 500
       testWindow.addEventListener 'karma-ready', ()=>
           testDocument = testWindow.document
           image1 = testDocument.getElementById('image1')
           expect(image1).toBeDefined()
           done()
-        , false
+        , {capture:false, once: true}
 
     afterAll ()->
+      testWindow.removeEventListener('resize', handler)
       testWindow.close()
 
     beforeEach ()->
+      originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+      jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
       cl = $.cloudinary = new (cloudinary.CloudinaryJQuery)(defaultConfig)
       fixtureContainer = document.createElement('div')
       fixtureContainer.id="fixture";
@@ -34,6 +41,7 @@ sharedExamples 'client side responsive', ->
 
     afterEach ()->
       fixtureContainer.remove()
+      jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout
 
     triggerResize = (window)->
       evt = window.document.createEvent('UIEvents')
@@ -128,13 +136,4 @@ sharedExamples 'client side responsive', ->
       it "should set the class used for responsive functionality", ->
         img = cl.image( "sample", responsive: true, responsive_class: "cl-foobar")
         expect(cloudinary.Util.hasClass(img, "cl-foobar")).toBeTruthy()
-
-describe 'Client side responsive', ->
-  describe 'client_hints', ->
-    describe 'false', ->
-      itBehavesLike 'client side responsive'
-    describe 'true', ->
-      beforeEach ->
-        cl.config().client_hints = true
-      itBehavesLike 'client side responsive'
 

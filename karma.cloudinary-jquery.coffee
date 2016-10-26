@@ -26,7 +26,11 @@ module.exports = (config) ->
       'test/spec/chaining-spec.js'
       'test/spec/layer-spec.js'
       'test/spec/responsive-jquery-spec.js'
+      {pattern: 'build/*', watched: false, included: false, served: true, nocache: false}
       {pattern: 'test/docRoot/responsive-jquery-test.html', watched: false, included: false, served: true, nocache: false}
+      {pattern: 'bower_components/bootstrap/dist/css/*', watched: false, included: false, served: true, nocache: false}
+      {pattern: 'bower_components/bootstrap/dist/js/*', watched: false, included: false, served: true, nocache: false}
+      {pattern: 'test/docRoot/css/logo-nav.css', watched: false, included: false, served: true, nocache: false}
     ]
 
 

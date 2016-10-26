@@ -3608,16 +3608,14 @@ var slice = [].slice,
      */
 
     Cloudinary.prototype.cloudinary_update = function(elements, options) {
-      var client_hints, containerWidth, dataSrc, j, len, match, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, requiredWidth, responsive, responsiveClass, roundDpr, setUrl, tag;
+      var containerWidth, dataSrc, j, len, match, ref, ref1, ref2, ref3, ref4, ref5, requiredWidth, responsive, responsiveClass, roundDpr, setUrl, tag;
       if (options == null) {
         options = {};
       }
-      client_hints = (ref = (ref1 = options.client_hints) != null ? ref1 : this.config('client_hints')) != null ? ref : false;
-      client_hints = client_hints || (typeof document !== "undefined" && document !== null ? document.querySelector('meta[http-equiv="Accept-CH"]') : void 0);
-      if (client_hints || elements === null) {
+      if (elements === null) {
         return this;
       }
-      responsive = (ref2 = (ref3 = options.responsive) != null ? ref3 : this.config('responsive')) != null ? ref2 : false;
+      responsive = (ref = (ref1 = options.responsive) != null ? ref1 : this.config('responsive')) != null ? ref : false;
       elements = (function() {
         switch (false) {
           case !Util.isArray(elements):
@@ -3630,15 +3628,15 @@ var slice = [].slice,
             return [elements];
         }
       })();
-      responsiveClass = (ref4 = (ref5 = this.responsiveConfig['responsive_class']) != null ? ref5 : options['responsive_class']) != null ? ref4 : this.config('responsive_class');
-      roundDpr = (ref6 = options['round_dpr']) != null ? ref6 : this.config('round_dpr');
+      responsiveClass = (ref2 = (ref3 = this.responsiveConfig['responsive_class']) != null ? ref3 : options['responsive_class']) != null ? ref2 : this.config('responsive_class');
+      roundDpr = (ref4 = options['round_dpr']) != null ? ref4 : this.config('round_dpr');
       for (j = 0, len = elements.length; j < len; j++) {
         tag = elements[j];
-        if (!((ref7 = tag.tagName) != null ? ref7.match(/img/i) : void 0)) {
+        if (!((ref5 = tag.tagName) != null ? ref5.match(/img/i) : void 0)) {
           continue;
         }
         setUrl = true;
-        if (responsive && !client_hints) {
+        if (responsive) {
           Util.addClass(tag, responsiveClass);
         }
         dataSrc = Util.getData(tag, 'src-cache') || Util.getData(tag, 'src');

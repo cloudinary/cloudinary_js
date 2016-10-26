@@ -1,4 +1,4 @@
-sharedExamples('client side responsive', function() {
+describe('client side responsive', function() {
   var cl, defaultConfig;
   if (navigator.userAgent.toLowerCase().indexOf('phantom') > -1) {
     console.warn("Skipping responsive tests in PhantomJS");
@@ -146,20 +146,6 @@ sharedExamples('client side responsive', function() {
         });
         return expect(cloudinary.Util.hasClass(img, "cl-foobar")).toBeTruthy();
       });
-    });
-  });
-});
-
-describe('Client side responsive', function() {
-  return describe('client_hints', function() {
-    describe('false', function() {
-      return itBehavesLike('client side responsive');
-    });
-    return describe('true', function() {
-      beforeEach(function() {
-        return cl.config().client_hints = true;
-      });
-      return itBehavesLike('client side responsive');
     });
   });
 });
