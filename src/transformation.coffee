@@ -404,7 +404,7 @@ class Transformation  extends TransformationBase
   colorSpace: (value)->           @param value, "color_space", "cs"
   crop: (value)->                 @param value, "crop", "c"
   defaultImage: (value)->         @param value, "default_image", "d"
-  delay: (value)->                @param value, "delay", "l"
+  delay: (value)->                @param value, "delay", "dl"
   density: (value)->              @param value, "density", "dn"
   duration: (value)->             @rangeParam value, "duration", "du"
   dpr: (value)->                  @param value, "dpr", "dpr", (dpr) =>
