@@ -2166,7 +2166,7 @@ var slice = [].slice,
     };
 
     Transformation.prototype.delay = function(value) {
-      return this.param(value, "delay", "l");
+      return this.param(value, "delay", "dl");
     };
 
     Transformation.prototype.density = function(value) {
