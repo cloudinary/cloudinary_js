@@ -16,8 +16,8 @@ describe('cloudinary', function() {
     $.cloudinary.config('cloud_name', 'test');
     result = $.cloudinary.unsigned_upload_tag('test', {
       context: {
-        alt: 'alternative',
-        caption: 'cap'
+        alt: 'alternative|alt',
+        caption: 'cap=caps'
       },
       tags: ['a', 'b']
     }, {
@@ -26,7 +26,7 @@ describe('cloudinary', function() {
       multiple: true
     });
     options = result.fileupload('option');
-    expect(options.formData.context).toEqual('alt=alternative|caption=cap');
+    expect(options.formData.context).toEqual('alt=alternative\\|alt|caption=cap\\=caps');
     expect(options.formData.tags).toEqual('a,b');
     expect(options.formData.upload_preset).toEqual('test');
     expect(options.width).toEqual(100);

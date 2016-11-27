@@ -158,6 +158,8 @@ jQuery.fn.unsigned_cloudinary_upload = (upload_preset, upload_params = {}, optio
     value = upload_params[key]
     if Util.isPlainObject(value)
       upload_params[key] = jQuery.map(value, (v, k) ->
+        if Util.isString(v)
+          v = v.replace(/[\|=]/g, "\\$&" )
         k + '=' + v
       ).join('|')
     else if Util.isArray(value)
