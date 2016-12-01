@@ -7,7 +7,6 @@ class Configuration
 
   ###*
    * Defaults configuration.
-   * @const {Object} Configuration.DEFAULT_CONFIGURATION_PARAMS
   ###
   DEFAULT_CONFIGURATION_PARAMS ={
     responsive_class: 'cld-responsive'
