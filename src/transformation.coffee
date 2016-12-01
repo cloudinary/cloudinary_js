@@ -302,7 +302,7 @@ class TransformationBase
     options = {}
     for key, value of @otherOptions when  !Util.contains(Transformation.PARAM_NAMES, Util.snakeCase(key))
       attrName = if /^html_/.test(key) then key.slice(5) else key
-      options[Util.camelCase(attrName)] = value
+      options[attrName] = value
     # convert all "html_key" to "key" with the same value
     for key in @keys() when /^html_/.test(key)
       options[Util.camelCase(key.slice(5))] = @getValue(key)
