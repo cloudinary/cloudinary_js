@@ -255,3 +255,7 @@ describe "Cloudinary.VideoTag", ->
       expect(element?.nodeType).toBe(1) # element
       expect(element.tagName).toMatch /div/i
 
+describe "ClientHintsMetaTag", ->
+  it "should generate a meta tag defining client hints", ->
+    tag = new cloudinary.ClientHintsMetaTag().toHtml()
+    expect(tag).toBe('<meta content="DPR, Viewport-Width, Width" http-equiv="Accept-CH">')

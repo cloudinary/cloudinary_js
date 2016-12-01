@@ -202,6 +202,7 @@ module.exports = (grunt)->
       'src/tags/htmltag.coffee',
       'src/tags/imagetag.coffee',
       'src/tags/videotag.coffee',
+      'src/tags/clienthintsmetatag.coffee',
       'src/cloudinary.coffee'
     ],
     concat:
@@ -242,6 +243,7 @@ module.exports = (grunt)->
               HtmlTag: HtmlTag
               ImageTag: ImageTag
               VideoTag: VideoTag
+              ClientHintsMetaTag: ClientHintsMetaTag
               Layer: Layer
               TextLayer: TextLayer
               SubtitlesLayer: SubtitlesLayer

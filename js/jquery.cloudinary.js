@@ -30,7 +30,7 @@ var slice = [].slice,
   /*
    * Includes common utility methods and shims
    */
-  var ArrayParam, BaseUtil, Cloudinary, CloudinaryJQuery, Condition, Configuration, HtmlTag, ImageTag, Layer, LayerParam, Param, RangeParam, RawParam, SubtitlesLayer, TextLayer, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, camelCase, cloneDeep, cloudinary, compact, contains, convertKeys, crc32, defaults, difference, functions, getAttribute, getData, hasClass, identity, isEmpty, isNumberLike, isString, m, merge, parameters, reWords, removeAttribute, setAttribute, setAttributes, setData, smartEscape, snakeCase, utf8_encode, webp, width, withCamelCaseKeys, withSnakeCaseKeys, without;
+  var ArrayParam, BaseUtil, ClientHintsMetaTag, Cloudinary, CloudinaryJQuery, Condition, Configuration, HtmlTag, ImageTag, Layer, LayerParam, Param, RangeParam, RawParam, SubtitlesLayer, TextLayer, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, camelCase, cloneDeep, cloudinary, compact, contains, convertKeys, crc32, defaults, difference, functions, getAttribute, getData, hasClass, identity, isEmpty, isNumberLike, isString, m, merge, parameters, reWords, removeAttribute, setAttribute, setAttributes, setData, smartEscape, snakeCase, utf8_encode, webp, width, withCamelCaseKeys, withSnakeCaseKeys, without;
   allStrings = function(list) {
     var item, j, len;
     for (j = 0, len = list.length; j < len; j++) {
@@ -1360,7 +1360,6 @@ var slice = [].slice,
 
     /**
      * Defaults configuration.
-     * @const {Object} Configuration.DEFAULT_CONFIGURATION_PARAMS
      */
     var DEFAULT_CONFIGURATION_PARAMS, ref;
 
@@ -1994,7 +1993,7 @@ var slice = [].slice,
           continue;
         }
         attrName = /^html_/.test(key) ? key.slice(5) : key;
-        options[Util.camelCase(attrName)] = value;
+        options[attrName] = value;
       }
       ref1 = this.keys();
       for (j = 0, len = ref1.length; j < len; j++) {
@@ -2863,6 +2862,38 @@ var slice = [].slice,
     return VideoTag;
 
   })(HtmlTag);
+
+  /**
+   * Image Tag
+   * Depends on 'tags/htmltag', 'cloudinary'
+   */
+  ClientHintsMetaTag = (function(superClass) {
+    extend(ClientHintsMetaTag, superClass);
+
+
+    /**
+     * Creates an HTML (DOM) Meta tag that enables client-hints.
+     * @constructor ClientHintsMetaTag
+     * @extends HtmlTag
+     */
+
+    function ClientHintsMetaTag(options) {
+      ClientHintsMetaTag.__super__.constructor.call(this, 'meta', void 0, Util.assign({
+        "http-equiv": "Accept-CH",
+        content: "DPR, Viewport-Width, Width"
+      }, options));
+    }
+
+
+    /** @override */
+
+    ClientHintsMetaTag.prototype.closeTag = function() {
+      return "";
+    };
+
+    return ClientHintsMetaTag;
+
+  })(HtmlTag);
   Cloudinary = (function() {
     var AKAMAI_SHARED_CDN, CF_SHARED_CDN, DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_SOURCE_TYPES, OLD_AKAMAI_SHARED_CDN, SHARED_CDN, VERSION, absolutize, applyBreakpoints, cdnSubdomainNumber, closestAbove, cloudinaryUrlPrefix, defaultBreakpoints, finalizeResourceType, findContainerWidth, maxWidth, updateDpr;
 
@@ -3055,7 +3086,7 @@ var slice = [].slice,
      */
 
     Cloudinary.prototype.url = function(publicId, options) {
-      var prefix, ref, resourceTypeAndType, transformation, transformationString, url, version;
+      var error, error1, prefix, ref, resourceTypeAndType, transformation, transformationString, url, version;
       if (options == null) {
         options = {};
       }
@@ -3088,7 +3119,12 @@ var slice = [].slice,
           publicId = encodeURIComponent(publicId).replace(/%3A/g, ':').replace(/%2F/g, '/');
         }
       } else {
-        publicId = encodeURIComponent(decodeURIComponent(publicId)).replace(/%3A/g, ':').replace(/%2F/g, '/');
+        try {
+          publicId = decodeURIComponent(publicId);
+        } catch (error1) {
+          error = error1;
+        }
+        publicId = encodeURIComponent(publicId).replace(/%3A/g, ':').replace(/%2F/g, '/');
         if (options.url_suffix) {
           if (options.url_suffix.match(/[\.\/]/)) {
             throw 'url_suffix should not include . or /';
@@ -4091,6 +4127,7 @@ var slice = [].slice,
     HtmlTag: HtmlTag,
     ImageTag: ImageTag,
     VideoTag: VideoTag,
+    ClientHintsMetaTag: ClientHintsMetaTag,
     Layer: Layer,
     TextLayer: TextLayer,
     SubtitlesLayer: SubtitlesLayer,

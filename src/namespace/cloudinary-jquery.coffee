@@ -20,6 +20,7 @@
   HtmlTag: HtmlTag
   ImageTag: ImageTag
   VideoTag: VideoTag
+  ClientHintsMetaTag: ClientHintsMetaTag
   Cloudinary: Cloudinary
   CloudinaryJQuery: CloudinaryJQuery
 )

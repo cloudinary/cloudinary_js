@@ -19,6 +19,7 @@
   HtmlTag: HtmlTag
   ImageTag: ImageTag
   VideoTag: VideoTag
+  ClientHintsMetaTag: ClientHintsMetaTag
   Layer: Layer
   TextLayer: TextLayer
   SubtitlesLayer: SubtitlesLayer

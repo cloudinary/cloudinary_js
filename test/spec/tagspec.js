@@ -349,4 +349,12 @@ describe("Cloudinary.VideoTag", function() {
   });
 });
 
+describe("ClientHintsMetaTag", function() {
+  return it("should generate a meta tag defining client hints", function() {
+    var tag;
+    tag = new cloudinary.ClientHintsMetaTag().toHtml();
+    return expect(tag).toBe('<meta content="DPR, Viewport-Width, Width" http-equiv="Accept-CH">');
+  });
+});
+
 //# sourceMappingURL=tagspec.js.map
