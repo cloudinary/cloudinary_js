@@ -268,14 +268,19 @@ The javascript library implements helpers to be used in conjunction with the bac
 ## Client side image resizing before upload
 
 See the File Processing Options in https://github.com/blueimp/jQuery-File-Upload/wiki/Options.
-Add the following javascript includes _after_ the standard fileupload includes:
+Modify your script tags based on the the following example (order is important!):
 
 ```    
-"bower_components/blueimp-load-image/js/load-image.all.min.js"
-"bower_components/blueimp-canvas-to-blob/js/canvas-to-blob.min.js"
-"bower_components/blueimp-file-upload/js/jquery.fileupload-process.js"
-"bower_components/blueimp-file-upload/js/jquery.fileupload-image.js"
-"bower_components/blueimp-file-upload/js/jquery.fileupload-validate.js"
+<script src="bower_components/jquery/dist/jquery.js" type="text/javascript"></script>
+<script src="bower_components/jquery.ui/ui/widget.js" type="text/javascript"></script>
+<script src="bower_components/blueimp-load-image/js/load-image.all.min.js"></script>
+<script src="bower_components/blueimp-canvas-to-blob/js/canvas-to-blob.min.js"></script>
+<script src="bower_components/blueimp-file-upload/js/jquery.iframe-transport.js" type="text/javascript"></script>
+<script src="bower_components/blueimp-file-upload/js/jquery.fileupload.js" type="text/javascript"></script>
+<script src="bower_components/blueimp-file-upload/js/jquery.fileupload-process.js"></script>
+<script src="bower_components/blueimp-file-upload/js/jquery.fileupload-image.js" type="text/javascript"></script>
+<script src="bower_components/blueimp-file-upload/js/jquery.fileupload-validate.js"></script>
+<script src="bower_components/cloudinary-jquery-file-upload/cloudinary-jquery-file-upload.js" type="text/javascript"></script>
 ```
 
 Also, add the following javascript:
