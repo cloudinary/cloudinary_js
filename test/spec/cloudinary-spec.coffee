@@ -244,6 +244,9 @@ describe 'Cloudinary', ->
     for source of tests
       test_cloudinary_url source, {}, protocol + '//res.cloudinary.com/test123/image/upload/' + tests[source], {}
 
+  it 'should accept public_id with special characters', ->
+    test_cloudinary_url 'public%id', {},  protocol + '//res.cloudinary.com/test123/image/upload/public%25id', {}
+
   it 'should allow to override protocol', ->
     options = 'protocol': 'custom:'
     result = cl.url('test', options)

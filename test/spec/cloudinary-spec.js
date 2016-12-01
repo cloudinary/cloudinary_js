@@ -297,6 +297,9 @@ describe('Cloudinary', function() {
     }
     return results;
   });
+  it('should accept public_id with special characters', function() {
+    return test_cloudinary_url('public%id', {}, protocol + '//res.cloudinary.com/test123/image/upload/public%25id', {});
+  });
   it('should allow to override protocol', function() {
     var options, result;
     options = {

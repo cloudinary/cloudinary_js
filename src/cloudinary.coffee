@@ -176,7 +176,11 @@ class Cloudinary
         publicId = encodeURIComponent(publicId).replace(/%3A/g, ':').replace(/%2F/g, '/')
     else
       # Make sure publicId is URI encoded.
-      publicId = encodeURIComponent(decodeURIComponent(publicId)).replace(/%3A/g, ':').replace(/%2F/g, '/')
+      try
+        publicId = decodeURIComponent(publicId)
+      catch error
+
+      publicId = encodeURIComponent(publicId).replace(/%3A/g, ':').replace(/%2F/g, '/')
       if options.url_suffix
         if options.url_suffix.match(/[\.\/]/)
           throw 'url_suffix should not include . or /'
