@@ -1,6 +1,6 @@
 
 /**
- * Cloudinary's JavaScript library - Version 2.1.6
+ * Cloudinary's JavaScript library - Version 2.1.7
  * Copyright Cloudinary
  * see https://github.com/cloudinary/cloudinary_js
  *
@@ -2897,7 +2897,7 @@ var slice = [].slice,
   Cloudinary = (function() {
     var AKAMAI_SHARED_CDN, CF_SHARED_CDN, DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_SOURCE_TYPES, OLD_AKAMAI_SHARED_CDN, SHARED_CDN, VERSION, absolutize, applyBreakpoints, cdnSubdomainNumber, closestAbove, cloudinaryUrlPrefix, defaultBreakpoints, finalizeResourceType, findContainerWidth, maxWidth, updateDpr;
 
-    VERSION = "2.1.6";
+    VERSION = "2.1.7";
 
     CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
 
@@ -4132,7 +4132,7 @@ var slice = [].slice,
     TextLayer: TextLayer,
     SubtitlesLayer: SubtitlesLayer,
     Cloudinary: Cloudinary,
-    VERSION: "2.1.6",
+    VERSION: "2.1.7",
     CloudinaryJQuery: CloudinaryJQuery
   };
   return cloudinary;

@@ -1,4 +1,16 @@
 
+2.1.7 / 2016-12-04
+==================
+
+  * Add Client Hints meta tag helper
+  * Support public ID with special characters
+  * Don't convert parameters to CamelCase
+  * Remove using `@const` to avoid lint error on constant assignment
+  * Edit instructions in README
+  * Encode `|` and `=` in context values.
+  * Merge pull request #110 from gvillenave/master
+    * Fix the "delay" transformation URL code
+
 2.1.6 / 2016-10-26
 ==================
 
