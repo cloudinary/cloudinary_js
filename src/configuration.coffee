@@ -108,16 +108,21 @@ class Configuration
   fromEnvironment: ->
     cloudinary_url = process?.env?.CLOUDINARY_URL
     if cloudinary_url?
-      uri = require('url').parse(cloudinary_url, true)
-      @configuration =
-        cloud_name: uri.host,
-        api_key: uri.auth and uri.auth.split(":")[0],
-        api_secret: uri.auth and uri.auth.split(":")[1],
-        private_cdn: uri.pathname?,
-        secure_distribution: uri.pathname and uri.pathname.substring(1)
-      if uri.query?
-        for k, v of uri.query
-          @configuration[k] = v
+      uriRegex = /cloudinary:\/\/(?:(\w+)(?:\:(\w+))?@)?([\w\.-]+)(?:\/([^?]*))?(?:\?(.+))?/
+      uri = uriRegex.exec(cloudinary_url)
+      if uri
+        @configuration['cloud_name'] = uri[3] if uri[3]?
+        @configuration['api_key'] = uri[1] if uri[1]?
+        @configuration['api_secret'] = uri[2] if uri[2]?
+        @configuration['private_cdn'] = uri[4]? if uri[4]?
+        @configuration['secure_distribution'] = uri[4] if uri[4]?
+
+        query = uri[5]
+        if query?
+          for value in query.split('&')
+            [k, v] = value.split('=')
+            v = true unless v?
+            @configuration[k] = v
     this
 
   ###*
