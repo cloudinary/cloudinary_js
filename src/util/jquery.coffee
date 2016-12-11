@@ -111,7 +111,7 @@ identity = (value)-> value
 ###*
  * @class Util
 ###
-Util = $.extend BaseUtil,
+Util = jQuery.extend BaseUtil,
   hasClass: hasClass
   addClass: addClass
   getAttribute: getAttribute
