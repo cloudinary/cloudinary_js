@@ -115,12 +115,19 @@ describe("Transformation", function() {
         crop: 'fill'
       }, upload_path + "/c_fill,w_auto:breakpoints:json/test", {});
     });
-    return it('should support oh,ow', function() {
+    it('should support oh,ow', function() {
       return test_cloudinary_url("test", {
         width: "ow",
         height: "oh",
         crop: "crop"
       }, upload_path + "/c_crop,h_oh,w_ow/test", {});
+    });
+    return it('should support ih,iw', function() {
+      return test_cloudinary_url("test", {
+        width: "iw",
+        height: "ih",
+        crop: "crop"
+      }, upload_path + "/c_crop,h_ih,w_iw/test", {});
     });
   });
   it('should support aspect_ratio', function() {
