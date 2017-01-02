@@ -1,4 +1,10 @@
 
+2.1.9 / 2017-01-02
+==================
+
+  * Support ‘iw’ and ‘ih’ transformation parameters for indicating initial width or height (respectively) in `ImageTag`
+  * Support responsive image tag in `ImageTag`
+
 2.1.8 / 2016-12-12
 ==================
 
