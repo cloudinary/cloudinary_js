@@ -85,6 +85,13 @@ describe("Cloudinary.ImageTag", function() {
     tag = new cloudinary.ImageTag('image_id', config).toHtml();
     return expect(tag).toBe("<img src=\"" + DEFAULT_UPLOAD_PATH + "image_id\">");
   });
+  it("should set data-src instead of src when using responsive", function() {
+    var tag;
+    tag = new cloudinary.ImageTag('image_id', cloudinary.Util.assign({
+      responsive: true
+    }, config)).toHtml();
+    return expect(tag).toBe("<img data-src=\"" + DEFAULT_UPLOAD_PATH + "image_id\">");
+  });
   return describe(":client_hints", function() {
     describe("as option", function() {
       return includeContext("client_hints", {

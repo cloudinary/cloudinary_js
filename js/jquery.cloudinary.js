@@ -2715,10 +2715,12 @@ var slice = [].slice,
     /** @override */
 
     ImageTag.prototype.attributes = function() {
-      var attr;
+      var attr, options, srcAttribute;
       attr = ImageTag.__super__.attributes.call(this) || [];
-      if (attr['src'] == null) {
-        attr['src'] = new Cloudinary(this.getOptions()).url(this.publicId);
+      options = this.getOptions();
+      srcAttribute = options.responsive && !options.client_hints ? 'data-src' : 'src';
+      if (attr[srcAttribute] == null) {
+        attr[srcAttribute] = new Cloudinary(this.getOptions()).url(this.publicId);
       }
       return attr;
     };

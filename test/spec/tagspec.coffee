@@ -53,6 +53,10 @@ describe "Cloudinary.ImageTag", ->
   it "should create an image tag", ()->
     tag = new cloudinary.ImageTag( 'image_id', config).toHtml()
     expect(tag).toBe("<img src=\"#{DEFAULT_UPLOAD_PATH}image_id\">")
+  it "should set data-src instead of src when using responsive", ()->
+    tag = new cloudinary.ImageTag( 'image_id', cloudinary.Util.assign({responsive: true}, config)).toHtml()
+    expect(tag).toBe("<img data-src=\"#{DEFAULT_UPLOAD_PATH}image_id\">")
+
   describe ":client_hints", ->
     describe "as option", ->
       includeContext "client_hints", {dpr: "auto", cloud_name: "sdk-test", width: "auto", crop: "scale", client_hints: true}

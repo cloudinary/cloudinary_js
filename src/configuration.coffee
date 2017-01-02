@@ -24,6 +24,7 @@ class Configuration
     "private_cdn"
     "protocol"
     "resource_type"
+    "responsive"
     "responsive_class"
     "responsive_use_breakpoints"
     "responsive_width"

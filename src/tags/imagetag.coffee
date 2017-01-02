@@ -21,5 +21,7 @@ class ImageTag extends HtmlTag
   ###* @override ###
   attributes: ()->
     attr = super() || []
-    attr['src'] ?= new Cloudinary(@getOptions()).url(@publicId)
+    options = @getOptions()
+    srcAttribute = if options.responsive and !options.client_hints then 'data-src' else 'src'
+    attr[srcAttribute] ?= new Cloudinary(@getOptions()).url(@publicId)
     attr
