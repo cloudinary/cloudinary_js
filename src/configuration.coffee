@@ -18,6 +18,7 @@ class Configuration
   @CONFIG_PARAMS = [
     "api_key"
     "api_secret"
+    "callback"
     "cdn_subdomain"
     "cloud_name"
     "cname"
@@ -34,6 +35,7 @@ class Configuration
     "secure_distribution"
     "shorten"
     "type"
+    "upload_preset"
     "url_suffix"
     "use_root_path"
     "version"
