@@ -529,6 +529,13 @@ describe("Transformation", function() {
         url = this.cl.url("sample", cloudinary.Transformation["new"]()["if"]().aspectRatio(">=", "3:4").and().pageCount(">=", 100).or().pageCount("!=", 0).then().width(50).crop("scale"));
         return expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_ar_gte_3:4_and_pc_gte_100_or_pc_ne_0,c_scale,w_50/sample");
       });
+      it("Chains transformations to an image tag", function() {
+        var imgHtml, imgTag, url;
+        imgTag = this.cl.imageTag("sample");
+        imgHtml = imgTag.transformation().crop("fit").width(1000).chain().crop("limit").height(1000).toHtml();
+        url = new RegExp("http://res.cloudinary.com/sdk-test/image/upload/c_fit,w_1000/c_limit,h_1000/sample");
+        return expect(imgHtml).toMatch(url);
+      });
       it("should support and translate operators:  '=', '!=', '<', '>', '<=', '>=', '&&', '||'", function() {
         var allOperators;
         allOperators = 'if_' + 'w_eq_0_and' + '_h_ne_0_or' + '_ar_lt_0_and' + '_pc_gt_0_and' + '_fc_lte_0_and' + '_w_gte_0' + ',e_grayscale';

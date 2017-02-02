@@ -42,7 +42,10 @@ class TransformationBase
         list = for tr in @chained
           tr.toOptions()
         list.push(opt)
-        opt = {transformation: list}
+        opt = {
+          cloud_name: opt.cloud_name,
+          transformation: list
+        }
       opt
 
     ###*

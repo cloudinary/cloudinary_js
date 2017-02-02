@@ -336,6 +336,11 @@ describe "Transformation", ->
         expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_ar_gt_3:4_and_w_lte_100_or_w_gt_200,c_scale,w_50/sample")
         url = @cl.url("sample", cloudinary.Transformation.new().if().aspectRatio(">=", "3:4").and().pageCount( ">=", 100).or().pageCount("!=", 0).then().width(50).crop("scale"))
         expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_ar_gte_3:4_and_pc_gte_100_or_pc_ne_0,c_scale,w_50/sample")
+      it "Chains transformations to an image tag", ->
+        imgTag = @cl.imageTag("sample")
+        imgHtml = imgTag.transformation().crop("fit").width(1000).chain().crop("limit").height(1000).toHtml()
+        url = new RegExp("http://res.cloudinary.com/sdk-test/image/upload/c_fit,w_1000/c_limit,h_1000/sample") 
+        expect(imgHtml).toMatch(url)
 
 
       it "should support and translate operators:  '=', '!=', '<', '>', '<=', '>=', '&&', '||'", ->
