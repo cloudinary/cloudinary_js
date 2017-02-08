@@ -336,7 +336,14 @@ describe "Transformation", ->
         expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_ar_gt_3:4_and_w_lte_100_or_w_gt_200,c_scale,w_50/sample")
         url = @cl.url("sample", cloudinary.Transformation.new().if().aspectRatio(">=", "3:4").and().pageCount( ">=", 100).or().pageCount("!=", 0).then().width(50).crop("scale"))
         expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_ar_gte_3:4_and_pc_gte_100_or_pc_ne_0,c_scale,w_50/sample")
-
+      it "should chain if_else conditions disregarding order of transformation parameters in string", ->
+        url = @cl.url("sample", {"transformation":[{"if":"ils_gt_0.5","width":120,"height":150,"crop":"pad"},{"if":"else","width":120,"height":150,"crop":"fill"}]})
+        expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_ils_gt_0.5,c_pad,h_150,w_120/if_else,c_fill,h_150,w_120/sample")
+        paramsOrderUrl = @cl.url("sample", {"transformation":[{"crop":"pad","height":150,"if":"ils_gt_0.5","width":120},{"crop":"fill","height":150,"if":"else","width":120}]})
+        expect(paramsOrderUrl).toEqual(url)
+      it "should chain if_else conditions when explicitly ending the transformation", ->
+        url = @cl.url("sample", {"transformation":[{"if":"ils_gt_0.5"},{"width":120,"height":150,"crop":"pad"},{"if":"else"},{"width":120,"height":150,"crop":"fill"},{"if":"end"}]})
+        expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_ils_gt_0.5/c_pad,h_150,w_120/if_else/c_fill,h_150,w_120/if_end/sample")
 
       it "should support and translate operators:  '=', '!=', '<', '>', '<=', '>=', '&&', '||'", ->
 
