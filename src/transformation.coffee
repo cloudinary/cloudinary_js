@@ -223,6 +223,10 @@ class TransformationBase
         if value instanceof TransformationBase
           new value.constructor( value.toOptions())
       )
+      # Handling of "if" statements precedes other options as it creates a chained transformation
+      if options["if"]
+        @set "if", options["if"]
+        delete options["if"]
       for key, opt of options
         @set key, opt
     this
