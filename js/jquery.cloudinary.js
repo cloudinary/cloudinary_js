@@ -30,7 +30,7 @@ var slice = [].slice,
   /*
    * Includes common utility methods and shims
    */
-  var ArrayParam, BaseUtil, ClientHintsMetaTag, Cloudinary, CloudinaryJQuery, Condition, Configuration, HtmlTag, ImageTag, Layer, LayerParam, Param, RangeParam, RawParam, SubtitlesLayer, TextLayer, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, camelCase, cloneDeep, cloudinary, compact, contains, convertKeys, crc32, defaults, difference, functions, getAttribute, getData, hasClass, identity, isEmpty, isNumberLike, isString, m, merge, parameters, reWords, removeAttribute, setAttribute, setAttributes, setData, smartEscape, snakeCase, utf8_encode, webp, width, withCamelCaseKeys, withSnakeCaseKeys, without;
+  var ArrayParam, BaseExpression, BaseUtil, ClientHintsMetaTag, Cloudinary, CloudinaryJQuery, Condition, Configuration, HtmlTag, ImageTag, Layer, LayerParam, Param, RangeParam, RawParam, SubtitlesLayer, TextLayer, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, camelCase, cloneDeep, cloudinary, compact, contains, convertKeys, crc32, defaults, difference, functions, getAttribute, getData, hasClass, identity, isEmpty, isNumberLike, isString, m, merge, parameters, reWords, removeAttribute, setAttribute, setAttributes, setData, smartEscape, snakeCase, utf8_encode, webp, width, withCamelCaseKeys, withSnakeCaseKeys, without;
   allStrings = function(list) {
     var item, j, len;
     for (j = 0, len = list.length; j < len; j++) {
@@ -1122,12 +1122,12 @@ var slice = [].slice,
   parameters.RawParam = RawParam;
   parameters.TransformationParam = TransformationParam;
   parameters.LayerParam = LayerParam;
-  Condition = (function() {
+  BaseExpression = (function() {
 
     /**
      * @internal
      */
-    Condition.OPERATORS = {
+    BaseExpression.OPERATORS = {
       "=": 'eq',
       "!=": 'ne',
       "<": 'lt',
@@ -1138,7 +1138,7 @@ var slice = [].slice,
       "||": 'or'
     };
 
-    Condition.PARAMETERS = {
+    BaseExpression.PARAMETERS = {
       "width": "w",
       "height": "h",
       "aspect_ratio": "ar",
@@ -1149,7 +1149,210 @@ var slice = [].slice,
       "faceCount": "fc"
     };
 
-    Condition.BOUNDRY = "[ _]+";
+    BaseExpression.BOUNDRY = "[ _]+";
+
+
+    /**
+     * Represents a transformation condition
+     * @param {string} conditionStr - a condition in string format
+     * @class Condition
+     * @example
+     * // normally this class is not instantiated directly
+     * var tr = cloudinary.Transformation.new()
+     *    .if().width( ">", 1000).and().aspectRatio("<", "3:4").then()
+     *      .width(1000)
+     *      .crop("scale")
+     *    .else()
+     *      .width(500)
+     *      .crop("scale")
+     *
+     * var tr = cloudinary.Transformation.new()
+     *    .if("w > 1000 and aspectRatio < 3:4")
+     *      .width(1000)
+     *      .crop("scale")
+     *    .else()
+     *      .width(500)
+     *      .crop("scale")
+     *
+     */
+
+    function BaseExpression(conditionStr) {
+      this.predicate_list = [];
+      if (conditionStr != null) {
+        this.predicate_list.push(this.normalize(conditionStr));
+      }
+    }
+
+
+    /**
+     * Convenience constructor method
+     * @function Condition.new
+     */
+
+    BaseExpression["new"] = function(conditionStr) {
+      return new this(conditionStr);
+    };
+
+
+    /**
+     * Normalize a string condition
+     * @function Cloudinary#normalize
+     * @param {string} value a condition, e.g. "w gt 100", "width_gt_100", "width > 100"
+     * @return {string} the normalized form of the value condition, e.g. "w_gt_100"
+     */
+
+    BaseExpression.prototype.normalize = function(value) {
+      var replaceRE;
+      replaceRE = new RegExp("(" + Object.keys(Condition.PARAMETERS).join("|") + "|[=<>&|!]+)", "g");
+      value = value.replace(replaceRE, function(match) {
+        return Condition.OPERATORS[match] || Condition.PARAMETERS[match];
+      });
+      return value.replace(/[ _]+/g, '_');
+    };
+
+
+    /**
+     * Get the parent transformation of this condition
+     * @return Transformation
+     */
+
+    BaseExpression.prototype.getParent = function() {
+      return this.parent;
+    };
+
+
+    /**
+     * Set the parent transformation of this condition
+     * @param {Transformation} the parent transformation
+     * @return {Condition} this condition
+     */
+
+    BaseExpression.prototype.setParent = function(parent) {
+      this.parent = parent;
+      return this;
+    };
+
+
+    /**
+     * Serialize the condition
+     * @return {string} the condition as a string
+     */
+
+    BaseExpression.prototype.toString = function() {
+      return this.predicate_list.join("_");
+    };
+
+
+    /**
+     * Add a condition
+     * @function Condition#predicate
+     * @internal
+     */
+
+    BaseExpression.prototype.predicate = function(name, operator, value) {
+      if (Condition.OPERATORS[operator] != null) {
+        operator = Condition.OPERATORS[operator];
+      }
+      this.predicate_list.push(name + "_" + operator + "_" + value);
+      return this;
+    };
+
+
+    /**
+     * @function Condition#and
+     */
+
+    BaseExpression.prototype.and = function() {
+      this.predicate_list.push("and");
+      return this;
+    };
+
+
+    /**
+     * @function Condition#or
+     */
+
+    BaseExpression.prototype.or = function() {
+      this.predicate_list.push("or");
+      return this;
+    };
+
+
+    /**
+     * Conclude condition
+     * @function Condition#then
+     * @return {Transformation} the transformation this condition is defined for
+     */
+
+    BaseExpression.prototype.then = function() {
+      return this.getParent()["if"](this.toString());
+    };
+
+
+    /**
+     * @function Condition#height
+     * @param {string} operator the comparison operator (e.g. "<", "lt")
+     * @param {string|number} value the right hand side value
+     * @return {Condition} this condition
+     */
+
+    BaseExpression.prototype.height = function(operator, value) {
+      return this.predicate("h", operator, value);
+    };
+
+
+    /**
+     * @function Condition#width
+     * @param {string} operator the comparison operator (e.g. "<", "lt")
+     * @param {string|number} value the right hand side value
+     * @return {Condition} this condition
+     */
+
+    BaseExpression.prototype.width = function(operator, value) {
+      return this.predicate("w", operator, value);
+    };
+
+
+    /**
+     * @function Condition#aspectRatio
+     * @param {string} operator the comparison operator (e.g. "<", "lt")
+     * @param {string|number} value the right hand side value
+     * @return {Condition} this condition
+     */
+
+    BaseExpression.prototype.aspectRatio = function(operator, value) {
+      return this.predicate("ar", operator, value);
+    };
+
+
+    /**
+     * @function Condition#pages
+     * @param {string} operator the comparison operator (e.g. "<", "lt")
+     * @param {string|number} value the right hand side value
+     * @return {Condition} this condition
+     */
+
+    BaseExpression.prototype.pageCount = function(operator, value) {
+      return this.predicate("pc", operator, value);
+    };
+
+
+    /**
+     * @function Condition#faces
+     * @param {string} operator the comparison operator (e.g. "<", "lt")
+     * @param {string|number} value the right hand side value
+     * @return {Condition} this condition
+     */
+
+    BaseExpression.prototype.faceCount = function(operator, value) {
+      return this.predicate("fc", operator, value);
+    };
+
+    return BaseExpression;
+
+  })();
+  Condition = (function(superClass) {
+    extend(Condition, superClass);
 
 
     /**
@@ -1177,116 +1380,8 @@ var slice = [].slice,
      */
 
     function Condition(conditionStr) {
-      this.predicate_list = [];
-      if (conditionStr != null) {
-        this.predicate_list.push(this.normalize(conditionStr));
-      }
+      Condition.__super__.constructor.call(this, conditionStr);
     }
-
-
-    /**
-     * Convenience constructor method
-     * @function Condition.new
-     */
-
-    Condition["new"] = function(conditionStr) {
-      return new this(conditionStr);
-    };
-
-
-    /**
-     * Normalize a string condition
-     * @function Cloudinary#normalize
-     * @param {string} value a condition, e.g. "w gt 100", "width_gt_100", "width > 100"
-     * @return {string} the normalized form of the value condition, e.g. "w_gt_100"
-     */
-
-    Condition.prototype.normalize = function(value) {
-      var replaceRE;
-      replaceRE = new RegExp("(" + Object.keys(Condition.PARAMETERS).join("|") + "|[=<>&|!]+)", "g");
-      value = value.replace(replaceRE, function(match) {
-        return Condition.OPERATORS[match] || Condition.PARAMETERS[match];
-      });
-      return value.replace(/[ _]+/g, '_');
-    };
-
-
-    /**
-     * Get the parent transformation of this condition
-     * @return Transformation
-     */
-
-    Condition.prototype.getParent = function() {
-      return this.parent;
-    };
-
-
-    /**
-     * Set the parent transformation of this condition
-     * @param {Transformation} the parent transformation
-     * @return {Condition} this condition
-     */
-
-    Condition.prototype.setParent = function(parent) {
-      this.parent = parent;
-      return this;
-    };
-
-
-    /**
-     * Serialize the condition
-     * @return {string} the condition as a string
-     */
-
-    Condition.prototype.toString = function() {
-      return this.predicate_list.join("_");
-    };
-
-
-    /**
-     * Add a condition
-     * @function Condition#predicate
-     * @internal
-     */
-
-    Condition.prototype.predicate = function(name, operator, value) {
-      if (Condition.OPERATORS[operator] != null) {
-        operator = Condition.OPERATORS[operator];
-      }
-      this.predicate_list.push(name + "_" + operator + "_" + value);
-      return this;
-    };
-
-
-    /**
-     * @function Condition#and
-     */
-
-    Condition.prototype.and = function() {
-      this.predicate_list.push("and");
-      return this;
-    };
-
-
-    /**
-     * @function Condition#or
-     */
-
-    Condition.prototype.or = function() {
-      this.predicate_list.push("or");
-      return this;
-    };
-
-
-    /**
-     * Conclude condition
-     * @function Condition#then
-     * @return {Transformation} the transformation this condition is defined for
-     */
-
-    Condition.prototype.then = function() {
-      return this.getParent()["if"](this.toString());
-    };
 
 
     /**
@@ -1350,7 +1445,7 @@ var slice = [].slice,
 
     return Condition;
 
-  })();
+  })(BaseExpression);
 
   /**
    * Cloudinary configuration class
@@ -1370,7 +1465,7 @@ var slice = [].slice,
       secure: (typeof window !== "undefined" && window !== null ? (ref = window.location) != null ? ref.protocol : void 0 : void 0) === 'https:'
     };
 
-    Configuration.CONFIG_PARAMS = ["api_key", "api_secret", "cdn_subdomain", "cloud_name", "cname", "private_cdn", "protocol", "resource_type", "responsive", "responsive_class", "responsive_use_breakpoints", "responsive_width", "round_dpr", "secure", "secure_cdn_subdomain", "secure_distribution", "shorten", "type", "url_suffix", "use_root_path", "version"];
+    Configuration.CONFIG_PARAMS = ["api_key", "api_secret", "callback", "cdn_subdomain", "cloud_name", "cname", "private_cdn", "protocol", "resource_type", "responsive", "responsive_class", "responsive_use_breakpoints", "responsive_width", "round_dpr", "secure", "secure_cdn_subdomain", "secure_distribution", "shorten", "type", "upload_preset", "url_suffix", "use_root_path", "version"];
 
 
     /**
