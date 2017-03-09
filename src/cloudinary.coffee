@@ -189,7 +189,6 @@ class Cloudinary
         if !options.trust_public_id
           publicId = publicId.replace(/\.(jpg|png|gif|webp)$/, '')
         publicId = publicId + '.' + options.format
-
     prefix = cloudinaryUrlPrefix(publicId, options)
     resourceTypeAndType = finalizeResourceType(options.resource_type, options.type, options.url_suffix, options.use_root_path, options.shorten)
     version = if options.version then 'v' + options.version else ''

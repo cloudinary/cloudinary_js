@@ -118,6 +118,9 @@ class ArrayParam extends Param
       array = @value()
       if cloudinary.Util.isEmpty(array)
         ''
+      else if cloudinary.Util.isString(array)
+        array
+        "#{@shortName}_#{array}"
       else
         flat = for t in @value()
           if cloudinary.Util.isFunction( t.serialize)
@@ -127,6 +130,12 @@ class ArrayParam extends Param
         "#{@shortName}_#{flat.join(@sep)}"
     else
       ''
+
+  value: ()->
+    if cloudinary.Util.isArray(@origValue)
+      @process(v) for v in @origValue
+    else
+      @process(@origValue)
 
   set: (origValue)->
     if !origValue? || cloudinary.Util.isArray(origValue)
@@ -232,22 +241,9 @@ class LayerParam extends Param
   textStyle: (layer)->
     (new cloudinary.TextLayer(layer)).textStyleIdentifier()
 
-#    fontFamily = layer.font_family
-#    fontSize   = layer.font_size
-#    keywords    =
-#      layer[attr] for [attr, defaultValue] in LAYER_KEYWORD_PARAMS when layer[attr] != defaultValue
-#
-#    letterSpacing = layer.letter_spacing
-#    keywords.push("letter_spacing_#{letterSpacing}") unless cloudinary.Util.isEmpty(letterSpacing)
-#    lineSpacing = layer.line_spacing
-#    keywords.push("line_spacing_#{lineSpacing}") unless cloudinary.Util.isEmpty(lineSpacing)
-#    if !cloudinary.Util.isEmpty(fontSize) || !cloudinary.Util.isEmpty(fontFamily) || !cloudinary.Util.isEmpty(keywords)
-#      throw "Must supply font_family for text in overlay/underlay" if cloudinary.Util.isEmpty(fontFamily)
-#      throw "Must supply font_size for text in overlay/underlay" if cloudinary.Util.isEmpty(fontSize)
-#      keywords.unshift(fontSize)
-#      keywords.unshift(fontFamily)
-#    cloudinary.Util.compact(keywords).join("_")
-
+class ExpressionParam extends Param
+  serialize: ()->
+    Expression.normalize(super())
 
 parameters = {}
 parameters.Param = Param
@@ -256,4 +252,5 @@ parameters.RangeParam = RangeParam
 parameters.RawParam = RawParam
 parameters.TransformationParam = TransformationParam
 parameters.LayerParam = LayerParam
+parameters.ExpressionParam = ExpressionParam
 

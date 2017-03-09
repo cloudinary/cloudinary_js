@@ -30,7 +30,7 @@ var slice = [].slice,
   /*
    * Includes common utility methods and shims
    */
-  var ArrayParam, BaseExpression, BaseUtil, ClientHintsMetaTag, Cloudinary, CloudinaryJQuery, Condition, Configuration, HtmlTag, ImageTag, Layer, LayerParam, Param, RangeParam, RawParam, SubtitlesLayer, TextLayer, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, camelCase, cloneDeep, cloudinary, compact, contains, convertKeys, crc32, defaults, difference, functions, getAttribute, getData, hasClass, identity, isEmpty, isNumberLike, isString, m, merge, parameters, reWords, removeAttribute, setAttribute, setAttributes, setData, smartEscape, snakeCase, utf8_encode, webp, width, withCamelCaseKeys, withSnakeCaseKeys, without;
+  var ArrayParam, BaseUtil, ClientHintsMetaTag, Cloudinary, CloudinaryJQuery, Condition, Configuration, Expression, ExpressionParam, HtmlTag, ImageTag, Layer, LayerParam, Param, RangeParam, RawParam, SubtitlesLayer, TextLayer, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, camelCase, cloneDeep, cloudinary, compact, contains, convertKeys, crc32, defaults, difference, functions, getAttribute, getData, hasClass, identity, isEmpty, isNumberLike, isString, m, merge, parameters, reWords, removeAttribute, setAttribute, setAttributes, setData, smartEscape, snakeCase, utf8_encode, webp, width, withCamelCaseKeys, withSnakeCaseKeys, without;
   allStrings = function(list) {
     var item, j, len;
     for (j = 0, len = list.length; j < len; j++) {
@@ -683,7 +683,7 @@ var slice = [].slice,
      */
 
     TextLayer.prototype.toString = function() {
-      var components, hasPublicId, hasStyle, publicId, style, text;
+      var components, hasPublicId, hasStyle, publicId, re, res, start, style, text, textSource;
       style = this.textStyleIdentifier();
       if (this.options.publicId != null) {
         publicId = this.getFullPublicId();
@@ -694,7 +694,16 @@ var slice = [].slice,
         if (hasPublicId && hasStyle || !hasPublicId && !hasStyle) {
           throw "Must supply either style parameters or a public_id when providing text parameter in a text overlay/underlay, but not both!";
         }
-        text = Util.smartEscape(Util.smartEscape(this.options.text, /[,\/]/g));
+        re = /\$\([a-zA-Z]\w*\)/g;
+        start = 0;
+        textSource = Util.smartEscape(this.options.text, /[,\/]/g);
+        text = "";
+        while (res = re.exec(textSource)) {
+          text += Util.smartEscape(textSource.slice(start, res.index));
+          text += res[0];
+          start = res.index + res[0].length;
+        }
+        text += Util.smartEscape(textSource.slice(start));
       }
       components = [this.options.resourceType, style, publicId, text];
       return Util.compact(components).join(":");
@@ -921,6 +930,9 @@ var slice = [].slice,
         array = this.value();
         if (cloudinary.Util.isEmpty(array)) {
           return '';
+        } else if (cloudinary.Util.isString(array)) {
+          array;
+          return this.shortName + "_" + array;
         } else {
           flat = (function() {
             var j, len, ref, results;
@@ -940,6 +952,21 @@ var slice = [].slice,
         }
       } else {
         return '';
+      }
+    };
+
+    ArrayParam.prototype.value = function() {
+      var j, len, ref, results, v;
+      if (cloudinary.Util.isArray(this.origValue)) {
+        ref = this.origValue;
+        results = [];
+        for (j = 0, len = ref.length; j < len; j++) {
+          v = ref[j];
+          results.push(this.process(v));
+        }
+        return results;
+      } else {
+        return this.process(this.origValue);
       }
     };
 
@@ -1115,6 +1142,20 @@ var slice = [].slice,
     return LayerParam;
 
   })(Param);
+  ExpressionParam = (function(superClass) {
+    extend(ExpressionParam, superClass);
+
+    function ExpressionParam() {
+      return ExpressionParam.__super__.constructor.apply(this, arguments);
+    }
+
+    ExpressionParam.prototype.serialize = function() {
+      return Expression.normalize(ExpressionParam.__super__.serialize.call(this));
+    };
+
+    return ExpressionParam;
+
+  })(Param);
   parameters = {};
   parameters.Param = Param;
   parameters.ArrayParam = ArrayParam;
@@ -1122,12 +1163,15 @@ var slice = [].slice,
   parameters.RawParam = RawParam;
   parameters.TransformationParam = TransformationParam;
   parameters.LayerParam = LayerParam;
-  BaseExpression = (function() {
+  parameters.ExpressionParam = ExpressionParam;
+  Expression = (function() {
 
     /**
      * @internal
      */
-    BaseExpression.OPERATORS = {
+    var faceCount;
+
+    Expression.OPERATORS = {
       "=": 'eq',
       "!=": 'ne',
       "<": 'lt',
@@ -1135,220 +1179,384 @@ var slice = [].slice,
       "<=": 'lte',
       ">=": 'gte',
       "&&": 'and',
-      "||": 'or'
+      "||": 'or',
+      "*": "mul",
+      "/": "div",
+      "+": "add",
+      "-": "sub"
     };
-
-    BaseExpression.PARAMETERS = {
-      "width": "w",
-      "height": "h",
-      "aspect_ratio": "ar",
-      "aspectRatio": "ar",
-      "page_count": "pc",
-      "pageCount": "pc",
-      "face_count": "fc",
-      "faceCount": "fc"
-    };
-
-    BaseExpression.BOUNDRY = "[ _]+";
 
 
     /**
-     * Represents a transformation condition
-     * @param {string} conditionStr - a condition in string format
-     * @class Condition
-     * @example
-     * // normally this class is not instantiated directly
-     * var tr = cloudinary.Transformation.new()
-     *    .if().width( ">", 1000).and().aspectRatio("<", "3:4").then()
-     *      .width(1000)
-     *      .crop("scale")
-     *    .else()
-     *      .width(500)
-     *      .crop("scale")
-     *
-     * var tr = cloudinary.Transformation.new()
-     *    .if("w > 1000 and aspectRatio < 3:4")
-     *      .width(1000)
-     *      .crop("scale")
-     *    .else()
-     *      .width(500)
-     *      .crop("scale")
+     * @internal
+     */
+
+    Expression.PREDEFINED_VARS = {
+      "aspect_ratio": "ar",
+      "aspectRatio": "ar",
+      "current_page": "cp",
+      "currentPage": "cp",
+      "face_count": "fc",
+      "faceCount": "fc",
+      "height": "h",
+      "initial_aspect_ratio": "iar",
+      "initial_height": "ih",
+      "initial_width": "iw",
+      "initialAspectRatio": "iar",
+      "initialHeight": "ih",
+      "initialWidth": "iw",
+      "page_count": "pc",
+      "page_x": "px",
+      "page_y": "py",
+      "pageCount": "pc",
+      "pageX": "px",
+      "pageY": "py",
+      "tags": "tags",
+      "width": "w"
+    };
+
+
+    /**
+     * @internal
+     */
+
+    Expression.BOUNDRY = "[ _]+";
+
+
+    /**
+     * Represents a transformation expression
+     * @param {string} expressionStr - a expression in string format
+     * @class Expression
      *
      */
 
-    function BaseExpression(conditionStr) {
-      this.predicate_list = [];
-      if (conditionStr != null) {
-        this.predicate_list.push(this.normalize(conditionStr));
+    function Expression(expressionStr) {
+
+      /**
+        * @protected
+        * @inner Expression-expressions
+       */
+      this.expressions = [];
+      if (expressionStr != null) {
+        this.expressions.push(Expression.normalize(expressionStr));
       }
     }
 
 
     /**
      * Convenience constructor method
-     * @function Condition.new
+     * @function Expression.new
      */
 
-    BaseExpression["new"] = function(conditionStr) {
-      return new this(conditionStr);
+    Expression["new"] = function(expressionStr) {
+      return new this(expressionStr);
     };
 
 
     /**
-     * Normalize a string condition
+     * Normalize a string expression
      * @function Cloudinary#normalize
-     * @param {string} value a condition, e.g. "w gt 100", "width_gt_100", "width > 100"
-     * @return {string} the normalized form of the value condition, e.g. "w_gt_100"
+     * @param {string} expression a expression, e.g. "w gt 100", "width_gt_100", "width > 100"
+     * @return {string} the normalized form of the value expression, e.g. "w_gt_100"
      */
 
-    BaseExpression.prototype.normalize = function(value) {
-      var replaceRE;
-      replaceRE = new RegExp("(" + Object.keys(Condition.PARAMETERS).join("|") + "|[=<>&|!]+)", "g");
-      value = value.replace(replaceRE, function(match) {
-        return Condition.OPERATORS[match] || Condition.PARAMETERS[match];
+    Expression.normalize = function(expression) {
+      var operators, pattern, replaceRE;
+      if (expression == null) {
+        return expression;
+      }
+      expression = String(expression);
+      operators = "\\|\\||>=|<=|&&|!=|>|=|<|/|-|\\+|\\*";
+      pattern = "((" + operators + ")(?=[ _])|" + Object.keys(Expression.PREDEFINED_VARS).join("|") + ")";
+      replaceRE = new RegExp(pattern, "g");
+      expression = expression.replace(replaceRE, function(match) {
+        return Expression.OPERATORS[match] || Expression.PREDEFINED_VARS[match];
       });
-      return value.replace(/[ _]+/g, '_');
+      return expression.replace(/[ _]+/g, '_');
+    };
+
+    Expression.prototype.serialize = function() {
+      return StringUtils.join(expressions, "_");
+    };
+
+    Expression.Override;
+
+    Expression.prototype.toString = function() {
+      return serialize();
     };
 
 
     /**
-     * Get the parent transformation of this condition
+     * Get the parent transformation of this expression
      * @return Transformation
      */
 
-    BaseExpression.prototype.getParent = function() {
+    Expression.prototype.getParent = function() {
       return this.parent;
     };
 
 
     /**
-     * Set the parent transformation of this condition
+     * Set the parent transformation of this expression
      * @param {Transformation} the parent transformation
-     * @return {Condition} this condition
+     * @return {Expression} this expression
      */
 
-    BaseExpression.prototype.setParent = function(parent) {
+    Expression.prototype.setParent = function(parent) {
       this.parent = parent;
       return this;
     };
 
 
     /**
-     * Serialize the condition
-     * @return {string} the condition as a string
+     * Serialize the expression
+     * @return {string} the expression as a string
      */
 
-    BaseExpression.prototype.toString = function() {
-      return this.predicate_list.join("_");
+    Expression.prototype.toString = function() {
+      return this.expressions.join("_");
     };
 
 
     /**
-     * Add a condition
-     * @function Condition#predicate
+     * Add a expression
+     * @function Expression#predicate
      * @internal
      */
 
-    BaseExpression.prototype.predicate = function(name, operator, value) {
-      if (Condition.OPERATORS[operator] != null) {
-        operator = Condition.OPERATORS[operator];
+    Expression.prototype.predicate = function(name, operator, value) {
+      if (Expression.OPERATORS[operator] != null) {
+        operator = Expression.OPERATORS[operator];
       }
-      this.predicate_list.push(name + "_" + operator + "_" + value);
+      this.expressions.push(name + "_" + operator + "_" + value);
       return this;
     };
 
 
     /**
-     * @function Condition#and
+     * @function Expression#and
      */
 
-    BaseExpression.prototype.and = function() {
-      this.predicate_list.push("and");
+    Expression.prototype.and = function() {
+      this.expressions.push("and");
       return this;
     };
 
 
     /**
-     * @function Condition#or
+     * @function Expression#or
      */
 
-    BaseExpression.prototype.or = function() {
-      this.predicate_list.push("or");
+    Expression.prototype.or = function() {
+      this.expressions.push("or");
       return this;
     };
 
 
     /**
-     * Conclude condition
-     * @function Condition#then
-     * @return {Transformation} the transformation this condition is defined for
+     * Conclude expression
+     * @function Expression#then
+     * @return {Transformation} the transformation this expression is defined for
      */
 
-    BaseExpression.prototype.then = function() {
+    Expression.prototype.then = function() {
       return this.getParent()["if"](this.toString());
     };
 
 
     /**
-     * @function Condition#height
+     * @function Expression#height
      * @param {string} operator the comparison operator (e.g. "<", "lt")
      * @param {string|number} value the right hand side value
-     * @return {Condition} this condition
+     * @return {Expression} this expression
      */
 
-    BaseExpression.prototype.height = function(operator, value) {
+    Expression.prototype.height = function(operator, value) {
       return this.predicate("h", operator, value);
     };
 
 
     /**
-     * @function Condition#width
+     * @function Expression#width
      * @param {string} operator the comparison operator (e.g. "<", "lt")
      * @param {string|number} value the right hand side value
-     * @return {Condition} this condition
+     * @return {Expression} this expression
      */
 
-    BaseExpression.prototype.width = function(operator, value) {
+    Expression.prototype.width = function(operator, value) {
       return this.predicate("w", operator, value);
     };
 
 
     /**
-     * @function Condition#aspectRatio
+     * @function Expression#aspectRatio
      * @param {string} operator the comparison operator (e.g. "<", "lt")
      * @param {string|number} value the right hand side value
-     * @return {Condition} this condition
+     * @return {Expression} this expression
      */
 
-    BaseExpression.prototype.aspectRatio = function(operator, value) {
+    Expression.prototype.aspectRatio = function(operator, value) {
       return this.predicate("ar", operator, value);
     };
 
 
     /**
-     * @function Condition#pages
+     * @function Expression#pages
      * @param {string} operator the comparison operator (e.g. "<", "lt")
      * @param {string|number} value the right hand side value
-     * @return {Condition} this condition
+     * @return {Expression} this expression
      */
 
-    BaseExpression.prototype.pageCount = function(operator, value) {
+    Expression.prototype.pageCount = function(operator, value) {
       return this.predicate("pc", operator, value);
     };
 
 
     /**
-     * @function Condition#faces
+     * @function Expression#faces
      * @param {string} operator the comparison operator (e.g. "<", "lt")
      * @param {string|number} value the right hand side value
-     * @return {Condition} this condition
+     * @return {Expression} this expression
      */
 
-    BaseExpression.prototype.faceCount = function(operator, value) {
+    Expression.prototype.faceCount = function(operator, value) {
       return this.predicate("fc", operator, value);
     };
 
-    return BaseExpression;
+    Expression.prototype.value = function(value) {
+      this.expressions.push(value);
+      return this;
+    };
+
+
+    /**
+     */
+
+    Expression.variable = function(name, value) {
+      return new this(name).value(value);
+    };
+
+
+    /**
+      * @returns a new expression with the predefined variable "width"
+      * @function Expression.width
+     */
+
+    Expression.width = function() {
+      return new this("width");
+    };
+
+
+    /**
+      * @returns a new expression with the predefined variable "height"
+      * @function Expression.height
+     */
+
+    Expression.height = function() {
+      return new this("height");
+    };
+
+
+    /**
+      * @returns a new expression with the predefined variable "initialWidth"
+      * @function Expression.initialWidth
+     */
+
+    Expression.initialWidth = function() {
+      return new this("initialWidth");
+    };
+
+
+    /**
+      * @returns a new expression with the predefined variable "initialHeight"
+      * @function Expression.initialHeight
+     */
+
+    Expression.initialHeight = function() {
+      return new this("initialHeight");
+    };
+
+
+    /**
+      * @returns a new expression with the predefined variable "aspectRatio"
+      * @function Expression.aspectRatio
+     */
+
+    Expression.aspectRatio = function() {
+      return new this("aspectRatio");
+    };
+
+
+    /**
+      * @returns a new expression with the predefined variable "initialAspectRatio"
+      * @function Expression.initialAspectRatio
+     */
+
+    Expression.initialAspectRatio = function() {
+      return new this("initialAspectRatio");
+    };
+
+
+    /**
+      * @returns a new expression with the predefined variable "pageCount"
+      * @function Expression.pageCount
+     */
+
+    Expression.pageCount = function() {
+      return new this("pageCount");
+    };
+
+
+    /**
+      * @returns a new expression with the predefined variable "faceCount"
+      * @function Expression.faceCount
+     */
+
+    faceCount = function() {
+      return new this("faceCount");
+    };
+
+
+    /**
+      * @returns a new expression with the predefined variable "currentPage"
+      * @function Expression.currentPage
+     */
+
+    Expression.currentPage = function() {
+      return new this("currentPage");
+    };
+
+
+    /**
+      * @returns a new expression with the predefined variable "tags"
+      * @function Expression.tags
+     */
+
+    Expression.tags = function() {
+      return new this("tags");
+    };
+
+
+    /**
+      * @returns a new expression with the predefined variable "pageX"
+      * @function Expression.pageX
+     */
+
+    Expression.pageX = function() {
+      return new this("pageX");
+    };
+
+
+    /**
+      * @returns a new expression with the predefined variable "pageY"
+      * @function Expression.pageY
+     */
+
+    Expression.pageY = function() {
+      return new this("pageY");
+    };
+
+    return Expression;
 
   })();
   Condition = (function(superClass) {
@@ -1445,7 +1653,7 @@ var slice = [].slice,
 
     return Condition;
 
-  })(BaseExpression);
+  })(Expression);
 
   /**
    * Cloudinary configuration class
@@ -1654,7 +1862,7 @@ var slice = [].slice,
    * @internal
    */
   TransformationBase = (function() {
-    var lastArgCallback;
+    var lastArgCallback, processVar;
 
     TransformationBase.prototype.trans_separator = '/';
 
@@ -1876,7 +2084,9 @@ var slice = [].slice,
           var results;
           results = [];
           for (key in trans) {
-            results.push(Util.snakeCase(key));
+            if (key != null) {
+              results.push(key.match(/^\$\w+/) ? key : Util.snakeCase(key));
+            }
           }
           return results;
         })()).sort();
@@ -1971,7 +2181,11 @@ var slice = [].slice,
         });
         for (key in options) {
           opt = options[key];
-          this.set(key, opt);
+          if (key.match(/^\$\w+/)) {
+            this.set('variable', key, opt);
+          } else {
+            this.set(key, opt);
+          }
         }
       }
       return this;
@@ -1998,13 +2212,14 @@ var slice = [].slice,
      * @returns {Transformation} Returns this instance for chaining
      */
 
-    TransformationBase.prototype.set = function(key, value) {
-      var camelKey;
+    TransformationBase.prototype.set = function() {
+      var camelKey, key, values;
+      key = arguments[0], values = 2 <= arguments.length ? slice.call(arguments, 1) : [];
       camelKey = Util.camelCase(key);
       if (Util.contains(Transformation.methods, camelKey)) {
-        this[camelKey](value);
+        this[camelKey].apply(this, values);
       } else {
-        this.otherOptions[key] = value;
+        this.otherOptions[key] = values[0];
       }
       return this;
     };
@@ -2021,7 +2236,7 @@ var slice = [].slice,
      */
 
     TransformationBase.prototype.serialize = function() {
-      var ifParam, paramList, ref, ref1, resultArray, t, tr, transformationList, transformationString, transformations, value;
+      var ifParam, j, len, paramList, ref, ref1, ref2, ref3, ref4, resultArray, t, tr, transformationList, transformationString, transformations, value, variables, vars;
       resultArray = (function() {
         var j, len, ref, results;
         ref = this.chained;
@@ -2035,16 +2250,18 @@ var slice = [].slice,
       paramList = this.keys();
       transformations = (ref = this.get("transformation")) != null ? ref.serialize() : void 0;
       ifParam = (ref1 = this.get("if")) != null ? ref1.serialize() : void 0;
-      paramList = Util.difference(paramList, ["transformation", "if"]);
-      transformationList = (function() {
-        var j, len, ref2, results;
-        results = [];
-        for (j = 0, len = paramList.length; j < len; j++) {
-          t = paramList[j];
-          results.push((ref2 = this.get(t)) != null ? ref2.serialize() : void 0);
+      variables = processVar((ref2 = this.get("variables")) != null ? ref2.value() : void 0);
+      paramList = Util.difference(paramList, ["transformation", "if", "variables"]);
+      vars = [];
+      transformationList = [];
+      for (j = 0, len = paramList.length; j < len; j++) {
+        t = paramList[j];
+        if (t.match(/^\$\w+/)) {
+          vars.push(t + "_" + Expression.normalize((ref3 = this.get(t)) != null ? ref3.value() : void 0));
+        } else {
+          transformationList.push((ref4 = this.get(t)) != null ? ref4.serialize() : void 0);
         }
-        return results;
-      }).call(this);
+      }
       switch (false) {
         case !Util.isString(transformations):
           transformationList.push(transformations);
@@ -2052,23 +2269,24 @@ var slice = [].slice,
         case !Util.isArray(transformations):
           resultArray = resultArray.concat(transformations);
       }
-      transformationList = ((function() {
-        var j, len, results;
+      transformationList = (function() {
+        var l, len1, results;
         results = [];
-        for (j = 0, len = transformationList.length; j < len; j++) {
-          value = transformationList[j];
+        for (l = 0, len1 = transformationList.length; l < len1; l++) {
+          value = transformationList[l];
           if (Util.isArray(value) && !Util.isEmpty(value) || !Util.isArray(value) && value) {
             results.push(value);
           }
         }
         return results;
-      })()).sort();
+      })();
+      transformationList = vars.sort().concat(variables).concat(transformationList.sort());
       if (ifParam === "if_end") {
         transformationList.push(ifParam);
       } else if (!Util.isEmpty(ifParam)) {
         transformationList.unshift(ifParam);
       }
-      transformationString = transformationList.join(this.param_separator);
+      transformationString = Util.compact(transformationList).join(this.param_separator);
       if (!Util.isEmpty(transformationString)) {
         resultArray.push(transformationString);
       }
@@ -2155,6 +2373,20 @@ var slice = [].slice,
 
     TransformationBase.prototype.toString = function() {
       return this.serialize();
+    };
+
+    processVar = function(varArray) {
+      var j, len, name, ref, results, v;
+      if (Util.isArray(varArray)) {
+        results = [];
+        for (j = 0, len = varArray.length; j < len; j++) {
+          ref = varArray[j], name = ref[0], v = ref[1];
+          results.push(name + "_" + (Expression.normalize(v)));
+        }
+        return results;
+      } else {
+        return varArray;
+      }
 
       /**
        * Transformation Class methods.
@@ -2222,7 +2454,7 @@ var slice = [].slice,
      */
 
     Transformation.prototype.angle = function(value) {
-      return this.arrayParam(value, "angle", "a", ".");
+      return this.arrayParam(value, "angle", "a", ".", Expression.normalize);
     };
 
     Transformation.prototype.audioCodec = function(value) {
@@ -2234,7 +2466,7 @@ var slice = [].slice,
     };
 
     Transformation.prototype.aspectRatio = function(value) {
-      return this.param(value, "aspect_ratio", "ar");
+      return this.param(value, "aspect_ratio", "ar", Expression.normalize);
     };
 
     Transformation.prototype.background = function(value) {
@@ -2294,14 +2526,14 @@ var slice = [].slice,
           if (dpr != null ? dpr.match(/^\d+$/) : void 0) {
             return dpr + ".0";
           } else {
-            return dpr;
+            return Expression.normalize(dpr);
           }
         };
       })(this));
     };
 
     Transformation.prototype.effect = function(value) {
-      return this.arrayParam(value, "effect", "e", ":");
+      return this.arrayParam(value, "effect", "e", ":", Expression.normalize);
     };
 
     Transformation.prototype["else"] = function() {
@@ -2340,7 +2572,7 @@ var slice = [].slice,
       return this.param(value, "height", "h", (function(_this) {
         return function() {
           if (_this.getValue("crop") || _this.getValue("overlay") || _this.getValue("underlay")) {
-            return value;
+            return Expression.normalize(value);
           } else {
             return null;
           }
@@ -2407,7 +2639,7 @@ var slice = [].slice,
     };
 
     Transformation.prototype.opacity = function(value) {
-      return this.param(value, "opacity", "o");
+      return this.param(value, "opacity", "o", Expression.normalize);
     };
 
     Transformation.prototype.overlay = function(value) {
@@ -2427,11 +2659,11 @@ var slice = [].slice,
     };
 
     Transformation.prototype.quality = function(value) {
-      return this.param(value, "quality", "q");
+      return this.param(value, "quality", "q", Expression.normalize);
     };
 
     Transformation.prototype.radius = function(value) {
-      return this.param(value, "radius", "r");
+      return this.param(value, "radius", "r", Expression.normalize);
     };
 
     Transformation.prototype.rawTransformation = function(value) {
@@ -2471,6 +2703,14 @@ var slice = [].slice,
       return this.layerParam(value, "underlay", "u");
     };
 
+    Transformation.prototype.variable = function(name, value) {
+      return this.param(value, name, name);
+    };
+
+    Transformation.prototype.variables = function(values) {
+      return this.arrayParam(values, "variables");
+    };
+
     Transformation.prototype.videoCodec = function(value) {
       return this.param(value, "video_codec", "vc", Param.process_video_params);
     };
@@ -2483,7 +2723,7 @@ var slice = [].slice,
       return this.param(value, "width", "w", (function(_this) {
         return function() {
           if (_this.getValue("crop") || _this.getValue("overlay") || _this.getValue("underlay")) {
-            return value;
+            return Expression.normalize(value);
           } else {
             return null;
           }
@@ -2492,15 +2732,15 @@ var slice = [].slice,
     };
 
     Transformation.prototype.x = function(value) {
-      return this.param(value, "x", "x");
+      return this.param(value, "x", "x", Expression.normalize);
     };
 
     Transformation.prototype.y = function(value) {
-      return this.param(value, "y", "y");
+      return this.param(value, "y", "y", Expression.normalize);
     };
 
     Transformation.prototype.zoom = function(value) {
-      return this.param(value, "zoom", "z");
+      return this.param(value, "zoom", "z", Expression.normalize);
     };
 
     return Transformation;

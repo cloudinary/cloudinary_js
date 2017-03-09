@@ -1,4 +1,4 @@
-class Condition extends BaseExpression
+class Condition extends Expression
   ###*
    * Represents a transformation condition
    * @param {string} conditionStr - a condition in string format

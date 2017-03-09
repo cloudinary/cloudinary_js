@@ -158,7 +158,7 @@ class TransformationBase
      * @return {Array<string>} the keys in snakeCase format
     ###
     @keys ||= ()->
-      (Util.snakeCase(key) for key of trans).sort()
+      ((if key.match(/^\$\w+/) then key else Util.snakeCase(key)) for key of trans when key?).sort()
 
     ###*
      * Returns a plain object representation of the transformation. Values are processed.
@@ -224,7 +224,10 @@ class TransformationBase
           new value.constructor( value.toOptions())
       )
       for key, opt of options
-        @set key, opt
+        if key.match(/^\$\w+/)
+          @set 'variable', key, opt
+        else
+          @set key, opt
     this
 
   fromTransformation: (other) ->
@@ -240,12 +243,12 @@ class TransformationBase
    * @param {*} value - the value of the parameter
    * @returns {Transformation} Returns this instance for chaining
   ###
-  set: (key, value)->
+  set: (key, values...)->
     camelKey = Util.camelCase( key)
     if Util.contains( Transformation.methods, camelKey)
-      this[camelKey](value)
+      this[camelKey].apply(this, values)
     else
-      @otherOptions[key] = value
+      @otherOptions[key] = values[0]
     this
 
   hasLayer: ()->
@@ -263,8 +266,16 @@ class TransformationBase
     paramList = @keys()
     transformations = @get("transformation")?.serialize()
     ifParam = @get("if")?.serialize()
-    paramList = Util.difference(paramList, ["transformation", "if"])
-    transformationList = (@get(t)?.serialize() for t in paramList )
+    variables = processVar(@get("variables")?.value())
+    paramList = Util.difference(paramList, ["transformation", "if", "variables"])
+    vars = []
+    transformationList = []
+    for t in paramList
+      if t.match(/^\$\w+/)
+        vars.push(t + "_" + Expression.normalize(@get(t)?.value()))
+      else
+        transformationList.push(@get(t)?.serialize())
+
     switch
       when Util.isString(transformations)
         transformationList.push( transformations)
@@ -273,13 +284,16 @@ class TransformationBase
     transformationList = (
       for value in transformationList when Util.isArray(value) &&!Util.isEmpty(value) || !Util.isArray(value) && value
         value
-    ).sort()
+    )
+
+    transformationList = vars.sort().concat(variables).concat(transformationList.sort())
+
     if ifParam == "if_end"
       transformationList.push(ifParam)
     else if !Util.isEmpty(ifParam)
       transformationList.unshift(ifParam)
 
-    transformationString = transformationList.join(@param_separator)
+    transformationString = Util.compact(transformationList).join(@param_separator)
     resultArray.push(transformationString) unless Util.isEmpty(transformationString)
     Util.compact(resultArray).join(@trans_separator)
 
@@ -339,6 +353,12 @@ class TransformationBase
     @serialize()
 
 
+  processVar = (varArray)->
+    if Util.isArray(varArray)
+      "#{name}_#{Expression.normalize(v)}" for [name,v] in varArray
+    else
+      varArray
+
     ###*
      * Transformation Class methods.
      * This is a list of the parameters defined in Transformation.
@@ -388,10 +408,10 @@ class Transformation  extends TransformationBase
     Transformation Parameters
   ###
 
-  angle: (value)->                @arrayParam value, "angle", "a", "."
+  angle: (value)->                @arrayParam value, "angle", "a", ".", Expression.normalize
   audioCodec: (value)->           @param value, "audio_codec", "ac"
   audioFrequency: (value)->       @param value, "audio_frequency", "af"
-  aspectRatio: (value)->          @param value, "aspect_ratio", "ar"
+  aspectRatio: (value)->          @param value, "aspect_ratio", "ar", Expression.normalize
   background: (value)->           @param value, "background", "b", Param.norm_color
   bitRate: (value)->              @param value, "bit_rate", "br"
   border: (value)->               @param value, "border", "bo", (border) ->
@@ -412,8 +432,8 @@ class Transformation  extends TransformationBase
     if (dpr?.match(/^\d+$/))
       dpr + ".0"
     else
-      dpr
-  effect: (value)->               @arrayParam value,  "effect", "e", ":"
+      Expression.normalize(dpr)
+  effect: (value)->               @arrayParam value,  "effect", "e", ":", Expression.normalize
   else: ()->                      @if('else')
   endIf: ()->                     @if('end')
   endOffset: (value)->            @rangeParam value,  "end_offset", "eo"
@@ -424,7 +444,7 @@ class Transformation  extends TransformationBase
   gravity: (value)->              @param value,       "gravity", "g"
   height: (value)->               @param value,       "height", "h", =>
     if ( @getValue("crop") || @getValue("overlay") || @getValue("underlay"))
-      value
+      Expression.normalize(value)
     else
       null
   htmlHeight: (value)->           @param value, "html_height"
@@ -462,13 +482,13 @@ class Transformation  extends TransformationBase
       [null,null]
     @startOffset(start_o) if start_o?
     @endOffset(end_o) if end_o?
-  opacity: (value)->              @param value, "opacity",  "o"
+  opacity: (value)->              @param value, "opacity",  "o", Expression.normalize
   overlay: (value)->              @layerParam value, "overlay",  "l"
   page: (value)->                 @param value, "page",     "pg"
   poster: (value)->               @param value, "poster"
   prefix: (value)->               @param value, "prefix",   "p"
-  quality: (value)->              @param value, "quality",  "q"
-  radius: (value)->               @param value, "radius",   "r"
+  quality: (value)->              @param value, "quality",  "q", Expression.normalize
+  radius: (value)->               @param value, "radius",   "r", Expression.normalize
   rawTransformation: (value)->    @rawParam value, "raw_transformation"
   size: (value)->
     if( Util.isFunction(value?.split))
@@ -481,16 +501,18 @@ class Transformation  extends TransformationBase
   streamingProfile: (value)->     @param value, "streaming_profile",  "sp"
   transformation: (value)->       @transformationParam value, "transformation", "t"
   underlay: (value)->             @layerParam value, "underlay", "u"
+  variable: (name, value)->       @param value, name, name
+  variables: (values)->           @arrayParam values, "variables"
   videoCodec: (value)->           @param value, "video_codec", "vc", Param.process_video_params
   videoSampling: (value)->        @param value, "video_sampling", "vs"
   width: (value)->                @param value, "width", "w", =>
     if ( @getValue("crop") || @getValue("overlay") || @getValue("underlay"))
-      value
+      Expression.normalize(value)
     else
       null
-  x: (value)->                    @param value, "x", "x"
-  y: (value)->                    @param value, "y", "y"
-  zoom: (value)->                 @param value, "zoom", "z"
+  x: (value)->                    @param value, "x", "x", Expression.normalize
+  y: (value)->                    @param value, "y", "y", Expression.normalize
+  zoom: (value)->                 @param value, "zoom", "z", Expression.normalize
 
 ###*
  * Transformation Class methods.
