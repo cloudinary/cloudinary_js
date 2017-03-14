@@ -925,21 +925,19 @@ var slice = [].slice,
     }
 
     ArrayParam.prototype.serialize = function() {
-      var array, flat, t;
+      var arrayValue, flat, t;
       if (this.shortName != null) {
-        array = this.value();
-        if (cloudinary.Util.isEmpty(array)) {
+        arrayValue = this.value();
+        if (cloudinary.Util.isEmpty(arrayValue)) {
           return '';
-        } else if (cloudinary.Util.isString(array)) {
-          array;
-          return this.shortName + "_" + array;
+        } else if (cloudinary.Util.isString(arrayValue)) {
+          return this.shortName + "_" + arrayValue;
         } else {
           flat = (function() {
-            var j, len, ref, results;
-            ref = this.value();
+            var j, len, results;
             results = [];
-            for (j = 0, len = ref.length; j < len; j++) {
-              t = ref[j];
+            for (j = 0, len = arrayValue.length; j < len; j++) {
+              t = arrayValue[j];
               if (cloudinary.Util.isFunction(t.serialize)) {
                 results.push(t.serialize());
               } else {
@@ -947,7 +945,7 @@ var slice = [].slice,
               }
             }
             return results;
-          }).call(this);
+          })();
           return this.shortName + "_" + (flat.join(this.sep));
         }
       } else {
@@ -1275,14 +1273,18 @@ var slice = [].slice,
       return expression.replace(/[ _]+/g, '_');
     };
 
+
+    /**
+     * Serialize the expression
+     * @return {string} the expression as a string
+     */
+
     Expression.prototype.serialize = function() {
-      return StringUtils.join(expressions, "_");
+      return this.expressions.join("_");
     };
 
-    Expression.Override;
-
     Expression.prototype.toString = function() {
-      return serialize();
+      return this.serialize();
     };
 
 
@@ -1305,16 +1307,6 @@ var slice = [].slice,
     Expression.prototype.setParent = function(parent) {
       this.parent = parent;
       return this;
-    };
-
-
-    /**
-     * Serialize the expression
-     * @return {string} the expression as a string
-     */
-
-    Expression.prototype.toString = function() {
-      return this.expressions.join("_");
     };
 
 
@@ -1862,7 +1854,9 @@ var slice = [].slice,
    * @internal
    */
   TransformationBase = (function() {
-    var lastArgCallback, processVar;
+    var VAR_NAME_RE, lastArgCallback, processVar;
+
+    VAR_NAME_RE = /^\$[a-zA-Z0-9]+$/;
 
     TransformationBase.prototype.trans_separator = '/';
 
@@ -2085,7 +2079,7 @@ var slice = [].slice,
           results = [];
           for (key in trans) {
             if (key != null) {
-              results.push(key.match(/^\$\w+/) ? key : Util.snakeCase(key));
+              results.push(key.match(VAR_NAME_RE) ? key : Util.snakeCase(key));
             }
           }
           return results;
@@ -2181,7 +2175,7 @@ var slice = [].slice,
         });
         for (key in options) {
           opt = options[key];
-          if (key.match(/^\$\w+/)) {
+          if (key.match(VAR_NAME_RE)) {
             this.set('variable', key, opt);
           } else {
             this.set(key, opt);
@@ -2256,7 +2250,7 @@ var slice = [].slice,
       transformationList = [];
       for (j = 0, len = paramList.length; j < len; j++) {
         t = paramList[j];
-        if (t.match(/^\$\w+/)) {
+        if (t.match(VAR_NAME_RE)) {
           vars.push(t + "_" + Expression.normalize((ref3 = this.get(t)) != null ? ref3.value() : void 0));
         } else {
           transformationList.push((ref4 = this.get(t)) != null ? ref4.serialize() : void 0);

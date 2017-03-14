@@ -115,14 +115,13 @@ class ArrayParam extends Param
 
   serialize: ->
     if @shortName?
-      array = @value()
-      if cloudinary.Util.isEmpty(array)
+      arrayValue = @value()
+      if cloudinary.Util.isEmpty(arrayValue)
         ''
-      else if cloudinary.Util.isString(array)
-        array
-        "#{@shortName}_#{array}"
+      else if cloudinary.Util.isString(arrayValue)
+        "#{@shortName}_#{arrayValue}"
       else
-        flat = for t in @value()
+        flat = for t in arrayValue
           if cloudinary.Util.isFunction( t.serialize)
             t.serialize() # Param or Transformation
           else

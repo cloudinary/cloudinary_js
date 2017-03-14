@@ -394,6 +394,12 @@ describe "Transformation", ->
       ] }
       t = new Transformation( options).toString()
       expect(t).toEqual("$foo_10/if_fc_gt_2/c_scale,w_$foo_mul_200_div_fc/if_end")
+    it "should sort variables", ->
+      t = new Transformation( {$second: 1, $first: 2}).toString()
+      expect(t).toEqual("$first_2,$second_1")
+    it "should place ordered variables after individual variables", ->
+      t = new Transformation( {variables: [["$z", 5], ["$foo", "$z * 2"] ],$second: 1, $first: 2}).toString()
+      expect(t).toEqual("$first_2,$second_1,$z_5,$foo_$z_mul_2")
     it "should support text values", ->
       test_cloudinary_url("sample", {
         effect: "$efname:100",

@@ -86,12 +86,15 @@ class Expression
       Expression.OPERATORS[match] || Expression.PREDEFINED_VARS[match]
     expression.replace(/[ _]+/g, '_')
 
+  ###*
+   * Serialize the expression
+   * @return {string} the expression as a string
+  ###
   serialize: ()->
-    StringUtils.join(expressions, "_")
+    Expression.normalize(@expressions.join("_"))
 
-  @Override
   toString: ()->
-    serialize()
+    @serialize()
 
   ###*
    * Get the parent transformation of this expression
@@ -107,12 +110,6 @@ class Expression
   setParent: (parent)->
     @parent = parent
     @
-
-  ###*
-   * Serialize the expression
-   * @return {string} the expression as a string
-  ###
-  toString: ()-> @expressions.join("_")
 
   ###*
    * Add a expression

@@ -5,6 +5,7 @@
 ###
 
 class TransformationBase
+  VAR_NAME_RE = /^\$[a-zA-Z0-9]+$/
   trans_separator: '/'
   param_separator: ','
   lastArgCallback = (args)->
@@ -158,7 +159,7 @@ class TransformationBase
      * @return {Array<string>} the keys in snakeCase format
     ###
     @keys ||= ()->
-      ((if key.match(/^\$\w+/) then key else Util.snakeCase(key)) for key of trans when key?).sort()
+      ((if key.match(VAR_NAME_RE) then key else Util.snakeCase(key)) for key of trans when key?).sort()
 
     ###*
      * Returns a plain object representation of the transformation. Values are processed.
@@ -224,7 +225,7 @@ class TransformationBase
           new value.constructor( value.toOptions())
       )
       for key, opt of options
-        if key.match(/^\$\w+/)
+        if key.match(VAR_NAME_RE)
           @set 'variable', key, opt
         else
           @set key, opt
@@ -271,7 +272,7 @@ class TransformationBase
     vars = []
     transformationList = []
     for t in paramList
-      if t.match(/^\$\w+/)
+      if t.match(VAR_NAME_RE)
         vars.push(t + "_" + Expression.normalize(@get(t)?.value()))
       else
         transformationList.push(@get(t)?.serialize())
