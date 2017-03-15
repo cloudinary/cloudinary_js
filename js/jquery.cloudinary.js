@@ -2176,7 +2176,9 @@ var slice = [].slice,
         for (key in options) {
           opt = options[key];
           if (key.match(VAR_NAME_RE)) {
-            this.set('variable', key, opt);
+            if (key !== '$attr') {
+              this.set('variable', key, opt);
+            }
           } else {
             this.set(key, opt);
           }

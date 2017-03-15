@@ -226,7 +226,7 @@ class TransformationBase
       )
       for key, opt of options
         if key.match(VAR_NAME_RE)
-          @set 'variable', key, opt
+          @set( 'variable', key, opt) unless key == '$attr'
         else
           @set key, opt
     this
