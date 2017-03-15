@@ -1,4 +1,9 @@
 
+2.2.1 / 2017-03-15
+==================
+
+  * Filter out `$attr` as a variable name - it is reserved in Angular
+
 2.2.0 / 2017-03-14
 ==================
 
