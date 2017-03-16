@@ -536,6 +536,34 @@ describe("Transformation", function() {
         url = new RegExp("http://res.cloudinary.com/sdk-test/image/upload/c_fit,w_1000/c_limit,h_1000/sample");
         return expect(imgHtml).toMatch(url);
       });
+      it("Chains transformations with a private CDN configuration", function() {
+        var imgHtml, imgTag, url;
+        imgTag = this.cl.imageTag("sample", {
+          private_cdn: true
+        });
+        imgHtml = imgTag.transformation().width(100).crop("scale").chain().crop("crop").width(200).toHtml();
+        url = new RegExp("http://sdk-test-res.cloudinary.com/image/upload/c_scale,w_100/c_crop,w_200/sample");
+        return expect(imgHtml).toMatch(url);
+      });
+      it("Chains transformations to a secure configuration", function() {
+        var imgHtml, imgTag, url;
+        imgTag = this.cl.imageTag("sample", {
+          secure: true
+        });
+        imgHtml = imgTag.transformation().width(100).crop("scale").chain().crop("crop").width(200).toHtml();
+        url = new RegExp("https://res.cloudinary.com/sdk-test/image/upload/c_scale,w_100/c_crop,w_200/sample");
+        return expect(imgHtml).toMatch(url);
+      });
+      it("Chains transformations to a secure private CDN configuration", function() {
+        var imgHtml, imgTag, url;
+        imgTag = this.cl.imageTag("sample", {
+          secure: true,
+          private_cdn: true
+        });
+        imgHtml = imgTag.transformation().width(100).crop("scale").chain().crop("crop").width(200).toHtml();
+        url = new RegExp("https://sdk-test-res.cloudinary.com/image/upload/c_scale,w_100/c_crop,w_200/sample");
+        return expect(imgHtml).toMatch(url);
+      });
       it("should support and translate operators:  '=', '!=', '<', '>', '<=', '>=', '&&', '||'", function() {
         var allOperators;
         allOperators = 'if_' + 'w_eq_0_and' + '_h_ne_0_or' + '_ar_lt_0_and' + '_pc_gt_0_and' + '_fc_lte_0_and' + '_w_gte_0' + ',e_grayscale';

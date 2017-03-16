@@ -341,7 +341,21 @@ describe "Transformation", ->
         imgHtml = imgTag.transformation().crop("fit").width(1000).chain().crop("limit").height(1000).toHtml()
         url = new RegExp("http://res.cloudinary.com/sdk-test/image/upload/c_fit,w_1000/c_limit,h_1000/sample") 
         expect(imgHtml).toMatch(url)
-
+      it "Chains transformations with a private CDN configuration", ->
+        imgTag = @cl.imageTag("sample", {private_cdn: true})
+        imgHtml = imgTag.transformation().width(100).crop("scale").chain().crop("crop").width(200).toHtml()
+        url = new RegExp("http://sdk-test-res.cloudinary.com/image/upload/c_scale,w_100/c_crop,w_200/sample") 
+        expect(imgHtml).toMatch(url)
+      it "Chains transformations to a secure configuration", ->
+        imgTag = @cl.imageTag("sample", {secure: true})
+        imgHtml = imgTag.transformation().width(100).crop("scale").chain().crop("crop").width(200).toHtml()
+        url = new RegExp("https://res.cloudinary.com/sdk-test/image/upload/c_scale,w_100/c_crop,w_200/sample") 
+        expect(imgHtml).toMatch(url)
+      it "Chains transformations to a secure private CDN configuration", ->
+        imgTag = @cl.imageTag("sample", {secure: true, private_cdn: true})
+        imgHtml = imgTag.transformation().width(100).crop("scale").chain().crop("crop").width(200).toHtml()
+        url = new RegExp("https://sdk-test-res.cloudinary.com/image/upload/c_scale,w_100/c_crop,w_200/sample") 
+        expect(imgHtml).toMatch(url)
 
       it "should support and translate operators:  '=', '!=', '<', '>', '<=', '>=', '&&', '||'", ->
 
