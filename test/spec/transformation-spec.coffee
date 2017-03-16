@@ -211,8 +211,8 @@ describe "Transformation", ->
   it 'should support effect with param', ->
     test_cloudinary_url 'test', { effect: [
       'sepia'
-      10
-    ] }, protocol + '//res.cloudinary.com/test123/image/upload/e_sepia:10/test', {}
+      -10
+    ] }, protocol + '//res.cloudinary.com/test123/image/upload/e_sepia:-10/test', {}
 
   it 'should support density', ->
     test_cloudinary_url 'test', { density: 150 }, protocol + '//res.cloudinary.com/test123/image/upload/dn_150/test', {}
@@ -379,6 +379,43 @@ describe "Transformation", ->
         it "force the if_else clause to be chained", ->
           url = @cl.url("sample", cloudinary.Transformation.new().if().width( "gt", 100).and().width("lt", 200).then().width(50).crop("scale").else().width(100).crop("crop").endIf())
           expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_w_gt_100_and_w_lt_200/c_scale,w_50/if_else/c_crop,w_100/if_end/sample")
+
+
+  describe 'User Define Variables', ->
+    it "array should define a set of variables", ->
+      options = {
+        if: "face_count > 2",
+        variables: [ ["$z", 5], ["$foo", "$z * 2"] ],
+        crop: "scale", width: "$foo * 200"
+      }
+      t = new Transformation( options).toString()
+      expect(t).toEqual("if_fc_gt_2,$z_5,$foo_$z_mul_2,c_scale,w_$foo_mul_200")
+    it "'$key' should define a variable", ->
+      options = { transformation: [
+        {$foo: 10 },
+        {if: "face_count > 2"},
+        {crop: "scale", width: "$foo * 200 / face_count"},
+        {if: "end"}
+      ] }
+      t = new Transformation( options).toString()
+      expect(t).toEqual("$foo_10/if_fc_gt_2/c_scale,w_$foo_mul_200_div_fc/if_end")
+    it "should sort variables", ->
+      t = new Transformation( {$second: 1, $first: 2}).toString()
+      expect(t).toEqual("$first_2,$second_1")
+    it "should place ordered variables after individual variables", ->
+      t = new Transformation( {variables: [["$z", 5], ["$foo", "$z * 2"] ],$second: 1, $first: 2}).toString()
+      expect(t).toEqual("$first_2,$second_1,$z_5,$foo_$z_mul_2")
+    it "should support text values", ->
+      test_cloudinary_url("sample", {
+        effect: "$efname:100",
+        $efname: "!blur!"
+      }, "http://res.cloudinary.com/test123/image/upload/$efname_!blur!,e_$efname:100/sample", {})
+
+    it "should support string interpolation", ->
+      test_cloudinary_url("sample", {
+        crop: "scale",
+        overlay: {text: "$(start)Hello $(name)$(ext), $(no ) $( no)$(end)", font_family: "Arial", font_size: "18"}
+      }, "http://res.cloudinary.com/test123/image/upload/c_scale,l_text:Arial_18:$(start)Hello%20$(name)$(ext)%252C%20%24%28no%20%29%20%24%28%20no%29$(end)/sample", {})
 
   describe "Layers", ->
     it "should accept a string", ->

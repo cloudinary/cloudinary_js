@@ -1,5 +1,5 @@
 class Cloudinary
-  VERSION = "2.1.9"
+  VERSION = "2.2.1"
   CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net"
   OLD_AKAMAI_SHARED_CDN = "cloudinary-a.akamaihd.net"
   AKAMAI_SHARED_CDN = "res.cloudinary.com"
@@ -189,7 +189,6 @@ class Cloudinary
         if !options.trust_public_id
           publicId = publicId.replace(/\.(jpg|png|gif|webp)$/, '')
         publicId = publicId + '.' + options.format
-
     prefix = cloudinaryUrlPrefix(publicId, options)
     resourceTypeAndType = finalizeResourceType(options.resource_type, options.type, options.url_suffix, options.use_root_path, options.shorten)
     version = if options.version then 'v' + options.version else ''

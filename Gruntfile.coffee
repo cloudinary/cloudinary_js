@@ -196,6 +196,7 @@ module.exports = (grunt)->
       'src/layer/textlayer.coffee',
       'src/layer/subtitleslayer.coffee',
       'src/parameters.coffee',
+      'src/expression.coffee',
       'src/condition.coffee',
       'src/configuration.coffee',
       'src/transformation.coffee',

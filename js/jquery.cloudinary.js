@@ -1,6 +1,6 @@
 
 /**
- * Cloudinary's JavaScript library - Version 2.1.9
+ * Cloudinary's JavaScript library - Version 2.2.1
  * Copyright Cloudinary
  * see https://github.com/cloudinary/cloudinary_js
  *
@@ -30,7 +30,7 @@ var slice = [].slice,
   /*
    * Includes common utility methods and shims
    */
-  var ArrayParam, BaseUtil, ClientHintsMetaTag, Cloudinary, CloudinaryJQuery, Condition, Configuration, HtmlTag, ImageTag, Layer, LayerParam, Param, RangeParam, RawParam, SubtitlesLayer, TextLayer, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, camelCase, cloneDeep, cloudinary, compact, contains, convertKeys, crc32, defaults, difference, functions, getAttribute, getData, hasClass, identity, isEmpty, isNumberLike, isString, m, merge, parameters, reWords, removeAttribute, setAttribute, setAttributes, setData, smartEscape, snakeCase, utf8_encode, webp, width, withCamelCaseKeys, withSnakeCaseKeys, without;
+  var ArrayParam, BaseUtil, ClientHintsMetaTag, Cloudinary, CloudinaryJQuery, Condition, Configuration, Expression, ExpressionParam, HtmlTag, ImageTag, Layer, LayerParam, Param, RangeParam, RawParam, SubtitlesLayer, TextLayer, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, camelCase, cloneDeep, cloudinary, compact, contains, convertKeys, crc32, defaults, difference, functions, getAttribute, getData, hasClass, identity, isEmpty, isNumberLike, isString, m, merge, parameters, reWords, removeAttribute, setAttribute, setAttributes, setData, smartEscape, snakeCase, utf8_encode, webp, width, withCamelCaseKeys, withSnakeCaseKeys, without;
   allStrings = function(list) {
     var item, j, len;
     for (j = 0, len = list.length; j < len; j++) {
@@ -683,7 +683,7 @@ var slice = [].slice,
      */
 
     TextLayer.prototype.toString = function() {
-      var components, hasPublicId, hasStyle, publicId, style, text;
+      var components, hasPublicId, hasStyle, publicId, re, res, start, style, text, textSource;
       style = this.textStyleIdentifier();
       if (this.options.publicId != null) {
         publicId = this.getFullPublicId();
@@ -694,7 +694,16 @@ var slice = [].slice,
         if (hasPublicId && hasStyle || !hasPublicId && !hasStyle) {
           throw "Must supply either style parameters or a public_id when providing text parameter in a text overlay/underlay, but not both!";
         }
-        text = Util.smartEscape(Util.smartEscape(this.options.text, /[,\/]/g));
+        re = /\$\([a-zA-Z]\w*\)/g;
+        start = 0;
+        textSource = Util.smartEscape(this.options.text, /[,\/]/g);
+        text = "";
+        while (res = re.exec(textSource)) {
+          text += Util.smartEscape(textSource.slice(start, res.index));
+          text += res[0];
+          start = res.index + res[0].length;
+        }
+        text += Util.smartEscape(textSource.slice(start));
       }
       components = [this.options.resourceType, style, publicId, text];
       return Util.compact(components).join(":");
@@ -916,18 +925,19 @@ var slice = [].slice,
     }
 
     ArrayParam.prototype.serialize = function() {
-      var array, flat, t;
+      var arrayValue, flat, t;
       if (this.shortName != null) {
-        array = this.value();
-        if (cloudinary.Util.isEmpty(array)) {
+        arrayValue = this.value();
+        if (cloudinary.Util.isEmpty(arrayValue)) {
           return '';
+        } else if (cloudinary.Util.isString(arrayValue)) {
+          return this.shortName + "_" + arrayValue;
         } else {
           flat = (function() {
-            var j, len, ref, results;
-            ref = this.value();
+            var j, len, results;
             results = [];
-            for (j = 0, len = ref.length; j < len; j++) {
-              t = ref[j];
+            for (j = 0, len = arrayValue.length; j < len; j++) {
+              t = arrayValue[j];
               if (cloudinary.Util.isFunction(t.serialize)) {
                 results.push(t.serialize());
               } else {
@@ -935,11 +945,26 @@ var slice = [].slice,
               }
             }
             return results;
-          }).call(this);
+          })();
           return this.shortName + "_" + (flat.join(this.sep));
         }
       } else {
         return '';
+      }
+    };
+
+    ArrayParam.prototype.value = function() {
+      var j, len, ref, results, v;
+      if (cloudinary.Util.isArray(this.origValue)) {
+        ref = this.origValue;
+        results = [];
+        for (j = 0, len = ref.length; j < len; j++) {
+          v = ref[j];
+          results.push(this.process(v));
+        }
+        return results;
+      } else {
+        return this.process(this.origValue);
       }
     };
 
@@ -1115,6 +1140,20 @@ var slice = [].slice,
     return LayerParam;
 
   })(Param);
+  ExpressionParam = (function(superClass) {
+    extend(ExpressionParam, superClass);
+
+    function ExpressionParam() {
+      return ExpressionParam.__super__.constructor.apply(this, arguments);
+    }
+
+    ExpressionParam.prototype.serialize = function() {
+      return Expression.normalize(ExpressionParam.__super__.serialize.call(this));
+    };
+
+    return ExpressionParam;
+
+  })(Param);
   parameters = {};
   parameters.Param = Param;
   parameters.ArrayParam = ArrayParam;
@@ -1122,12 +1161,15 @@ var slice = [].slice,
   parameters.RawParam = RawParam;
   parameters.TransformationParam = TransformationParam;
   parameters.LayerParam = LayerParam;
-  Condition = (function() {
+  parameters.ExpressionParam = ExpressionParam;
+  Expression = (function() {
 
     /**
      * @internal
      */
-    Condition.OPERATORS = {
+    var faceCount;
+
+    Expression.OPERATORS = {
       "=": 'eq',
       "!=": 'ne',
       "<": 'lt',
@@ -1135,21 +1177,382 @@ var slice = [].slice,
       "<=": 'lte',
       ">=": 'gte',
       "&&": 'and',
-      "||": 'or'
+      "||": 'or',
+      "*": "mul",
+      "/": "div",
+      "+": "add",
+      "-": "sub"
     };
 
-    Condition.PARAMETERS = {
-      "width": "w",
-      "height": "h",
+
+    /**
+     * @internal
+     */
+
+    Expression.PREDEFINED_VARS = {
       "aspect_ratio": "ar",
       "aspectRatio": "ar",
-      "page_count": "pc",
-      "pageCount": "pc",
+      "current_page": "cp",
+      "currentPage": "cp",
       "face_count": "fc",
-      "faceCount": "fc"
+      "faceCount": "fc",
+      "height": "h",
+      "initial_aspect_ratio": "iar",
+      "initial_height": "ih",
+      "initial_width": "iw",
+      "initialAspectRatio": "iar",
+      "initialHeight": "ih",
+      "initialWidth": "iw",
+      "page_count": "pc",
+      "page_x": "px",
+      "page_y": "py",
+      "pageCount": "pc",
+      "pageX": "px",
+      "pageY": "py",
+      "tags": "tags",
+      "width": "w"
     };
 
-    Condition.BOUNDRY = "[ _]+";
+
+    /**
+     * @internal
+     */
+
+    Expression.BOUNDRY = "[ _]+";
+
+
+    /**
+     * Represents a transformation expression
+     * @param {string} expressionStr - a expression in string format
+     * @class Expression
+     *
+     */
+
+    function Expression(expressionStr) {
+
+      /**
+        * @protected
+        * @inner Expression-expressions
+       */
+      this.expressions = [];
+      if (expressionStr != null) {
+        this.expressions.push(Expression.normalize(expressionStr));
+      }
+    }
+
+
+    /**
+     * Convenience constructor method
+     * @function Expression.new
+     */
+
+    Expression["new"] = function(expressionStr) {
+      return new this(expressionStr);
+    };
+
+
+    /**
+     * Normalize a string expression
+     * @function Cloudinary#normalize
+     * @param {string} expression a expression, e.g. "w gt 100", "width_gt_100", "width > 100"
+     * @return {string} the normalized form of the value expression, e.g. "w_gt_100"
+     */
+
+    Expression.normalize = function(expression) {
+      var operators, pattern, replaceRE;
+      if (expression == null) {
+        return expression;
+      }
+      expression = String(expression);
+      operators = "\\|\\||>=|<=|&&|!=|>|=|<|/|-|\\+|\\*";
+      pattern = "((" + operators + ")(?=[ _])|" + Object.keys(Expression.PREDEFINED_VARS).join("|") + ")";
+      replaceRE = new RegExp(pattern, "g");
+      expression = expression.replace(replaceRE, function(match) {
+        return Expression.OPERATORS[match] || Expression.PREDEFINED_VARS[match];
+      });
+      return expression.replace(/[ _]+/g, '_');
+    };
+
+
+    /**
+     * Serialize the expression
+     * @return {string} the expression as a string
+     */
+
+    Expression.prototype.serialize = function() {
+      return Expression.normalize(this.expressions.join("_"));
+    };
+
+    Expression.prototype.toString = function() {
+      return this.serialize();
+    };
+
+
+    /**
+     * Get the parent transformation of this expression
+     * @return Transformation
+     */
+
+    Expression.prototype.getParent = function() {
+      return this.parent;
+    };
+
+
+    /**
+     * Set the parent transformation of this expression
+     * @param {Transformation} the parent transformation
+     * @return {Expression} this expression
+     */
+
+    Expression.prototype.setParent = function(parent) {
+      this.parent = parent;
+      return this;
+    };
+
+
+    /**
+     * Add a expression
+     * @function Expression#predicate
+     * @internal
+     */
+
+    Expression.prototype.predicate = function(name, operator, value) {
+      if (Expression.OPERATORS[operator] != null) {
+        operator = Expression.OPERATORS[operator];
+      }
+      this.expressions.push(name + "_" + operator + "_" + value);
+      return this;
+    };
+
+
+    /**
+     * @function Expression#and
+     */
+
+    Expression.prototype.and = function() {
+      this.expressions.push("and");
+      return this;
+    };
+
+
+    /**
+     * @function Expression#or
+     */
+
+    Expression.prototype.or = function() {
+      this.expressions.push("or");
+      return this;
+    };
+
+
+    /**
+     * Conclude expression
+     * @function Expression#then
+     * @return {Transformation} the transformation this expression is defined for
+     */
+
+    Expression.prototype.then = function() {
+      return this.getParent()["if"](this.toString());
+    };
+
+
+    /**
+     * @function Expression#height
+     * @param {string} operator the comparison operator (e.g. "<", "lt")
+     * @param {string|number} value the right hand side value
+     * @return {Expression} this expression
+     */
+
+    Expression.prototype.height = function(operator, value) {
+      return this.predicate("h", operator, value);
+    };
+
+
+    /**
+     * @function Expression#width
+     * @param {string} operator the comparison operator (e.g. "<", "lt")
+     * @param {string|number} value the right hand side value
+     * @return {Expression} this expression
+     */
+
+    Expression.prototype.width = function(operator, value) {
+      return this.predicate("w", operator, value);
+    };
+
+
+    /**
+     * @function Expression#aspectRatio
+     * @param {string} operator the comparison operator (e.g. "<", "lt")
+     * @param {string|number} value the right hand side value
+     * @return {Expression} this expression
+     */
+
+    Expression.prototype.aspectRatio = function(operator, value) {
+      return this.predicate("ar", operator, value);
+    };
+
+
+    /**
+     * @function Expression#pages
+     * @param {string} operator the comparison operator (e.g. "<", "lt")
+     * @param {string|number} value the right hand side value
+     * @return {Expression} this expression
+     */
+
+    Expression.prototype.pageCount = function(operator, value) {
+      return this.predicate("pc", operator, value);
+    };
+
+
+    /**
+     * @function Expression#faces
+     * @param {string} operator the comparison operator (e.g. "<", "lt")
+     * @param {string|number} value the right hand side value
+     * @return {Expression} this expression
+     */
+
+    Expression.prototype.faceCount = function(operator, value) {
+      return this.predicate("fc", operator, value);
+    };
+
+    Expression.prototype.value = function(value) {
+      this.expressions.push(value);
+      return this;
+    };
+
+
+    /**
+     */
+
+    Expression.variable = function(name, value) {
+      return new this(name).value(value);
+    };
+
+
+    /**
+      * @returns a new expression with the predefined variable "width"
+      * @function Expression.width
+     */
+
+    Expression.width = function() {
+      return new this("width");
+    };
+
+
+    /**
+      * @returns a new expression with the predefined variable "height"
+      * @function Expression.height
+     */
+
+    Expression.height = function() {
+      return new this("height");
+    };
+
+
+    /**
+      * @returns a new expression with the predefined variable "initialWidth"
+      * @function Expression.initialWidth
+     */
+
+    Expression.initialWidth = function() {
+      return new this("initialWidth");
+    };
+
+
+    /**
+      * @returns a new expression with the predefined variable "initialHeight"
+      * @function Expression.initialHeight
+     */
+
+    Expression.initialHeight = function() {
+      return new this("initialHeight");
+    };
+
+
+    /**
+      * @returns a new expression with the predefined variable "aspectRatio"
+      * @function Expression.aspectRatio
+     */
+
+    Expression.aspectRatio = function() {
+      return new this("aspectRatio");
+    };
+
+
+    /**
+      * @returns a new expression with the predefined variable "initialAspectRatio"
+      * @function Expression.initialAspectRatio
+     */
+
+    Expression.initialAspectRatio = function() {
+      return new this("initialAspectRatio");
+    };
+
+
+    /**
+      * @returns a new expression with the predefined variable "pageCount"
+      * @function Expression.pageCount
+     */
+
+    Expression.pageCount = function() {
+      return new this("pageCount");
+    };
+
+
+    /**
+      * @returns a new expression with the predefined variable "faceCount"
+      * @function Expression.faceCount
+     */
+
+    faceCount = function() {
+      return new this("faceCount");
+    };
+
+
+    /**
+      * @returns a new expression with the predefined variable "currentPage"
+      * @function Expression.currentPage
+     */
+
+    Expression.currentPage = function() {
+      return new this("currentPage");
+    };
+
+
+    /**
+      * @returns a new expression with the predefined variable "tags"
+      * @function Expression.tags
+     */
+
+    Expression.tags = function() {
+      return new this("tags");
+    };
+
+
+    /**
+      * @returns a new expression with the predefined variable "pageX"
+      * @function Expression.pageX
+     */
+
+    Expression.pageX = function() {
+      return new this("pageX");
+    };
+
+
+    /**
+      * @returns a new expression with the predefined variable "pageY"
+      * @function Expression.pageY
+     */
+
+    Expression.pageY = function() {
+      return new this("pageY");
+    };
+
+    return Expression;
+
+  })();
+  Condition = (function(superClass) {
+    extend(Condition, superClass);
 
 
     /**
@@ -1177,116 +1580,8 @@ var slice = [].slice,
      */
 
     function Condition(conditionStr) {
-      this.predicate_list = [];
-      if (conditionStr != null) {
-        this.predicate_list.push(this.normalize(conditionStr));
-      }
+      Condition.__super__.constructor.call(this, conditionStr);
     }
-
-
-    /**
-     * Convenience constructor method
-     * @function Condition.new
-     */
-
-    Condition["new"] = function(conditionStr) {
-      return new this(conditionStr);
-    };
-
-
-    /**
-     * Normalize a string condition
-     * @function Cloudinary#normalize
-     * @param {string} value a condition, e.g. "w gt 100", "width_gt_100", "width > 100"
-     * @return {string} the normalized form of the value condition, e.g. "w_gt_100"
-     */
-
-    Condition.prototype.normalize = function(value) {
-      var replaceRE;
-      replaceRE = new RegExp("(" + Object.keys(Condition.PARAMETERS).join("|") + "|[=<>&|!]+)", "g");
-      value = value.replace(replaceRE, function(match) {
-        return Condition.OPERATORS[match] || Condition.PARAMETERS[match];
-      });
-      return value.replace(/[ _]+/g, '_');
-    };
-
-
-    /**
-     * Get the parent transformation of this condition
-     * @return Transformation
-     */
-
-    Condition.prototype.getParent = function() {
-      return this.parent;
-    };
-
-
-    /**
-     * Set the parent transformation of this condition
-     * @param {Transformation} the parent transformation
-     * @return {Condition} this condition
-     */
-
-    Condition.prototype.setParent = function(parent) {
-      this.parent = parent;
-      return this;
-    };
-
-
-    /**
-     * Serialize the condition
-     * @return {string} the condition as a string
-     */
-
-    Condition.prototype.toString = function() {
-      return this.predicate_list.join("_");
-    };
-
-
-    /**
-     * Add a condition
-     * @function Condition#predicate
-     * @internal
-     */
-
-    Condition.prototype.predicate = function(name, operator, value) {
-      if (Condition.OPERATORS[operator] != null) {
-        operator = Condition.OPERATORS[operator];
-      }
-      this.predicate_list.push(name + "_" + operator + "_" + value);
-      return this;
-    };
-
-
-    /**
-     * @function Condition#and
-     */
-
-    Condition.prototype.and = function() {
-      this.predicate_list.push("and");
-      return this;
-    };
-
-
-    /**
-     * @function Condition#or
-     */
-
-    Condition.prototype.or = function() {
-      this.predicate_list.push("or");
-      return this;
-    };
-
-
-    /**
-     * Conclude condition
-     * @function Condition#then
-     * @return {Transformation} the transformation this condition is defined for
-     */
-
-    Condition.prototype.then = function() {
-      return this.getParent()["if"](this.toString());
-    };
 
 
     /**
@@ -1350,7 +1645,7 @@ var slice = [].slice,
 
     return Condition;
 
-  })();
+  })(Expression);
 
   /**
    * Cloudinary configuration class
@@ -1370,7 +1665,7 @@ var slice = [].slice,
       secure: (typeof window !== "undefined" && window !== null ? (ref = window.location) != null ? ref.protocol : void 0 : void 0) === 'https:'
     };
 
-    Configuration.CONFIG_PARAMS = ["api_key", "api_secret", "cdn_subdomain", "cloud_name", "cname", "private_cdn", "protocol", "resource_type", "responsive", "responsive_class", "responsive_use_breakpoints", "responsive_width", "round_dpr", "secure", "secure_cdn_subdomain", "secure_distribution", "shorten", "type", "url_suffix", "use_root_path", "version"];
+    Configuration.CONFIG_PARAMS = ["api_key", "api_secret", "callback", "cdn_subdomain", "cloud_name", "cname", "private_cdn", "protocol", "resource_type", "responsive", "responsive_class", "responsive_use_breakpoints", "responsive_width", "round_dpr", "secure", "secure_cdn_subdomain", "secure_distribution", "shorten", "type", "upload_preset", "url_suffix", "use_root_path", "version"];
 
 
     /**
@@ -1559,7 +1854,9 @@ var slice = [].slice,
    * @internal
    */
   TransformationBase = (function() {
-    var lastArgCallback;
+    var VAR_NAME_RE, lastArgCallback, processVar;
+
+    VAR_NAME_RE = /^\$[a-zA-Z0-9]+$/;
 
     TransformationBase.prototype.trans_separator = '/';
 
@@ -1629,6 +1926,7 @@ var slice = [].slice,
           }).call(this);
           list.push(opt);
           opt = {
+            cloud_name: opt.cloud_name,
             transformation: list
           };
         }
@@ -1781,7 +2079,9 @@ var slice = [].slice,
           var results;
           results = [];
           for (key in trans) {
-            results.push(Util.snakeCase(key));
+            if (key != null) {
+              results.push(key.match(VAR_NAME_RE) ? key : Util.snakeCase(key));
+            }
           }
           return results;
         })()).sort();
@@ -1876,7 +2176,13 @@ var slice = [].slice,
         });
         for (key in options) {
           opt = options[key];
-          this.set(key, opt);
+          if (key.match(VAR_NAME_RE)) {
+            if (key !== '$attr') {
+              this.set('variable', key, opt);
+            }
+          } else {
+            this.set(key, opt);
+          }
         }
       }
       return this;
@@ -1903,13 +2209,14 @@ var slice = [].slice,
      * @returns {Transformation} Returns this instance for chaining
      */
 
-    TransformationBase.prototype.set = function(key, value) {
-      var camelKey;
+    TransformationBase.prototype.set = function() {
+      var camelKey, key, values;
+      key = arguments[0], values = 2 <= arguments.length ? slice.call(arguments, 1) : [];
       camelKey = Util.camelCase(key);
       if (Util.contains(Transformation.methods, camelKey)) {
-        this[camelKey](value);
+        this[camelKey].apply(this, values);
       } else {
-        this.otherOptions[key] = value;
+        this.otherOptions[key] = values[0];
       }
       return this;
     };
@@ -1926,7 +2233,7 @@ var slice = [].slice,
      */
 
     TransformationBase.prototype.serialize = function() {
-      var ifParam, paramList, ref, ref1, resultArray, t, tr, transformationList, transformationString, transformations, value;
+      var ifParam, j, len, paramList, ref, ref1, ref2, ref3, ref4, resultArray, t, tr, transformationList, transformationString, transformations, value, variables, vars;
       resultArray = (function() {
         var j, len, ref, results;
         ref = this.chained;
@@ -1940,16 +2247,18 @@ var slice = [].slice,
       paramList = this.keys();
       transformations = (ref = this.get("transformation")) != null ? ref.serialize() : void 0;
       ifParam = (ref1 = this.get("if")) != null ? ref1.serialize() : void 0;
-      paramList = Util.difference(paramList, ["transformation", "if"]);
-      transformationList = (function() {
-        var j, len, ref2, results;
-        results = [];
-        for (j = 0, len = paramList.length; j < len; j++) {
-          t = paramList[j];
-          results.push((ref2 = this.get(t)) != null ? ref2.serialize() : void 0);
+      variables = processVar((ref2 = this.get("variables")) != null ? ref2.value() : void 0);
+      paramList = Util.difference(paramList, ["transformation", "if", "variables"]);
+      vars = [];
+      transformationList = [];
+      for (j = 0, len = paramList.length; j < len; j++) {
+        t = paramList[j];
+        if (t.match(VAR_NAME_RE)) {
+          vars.push(t + "_" + Expression.normalize((ref3 = this.get(t)) != null ? ref3.value() : void 0));
+        } else {
+          transformationList.push((ref4 = this.get(t)) != null ? ref4.serialize() : void 0);
         }
-        return results;
-      }).call(this);
+      }
       switch (false) {
         case !Util.isString(transformations):
           transformationList.push(transformations);
@@ -1957,23 +2266,24 @@ var slice = [].slice,
         case !Util.isArray(transformations):
           resultArray = resultArray.concat(transformations);
       }
-      transformationList = ((function() {
-        var j, len, results;
+      transformationList = (function() {
+        var l, len1, results;
         results = [];
-        for (j = 0, len = transformationList.length; j < len; j++) {
-          value = transformationList[j];
+        for (l = 0, len1 = transformationList.length; l < len1; l++) {
+          value = transformationList[l];
           if (Util.isArray(value) && !Util.isEmpty(value) || !Util.isArray(value) && value) {
             results.push(value);
           }
         }
         return results;
-      })()).sort();
+      })();
+      transformationList = vars.sort().concat(variables).concat(transformationList.sort());
       if (ifParam === "if_end") {
         transformationList.push(ifParam);
       } else if (!Util.isEmpty(ifParam)) {
         transformationList.unshift(ifParam);
       }
-      transformationString = transformationList.join(this.param_separator);
+      transformationString = Util.compact(transformationList).join(this.param_separator);
       if (!Util.isEmpty(transformationString)) {
         resultArray.push(transformationString);
       }
@@ -2060,6 +2370,20 @@ var slice = [].slice,
 
     TransformationBase.prototype.toString = function() {
       return this.serialize();
+    };
+
+    processVar = function(varArray) {
+      var j, len, name, ref, results, v;
+      if (Util.isArray(varArray)) {
+        results = [];
+        for (j = 0, len = varArray.length; j < len; j++) {
+          ref = varArray[j], name = ref[0], v = ref[1];
+          results.push(name + "_" + (Expression.normalize(v)));
+        }
+        return results;
+      } else {
+        return varArray;
+      }
 
       /**
        * Transformation Class methods.
@@ -2127,7 +2451,7 @@ var slice = [].slice,
      */
 
     Transformation.prototype.angle = function(value) {
-      return this.arrayParam(value, "angle", "a", ".");
+      return this.arrayParam(value, "angle", "a", ".", Expression.normalize);
     };
 
     Transformation.prototype.audioCodec = function(value) {
@@ -2139,7 +2463,7 @@ var slice = [].slice,
     };
 
     Transformation.prototype.aspectRatio = function(value) {
-      return this.param(value, "aspect_ratio", "ar");
+      return this.param(value, "aspect_ratio", "ar", Expression.normalize);
     };
 
     Transformation.prototype.background = function(value) {
@@ -2199,14 +2523,14 @@ var slice = [].slice,
           if (dpr != null ? dpr.match(/^\d+$/) : void 0) {
             return dpr + ".0";
           } else {
-            return dpr;
+            return Expression.normalize(dpr);
           }
         };
       })(this));
     };
 
     Transformation.prototype.effect = function(value) {
-      return this.arrayParam(value, "effect", "e", ":");
+      return this.arrayParam(value, "effect", "e", ":", Expression.normalize);
     };
 
     Transformation.prototype["else"] = function() {
@@ -2245,7 +2569,7 @@ var slice = [].slice,
       return this.param(value, "height", "h", (function(_this) {
         return function() {
           if (_this.getValue("crop") || _this.getValue("overlay") || _this.getValue("underlay")) {
-            return value;
+            return Expression.normalize(value);
           } else {
             return null;
           }
@@ -2312,7 +2636,7 @@ var slice = [].slice,
     };
 
     Transformation.prototype.opacity = function(value) {
-      return this.param(value, "opacity", "o");
+      return this.param(value, "opacity", "o", Expression.normalize);
     };
 
     Transformation.prototype.overlay = function(value) {
@@ -2332,11 +2656,11 @@ var slice = [].slice,
     };
 
     Transformation.prototype.quality = function(value) {
-      return this.param(value, "quality", "q");
+      return this.param(value, "quality", "q", Expression.normalize);
     };
 
     Transformation.prototype.radius = function(value) {
-      return this.param(value, "radius", "r");
+      return this.param(value, "radius", "r", Expression.normalize);
     };
 
     Transformation.prototype.rawTransformation = function(value) {
@@ -2376,6 +2700,14 @@ var slice = [].slice,
       return this.layerParam(value, "underlay", "u");
     };
 
+    Transformation.prototype.variable = function(name, value) {
+      return this.param(value, name, name);
+    };
+
+    Transformation.prototype.variables = function(values) {
+      return this.arrayParam(values, "variables");
+    };
+
     Transformation.prototype.videoCodec = function(value) {
       return this.param(value, "video_codec", "vc", Param.process_video_params);
     };
@@ -2388,7 +2720,7 @@ var slice = [].slice,
       return this.param(value, "width", "w", (function(_this) {
         return function() {
           if (_this.getValue("crop") || _this.getValue("overlay") || _this.getValue("underlay")) {
-            return value;
+            return Expression.normalize(value);
           } else {
             return null;
           }
@@ -2397,15 +2729,15 @@ var slice = [].slice,
     };
 
     Transformation.prototype.x = function(value) {
-      return this.param(value, "x", "x");
+      return this.param(value, "x", "x", Expression.normalize);
     };
 
     Transformation.prototype.y = function(value) {
-      return this.param(value, "y", "y");
+      return this.param(value, "y", "y", Expression.normalize);
     };
 
     Transformation.prototype.zoom = function(value) {
-      return this.param(value, "zoom", "z");
+      return this.param(value, "zoom", "z", Expression.normalize);
     };
 
     return Transformation;
@@ -2915,7 +3247,7 @@ var slice = [].slice,
   Cloudinary = (function() {
     var AKAMAI_SHARED_CDN, CF_SHARED_CDN, DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_SOURCE_TYPES, OLD_AKAMAI_SHARED_CDN, SHARED_CDN, VERSION, absolutize, applyBreakpoints, cdnSubdomainNumber, closestAbove, cloudinaryUrlPrefix, defaultBreakpoints, finalizeResourceType, findContainerWidth, maxWidth, updateDpr;
 
-    VERSION = "2.1.9";
+    VERSION = "2.2.1";
 
     CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
 
@@ -4150,7 +4482,7 @@ var slice = [].slice,
     TextLayer: TextLayer,
     SubtitlesLayer: SubtitlesLayer,
     Cloudinary: Cloudinary,
-    VERSION: "2.1.9",
+    VERSION: "2.2.1",
     CloudinaryJQuery: CloudinaryJQuery
   };
   return cloudinary;

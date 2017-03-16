@@ -1,4 +1,15 @@
 
+2.2.1 / 2017-03-15
+==================
+
+  * Filter out `$attr` as a variable name - it is reserved in Angular
+
+2.2.0 / 2017-03-14
+==================
+
+  * Add **User defined variables**.
+  * Add `callback` and `upload_preset` to configuration parameters
+
 2.1.9 / 2017-01-02
 ==================
 

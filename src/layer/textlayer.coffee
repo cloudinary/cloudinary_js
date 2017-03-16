@@ -88,7 +88,16 @@ class TextLayer extends Layer
       hasStyle = !Util.isEmpty(style)
       if hasPublicId && hasStyle || !hasPublicId && !hasStyle
         throw "Must supply either style parameters or a public_id when providing text parameter in a text overlay/underlay, but not both!"
-      text = Util.smartEscape(Util.smartEscape(@options.text, /[,/]/g))
+      re = /\$\([a-zA-Z]\w*\)/g
+      start = 0
+      #        textSource = text.replace(new RegExp("[,/]", 'g'), (c)-> "%#{c.charCodeAt(0).toString(16).toUpperCase()}")
+      textSource = Util.smartEscape(@options.text, /[,/]/g)
+      text = ""
+      while res = re.exec(textSource)
+        text += Util.smartEscape(textSource.slice(start, res.index))
+        text += res[0]
+        start = res.index + res[0].length
+      text += Util.smartEscape(textSource.slice(start))
 
     components = [@options.resourceType, style, publicId, text]
     return Util.compact(components).join( ":")
