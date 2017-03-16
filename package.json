@@ -8,7 +8,8 @@
   },
   "scripts": {
     "pretest": "grunt lodash && grunt compile",
-    "test": "grunt karma --browsers=PhantomJS"
+    "test": "grunt karma --browsers=PhantomJS",
+    "test-types": "cd build/cloudinary-core && tsc && jasmine"
   },
   "repository": {
     "type": "git",
@@ -21,6 +22,8 @@
   },
   "homepage": "https://github.com/cloudinary/cloudinary_js",
   "devDependencies": {
+    "@types/jasmine": "^2.5.45",
+    "@types/jsdom": "^2.0.30",
     "blueimp-file-upload": "^9.11.2",
     "coffee-script": "~1.10",
     "grunt": "^1.0.1",
@@ -33,8 +36,10 @@
     "grunt-jsdoc": "^2.1.0",
     "grunt-karma": "^2.0.0",
     "grunt-version": "^1.1.1",
+    "jasmine": "^2.5.3",
     "jasmine-core": "~2.5",
     "jquery": "^2.2.4",
+    "jsdom": "^9.12.0",
     "karma": "~1.2.0",
     "karma-chrome-launcher": "^2.0.0",
     "karma-coverage": "^1.1.1",
@@ -43,8 +48,10 @@
     "karma-phantomjs-launcher": "^1.0.2",
     "karma-safari-launcher": "^1.0.0",
     "karma-story-reporter": "~0.3",
+    "lodash": "^4.17.4",
     "lodash-cli": "^4.15.0",
     "phantomjs-prebuilt": "^2.1.12",
-    "requirejs": "^2.3.0"
+    "requirejs": "^2.3.0",
+    "typescript": "^2.2.1"
   }
 }
