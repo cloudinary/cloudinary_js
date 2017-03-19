@@ -1,9 +1,8 @@
 /**
  * Test cloudinary-core.d.ts
  * 
- * Depends on cloudinary.core.js, so this test is meant to run after "grunt build" which copies this script under 
- * the "build/" folder.
- * "../../../cloudinary-core" below is relative to this file's location under "build/" folder
+ * Depends on cloudinary.core.js, so this test is meant to run after "grunt build" which generates that file under the "build/" folder.
+ * "../../../../cloudinary-core" below is relative to that location under "build/" folder
  *
  * Run this test after "grunt build" with "npm run test-types" which compiles TypeScript before running the test.
  */
