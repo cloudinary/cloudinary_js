@@ -28,3 +28,6 @@ build/
 
 ## Directory-based project format:
 .idea/
+
+# TypeScript intermediate files
+test/types/spec/test/*.js

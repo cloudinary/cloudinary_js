@@ -4,7 +4,9 @@
         "noImplicitAny": true
     },
     "include": [
-        "./**/*"
+        "build/**/*",
+        "types/**/*",
+        "test/types/**/*"
     ],
     "exclude": [
         "node_modules"

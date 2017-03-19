@@ -7,7 +7,7 @@
  *
  * Run this test after "grunt build" with "npm run test-types" which compiles TypeScript before running the test.
  */
-import { Cloudinary, ConfigurationOptions, Transformation, ImageTag, VideoTag } from '../../../cloudinary-core';
+import { Cloudinary, ConfigurationOptions, Transformation, ImageTag, VideoTag } from '../../../../build/cloudinary-core';
 import 'jasmine';
 import { jsdom } from 'jsdom';
 

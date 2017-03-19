@@ -9,7 +9,7 @@
   "scripts": {
     "pretest": "grunt lodash && grunt compile",
     "test": "grunt karma --browsers=PhantomJS",
-    "test-types": "cd build/cloudinary-core && tsc && jasmine"
+    "test-types": "[ -d ./build ] && tsc && jasmine JASMINE_CONFIG_PATH=test/types/spec/support/jasmine.json || (echo \"Error: Run 'grunt build' before executing TypeScript tests\" && exit 1) "
   },
   "repository": {
     "type": "git",
