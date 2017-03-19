@@ -30,4 +30,5 @@ build/
 .idea/
 
 # TypeScript intermediate files
-test/types/spec/test/*.js
+types/*.js*
+.tscache/

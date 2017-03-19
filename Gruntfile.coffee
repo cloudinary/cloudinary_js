@@ -180,18 +180,20 @@ module.exports = (grunt)->
           src: ["**"]
           dest: "../pkg/pkg-#{repo}/docs"
       types:
-        files: for repo in repos when (repo == 'cloudinary-core')
-          expand: true
-          cwd: "types"
-          src: "**"
-          dest: "build/#{repo}"
-          rename: (dest, src) ->
-            if /types\.d\.ts/.test(src)
-              dest + ".d.ts"
-            else
-              dest + "/" + src
+        files: [
+          {
+            src: "types/cloudinary-core.d.ts",
+            expand: true,
+            flatten: true,
+            dest: "build/"
+          }
+        ]
 
-    version:
+    ts:
+      default:
+        tsconfig: true
+
+     version:
       options:
         release: 'patch'
         flags: 'ig'
@@ -315,6 +317,7 @@ module.exports = (grunt)->
   grunt.loadNpmTasks('grunt-jsdoc')
   grunt.loadNpmTasks('grunt-karma')
   grunt.loadNpmTasks('grunt-version')
+  grunt.loadNpmTasks('grunt-ts')
 
   grunt.registerTask('default', ['concat', 'coffee'])
   grunt.registerTask('compile', ['clean:build', 'clean:js', 'concat', 'coffee', 'copy:backward-compatible'])

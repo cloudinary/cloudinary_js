@@ -6,7 +6,7 @@ type Gravity = "north_west" | "north" | "north_east" | "west" | "center" | "east
     "auto" | "auto:adv_face" | "auto:adv_faces" | "auto:adv_eyes" | "auto:body" | "auto:face" | "auto:faces" | "auto:custom_no_override" | "auto:none";
 type ImageFileExtension = "jpg" | "jpe" | "jpeg" | "jpc" | "jp2" | "j2k" | "wdp" | "jxr" | "hdp" | "png" | "gif" | "webp" | "bmp" | "tif" | "tiff" |
     "ico" | "pdf" | "ps" | "ept" | "eps" | "eps3" | "psd" | "svg" | "ai" | "djvu" | "flif";
-type VideoFileExtension = "	webm" | "mp4" | "ogv" | "flv" | "m3u8";
+type VideoFileExtension = "webm" | "mp4" | "ogv" | "flv" | "m3u8";
 type AngleMode = "auto_right" | "auto_left" | "ignore" | "vflip" | "hflip";
 type ColorSpace = "srgb" | "no_cmyk";
 type ImageFlags = "any_format" | "attachment" | "awebp" | "clip" | "cutter" | "force_strip" | "ignore_aspect_ratio" | "keep_iptc" | "layer_apply" |
@@ -75,7 +75,7 @@ export function Condition(conditionStr: string): void;
  *
  * t = new cloudinary.Transformation( {angle: 20, crop: "scale", width: "auto"});
  */
-export interface Transformation {
+export interface TransformationObject {
     /**
      * Return an options object that can be used to create an identical Transformation
      * @function Transformation#toOptions
@@ -132,61 +132,61 @@ export interface Transformation {
      * tr.width(10).crop('fit').chain().angle(15).serialize()
      * // produces "c_fit,w_10/a_15"
      */
-    chain(): Transformation;
+    chain(): TransformationObject;
 
     /**
      * Resets this transformation to an empty one
      */
-    resetTransformations(): Transformation;
+    resetTransformations(): TransformationObject;
 
     "if"(): Condition; // Create a condition
-    "if"(condition?: string): Transformation; // Create a condition
-    "else"(): Transformation; // Separator for setting the desired transformation for an "if" branch in case of falsy condition
-    endIf(): Transformation; // End condition
+    "if"(condition?: string): TransformationObject; // Create a condition
+    "else"(): TransformationObject; // Separator for setting the desired transformation for an "if" branch in case of falsy condition
+    endIf(): TransformationObject; // End condition
 
     /**
      * Transformation methods
      */
-    angle(value: AngleMode | number): Transformation; // degrees or mode
-    aspectRatio(value: string | number): Transformation; // ratio or percent, e.g. 1.5 or 16:9
-    background(value: string): Transformation; // color, e.g. "blue" or "rgb:9090ff"
-    border(value: string): Transformation; // style, e.g. "6px_solid_rgb:00390b60"
-    color(value: string): Transformation; // e.g. "red" or "rgb:20a020"
-    colorSpace(value: ColorSpace): Transformation;
-    crop(value: CropMode): Transformation;
-    defaultImage(value: string): Transformation; // public id of an uploaded image
-    delay(value: string): Transformation;
-    density(value: number): Transformation; // Control the density to use while converting a PDF document to images. (range: 50-300, default: 150)
-    dpr(value: "auto" | number): Transformation; // Deliver the image in the specified device pixel ratio. The parameter accepts any positive float value
-    effect(value: string): Transformation; // name and value, e.g. hue:40
-    fetchFormat(value: "auto" | ImageFileExtension): Transformation;
-    format(value: ImageFileExtension): Transformation;
-    flags(value: ImageFlags | string): Transformation; // Set one or more flags that alter the default transformation behavior. Separate multiple flags with a dot (`.`).
-    gravity(value: Gravity | string): Transformation; // The last any covers auto:50 which is cropping algorithm aggresiveness and future proofing
-    height(value: number): Transformation; // Number of pixels or height %
-    htmlHeight(value: string): Transformation;
-    htmlWidth(value: string): Transformation;
-    opacity(value: number): Transformation; // percent, 0-100
-    overlay(value: string): Transformation; // Identifier, e.g. "text:Arial_50:Smile!", or public id of a different resource
-    page(value: number): Transformation; // Given a multi-page file (PDF, animated GIF, TIFF), generate an image of a single page using the given index.
-    prefix(value: string): Transformation;
-    quality(value: string | number): Transformation; // percent or percent[:chroma_subsampling] or auto[:quality_level]
-    radius(value: "max" | number): Transformation; // pixels or max
-    rawTransformation(value: any): Transformation;
-    size(value: string): Transformation;
-    transformation(value: string | Array<TransformationOptions>): Transformation; // Apply a pre-defined named transformation of the given name. When using Cloudinary's client integration libraries, the 'transformation' parameter accepts an array of transformation parameters to be chained together.
-    underlay(value: string): Transformation; // public id of an uploaded image
-    width(value: string | number): Transformation; // Number of pixels, width % or "auto" with rounding step
-    x(value: number): Transformation; // pixels or percent 
-    y(value: number): Transformation; // pixels or percent 
-    zoom(value: number): Transformation; // percent
+    angle(value: AngleMode | number): TransformationObject; // degrees or mode
+    aspectRatio(value: string | number): TransformationObject; // ratio or percent, e.g. 1.5 or 16:9
+    background(value: string): TransformationObject; // color, e.g. "blue" or "rgb:9090ff"
+    border(value: string): TransformationObject; // style, e.g. "6px_solid_rgb:00390b60"
+    color(value: string): TransformationObject; // e.g. "red" or "rgb:20a020"
+    colorSpace(value: ColorSpace): TransformationObject;
+    crop(value: CropMode): TransformationObject;
+    defaultImage(value: string): TransformationObject; // public id of an uploaded image
+    delay(value: string): TransformationObject;
+    density(value: number): TransformationObject; // Control the density to use while converting a PDF document to images. (range: 50-300, default: 150)
+    dpr(value: "auto" | number): TransformationObject; // Deliver the image in the specified device pixel ratio. The parameter accepts any positive float value
+    effect(value: string): TransformationObject; // name and value, e.g. hue:40
+    fetchFormat(value: "auto" | ImageFileExtension): TransformationObject;
+    format(value: ImageFileExtension): TransformationObject;
+    flags(value: ImageFlags | string): TransformationObject; // Set one or more flags that alter the default transformation behavior. Separate multiple flags with a dot (`.`).
+    gravity(value: Gravity | string): TransformationObject; // The last any covers auto:50 which is cropping algorithm aggresiveness and future proofing
+    height(value: number): TransformationObject; // Number of pixels or height %
+    htmlHeight(value: string): TransformationObject;
+    htmlWidth(value: string): TransformationObject;
+    opacity(value: number): TransformationObject; // percent, 0-100
+    overlay(value: string): TransformationObject; // Identifier, e.g. "text:Arial_50:Smile!", or public id of a different resource
+    page(value: number): TransformationObject; // Given a multi-page file (PDF, animated GIF, TIFF), generate an image of a single page using the given index.
+    prefix(value: string): TransformationObject;
+    quality(value: string | number): TransformationObject; // percent or percent[:chroma_subsampling] or auto[:quality_level]
+    radius(value: "max" | number): TransformationObject; // pixels or max
+    rawTransformation(value: any): TransformationObject;
+    size(value: string): TransformationObject;
+    transformation(value: string | Array<TransformationOptions>): TransformationObject; // Apply a pre-defined named transformation of the given name. When using Cloudinary's client integration libraries, the 'transformation' parameter accepts an array of transformation parameters to be chained together.
+    underlay(value: string): TransformationObject; // public id of an uploaded image
+    width(value: string | number): TransformationObject; // Number of pixels, width % or "auto" with rounding step
+    x(value: number): TransformationObject; // pixels or percent 
+    y(value: number): TransformationObject; // pixels or percent 
+    zoom(value: number): TransformationObject; // percent
     toHtml(): string; // Returns the string representation of this transformation
 }
 
 interface Condition {
     "and"(): Condition; // Add terms to the condition
     "or"(): Condition; // Add terms to the condition
-    "then"(): Transformation; // Separator for setting the desired transformation for an "if" branch in case of truthy condition
+    "then"(): TransformationObject; // Separator for setting the desired transformation for an "if" branch in case of truthy condition
 
     /**
      * @function Condition#height
@@ -225,43 +225,43 @@ interface Condition {
     faceCount(operator: string, value: string | number): Condition;
 }
 
-export interface TransformationOptions {
-    angle?: AngleMode | number; // degrees or mode
-    aspectRatio?: string | number; // ratio or percent, e.g. 1.5 or 16:9
+export interface TransformationOptions extends ConfigurationOptions {
+    angle?: AngleMode | number | string; // degrees or mode
+    aspectRatio?: string | number | string; // ratio or percent, e.g. 1.5 or 16:9
     background?: string; // color, e.g. "blue" or "rgb:9090ff"
     border?: string; // style, e.g. "6px_solid_rgb:00390b60"
     color?: string; // e.g. "red" or "rgb:20a020"
-    colorSpace?: ColorSpace;
-    crop?: CropMode,
+    colorSpace?: ColorSpace | string;
+    crop?: CropMode | string,
     defaultImage?: string; // public id of an uploaded image
     delay?: string;
-    density?: number; // Control the density to use while converting a PDF document to images. (range: 50-300, default: 150)
-    dpr?: "auto" | number; // Deliver the image in the specified device pixel ratio. The parameter accepts any positive float value
+    density?: number | string; // Control the density to use while converting a PDF document to images. (range: 50-300, default: 150)
+    dpr?: "auto" | number | string; // Deliver the image in the specified device pixel ratio. The parameter accepts any positive float value
     effect?: string; // name and value, e.g. hue:40
-    fetchFormat?: "auto" | ImageFileExtension;
-    format?: ImageFileExtension;
+    fetchFormat?: "auto" | ImageFileExtension | string;
+    format?: ImageFileExtension | string;
     flags?: ImageFlags | string; // Set one or more flags that alter the default transformation behavior. Separate multiple flags with a dot (`.`).
     gravity?: Gravity | string; // The last any covers auto:50 which is cropping algorithm aggresiveness and future proofing
-    height?: number; // Number of pixels or height %
+    height?: number | string; // Number of pixels or height %
     htmlHeight?: string;
     htmlWidth?: string;
     if?: string; // Apply a transformation only if a specified condition is met (see the conditional transformations documentation).
     else?: string;
     endIf?: string;
-    opacity?: number; // percent, 0-100
-    overlay?: string; // Identifier, e.g. "text:Arial_50:Smile!", or public id of a different resource
-    page?: number; // Given a multi-page file (PDF, animated GIF, TIFF), generate an image of a single page using the given index.
+    opacity?: number | string; // percent, 0-100
+    overlay?: string | string; // Identifier, e.g. "text:Arial_50:Smile!", or public id of a different resource
+    page?: number | string; // Given a multi-page file (PDF, animated GIF, TIFF), generate an image of a single page using the given index.
     prefix?: string;
     quality?: string | number; // percent or percent[:chroma_subsampling] or auto[:quality_level]
-    radius?: "max" | number; // pixels or max
+    radius?: "max" | number | string; // pixels or max
     rawTransformation?: any;
     size?: string;
     transformation?: string | Array<TransformationOptions>; // Apply a pre-defined named transformation of the given name. When using Cloudinary's client integration libraries, the 'transformation' parameter accepts an array of transformation parameters to be chained together.
     underlay?: string; // public id of an uploaded image
     width?: string | number; // Number of pixels, width % or "auto" with rounding step
-    x?: number; // pixels or percent 
-    y?: number; // pixels or percent 
-    zoom?: number; // percent
+    x?: number | string; // pixels or percent 
+    y?: number | string; // pixels or percent 
+    zoom?: number | string; // percent
 }
 
 interface VideoTransformationOptions extends TransformationOptions {
@@ -283,6 +283,8 @@ interface VideoTransformationOptions extends TransformationOptions {
     videoCodec?: "auto" | string; // Select the video codec and control the video content of the profile used. Can be provided in the form <codec>[:<profile>:[<level>]] to specify specific values to apply for video codec, profile and level, e.g. "h264:baseline:3.1"
     videoSampling?: number | string; // Integer - The total number of frames to sample from the original video. The frames are spread out over the length of the video, e.g. 20 takes one frame every 5% -- OR -- String - The number of seconds between each frame to sample from the original video. e.g. 2.3s takes one frame every 2.3 seconds.
 }
+
+export type Transformation = TransformationObject | TransformationOptions;
 
 /**
  * Cloudinary configuration class
@@ -339,7 +341,7 @@ export interface HtmlTagInterface {
     toHtml(): string;
     toDOM(): Element;
     isResponsive(): boolean;
-    transformation(): Transformation; 
+    transformation(): TransformationObject; 
 }
 /**
  * Creates an HTML (DOM) Image tag using Cloudinary as the source.
@@ -553,7 +555,7 @@ export class Cloudinary {
     //???  * @param {Object} [options.resource_type='image'] - the type of the resource
      * @return {string} The resource URL
      */
-    url(publicId: string, options?: Transformation | TransformationOptions | ConfigurationOptions): string;
+    url(publicId: string, options?: Transformation): string;
 
     /**
      * Generate an video resource URL.
@@ -564,7 +566,7 @@ export class Cloudinary {
      * @param {string} [options.type='upload'] - the classification of the resource
      * @return {string} The video URL
      */
-    video_url(publicId: string, options?: Transformation | TransformationOptions | ConfigurationOptions): string;
+    video_url(publicId: string, options?: Transformation): string;
 
     /**
      * Generate an image tag.
@@ -573,7 +575,7 @@ export class Cloudinary {
      * @param {Object} [options] - options for the tag and transformations
      * @return {HTMLImageElement} an image tag element
      */
-    image(publicId: string, options?: Transformation | TransformationOptions | ConfigurationOptions): HTMLImageElement;
+    image(publicId: string, options?: Transformation): HTMLImageElement;
 
     /**
      * Generate an video thumbnail URL.
@@ -584,7 +586,7 @@ export class Cloudinary {
      * @param {string} [options.type='upload'] - the classification of the resource
      * @return {string} The video thumbnail URL
      */
-    video_thumbnail_url(publicId: string, options?: Transformation | TransformationOptions | ConfigurationOptions): string;
+    video_thumbnail_url(publicId: string, options?: Transformation): string;
 
     /**
      * Generate a string representation of the provided transformation options.
@@ -592,7 +594,7 @@ export class Cloudinary {
      * @param {Object} options - the transformation options
      * @returns {string} The transformation string
      */
-    transformation_string(options: Transformation | TransformationOptions): string;
+    transformation_string(options: Transformation): string;
 
     /**
      * Generate an image tag.
@@ -601,7 +603,7 @@ export class Cloudinary {
      * @param {Object} [options] - options for the tag and transformations
      * @return {HTMLImageElement} an image tag element
      */
-    image(publicId: string, options?: Transformation | TransformationOptions | ConfigurationOptions): HTMLImageElement;
+    image(publicId: string, options?: Transformation): HTMLImageElement;
 
     /**
      * Creates a new ImageTag instance, configured using this own's configuration.
@@ -610,7 +612,7 @@ export class Cloudinary {
      * @param {Object} options - additional options to pass to the new ImageTag instance
      * @return {ImageTag} An ImageTag that is attached (chained) to this Cloudinary instance
      */
-    imageTag(publicId: string, options?: Transformation | TransformationOptions | ConfigurationOptions): ImageTag;
+    imageTag(publicId: string, options?: Transformation): ImageTag;
 
     /**
      * Generate an image tag for the video thumbnail.
@@ -619,7 +621,7 @@ export class Cloudinary {
      * @param {Object} [options] - options for the tag and transformations
      * @return {HTMLImageElement} An image tag element
      */
-    video_thumbnail(publicId: string, options?: Transformation | TransformationOptions | ConfigurationOptions): HTMLImageElement;
+    video_thumbnail(publicId: string, options?: Transformation): HTMLImageElement;
 
     /**
      * @function Cloudinary#facebook_profile_image
@@ -627,7 +629,7 @@ export class Cloudinary {
      * @param {Object} [options] - options for the tag and transformations
      * @return {HTMLImageElement} an image tag element
      */
-    facebook_profile_image(publicId: string, options?: Transformation | TransformationOptions | ConfigurationOptions): HTMLImageElement;
+    facebook_profile_image(publicId: string, options?: Transformation): HTMLImageElement;
 
     /**
      * @function Cloudinary#twitter_profile_image
@@ -635,7 +637,7 @@ export class Cloudinary {
      * @param {Object} [options] - options for the tag and transformations
      * @return {HTMLImageElement} an image tag element
      */
-    twitter_profile_image(publicId: string, options?: Transformation | TransformationOptions | ConfigurationOptions): HTMLImageElement;
+    twitter_profile_image(publicId: string, options?: Transformation): HTMLImageElement;
 
     /**
      * @function Cloudinary#twitter_name_profile_image
@@ -643,7 +645,7 @@ export class Cloudinary {
      * @param {Object} [options] - options for the tag and transformations
      * @return {HTMLImageElement} an image tag element
      */
-    twitter_name_profile_image(publicId: string, options?: Transformation | TransformationOptions | ConfigurationOptions): HTMLImageElement;
+    twitter_name_profile_image(publicId: string, options?: Transformation): HTMLImageElement;
 
     /**
      * @function Cloudinary#gravatar_image
@@ -651,7 +653,7 @@ export class Cloudinary {
      * @param {Object} [options] - options for the tag and transformations
      * @return {HTMLImageElement} an image tag element
      */
-    gravatar_image(publicId: string, options?: Transformation | TransformationOptions | ConfigurationOptions): HTMLImageElement;
+    gravatar_image(publicId: string, options?: Transformation): HTMLImageElement;
 
     /**
      * @function Cloudinary#fetch_image
@@ -659,7 +661,7 @@ export class Cloudinary {
      * @param {Object} [options] - options for the tag and transformations
      * @return {HTMLImageElement} an image tag element
      */
-    fetch_image(publicId: string, options?: Transformation | TransformationOptions | ConfigurationOptions): HTMLImageElement;
+    fetch_image(publicId: string, options?: Transformation): HTMLImageElement;
 
     /**
      * @function Cloudinary#video
@@ -667,7 +669,7 @@ export class Cloudinary {
      * @param {Object} [options] - options for the tag and transformations
      * @return {string} The generated <video> tag and its descendants
      */
-    video(publicId: string, options?: Transformation | TransformationOptions | ConfigurationOptions): string;
+    video(publicId: string, options?: Transformation): string;
 
     /**
      * Creates a new VideoTag instance, configured using this own's configuration.
@@ -676,7 +678,7 @@ export class Cloudinary {
      * @param {Object} options - additional options to pass to the new VideoTag instance
      * @return {VideoTag} A VideoTag that is attached (chained) to this Cloudinary instance
      */
-    videoTag(publicId: string, options?: Transformation | TransformationOptions | ConfigurationOptions): VideoTag;
+    videoTag(publicId: string, options?: Transformation): VideoTag;
 
     /**
      * Generate the URL of the sprite image
@@ -685,19 +687,19 @@ export class Cloudinary {
      * @param {Object} [options] - options for the tag and transformations
      * @see {@link http://cloudinary.com/documentation/sprite_generation Sprite generation}
      */
-    sprite_css(publicId: string, options?: Transformation | TransformationOptions | ConfigurationOptions): string;
+    sprite_css(publicId: string, options?: Transformation): string;
 
     /**
-    * Initialize the responsive behaviour.<br>
-    * Calls {@link Cloudinary#cloudinary_update} to modify image tags.
-        * @function Cloudinary#responsive
-    * @param {Object} options
-    * @param {String} [options.responsive_class='cld-responsive'] - provide an alternative class used to locate img tags
-    * @param {number} [options.responsive_debounce=100] - the debounce interval in milliseconds.
-    * @param {boolean} [bootstrap=true] if true processes the img tags by calling cloudinary_update. When false the tags will be processed only after a resize event.
-    * @see {@link Cloudinary#cloudinary_update} for additional configuration parameters
-        */
-    responsive(options?: Transformation | TransformationOptions, bootstrap?: boolean | ConfigurationOptions): void;
+     * Initialize the responsive behaviour.<br>
+     * Calls {@link Cloudinary#cloudinary_update} to modify image tags.
+     * @function Cloudinary#responsive
+     * @param {Object} options
+     * @param {String} [options.responsive_class='cld-responsive'] - provide an alternative class used to locate img tags
+     * @param {number} [options.responsive_debounce=100] - the debounce interval in milliseconds.
+     * @param {boolean} [bootstrap=true] if true processes the img tags by calling cloudinary_update. When false the tags will be processed only after a resize event.
+     * @see {@link Cloudinary#cloudinary_update} for additional configuration parameters
+     */
+    responsive(options?: Transformation, bootstrap?: boolean): void;
 
     /**
     * Update hidpi (dpr_auto) and responsive (w_auto) fields according to the current container size and the device pixel ratio.
@@ -713,7 +715,7 @@ export class Cloudinary {
     * @param {boolean} [options.responsive_preserve_height] - if set to true, original css height is preserved.
     *   Should only be used if the transformation supports different aspect ratios.
     */
-    cloudinary_update(elements: Array<string> | NodeList, options?: Transformation | TransformationOptions | ConfigurationOptions): Cloudinary;
+    cloudinary_update(elements: Array<string> | NodeList, options?: Transformation): Cloudinary;
 
     /**
      * Provide a transformation object, initialized with own's options, for chaining purposes.
@@ -721,7 +723,7 @@ export class Cloudinary {
      * @param {Object} options
      * @return {Transformation}
      */
-    transformation(options?: Transformation | TransformationOptions): Transformation;
+    transformation(options?: Transformation): TransformationObject;
 }
 
 export const VERSION: string;
@@ -736,7 +738,7 @@ export interface ConfigurationOptions {
     api_key?: string;
     api_secret?: string;
     cdn_subdomain?: string;
-    cloud_name: string;
+    cloud_name?: string;
     cname?: string;
     private_cdn?: boolean;
     protocol?: string;
