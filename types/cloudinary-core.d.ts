@@ -177,8 +177,8 @@ export interface TransformationObject {
     transformation(value: string | Array<TransformationOptions>): TransformationObject; // Apply a pre-defined named transformation of the given name. When using Cloudinary's client integration libraries, the 'transformation' parameter accepts an array of transformation parameters to be chained together.
     underlay(value: string): TransformationObject; // public id of an uploaded image
     width(value: string | number): TransformationObject; // Number of pixels, width % or "auto" with rounding step
-    x(value: number): TransformationObject; // pixels or percent 
-    y(value: number): TransformationObject; // pixels or percent 
+    x(value: number): TransformationObject; // pixels or percent
+    y(value: number): TransformationObject; // pixels or percent
     zoom(value: number): TransformationObject; // percent
     toHtml(): string; // Returns the string representation of this transformation
 }
@@ -259,15 +259,15 @@ export interface TransformationOptions extends ConfigurationOptions {
     transformation?: string | Array<TransformationOptions>; // Apply a pre-defined named transformation of the given name. When using Cloudinary's client integration libraries, the 'transformation' parameter accepts an array of transformation parameters to be chained together.
     underlay?: string; // public id of an uploaded image
     width?: string | number; // Number of pixels, width % or "auto" with rounding step
-    x?: number | string; // pixels or percent 
-    y?: number | string; // pixels or percent 
+    x?: number | string; // pixels or percent
+    y?: number | string; // pixels or percent
     zoom?: number | string; // percent
 }
 
 interface VideoTransformationOptions extends TransformationOptions {
     audioCodec?: AudioCodecs;
     audioFrequency?: AudioFrequencies;
-    bitRate?: number | string; // Advanced control of video bitrate in bits per second. By default the video uses a variable bitrate (VBR), with this value indicating the maximum bitrate. If constant is specified, the video plays with a constant bitrate (CBR). 
+    bitRate?: number | string; // Advanced control of video bitrate in bits per second. By default the video uses a variable bitrate (VBR), with this value indicating the maximum bitrate. If constant is specified, the video plays with a constant bitrate (CBR).
     // Supported codecs: h264, h265(MPEG - 4); vp8, vp9(WebM).
     duration?: number | string; // Float or string
     endOffset?: number | string; // Float or string
@@ -341,7 +341,7 @@ export interface HtmlTagInterface {
     toHtml(): string;
     toDOM(): Element;
     isResponsive(): boolean;
-    transformation(): TransformationObject; 
+    transformation(): TransformationObject;
 }
 /**
  * Creates an HTML (DOM) Image tag using Cloudinary as the source.
@@ -553,8 +553,8 @@ export class Cloudinary {
      *                          and {@link Configuration} parameters
     //???  * @param {string} [options.type='upload'] - the classification of the resource
     //???  * @param {Object} [options.resource_type='image'] - the type of the resource
-     * @return {string} The resource URL
-     */
+    * @return {string} The resource URL
+    */
     url(publicId: string, options?: Transformation): string;
 
     /**
@@ -755,11 +755,4 @@ export interface ConfigurationOptions {
 
     static_image_support?: string;
     enhance_image_tag?: boolean;
-}
-
-declare module 'cloudinary-core' {
-    export = {
-        Cloudinary,
-        Util
-    };
-}
+}    
