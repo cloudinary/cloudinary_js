@@ -1,3 +1,8 @@
+/**
+ * This file is used to validate the type spec. The code is not actually run.
+ */
+
+
 import { Cloudinary, ConfigurationOptions, Transformation, ImageTag, VideoTag } from './cloudinary-core';
 
 let config: ConfigurationOptions = { cloud_name: 'demo' };
