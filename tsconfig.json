@@ -5,8 +5,7 @@
     },
     "include": [
         "build/**/*",
-        "types/**/*",
-        "test/types/**/*"
+        "types/**/*"
     ],
     "exclude": [
         "node_modules"
