@@ -193,15 +193,15 @@ module.exports = (grunt)->
       default:
         tsconfig: true
 
-     version:
-      options:
-        release: 'patch'
-        flags: 'ig'
-      package:
-        files: [
-          {src: ['bower.json', 'package.json', 'src/cloudinary.coffee']},
-          {expand: true, src: ['../pkg/pkg-*/bower.json', '../pkg/pkg-*/package.json']}
-          ]
+    version:
+     options:
+       release: 'patch'
+       flags: 'ig'
+     package:
+       files: [
+         {src: ['bower.json', 'package.json', 'src/cloudinary.coffee']},
+         {expand: true, src: ['../pkg/pkg-*/bower.json', '../pkg/pkg-*/package.json']}
+         ]
     srcList: [
       'src/utf8_encode.coffee',
       'src/crc32.coffee',
