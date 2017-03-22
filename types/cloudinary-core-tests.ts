@@ -3,14 +3,15 @@
  */
 
 
-import { Cloudinary, Configuration, Transformation, ImageTag, VideoTag } from './cloudinary-core';
+import { Cloudinary, Util, Configuration, Transformation, ImageTag, VideoTag, Condition, Layer, TextLayer, HtmlTag, ClientHintsMetaTag, Param } from './cloudinary-core';
 
 let config: Configuration.Options = { cloud_name: 'demo' };
 
 // verify that Configuration.Options is forward-compatible
-config= { cloud_name: 'demo', some_new_key: "value", some_other_key: {other: 'value'} };
+config = { cloud_name: 'demo', some_new_key: "value", some_other_key: { other: 'value' } };
 
 let cld: Cloudinary = new Cloudinary(config);
+
 
 cld.url('sample'); // http://res.cloudinary.com/demo/image/upload/sample
 
@@ -91,6 +92,10 @@ transformation = cld.transformation();
 transformation.angle(20).crop('scale').width('auto').chain().effect('sepia');
 cld.url('sample', transformation); // http://res.cloudinary.com/demo/image/upload/a_20,c_scale,w_auto/e_sepia/sample
 
+transformation = new Transformation().overlay("text:hello");
+transformation.serialize();
+transformation.toHtmlAttributes();
+
 
 let url: string = cld.url('sample', cld.transformation().if().width('gt', 100).and().width('lt', 200).then().width(50).crop('scale').endIf()); // http://res.cloudinary.com/demo/image/upload/if_w_gt_100_and_w_lt_200/c_scale,w_50/if_end/sample
 
@@ -116,4 +121,83 @@ image = cld.facebook_profile_image('officialchucknorrispage',
         effect: 'art:hokusai'
     }); // image.src == https://res.cloudinary.com/demo/image/facebook/e_art:hokusai/officialchucknorrispage && image.getAttribute('data-src-cache') == expectedImageUrl
 
+
 let tag = ImageTag.new("publicId");
+
+
+let videoHtml = cld.videoTag("movie").setSourceTypes('mp4')
+    .transformation()
+    .htmlHeight("100")
+    .htmlWidth("200")
+    .videoCodec({ codec: 'h264', profile: 'basic', level: '3.1' })
+    .audioCodec("aac")
+    .startOffset(3)
+    .toHtml()
+
+
+let layerOptions: TextLayer.Options = {
+    text: "Cloudinary for the win!",
+    fontFamily: "Arial",
+    fontSize: 18
+};
+let layer = new TextLayer(layerOptions);
+layer.textStyleIdentifier(); // "Arial_18"
+layer.toString(); // "text:Arial_18:Cloudinary%20for%20the%20win%21")
+
+
+new HtmlTag('div', "publicId", {});
+new HtmlTag('div', {});
+
+new ImageTag('image_id', config).toHtml(); //  <img src=\"#{DEFAULT_UPLOAD_PATH}image_id\">
+new ImageTag('image_id', Util.assign({ responsive: true }, config)).toHtml()
+
+new VideoTag("movie", {
+    cloud_name: "test123",
+    secure_distribution: null,
+    private_cdn: false,
+    secure: false,
+    cname: null,
+    cdn_subdomain: false,
+    api_key: "1234",
+    api_secret: "b"
+}).toHtml()
+
+// Video with HTML5 attributes
+new VideoTag("movie", {
+    cloud_name: "test123",
+    secure_distribution: null,
+    autoplay: 1,
+    controls: true,
+    loop: true,
+    muted: "true",
+    preload: true,
+    style: "border: 1px"
+}).toHtml()
+
+new VideoTag("movie", {
+    source_types: "mp4",
+    html_height: "100",
+    html_width: "200",
+    video_codec: { codec: "h264" },
+    audio_codec: "acc",
+    start_offset: 3
+}).toDOM();
+
+cld.video("movie", { poster: { 'gravity': 'north' }, source_types: "mp4" }); // <video poster=\"#{expected_poster_url}\" src=\"#{expected_url}.mp4\"></video>
+cld.video("movie", { poster: { 'gravity': 'north', 'public_id': 'my_poster', 'format': 'jpg' }, source_types: "mp4"}); // <video poster=\"#{expected_poster_url}\" src=\"#{expected_url}.mp4\"></video>
+new ClientHintsMetaTag().toHtml(); // <meta content="DPR, Viewport-Width, Width" http-equiv="Accept-CH">
+
+new Param("param name", "p_n");
+
+Transformation.new().keyframeInterval(10).toString(); // "ki_10"
+
+Transformation.new().flags('abc.def').toString(); // fl_abc.def
+Transformation.new().flags('ignore_aspect_ratio').toString(); // fl_ignore_aspect_ratio
+
+cld.image("image", { zoom: 1.2 }); // http://res.cloudinary.com/<cloud>/image/upload/z_1.2/image
+
+new Layer().resourceType("video").publicId("cat"); // "video:cat"
+new TextLayer().text("Hello World, Nice to meet you?").fontFamily("Arial").fontSize(18); // "text:Arial_18:Hello%20World%252C%20Nice%20to%20meet%20you%3F"]
+
+
+cld.video("movie", { fallback_content: "<span id=\"spanid\">Cannot display video</span>" });

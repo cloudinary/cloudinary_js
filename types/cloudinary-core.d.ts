@@ -14,8 +14,8 @@ type ColorSpace = "srgb" | "no_cmyk";
 type ImageFlags = "any_format" | "attachment" | "awebp" | "clip" | "cutter" | "force_strip" | "ignore_aspect_ratio" | "keep_iptc" | "layer_apply" |
     "lossy" | "preserve_transparency" | "png8" | "progressive" | "rasterize" | "region_relative" | "relative" | "strip_profile" | "text_no_trim" | "no_overflow" | "tiled";
 type VideoFlags = "splice" | "layer_apply" | "no_stream" | "truncate_ts" | "waveform";
-type AudioCodecs = "none" | "aac" | "vorbis" | "mp3";
-type AudioFrequencies = 8000 | 11025 | 16000 | 22050 | 32000 | 37800 | 44056 | 44100 | 47250 | 48000 | 88200 | 96000 | 176400 | 192000;
+type AudioCodec = "none" | "aac" | "vorbis" | "mp3";
+type AudioFrequency = 8000 | 11025 | 16000 | 22050 | 32000 | 37800 | 44056 | 44100 | 47250 | 48000 | 88200 | 96000 | 176400 | 192000;
 type StreamingProfiles = "4k" | "full_hd" | "hd" | "sd" | "full_hd_wifi" | "full_hd_lean" | "hd_lean";
 
 
@@ -23,39 +23,39 @@ export function crc32(str: string): any;
 export function utf8_encode(argString: string): any;
 
 export class Util {
-    allStrings(list: Array<any>): boolean;
-    camelCase(text: string): string;
-    convertKeys(source: Object, converter?: (value: any) => any): Object;
-    defaults(target: Object, object1?: any, ...objectN: any[]): Object;
-    snakeCase(source: string): string;
-    without(array: Array<any>, item: any): Array<any>;
-    isNumberLike(value: any): boolean;
-    withCamelCaseKeys(source: Object): Object;
-    smartEscape(text: string, unsafe: string | RegExp): string;
-    withSnakeCaseKeys(source: Object): Object;
-    hasClass(element: Element, name: string): boolean;
-    addClass(element: Element, name: string): void;
-    getAttribute(element: Element, name: string): string;
-    setAttribute(element: Element, name: string, value: any): void;
-    removeAttribute(element: Element, name: string): void;
-    setAttributes(element: Element, attributes: Array<any>): any;
-    getData(element: Element, name: string): any;
-    setData(element: Element, name: string, value: any): void;
-    width(element: Element): number;
-    isString(value: any): boolean;
-    isArray(obj: any): boolean;
-    isEmpty(value: any): boolean;
-    assign(target: Object, object1?: any, ...objectN: any[]): any;
-    merge(target: Object, object1?: any, ...objectN: any[]): any;
-    cloneDeep(value: any): any;
-    compact(array: Array<any>): Array<any>;
-    contains(collection: Array<any>, item: any): boolean;
-    difference(array: Array<any>, values: Array<any>): Array<any>;
-    isFunction(value: any): boolean;
-    functions(object: any): Array<any>;
-    identity(value: any): any;
-    isPlainObject(value: any): boolean;
-    trim(text: string): string;
+    static allStrings(list: Array<any>): boolean;
+    static camelCase(text: string): string;
+    static convertKeys(source: Object, converter?: (value: any) => any): Object;
+    static defaults(target: Object, object1?: any, ...objectN: any[]): Object;
+    static snakeCase(source: string): string;
+    static without(array: Array<any>, item: any): Array<any>;
+    static isNumberLike(value: any): boolean;
+    static withCamelCaseKeys(source: Object): Object;
+    static smartEscape(text: string, unsafe: string | RegExp): string;
+    static withSnakeCaseKeys(source: Object): Object;
+    static hasClass(element: Element, name: string): boolean;
+    static addClass(element: Element, name: string): void;
+    static getAttribute(element: Element, name: string): string;
+    static setAttribute(element: Element, name: string, value: any): void;
+    static removeAttribute(element: Element, name: string): void;
+    static setAttributes(element: Element, attributes: Array<any>): any;
+    static getData(element: Element, name: string): any;
+    static setData(element: Element, name: string, value: any): void;
+    static width(element: Element): number;
+    static isString(value: any): boolean;
+    static isArray(obj: any): boolean;
+    static isEmpty(value: any): boolean;
+    static assign(target: Object, object1?: any, ...objectN: any[]): any;
+    static merge(target: Object, object1?: any, ...objectN: any[]): any;
+    static cloneDeep(value: any): any;
+    static compact(array: Array<any>): Array<any>;
+    static contains(collection: Array<any>, item: any): boolean;
+    static difference(array: Array<any>, values: Array<any>): Array<any>;
+    static isFunction(value: any): boolean;
+    static functions(object: any): Array<any>;
+    static identity(value: any): any;
+    static isPlainObject(value: any): boolean;
+    static trim(text: string): string;
 }
 
 
@@ -71,6 +71,11 @@ export class Util {
  * t = new cloudinary.Transformation( {angle: 20, crop: "scale", width: "auto"});
  */
 export class Transformation {
+
+    constructor(options?: Transformation.Options);
+
+    static "new"(options?: Transformation.Options): Transformation;
+
     /**
      * Return an options object that can be used to create an identical Transformation
      * @function Transformation#toOptions
@@ -118,6 +123,31 @@ export class Transformation {
     toPlainObject(): Object;
 
     /**
+     * Returns the value of "overlay" if it exists, otherwise returns the value of "underlay"
+     */
+    hasLayer(): any;
+
+    /**
+     * Generate a string representation of the transformation.
+     * @return {string } Returns the transformation as a string
+     */
+    serialize(): string;
+    
+    /**
+     * Combines all propoerties from source transformation into this one
+     * @param source transformation to copy
+     * @return this transforamtion
+     */
+    fromTransformation(source: Transformation): Transformation;
+
+    /**
+     * Returns attributes for an HTML tag.
+     * @return PlainObject
+     */
+    toHtmlAttributes(): Object;
+
+
+    /**
      * Complete the current transformation and chain to a new one.
      * In the URL, transformations are chained together by slashes.
      * @function Transformation#chain
@@ -143,6 +173,8 @@ export class Transformation {
      * Transformation methods
      */
     angle(value: AngleMode | number): Transformation; // degrees or mode
+    audioCodec(value: AudioCodec): Transformation;
+    audioFrequency(value: AudioFrequency): Transformation;
     aspectRatio(value: string | number): Transformation; // ratio or percent, e.g. 1.5 or 16:9
     background(value: string): Transformation; // color, e.g. "blue" or "rgb:9090ff"
     border(value: string): Transformation; // style, e.g. "6px_solid_rgb:00390b60"
@@ -169,16 +201,33 @@ export class Transformation {
     radius(value: "max" | number): Transformation; // pixels or max
     rawTransformation(value: any): Transformation;
     size(value: string): Transformation;
+    sourceTypes(value: VideoFileExtension | Array<VideoFileExtension>): Transformation;
+    sourceTransformation(value: Object): Transformation; // Set the transformation to apply on each source by an object with pairs of source type and source transformations to apply
+    startOffset(value: number | string): Transformation;
+    streamingProfile(value: string): Transformation;
     transformation(value: string | Array<Transformation.Options>): Transformation; // Apply a pre-defined named transformation of the given name. When using Cloudinary's client integration libraries, the 'transformation' parameter accepts an array of transformation parameters to be chained together.
     underlay(value: string): Transformation; // public id of an uploaded image
+    videoCodec(value: string | Object): Transformation; // Select the video codec and control the video content of the profile used. Can be provided in the form <codec>[:<profile>:[<level>]] to specify specific values to apply for video codec, profile and level, e.g. "h264:baseline:3.1". Also accepts a hash of values such as { codec: 'h264', profile: 'basic', level: '3.1' }
+    videoSampling(value: number | string): Transformation; // Integer - The total number of frames to sample from the original video. String - The number of seconds between each frame to sample from the original video. e.g. 2.3s takes one frame every 2.3 seconds.
     width(value: string | number): Transformation; // Number of pixels, width % or "auto" with rounding step
     x(value: number): Transformation; // pixels or percent
     y(value: number): Transformation; // pixels or percent
     zoom(value: number): Transformation; // percent
     toHtml(): string; // Returns the string representation of this transformation
+
+    // Video options
+    bitRate(value: number | string): Transformation; // Advanced control of video bitrate in bits per second. By default the video uses a variable bitrate (VBR), with this value indicating the maximum bitrate. If constant is specified, the video plays with a constant bitrate (CBR).
+    // Supported codecs: h264, h265(MPEG - 4); vp8, vp9(WebM).
+    duration(value :number | string): Transformation; // Float or string
+    endOffset(value: number | string): Transformation; // Float or string
+    fallbackContent(value: string): Transformation;
+    keyframeInterval(value: number): Transformation;
+    offset(value: string): Transformation; // [float, float] or [string, string] or a range. Shortcut to set video cutting using a combination of start_offset and end_offset values
+    poster(value: string | Object): Transformation;
+    sourceType(value: string): Transformation;
 }
 
-declare class Condition {
+export class Condition {
     /**
      * Represents a transformation condition
      * @param {string} conditionStr - a condition in string format
@@ -186,6 +235,8 @@ declare class Condition {
      * @example
      * // normally this class is not instantiated directly */
     constructor(conditionStr: string);
+
+    static "new"(conditionStr: string): Condition;
 
     "and"(): Condition; // Add terms to the condition
     "or"(): Condition; // Add terms to the condition
@@ -239,9 +290,9 @@ export namespace Transformation {
         defaultImage?: string; // public id of an uploaded image
         delay?: string;
         density?: number | string; // Control the density to use while converting a PDF document to images. (range: 50-300, default: 150)
-        dpr?: "auto" | number | string; // Deliver the image in the specified device pixel ratio. The parameter accepts any positive float value
+        dpr?: number | string; // Deliver the image in the specified device pixel ratio. The parameter accepts any positive float value
         effect?: string; // name and value, e.g. hue:40
-        fetchFormat?: "auto" | ImageFileExtension | string;
+        fetchFormat?: ImageFileExtension | string;
         format?: ImageFileExtension | string;
         flags?: ImageFlags | string; // Set one or more flags that alter the default transformation behavior. Separate multiple flags with a dot (`.`).
         gravity?: Gravity | string; // The last any covers auto:50 which is cropping algorithm aggresiveness and future proofing
@@ -256,7 +307,7 @@ export namespace Transformation {
         page?: number | string; // Given a multi-page file (PDF, animated GIF, TIFF), generate an image of a single page using the given index.
         prefix?: string;
         quality?: string | number; // percent or percent[:chroma_subsampling] or auto[:quality_level]
-        radius?: "max" | number | string; // pixels or max
+        radius?: number | string; // pixels or max
         rawTransformation?: any;
         size?: string;
         transformation?: string | Array<Transformation.Options>; // Apply a pre-defined named transformation of the given name. When using Cloudinary's client integration libraries, the 'transformation' parameter accepts an array of transformation parameters to be chained together.
@@ -269,26 +320,25 @@ export namespace Transformation {
     }
 
     interface VideoOptions extends Transformation.Options {
-        audioCodec?: AudioCodecs;
-        audioFrequency?: AudioFrequencies;
+        audioCodec?: AudioCodec;
+        audioFrequency?: AudioFrequency;
         bitRate?: number | string; // Advanced control of video bitrate in bits per second. By default the video uses a variable bitrate (VBR), with this value indicating the maximum bitrate. If constant is specified, the video plays with a constant bitrate (CBR).
         // Supported codecs: h264, h265(MPEG - 4); vp8, vp9(WebM).
         duration?: number | string; // Float or string
         endOffset?: number | string; // Float or string
         fallbackContent?: string;
         flags?: VideoFlags;
-        keyframeInterval?: string;
+        keyframeInterval?: number;
         offset?: string, // [float, float] or [string, string] or a range. Shortcut to set video cutting using a combination of start_offset and end_offset values
-        poster?: string,
+        poster?: string | Object,
         sourceType?: string;
         sourceTransformation?: string;
         startOffset?: number | string; // Float or string
         streamingProfile?: StreamingProfiles
-        videoCodec?: "auto" | string; // Select the video codec and control the video content of the profile used. Can be provided in the form <codec>[:<profile>:[<level>]] to specify specific values to apply for video codec, profile and level, e.g. "h264:baseline:3.1"
+        videoCodec?: string | Object; // Select the video codec and control the video content of the profile used. Can be provided in the form <codec>[:<profile>:[<level>]] to specify specific values to apply for video codec, profile and level, e.g. "h264:baseline:3.1". Also accepts a hash of values such as { codec: 'h264', profile: 'basic', level: '3.1' }
         videoSampling?: number | string; // Integer - The total number of frames to sample from the original video. The frames are spread out over the length of the video, e.g. 20 takes one frame every 5% -- OR -- String - The number of seconds between each frame to sample from the original video. e.g. 2.3s takes one frame every 2.3 seconds.
     }
 }
-// export type Transformation = Transformation | Transformation.Options;
 
 /**
  * Cloudinary configuration class
@@ -327,8 +377,10 @@ export class Configuration {
  * @example tag = new HtmlTag( 'div', { 'width': 10})
  */
 export class HtmlTag {
-    constructor(name: string, publicId: string, options?: Transformation.Options);
-    static "new"(name: string, publicId: string, options?: Transformation.Options): HtmlTag;
+    constructor(name: string, publicId?: string, options?: Transformation.Options);
+    constructor(name: string, options?: Transformation.Options);
+    static "new"(name: string, publicId?: string, options?: Transformation.Options): HtmlTag;
+    static "new"(name: string, options?: Transformation.Options): HtmlTag;
     getOptions(): Object;
     getOption(name: string): any;
     attributes(): Object;
@@ -363,7 +415,7 @@ export class ImageTag extends HtmlTag {
  * @param {Object} [options]
  */
 export class VideoTag extends HtmlTag {
-    static "new" (publicId: string, options?: Transformation.VideoOptions): VideoTag;
+    static "new"(publicId: string, options?: Transformation.VideoOptions): VideoTag;
     static "new"(name: string, publicId: string, options?: Transformation.Options): VideoTag;
     /**
      * Set the transformation to apply on each source
@@ -379,7 +431,7 @@ export class VideoTag extends HtmlTag {
      * @param {Array<string>} sourceTypes an array of source types
      * @returns {VideoTag} Returns this instance for chaining purposes.
      */
-    setSourceTypes(sourceTypes: Array<string>): VideoTag;
+    setSourceTypes(sourceTypes: VideoFileExtension | Array<VideoFileExtension>): VideoTag;
 
     /**
      * Set the poster to be used in the video tag
@@ -410,25 +462,20 @@ export class VideoTag extends HtmlTag {
  * @constructor ClientHintsMetaTag
  * @extends HtmlTag
  */
-export interface ClientHintsMetaTag {
-    new (options?: Transformation.Options): ClientHintsMetaTag;
-}
-
-export interface ClientHintsMetaTag extends HtmlTag {
+export class ClientHintsMetaTag extends HtmlTag {
+    constructor (options?: Transformation.Options);
 }
 
 /**************************************** Layers section ************************************/
 
-/**
- * Layer
- * @constructor Layer
- * @param {Object} options - layer parameters
- */
-export interface Layer {
-    new (options?: Layer.Options): Layer;
-}
+export class Layer {
+    /**
+     * Layer
+     * @constructor Layer
+     * @param {Object} options - layer parameters
+     */
+    constructor(options?: Layer.Options);
 
-export interface Layer {
     /** Setters */
     resourceType(value: string): Layer;
     type(value: string): Layer;
@@ -441,51 +488,50 @@ export interface Layer {
 }
 
 export namespace Layer {
-export interface Options {
-    resourceType?: string;
-    type?: string;
-    publicId?: string;
-    format?: string;
-}
+    export interface Options {
+        resourceType?: string;
+        type?: string;
+        publicId?: string;
+        format?: string;
+    }
 }
 /**
  * @constructor TextLayer
  * @param {Object} options - layer parameters
  */
-export interface TextLayer {
-    new (options?: TextLayerOptions): TextLayer;
-}
+export class TextLayer extends Layer {
+    constructor (options?: TextLayer.Options);
 
-export interface TextLayer extends Layer {
     /** Setters */
     fontFamily(value: string): TextLayer;
-    fontSize(value: string): TextLayer;
+    fontSize(value: number): TextLayer;
     fontWeight(value: string): TextLayer;
     fontStyle(value: string): TextLayer;
     textDecoration(value: string): TextLayer;
     textAlign(value: string): TextLayer;
     stroke(value: string): TextLayer;
-    letterSpacing(value: string): TextLayer;
-    lineSpacing(value: string): TextLayer;
+    letterSpacing(value: number): TextLayer;
+    lineSpacing(value: number): TextLayer;
     text(value: string): TextLayer;
     /** Getters */
     toString(): string;
     textStyleIdentifier(): Array<string>;
-
 }
 
-export interface TextLayerOptions {
-    resourceType?: string;
-    fontFamily?: string;
-    fontSize?: string;
-    fontWeight?: string;
-    fontStyle?: string;
-    textDecoration?: string;
-    textAlign?: string;
-    stroke?: string;
-    letterSpacing?: string;
-    lineSpacing?: string;
-    text?: string;
+export namespace TextLayer {
+    export interface Options {
+        resourceType?: string;
+        fontFamily?: string;
+        fontSize?: number;
+        fontWeight?: string;
+        fontStyle?: string;
+        textDecoration?: string;
+        textAlign?: string;
+        stroke?: string;
+        letterSpacing?: number;
+        lineSpacing?: number;
+        text?: string;
+    }
 }
 
 /**
@@ -493,15 +539,13 @@ export interface TextLayerOptions {
  * @constructor SubtitlesLayer
  * @param {Object} options - layer parameters
  */
-export interface SubtitlesLayer {
-    new (options: TextLayerOptions): TextLayer;
+export class SubtitlesLayer extends TextLayer {
+    constructor (options: TextLayer.Options);
 }
 
-export interface Param {
-    new (name: string, shortName?: string, process?: (value: any) => any): Param;
-}
+export class Param {
+    constructor (name: string, shortName?: string, process?: (value: any) => any);
 
-export interface Param {
     /**
      * Set a (unprocessed) value for this parameter
      * @function Param#set
@@ -532,7 +576,6 @@ export interface Param {
      * Wraps this param in an array if it isn't already an array
      */
     build_array(): Array<any>
-
 }
 
 /**
@@ -554,11 +597,11 @@ export class Cloudinary {
      * @param {string} publicId - the public ID of the resource
      * @param {Object} [options] - options for the tag and transformations, possible values include all {@link Transformation} parameters
      *                          and {@link Configuration} parameters
-    //???  * @param {string} [options.type='upload'] - the classification of the resource
-    //???  * @param {Object} [options.resource_type='image'] - the type of the resource
-    * @return {string} The resource URL
-    */
-    url(publicId: string, options?: Transformation | Transformation.Options ): string;
+     * @param {string} [options.type='upload'] - the classification of the resource
+     * @param {Object} [options.resource_type='image'] - the type of the resource
+     * @return {string} The resource URL
+     */
+    url(publicId: string, options?: Transformation | Transformation.Options): string;
 
     /**
      * Generate an video resource URL.
@@ -705,19 +748,19 @@ export class Cloudinary {
     responsive(options?: Transformation | Transformation.Options, bootstrap?: boolean): void;
 
     /**
-    * Update hidpi (dpr_auto) and responsive (w_auto) fields according to the current container size and the device pixel ratio.
-    * Only images marked with the cld-responsive class have w_auto updated.
-    * @function Cloudinary#cloudinary_update
-    * @param {(Array|string|NodeList)} elements - the elements to modify
-    * @param {Object} options
-    * @param {boolean|string} [options.responsive_use_breakpoints=true]
-    *  - when `true`, always use breakpoints for width
-    * - when `"resize"` use exact width on first render and breakpoints on resize
-    * - when `false` always use exact width
-    * @param {boolean} [options.responsive] - if `true`, enable responsive on this element. Can be done by adding cld-responsive.
-    * @param {boolean} [options.responsive_preserve_height] - if set to true, original css height is preserved.
-    *   Should only be used if the transformation supports different aspect ratios.
-    */
+     * Update hidpi (dpr_auto) and responsive (w_auto) fields according to the current container size and the device pixel ratio.
+     * Only images marked with the cld-responsive class have w_auto updated.
+     * @function Cloudinary#cloudinary_update
+     * @param {(Array|string|NodeList)} elements - the elements to modify
+     * @param {Object} options
+     * @param {boolean|string} [options.responsive_use_breakpoints=true]
+     *  - when `true`, always use breakpoints for width
+     * - when `"resize"` use exact width on first render and breakpoints on resize
+     * - when `false` always use exact width
+     * @param {boolean} [options.responsive] - if `true`, enable responsive on this element. Can be done by adding cld-responsive.
+     * @param {boolean} [options.responsive_preserve_height] - if set to true, original css height is preserved.
+     *   Should only be used if the transformation supports different aspect ratios.
+     */
     cloudinary_update(elements: Array<string> | NodeList, options?: Transformation | Transformation.Options): Cloudinary;
 
     /**
@@ -740,7 +783,7 @@ export namespace Configuration {
 
         api_key?: string;
         api_secret?: string;
-        cdn_subdomain?: string;
+        cdn_subdomain?: boolean;
         cloud_name?: string;
         cname?: string;
         private_cdn?: boolean;
@@ -748,7 +791,7 @@ export namespace Configuration {
         resource_type?: string;
         responsive?: boolean;
         responsive_width?: string;
-        secure_cdn_subdomain?: string;
+        secure_cdn_subdomain?: boolean;
         secure_distribution?: boolean;
         shorten?: string;
         type?: string;
