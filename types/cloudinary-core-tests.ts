@@ -3,9 +3,13 @@
  */
 
 
-import { Cloudinary, ConfigurationOptions, Transformation, ImageTag, VideoTag } from './cloudinary-core';
+import { Cloudinary, Configuration, Transformation, ImageTag, VideoTag } from './cloudinary-core';
 
-let config: ConfigurationOptions = { cloud_name: 'demo' };
+let config: Configuration.Options = { cloud_name: 'demo' };
+
+// verify that Configuration.Options is forward-compatible
+config= { cloud_name: 'demo', some_new_key: "value", some_other_key: {other: 'value'} };
+
 let cld: Cloudinary = new Cloudinary(config);
 
 cld.url('sample'); // http://res.cloudinary.com/demo/image/upload/sample
@@ -112,3 +116,4 @@ image = cld.facebook_profile_image('officialchucknorrispage',
         effect: 'art:hokusai'
     }); // image.src == https://res.cloudinary.com/demo/image/facebook/e_art:hokusai/officialchucknorrispage && image.getAttribute('data-src-cache') == expectedImageUrl
 
+let tag = ImageTag.new("publicId");
