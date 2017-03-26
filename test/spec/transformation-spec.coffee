@@ -336,6 +336,26 @@ describe "Transformation", ->
         expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_ar_gt_3:4_and_w_lte_100_or_w_gt_200,c_scale,w_50/sample")
         url = @cl.url("sample", cloudinary.Transformation.new().if().aspectRatio(">=", "3:4").and().pageCount( ">=", 100).or().pageCount("!=", 0).then().width(50).crop("scale"))
         expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_ar_gte_3:4_and_pc_gte_100_or_pc_ne_0,c_scale,w_50/sample")
+      it "Chains transformations to an image tag", ->
+        imgTag = @cl.imageTag("sample")
+        imgHtml = imgTag.transformation().crop("fit").width(1000).chain().crop("limit").height(1000).toHtml()
+        url = new RegExp("http://res.cloudinary.com/sdk-test/image/upload/c_fit,w_1000/c_limit,h_1000/sample") 
+        expect(imgHtml).toMatch(url)
+      it "Chains transformations with a private CDN configuration", ->
+        imgTag = @cl.imageTag("sample", {private_cdn: true})
+        imgHtml = imgTag.transformation().width(100).crop("scale").chain().crop("crop").width(200).toHtml()
+        url = new RegExp("http://sdk-test-res.cloudinary.com/image/upload/c_scale,w_100/c_crop,w_200/sample") 
+        expect(imgHtml).toMatch(url)
+      it "Chains transformations to a secure configuration", ->
+        imgTag = @cl.imageTag("sample", {secure: true})
+        imgHtml = imgTag.transformation().width(100).crop("scale").chain().crop("crop").width(200).toHtml()
+        url = new RegExp("https://res.cloudinary.com/sdk-test/image/upload/c_scale,w_100/c_crop,w_200/sample") 
+        expect(imgHtml).toMatch(url)
+      it "Chains transformations to a secure private CDN configuration", ->
+        imgTag = @cl.imageTag("sample", {secure: true, private_cdn: true})
+        imgHtml = imgTag.transformation().width(100).crop("scale").chain().crop("crop").width(200).toHtml()
+        url = new RegExp("https://sdk-test-res.cloudinary.com/image/upload/c_scale,w_100/c_crop,w_200/sample") 
+        expect(imgHtml).toMatch(url)
       it "should chain if_else conditions disregarding order of transformation parameters in string", ->
         url = @cl.url("sample", {"transformation":[{"if":"ils_gt_0.5","width":120,"height":150,"crop":"pad"},{"if":"else","width":120,"height":150,"crop":"fill"}]})
         expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_ils_gt_0.5,c_pad,h_150,w_120/if_else,c_fill,h_150,w_120/sample")

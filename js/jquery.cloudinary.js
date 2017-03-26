@@ -1897,7 +1897,7 @@ var slice = [].slice,
        * @return {Object} Returns a plain object representing this transformation
        */
       this.toOptions || (this.toOptions = function(withChain) {
-        var key, list, opt, ref, tr, value;
+        var key, list, opt, ref, ref1, tr, value;
         if (withChain == null) {
           withChain = true;
         }
@@ -1925,9 +1925,15 @@ var slice = [].slice,
             return results;
           }).call(this);
           list.push(opt);
-          opt = {
-            transformation: list
-          };
+          opt = {};
+          ref1 = this.otherOptions;
+          for (key in ref1) {
+            value = ref1[key];
+            if (value !== void 0) {
+              opt[key] = value;
+            }
+          }
+          opt.transformation = list;
         }
         return opt;
       });
@@ -3936,7 +3942,8 @@ var slice = [].slice,
           imgOptions = new Transformation(imgOptions).toHtmlAttributes();
           Util.setData(node, 'src-cache', url);
           node.setAttribute('width', imgOptions.width);
-          results.push(node.setAttribute('height', imgOptions.height));
+          node.setAttribute('height', imgOptions.height);
+          results.push(node);
         }
         return results;
       }).call(this);

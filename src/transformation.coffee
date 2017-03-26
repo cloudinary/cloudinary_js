@@ -43,7 +43,10 @@ class TransformationBase
         list = for tr in @chained
           tr.toOptions()
         list.push(opt)
-        opt = {transformation: list}
+        opt = {}
+        for key, value of @otherOptions when value != undefined
+          opt[key]= value
+        opt.transformation= list
       opt
 
     ###*
