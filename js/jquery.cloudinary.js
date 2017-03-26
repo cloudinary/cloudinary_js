@@ -2173,6 +2173,10 @@ var slice = [].slice,
             return new value.constructor(value.toOptions());
           }
         });
+        if (options["if"]) {
+          this.set("if", options["if"]);
+          delete options["if"];
+        }
         for (key in options) {
           opt = options[key];
           if (key.match(VAR_NAME_RE)) {
