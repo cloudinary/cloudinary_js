@@ -28,3 +28,7 @@ build/
 
 ## Directory-based project format:
 .idea/
+
+# TypeScript intermediate files
+types/*.js*
+.tscache/

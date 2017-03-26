@@ -514,7 +514,8 @@ class Cloudinary
       Util.setData(node, 'src-cache', url)
       node.setAttribute('width', imgOptions.width)
       node.setAttribute('height', imgOptions.height)
-
+      node
+      
     @cloudinary_update( images, options)
     this
 

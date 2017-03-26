@@ -2179,6 +2179,10 @@ var slice = [].slice,
             return new value.constructor(value.toOptions());
           }
         });
+        if (options["if"]) {
+          this.set("if", options["if"]);
+          delete options["if"];
+        }
         for (key in options) {
           opt = options[key];
           if (key.match(VAR_NAME_RE)) {
@@ -3938,7 +3942,8 @@ var slice = [].slice,
           imgOptions = new Transformation(imgOptions).toHtmlAttributes();
           Util.setData(node, 'src-cache', url);
           node.setAttribute('width', imgOptions.width);
-          results.push(node.setAttribute('height', imgOptions.height));
+          node.setAttribute('height', imgOptions.height);
+          results.push(node);
         }
         return results;
       }).call(this);

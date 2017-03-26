@@ -166,7 +166,7 @@ module.exports = (grunt)->
       dist:
         files: for repo in repos
           dest = if /shrinkwrap/.test(repo) then "cloudinary-core" else repo
-          {'cwd': 'build','src': ["#{repo}.js", "#{repo}.min.js", "#{repo}.min.js.map"], 'dest': "../pkg/pkg-#{dest}/", 'expand': true}
+          {'cwd': 'build','src': ["#{repo}.js", "#{repo}.min.js", "#{repo}.min.js.map", "#{repo}.d.ts"], 'dest': "../pkg/pkg-#{dest}/", 'expand': true}
         options:
           process: (content, srcpath) ->
             if /min.js/.test(srcpath)
@@ -179,16 +179,29 @@ module.exports = (grunt)->
           cwd: "doc/pkg-#{repo}/"
           src: ["**"]
           dest: "../pkg/pkg-#{repo}/docs"
+      types:
+        files: [
+          {
+            src: "types/cloudinary-core.d.ts",
+            expand: true,
+            flatten: true,
+            dest: "build/"
+          }
+        ]
+
+    ts:
+      default:
+        tsconfig: true
 
     version:
-      options:
-        release: 'patch'
-        flags: 'ig'
-      package:
-        files: [
-          {src: ['bower.json', 'package.json', 'src/cloudinary.coffee']},
-          {expand: true, src: ['../pkg/pkg-*/bower.json', '../pkg/pkg-*/package.json']}
-          ]
+     options:
+       release: 'patch'
+       flags: 'ig'
+     package:
+       files: [
+         {src: ['bower.json', 'package.json', 'src/cloudinary.coffee']},
+         {expand: true, src: ['../pkg/pkg-*/bower.json', '../pkg/pkg-*/package.json']}
+         ]
     srcList: [
       'src/utf8_encode.coffee',
       'src/crc32.coffee',
@@ -304,10 +317,11 @@ module.exports = (grunt)->
   grunt.loadNpmTasks('grunt-jsdoc')
   grunt.loadNpmTasks('grunt-karma')
   grunt.loadNpmTasks('grunt-version')
+  grunt.loadNpmTasks('grunt-ts')
 
   grunt.registerTask('default', ['concat', 'coffee'])
   grunt.registerTask('compile', ['clean:build', 'clean:js', 'concat', 'coffee', 'copy:backward-compatible'])
-  grunt.registerTask('build', ['clean', 'concat', 'coffee', 'uglify', 'copy:backward-compatible', 'jsdoc'])
+  grunt.registerTask('build', ['clean', 'concat', 'coffee', 'uglify', 'copy:backward-compatible', 'copy:types', 'jsdoc'])
   grunt.registerTask('lodash', (name, target)->
     lodashCalls = grunt.file.read('src/util/lodash.coffee').match(/_\.\w+/g)
     include = []

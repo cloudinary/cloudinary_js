@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "noImplicitAny": true
+    },
+    "include": [
+        "build/**/*",
+        "types/**/*"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}
