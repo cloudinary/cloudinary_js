@@ -3,7 +3,10 @@
  */
 
 
-import { Cloudinary, Util, Configuration, Transformation, ImageTag, VideoTag, Condition, Layer, TextLayer, HtmlTag, ClientHintsMetaTag, Param } from './cloudinary-core';
+import {
+    Cloudinary, Util, Configuration, Transformation, ImageTag, VideoTag, Condition, Layer, TextLayer, HtmlTag,
+    ClientHintsMetaTag, Param
+} from './cloudinary-core';
 
 let config: Configuration.Options = { cloud_name: 'demo' };
 
@@ -22,8 +25,8 @@ cld.url('sample', {
 
 
 cld.url('sample', {
-    angle: 35
-}); // http://res.cloudinary.com/demo/image/upload/a_35/sample
+    angle: ["vflip", 35]
+}); // http://res.cloudinary.com/demo/image/upload/a_vflip.35/sample
 
 
 cld.url('sample', {
@@ -84,8 +87,8 @@ cld.url('sample', transformation); // http://res.cloudinary.com/demo/image/uploa
 
 transformation = cld.transformation();
 const imageTag: ImageTag = cld.imageTag('sample');
-imageTag.transformation().angle(20).crop('scale').width('auto');
-imageTag.toHtml(); // <img src="http://res.cloudinary.com/demo/image/upload/a_20,c_scale,w_auto/sample">
+imageTag.transformation().angle("auto_left").crop('scale').width('auto');
+imageTag.toHtml(); // <img src="http://res.cloudinary.com/demo/image/upload/a_auto_left,c_scale,w_auto/sample">
 
 
 transformation = cld.transformation();
@@ -118,7 +121,7 @@ image = cld.facebook_profile_image('officialchucknorrispage',
     {
         secure: true,
         responsive: true,
-        effect: 'art:hokusai'
+        effect: ['art', 'hokusai']
     }); // image.src == https://res.cloudinary.com/demo/image/facebook/e_art:hokusai/officialchucknorrispage && image.getAttribute('data-src-cache') == expectedImageUrl
 
 
@@ -132,7 +135,7 @@ let videoHtml = cld.videoTag("movie").setSourceTypes('mp4')
     .videoCodec({ codec: 'h264', profile: 'basic', level: '3.1' })
     .audioCodec("aac")
     .startOffset(3)
-    .toHtml()
+    .toHtml();
 
 
 let layerOptions: TextLayer.Options = {
@@ -160,7 +163,7 @@ new VideoTag("movie", {
     cdn_subdomain: false,
     api_key: "1234",
     api_secret: "b"
-}).toHtml()
+}).toHtml();
 
 // Video with HTML5 attributes
 new VideoTag("movie", {
@@ -172,7 +175,7 @@ new VideoTag("movie", {
     muted: "true",
     preload: true,
     style: "border: 1px"
-}).toHtml()
+}).toHtml();
 
 new VideoTag("movie", {
     source_types: "mp4",
@@ -183,18 +186,20 @@ new VideoTag("movie", {
     start_offset: 3
 }).toDOM();
 
-cld.video("movie", { poster: { 'gravity': 'north' }, source_types: "mp4" }); // <video poster=\"#{expected_poster_url}\" src=\"#{expected_url}.mp4\"></video>
+cld.video("movie", { poster: { gravity: 'north' }, source_types: "mp4" }); // <video poster=\"#{expected_poster_url}\" src=\"#{expected_url}.mp4\"></video>
 cld.video("movie", { poster: { 'gravity': 'north', 'public_id': 'my_poster', 'format': 'jpg' }, source_types: "mp4"}); // <video poster=\"#{expected_poster_url}\" src=\"#{expected_url}.mp4\"></video>
 new ClientHintsMetaTag().toHtml(); // <meta content="DPR, Viewport-Width, Width" http-equiv="Accept-CH">
 
 new Param("param name", "p_n");
 
 Transformation.new().keyframeInterval(10).toString(); // "ki_10"
-
-Transformation.new().flags('abc.def').toString(); // fl_abc.def
+Transformation.new().gravity("bad movie");
+Transformation.new().flags('abc').toString(); // fl_abc
+Transformation.new().flags(['abc','def']).toString(); // fl_abc.def
 Transformation.new().flags('ignore_aspect_ratio').toString(); // fl_ignore_aspect_ratio
 
 cld.image("image", { zoom: 1.2 }); // http://res.cloudinary.com/<cloud>/image/upload/z_1.2/image
+cld.image("image", { variables: [['x', 1],['y', '$x']] }); // http://res.cloudinary.com/<cloud>/image/upload/$x_1,$y_$x/image
 
 new Layer().resourceType("video").publicId("cat"); // "video:cat"
 new TextLayer().text("Hello World, Nice to meet you?").fontFamily("Arial").fontSize(18); // "text:Arial_18:Hello%20World%252C%20Nice%20to%20meet%20you%3F"]

@@ -1,22 +1,22 @@
 export as namespace cloudinary;
 
 /****************************** Constants *************************************/
-type CropMode = "scale" | "fit" | "limit" | "mfit" | "fill" | "lfill" | "pad" | "lpad" | "mpad" | "crop" | "thumb" | "imagga_crop" | "imagga_scale";
-type Gravity = "north_west" | "north" | "north_east" | "west" | "center" | "east" | "south_west" | "south" | "south_east" | "xy_center" |
+type CropMode = string | "scale" | "fit" | "limit" | "mfit" | "fill" | "lfill" | "pad" | "lpad" | "mpad" | "crop" | "thumb" | "imagga_crop" | "imagga_scale";
+type Gravity = string | "north_west" | "north" | "north_east" | "west" | "center" | "east" | "south_west" | "south" | "south_east" | "xy_center" |
     "face" | "face:center" | "face:auto" | "faces" | "faces:center" | "faces:auto" | "body" | "body:face" | "adv_face" | "adv_faces" | "adv_eyes" |
     "custom" | "custom:face" | "custom:faces" | "custom:adv_face" | "custom:adv_faces" |
     "auto" | "auto:adv_face" | "auto:adv_faces" | "auto:adv_eyes" | "auto:body" | "auto:face" | "auto:faces" | "auto:custom_no_override" | "auto:none";
-type ImageFileExtension = "jpg" | "jpe" | "jpeg" | "jpc" | "jp2" | "j2k" | "wdp" | "jxr" | "hdp" | "png" | "gif" | "webp" | "bmp" | "tif" | "tiff" |
+type ImageFileExtension = string | "jpg" | "jpe" | "jpeg" | "jpc" | "jp2" | "j2k" | "wdp" | "jxr" | "hdp" | "png" | "gif" | "webp" | "bmp" | "tif" | "tiff" |
     "ico" | "pdf" | "ps" | "ept" | "eps" | "eps3" | "psd" | "svg" | "ai" | "djvu" | "flif";
-type VideoFileExtension = "webm" | "mp4" | "ogv" | "flv" | "m3u8";
-type AngleMode = "auto_right" | "auto_left" | "ignore" | "vflip" | "hflip";
-type ColorSpace = "srgb" | "no_cmyk";
-type ImageFlags = "any_format" | "attachment" | "awebp" | "clip" | "cutter" | "force_strip" | "ignore_aspect_ratio" | "keep_iptc" | "layer_apply" |
+type VideoFileExtension = string | "webm" | "mp4" | "ogv" | "flv" | "m3u8";
+type Angle = number | string | Array<number | string> | "auto_right" | "auto_left" | "ignore" | "vflip" | "hflip";
+type ColorSpace = string | "srgb" | "no_cmyk";
+type ImageFlags = string | Array<string> | "any_format" | "attachment" | "awebp" | "clip" | "cutter" | "force_strip" | "ignore_aspect_ratio" | "keep_iptc" | "layer_apply" |
     "lossy" | "preserve_transparency" | "png8" | "progressive" | "rasterize" | "region_relative" | "relative" | "strip_profile" | "text_no_trim" | "no_overflow" | "tiled";
-type VideoFlags = "splice" | "layer_apply" | "no_stream" | "truncate_ts" | "waveform";
-type AudioCodec = "none" | "aac" | "vorbis" | "mp3";
-type AudioFrequency = 8000 | 11025 | 16000 | 22050 | 32000 | 37800 | 44056 | 44100 | 47250 | 48000 | 88200 | 96000 | 176400 | 192000;
-type StreamingProfiles = "4k" | "full_hd" | "hd" | "sd" | "full_hd_wifi" | "full_hd_lean" | "hd_lean";
+type VideoFlags = string | Array<string> | "splice" | "layer_apply" | "no_stream" | "truncate_ts" | "waveform";
+type AudioCodec = string | "none" | "aac" | "vorbis" | "mp3";
+type AudioFrequency = number | 8000 | 11025 | 16000 | 22050 | 32000 | 37800 | 44056 | 44100 | 47250 | 48000 | 88200 | 96000 | 176400 | 192000;
+type StreamingProfiles = string | "4k" | "full_hd" | "hd" | "sd" | "full_hd_wifi" | "full_hd_lean" | "hd_lean";
 
 
 export function crc32(str: string): any;
@@ -172,7 +172,7 @@ export class Transformation {
     /**
      * Transformation methods
      */
-    angle(value: AngleMode | number): Transformation; // degrees or mode
+    angle(value: Angle): Transformation; // degrees or mode
     audioCodec(value: AudioCodec): Transformation;
     audioFrequency(value: AudioFrequency): Transformation;
     aspectRatio(value: string | number): Transformation; // ratio or percent, e.g. 1.5 or 16:9
@@ -185,11 +185,11 @@ export class Transformation {
     delay(value: string): Transformation;
     density(value: number): Transformation; // Control the density to use while converting a PDF document to images. (range: 50-300, default: 150)
     dpr(value: "auto" | number): Transformation; // Deliver the image in the specified device pixel ratio. The parameter accepts any positive float value
-    effect(value: string): Transformation; // name and value, e.g. hue:40
+    effect(value: string | Array<string | number>): Transformation; // name and value, e.g. hue:40
     fetchFormat(value: "auto" | ImageFileExtension): Transformation;
     format(value: ImageFileExtension): Transformation;
     flags(value: ImageFlags | string): Transformation; // Set one or more flags that alter the default transformation behavior. Separate multiple flags with a dot (`.`).
-    gravity(value: Gravity | string): Transformation; // The last any covers auto:50 which is cropping algorithm aggresiveness and future proofing
+    gravity(value: Gravity): Transformation; // The last any covers auto:50 which is cropping algorithm aggresiveness and future proofing
     height(value: number): Transformation; // Number of pixels or height %
     htmlHeight(value: string): Transformation;
     htmlWidth(value: string): Transformation;
@@ -207,6 +207,7 @@ export class Transformation {
     streamingProfile(value: string): Transformation;
     transformation(value: string | Array<Transformation.Options>): Transformation; // Apply a pre-defined named transformation of the given name. When using Cloudinary's client integration libraries, the 'transformation' parameter accepts an array of transformation parameters to be chained together.
     underlay(value: string): Transformation; // public id of an uploaded image
+    variables(value: [[string]]): Transformation;
     videoCodec(value: string | Object): Transformation; // Select the video codec and control the video content of the profile used. Can be provided in the form <codec>[:<profile>:[<level>]] to specify specific values to apply for video codec, profile and level, e.g. "h264:baseline:3.1". Also accepts a hash of values such as { codec: 'h264', profile: 'basic', level: '3.1' }
     videoSampling(value: number | string): Transformation; // Integer - The total number of frames to sample from the original video. String - The number of seconds between each frame to sample from the original video. e.g. 2.3s takes one frame every 2.3 seconds.
     width(value: string | number): Transformation; // Number of pixels, width % or "auto" with rounding step
@@ -280,22 +281,22 @@ export class Condition {
 }
 export namespace Transformation {
     export interface Options extends Configuration.Options {
-        angle?: AngleMode | number | string; // degrees or mode
+        angle?: Angle; // degrees or mode
         aspectRatio?: string | number | string; // ratio or percent, e.g. 1.5 or 16:9
         background?: string; // color, e.g. "blue" or "rgb:9090ff"
         border?: string; // style, e.g. "6px_solid_rgb:00390b60"
         color?: string; // e.g. "red" or "rgb:20a020"
-        colorSpace?: ColorSpace | string;
-        crop?: CropMode | string,
+        colorSpace?: ColorSpace;
+        crop?: CropMode,
         defaultImage?: string; // public id of an uploaded image
         delay?: string;
         density?: number | string; // Control the density to use while converting a PDF document to images. (range: 50-300, default: 150)
         dpr?: number | string; // Deliver the image in the specified device pixel ratio. The parameter accepts any positive float value
-        effect?: string; // name and value, e.g. hue:40
-        fetchFormat?: ImageFileExtension | string;
-        format?: ImageFileExtension | string;
+        effect?: string | Array<string | number>; // name and value, e.g. hue:40
+        fetchFormat?: ImageFileExtension;
+        format?: ImageFileExtension;
         flags?: ImageFlags | string; // Set one or more flags that alter the default transformation behavior. Separate multiple flags with a dot (`.`).
-        gravity?: Gravity | string; // The last any covers auto:50 which is cropping algorithm aggresiveness and future proofing
+        gravity?: Gravity; // The last any covers auto:50 which is cropping algorithm aggresiveness and future proofing
         height?: number | string; // Number of pixels or height %
         htmlHeight?: string;
         htmlWidth?: string;
@@ -312,6 +313,7 @@ export namespace Transformation {
         size?: string;
         transformation?: string | Array<Transformation.Options>; // Apply a pre-defined named transformation of the given name. When using Cloudinary's client integration libraries, the 'transformation' parameter accepts an array of transformation parameters to be chained together.
         underlay?: string; // public id of an uploaded image
+        variables?: [[string, any]];
         width?: string | number; // Number of pixels, width % or "auto" with rounding step
         x?: number | string; // pixels or percent
         y?: number | string; // pixels or percent
