@@ -148,6 +148,74 @@ describe("Transformation", function() {
       prefix: 'a'
     }, protocol + '//res.cloudinary.com/test123/image/upload/g_center,p_a,q_0.4,r_3,x_1,y_2/test', {});
   });
+  describe("gravity", function() {
+    it("should support auto", function() {
+      test_cloudinary_url("test", {
+        width: 100,
+        height: 100,
+        crop: 'crop',
+        gravity: 'auto'
+      }, "http://res.cloudinary.com/test123/image/upload/c_crop,g_auto,h_100,w_100/test", {
+        width: 100,
+        height: 100
+      });
+      return test_cloudinary_url("test", {
+        width: 100,
+        height: 100,
+        crop: 'crop',
+        gravity: 'auto'
+      }, "http://res.cloudinary.com/test123/image/upload/c_crop,g_auto,h_100,w_100/test", {
+        width: 100,
+        height: 100
+      });
+    });
+    it("should support focal gravity", function() {
+      return ["adv_face", "adv_faces", "adv_eyes", "face", "faces", "body", "no_faces"].map(function(focal) {
+        return test_cloudinary_url("test", {
+          width: 100,
+          height: 100,
+          crop: 'crop',
+          gravity: "auto:" + focal
+        }, "http://res.cloudinary.com/test123/image/upload/c_crop,g_auto:" + focal + ",h_100,w_100/test", {
+          width: 100,
+          height: 100
+        });
+      });
+    });
+    it("should support auto level with thumb cropping", function() {
+      return [0, 10, 100].map(function(level) {
+        test_cloudinary_url("test", {
+          width: 100,
+          height: 100,
+          crop: 'thumb',
+          gravity: "auto:" + level
+        }, "http://res.cloudinary.com/test123/image/upload/c_thumb,g_auto:" + level + ",h_100,w_100/test", {
+          width: 100,
+          height: 100
+        });
+        return test_cloudinary_url("test", {
+          width: 100,
+          height: 100,
+          crop: 'thumb',
+          gravity: "auto:adv_faces:" + level
+        }, "http://res.cloudinary.com/test123/image/upload/c_thumb,g_auto:adv_faces:" + level + ",h_100,w_100/test", {
+          width: 100,
+          height: 100
+        });
+      });
+    });
+    return it("should support custom_no_override", function() {
+      return test_cloudinary_url("test", {
+        width: 100,
+        height: 100,
+        crop: 'crop',
+        gravity: "auto:custom_no_override"
+      }, "http://res.cloudinary.com/test123/image/upload/c_crop,g_auto:custom_no_override,h_100,w_100/test", {
+        width: 100,
+        height: 100
+      });
+    });
+  });
   describe(":quality", function() {
     it("support a percent value", function() {
       test_cloudinary_url("test", {
@@ -563,6 +631,64 @@ describe("Transformation", function() {
         imgHtml = imgTag.transformation().width(100).crop("scale").chain().crop("crop").width(200).toHtml();
         url = new RegExp("https://sdk-test-res.cloudinary.com/image/upload/c_scale,w_100/c_crop,w_200/sample");
         return expect(imgHtml).toMatch(url);
+      });
+      it("should chain if_else conditions disregarding order of transformation parameters in string", function() {
+        var paramsOrderUrl, url;
+        url = this.cl.url("sample", {
+          "transformation": [
+            {
+              "if": "ils_gt_0.5",
+              "width": 120,
+              "height": 150,
+              "crop": "pad"
+            }, {
+              "if": "else",
+              "width": 120,
+              "height": 150,
+              "crop": "fill"
+            }
+          ]
+        });
+        expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_ils_gt_0.5,c_pad,h_150,w_120/if_else,c_fill,h_150,w_120/sample");
+        paramsOrderUrl = this.cl.url("sample", {
+          "transformation": [
+            {
+              "crop": "pad",
+              "height": 150,
+              "if": "ils_gt_0.5",
+              "width": 120
+            }, {
+              "crop": "fill",
+              "height": 150,
+              "if": "else",
+              "width": 120
+            }
+          ]
+        });
+        return expect(paramsOrderUrl).toEqual(url);
+      });
+      it("should chain if_else conditions when explicitly ending the transformation", function() {
+        var url;
+        url = this.cl.url("sample", {
+          "transformation": [
+            {
+              "if": "ils_gt_0.5"
+            }, {
+              "width": 120,
+              "height": 150,
+              "crop": "pad"
+            }, {
+              "if": "else"
+            }, {
+              "width": 120,
+              "height": 150,
+              "crop": "fill"
+            }, {
+              "if": "end"
+            }
+          ]
+        });
+        return expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_ils_gt_0.5/c_pad,h_150,w_120/if_else/c_fill,h_150,w_120/if_end/sample");
       });
       it("should support and translate operators:  '=', '!=', '<', '>', '<=', '>=', '&&', '||'", function() {
         var allOperators;
