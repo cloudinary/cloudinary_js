@@ -1,4 +1,22 @@
 
+2.3.0 / 2017-03-27
+==================
+
+New functionality and features
+------------------------------
+
+  * Add TypeScript typings for cloudinary-core (merging #120 and #122)
+
+Other Changes
+-------------
+
+  * Remove redundant script tags.
+  * Add tests for gravity modes.
+  * Restore cloud_name when chaining transformations (#116)
+  * Add backward compatibility file
+  * Fix broken conditional transformations based on order to transformation keys
+  * Return node within loop so images is populated correctly (#119)
+
 2.2.1 / 2017-03-15
 ==================
 
