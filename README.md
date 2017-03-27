@@ -52,7 +52,6 @@ For installation instructions of the core library which is not dependent on jQue
    <script src="bower_components/blueimp-file-upload/js/vendor/jquery.ui.widget.js"              type="text/javascript"></script>
    <script src="bower_components/blueimp-file-upload/js/jquery.iframe-transport.js"              type="text/javascript"></script>
    <script src="bower_components/blueimp-file-upload/js/jquery.fileupload.js"                    type="text/javascript"></script>
-   <script src="bower_components/blueimp-file-upload/js/jquery.fileupload-image.js"              type="text/javascript"></script>
 
    <script src="bower_components/cloudinary-jquery-file-upload/cloudinary-jquery-file-upload.js" type="text/javascript"></script>
    ```
@@ -74,7 +73,6 @@ The following instructions describe the installation of the **client-side librar
    <script src="node_modules/blueimp-file-upload/js/vendor/jquery.ui.widget.js"              type="text/javascript"></script>
    <script src="node_modules/blueimp-file-upload/js/jquery.iframe-transport.js"              type="text/javascript"></script>
    <script src="node_modules/blueimp-file-upload/js/jquery.fileupload.js"                    type="text/javascript"></script>
-   <script src="node_modules/blueimp-file-upload/js/jquery.fileupload-image.js"              type="text/javascript"></script>
 
    <script src="node_modules/cloudinary-jquery-file-upload/cloudinary-jquery-file-upload.js" type="text/javascript"></script>
    ```
