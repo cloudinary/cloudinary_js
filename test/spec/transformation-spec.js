@@ -795,6 +795,12 @@ describe("Transformation", function() {
       expect(transformation.toHtmlAttributes().height).toBeUndefined();
       return expect(transformation.toHtmlAttributes().width).toBeUndefined();
     });
+    it("should support fetch:URL", function() {
+      var result, transformation;
+      transformation = new Transformation().overlay("fetch:http://cloudinary.com/images/old_logo.png");
+      result = transformation.serialize();
+      return expect(result).toEqual("l_fetch:aHR0cDovL2Nsb3VkaW5hcnkuY29tL2ltYWdlcy9vbGRfbG9nby5wbmc=");
+    });
     describe("chained functions", function() {
       it("should produce a layer string", function() {
         var tests;

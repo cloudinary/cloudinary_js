@@ -30,7 +30,7 @@ var slice = [].slice,
   /*
    * Includes common utility methods and shims
    */
-  var ArrayParam, BaseUtil, ClientHintsMetaTag, Cloudinary, CloudinaryJQuery, Condition, Configuration, Expression, ExpressionParam, HtmlTag, ImageTag, Layer, LayerParam, Param, RangeParam, RawParam, SubtitlesLayer, TextLayer, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, camelCase, cloneDeep, cloudinary, compact, contains, convertKeys, crc32, defaults, difference, functions, getAttribute, getData, hasClass, identity, isEmpty, isNumberLike, isString, m, merge, parameters, reWords, removeAttribute, setAttribute, setAttributes, setData, smartEscape, snakeCase, utf8_encode, webp, width, withCamelCaseKeys, withSnakeCaseKeys, without;
+  var ArrayParam, BaseUtil, ClientHintsMetaTag, Cloudinary, CloudinaryJQuery, Condition, Configuration, Expression, ExpressionParam, HtmlTag, ImageTag, Layer, LayerParam, Param, RangeParam, RawParam, SubtitlesLayer, TextLayer, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, btoaImpl, camelCase, cloneDeep, cloudinary, compact, contains, convertKeys, crc32, defaults, difference, functions, getAttribute, getData, hasClass, identity, isEmpty, isNumberLike, isString, m, merge, parameters, reWords, removeAttribute, setAttribute, setAttributes, setData, smartEscape, snakeCase, utf8_encode, webp, width, withCamelCaseKeys, withSnakeCaseKeys, without;
   allStrings = function(list) {
     var item, j, len;
     for (j = 0, len = list.length; j < len; j++) {
@@ -142,6 +142,17 @@ var slice = [].slice,
   withSnakeCaseKeys = function(source) {
     return convertKeys(source, Util.snakeCase);
   };
+  btoaImpl = function(input) {
+    var buffer;
+    if (typeof btoa !== 'undefined') {
+      return btoa(input);
+    }
+    if (input instanceof Buffer) {
+      return input.toString('base64');
+    }
+    buffer = new Buffer(String(input), 'binary');
+    return buffer.toString('base64');
+  };
   BaseUtil = {
 
     /**
@@ -193,7 +204,12 @@ var slice = [].slice,
     isNumberLike: isNumberLike,
     smartEscape: smartEscape,
     withCamelCaseKeys: withCamelCaseKeys,
-    withSnakeCaseKeys: withSnakeCaseKeys
+    withSnakeCaseKeys: withSnakeCaseKeys,
+
+    /**
+    * Cross-platform (nodejs/browser) btoa() implementation
+     */
+    btoa: btoaImpl
   };
 
   /**
@@ -1122,9 +1138,13 @@ var slice = [].slice,
           result = new cloudinary.TextLayer(layerOptions).toString();
         } else if (layerOptions.resource_type === "subtitles") {
           result = new cloudinary.SubtitlesLayer(layerOptions).toString();
+        } else if (layerOptions.resource_type === "fetch") {
+          result = new cloudinary.Layer(layerOptions).toString();
         } else {
           result = new cloudinary.Layer(layerOptions).toString();
         }
+      } else if (Util.isString(layerOptions) && (layerOptions.search(/fetch:/) === 0)) {
+        result = "fetch:" + (cloudinary.Util.btoa(layerOptions.substr(6)));
       } else {
         result = layerOptions;
       }

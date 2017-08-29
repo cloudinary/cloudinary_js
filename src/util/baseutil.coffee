@@ -65,6 +65,17 @@ withCamelCaseKeys = (source)->
 withSnakeCaseKeys = (source)->
   convertKeys(source, Util.snakeCase)
 
+btoaImpl = (input)->
+  if typeof btoa != 'undefined'
+    return btoa(input)
+
+  # nodejs impl
+  if input instanceof Buffer
+    return input.toString('base64');
+
+  buffer = new Buffer(String(input), 'binary')
+  return buffer.toString('base64')
+
 BaseUtil =
   ###*
    * Return true if all items in list are strings
@@ -111,3 +122,7 @@ BaseUtil =
   smartEscape: smartEscape
   withCamelCaseKeys: withCamelCaseKeys
   withSnakeCaseKeys: withSnakeCaseKeys
+  ###*
+  * Cross-platform (nodejs/browser) btoa() implementation
+  ###
+  btoa: btoaImpl

@@ -63,6 +63,7 @@ module.exports = (grunt)->
         configFile: 'karma.coffee'
         browsers: grunt.option("browsers")?.toString().split(",") || ['Chrome' , 'Firefox', 'PhantomJS'] # 'Safari' disabled until window.open is resolved
         browserDisconnectTolerance: 3
+        singleRun: !grunt.option("watch")
         files: [
           { pattern: 'test/docRoot/*', watched: false, included: false, served: true, nocache: false}
           { pattern: 'test/docRoot/css/*', watched: false, included: false, served: true, nocache: false}
