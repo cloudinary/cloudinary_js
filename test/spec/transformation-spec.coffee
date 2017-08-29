@@ -477,10 +477,14 @@ describe "Transformation", ->
     it "should not pass width/height to html if overlay", ->
       transformation = new Transformation().overlay("text:hello").width(100).height(100);
       result = transformation.serialize()
-      expect(result).toEqual(  "h_100,l_text:hello,w_100")
+      expect(result).toEqual("h_100,l_text:hello,w_100")
       expect(transformation.toHtmlAttributes().height).toBeUndefined()
       expect(transformation.toHtmlAttributes().width).toBeUndefined()
-
+    it "should support fetch:URL", ->
+      transformation = new Transformation().overlay("fetch:http://cloudinary.com/images/old_logo.png");
+      result = transformation.serialize()
+      expect(result).toEqual("l_fetch:aHR0cDovL2Nsb3VkaW5hcnkuY29tL2ltYWdlcy9vbGRfbG9nby5wbmc=")
+      
 
     describe "chained functions", ->
       it "should produce a layer string", ->

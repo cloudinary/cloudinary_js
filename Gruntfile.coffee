@@ -63,6 +63,7 @@ module.exports = (grunt)->
         configFile: 'karma.coffee'
         browsers: grunt.option("browsers")?.toString().split(",") || ['Chrome' , 'Firefox', 'Safari', 'PhantomJS']
         browserDisconnectTolerance: 3
+        singleRun: !grunt.option("watch")
         files: [
           { pattern: 'build/*', watched: false, included: false, served: true, nocache: false}
           { pattern: 'test/docRoot/*', watched: false, included: false, served: true, nocache: false}
