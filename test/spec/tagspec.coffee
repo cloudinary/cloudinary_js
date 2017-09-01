@@ -21,10 +21,12 @@ test_cloudinary_url = (public_id, options, expected_url, expected_options) ->
 
 describe "Cloudinary.HtmlTag", ->
   describe "constructor", ->
+  
     it 'should create a new tag with 3 parameters', ->
       expect( -> new cloudinary.HtmlTag( 'div', "publicId", {})).not.toThrow()
     it 'should create a new tag with 2 parameters', ->
       expect( -> new cloudinary.HtmlTag( 'div', {})).not.toThrow()
+      
 
 sharedExamples "client_hints", (options)->
   it "should not use data-src or set responsive class", ->
@@ -99,6 +101,15 @@ describe "Cloudinary.VideoTag", ->
 
   root_path = "#{protocol}//res.cloudinary.com/test123"
   upload_path = "#{root_path}/video/upload"
+  
+  
+  it "should not mutate the options argument", ->
+    options =
+      fetch_format: 'auto'
+      flags: 'progressive'
+    expect(cl.url('hello', options)).toEqual('http://res.cloudinary.com/test123/image/upload/f_auto,fl_progressive/hello')
+    expect(options.fetch_format).toEqual('auto')
+    expect(options.flags).toEqual('progressive')
 
   describe "constructor", ->
     v = new cloudinary.VideoTag("pubid" )
