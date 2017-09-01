@@ -223,6 +223,14 @@ describe('Cloudinary', function() {
       resource_type: 'raw'
     }, protocol + '//test123-res.cloudinary.com/files/test/hello', {});
   });
+  it('should support url_suffix for raw uploads', function() {
+    return test_cloudinary_url('test', {
+      url_suffix: 'hello',
+      private_cdn: true,
+      resource_type: 'image',
+      type: 'private'
+    }, protocol + '//test123-res.cloudinary.com/private_images/test/hello', {});
+  });
   it('should support use_root_path in shared distribution', function() {
     test_cloudinary_url('test', {
       use_root_path: true,

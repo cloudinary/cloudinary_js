@@ -23,11 +23,16 @@ src/**/*.map
 src/**/*.js
 build/
 
+# dotenv environment variables file
+.env
+
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm
 *.iml
 
 ## Directory-based project format:
 .idea/
+.vscode/
+.history/
 
 # TypeScript intermediate files
 types/*.js*
