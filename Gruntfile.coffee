@@ -61,16 +61,13 @@ module.exports = (grunt)->
       options:
         reporters: ['dots']
         configFile: 'karma.coffee'
-        browsers: grunt.option("browsers")?.toString().split(",") || ['Chrome' , 'Firefox', 'Safari', 'PhantomJS']
+        browsers: grunt.option("browsers")?.toString().split(",") || ['Chrome' , 'Firefox', 'PhantomJS'] # 'Safari' disabled until window.open is resolved
         browserDisconnectTolerance: 3
         files: [
-          { pattern: 'build/*', watched: false, included: false, served: true, nocache: false}
           { pattern: 'test/docRoot/*', watched: false, included: false, served: true, nocache: false}
           { pattern: 'test/docRoot/css/*', watched: false, included: false, served: true, nocache: false}
           { pattern: 'bower_components/bootstrap/dist/css/*', watched: false, included: false, served: true, nocache: false}
           { pattern: 'bower_components/bootstrap/dist/js/*', watched: false, included: false, served: true, nocache: false}
-          { pattern: 'bower_components/blueimp-file-upload/js/*', watched: false, included: false, served: true, nocache: false}
-          { pattern: 'bower_components/jquery/dist/jquery.js', watched: false, included: false, served: true, nocache: false}
         ]
 
       'cloudinary-core':

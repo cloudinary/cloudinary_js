@@ -1767,7 +1767,7 @@ var slice = [].slice,
       var cloudinary_url, j, k, len, query, ref1, ref2, ref3, uri, uriRegex, v, value;
       cloudinary_url = typeof process !== "undefined" && process !== null ? (ref1 = process.env) != null ? ref1.CLOUDINARY_URL : void 0 : void 0;
       if (cloudinary_url != null) {
-        uriRegex = /cloudinary:\/\/(?:(\w+)(?:\:(\w+))?@)?([\w\.-]+)(?:\/([^?]*))?(?:\?(.+))?/;
+        uriRegex = /cloudinary:\/\/(?:(\w+)(?:\:([\w-]+))?@)?([\w\.-]+)(?:\/([^?]*))?(?:\?(.+))?/;
         uri = uriRegex.exec(cloudinary_url);
         if (uri) {
           if (uri[3] != null) {
