@@ -3396,6 +3396,9 @@ var slice = [].slice,
         if (resourceType === 'image' && type === 'upload') {
           resourceType = "images";
           type = null;
+        } else if (resourceType === 'image' && type === 'private') {
+          resourceType = 'private_images';
+          type = null;
         } else if (resourceType === 'raw' && type === 'upload') {
           resourceType = 'files';
           type = null;
