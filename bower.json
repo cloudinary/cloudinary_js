@@ -44,7 +44,7 @@
     "js/jquery.cloudinary.js"
   ],
   "dependencies": {
-    "jquery": ">=1.6",
+    "jquery": ">=1.11",
     "blueimp-file-upload": ">=7.2.1",
     "lodash": "3.10.x"
   },

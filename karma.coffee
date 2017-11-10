@@ -65,3 +65,5 @@ module.exports = (config) ->
       'karma-firefox-launcher'
       'karma-safari-launcher'
     ]
+
+    browserNoActivityTimeout: 20000

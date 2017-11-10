@@ -62,8 +62,6 @@ The following instructions describe the installation of the **client-side librar
 1. Install the files using the following commands. Use the optional `--save` parameter if you wish to save the dependency in your `package.json` file.
 
    ```shell
-   npm install jquery
-   npm install blueimp-file-upload
    npm install cloudinary-jquery-file-upload
    ```
 1. Include the javascript file in your HTML. For Example:

@@ -111,7 +111,7 @@ class Configuration
   fromEnvironment: ->
     cloudinary_url = process?.env?.CLOUDINARY_URL
     if cloudinary_url?
-      uriRegex = /cloudinary:\/\/(?:(\w+)(?:\:(\w+))?@)?([\w\.-]+)(?:\/([^?]*))?(?:\?(.+))?/
+      uriRegex = /cloudinary:\/\/(?:(\w+)(?:\:([\w-]+))?@)?([\w\.-]+)(?:\/([^?]*))?(?:\?(.+))?/
       uri = uriRegex.exec(cloudinary_url)
       if uri
         @configuration['cloud_name'] = uri[3] if uri[3]?
