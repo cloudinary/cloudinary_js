@@ -227,7 +227,7 @@ class LayerParam extends Param
       else
         result = new cloudinary.Layer(layerOptions).toString()
     else if Util.isString(layerOptions) && (layerOptions.search(/fetch:/) == 0)
-      result = "fetch:#{btoa(layerOptions.substr(6))}"
+      result = "fetch:#{cloudinary.Util.btoa(layerOptions.substr(6))}"
     else
       result = layerOptions
     result
