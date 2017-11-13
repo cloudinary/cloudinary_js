@@ -30,6 +30,12 @@ var slice = [].slice,
   /*
    * Includes common utility methods and shims
    */
+
+  /**
+   * Return true if all items in list are strings
+   * @function Util.allString
+   * @param {Array} list - an array of items
+   */
   var ArrayParam, BaseUtil, ClientHintsMetaTag, Cloudinary, CloudinaryJQuery, Condition, Configuration, Expression, ExpressionParam, HtmlTag, ImageTag, Layer, LayerParam, Param, RangeParam, RawParam, SubtitlesLayer, TextLayer, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, base64Encode, base64EncodeURL, camelCase, cloneDeep, cloudinary, compact, contains, convertKeys, crc32, defaults, difference, funcTag, functions, getAttribute, getData, hasClass, identity, isEmpty, isFunction, isNumberLike, isObject, isString, m, merge, objToString, objectProto, parameters, reWords, removeAttribute, setAttribute, setAttributes, setData, smartEscape, snakeCase, utf8_encode, webp, width, withCamelCaseKeys, withSnakeCaseKeys, without;
   allStrings = function(list) {
     var item, j, len;
@@ -41,6 +47,14 @@ var slice = [].slice,
     }
     return true;
   };
+
+  /**
+  * Creates a new array without the given item.
+  * @function Util.without
+  * @param {Array} array - original array
+  * @param {*} item - the item to exclude from the new array
+  * @return {Array} a new array made of the original array's items except for `item`
+   */
   without = function(array, item) {
     var i, length, newArray;
     newArray = [];
@@ -53,9 +67,29 @@ var slice = [].slice,
     }
     return newArray;
   };
+
+  /**
+  * Return true is value is a number or a string representation of a number.
+  * @function Util.isNumberLike
+  * @param {*} value
+  * @returns {boolean} true if value is a number
+  * @example
+  *    Util.isNumber(0) // true
+  *    Util.isNumber("1.3") // true
+  *    Util.isNumber("") // false
+  *    Util.isNumber(undefined) // false
+   */
   isNumberLike = function(value) {
     return (value != null) && !isNaN(parseFloat(value));
   };
+
+  /**
+   * Escape all characters matching unsafe in the given string
+   * @function Util.smartEscape
+   * @param {string} string - source string to escape
+   * @param {RegExp} unsafe - characters that must be escaped
+   * @return {string} escaped string
+   */
   smartEscape = function(string, unsafe) {
     if (unsafe == null) {
       unsafe = /([^a-zA-Z0-9_.\-\/:]+)/g;
@@ -66,6 +100,15 @@ var slice = [].slice,
       }).join("");
     });
   };
+
+  /**
+   * Assign values from sources if they are not defined in the destination.
+   * Once a value is set it does not change
+   * @function Util.defaults
+   * @param {Object} destination - the object to assign defaults to
+   * @param {...Object} source - the source object(s) to assign defaults from
+   * @return {Object} destination after it was modified
+   */
   defaults = function() {
     var destination, sources;
     destination = arguments[0], sources = 2 <= arguments.length ? slice.call(arguments, 1) : [];
@@ -94,7 +137,6 @@ var slice = [].slice,
    * Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
    * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
    *
-   * @static
    * @param {*} value The value to check.
    * @returns {boolean} Returns `true` if `value` is an object, else `false`.
    * @example
@@ -116,19 +158,18 @@ var slice = [].slice,
   funcTag = '[object Function]';
 
   /**
-   * Checks if `value` is classified as a `Function` object.
-   *
-   * @static
-   * @param {*} value The value to check.
-   * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
-   * @example
-   *
-   * function Foo(){};  
-   * isFunction(Foo);
-   * // => true
-   *
-   * isFunction(/abc/);
-   * // => false
+  * Checks if `value` is classified as a `Function` object.
+  * @function Util.isFunction
+  * @param {*} value The value to check.
+  * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+  * @example
+  *
+  * function Foo(){};  
+  * isFunction(Foo);
+  * // => true
+  *
+  * isFunction(/abc/);
+  * // => false
    */
   isFunction = function(value) {
     return isObject(value) && objToString.call(value) === funcTag;
@@ -143,6 +184,13 @@ var slice = [].slice,
     lower = '[a-z]+';
     return RegExp(upper + '+(?=' + upper + lower + ')|' + upper + '?' + lower + '|' + upper + '+|[0-9]+', 'g');
   })();
+
+  /**
+  * Convert string to camelCase
+  * @function Util.camelCase
+  * @param {string} string - the string to convert
+  * @return {string} in camelCase format
+   */
   camelCase = function(source) {
     var i, word, words;
     words = source.match(reWords);
@@ -162,6 +210,13 @@ var slice = [].slice,
     })();
     return words.join('');
   };
+
+  /**
+   * Convert string to snake_case
+   * @function Util.snakeCase
+   * @param {string} string - the string to convert
+   * @return {string} in snake_case format
+   */
   snakeCase = function(source) {
     var i, word, words;
     words = source.match(reWords);
@@ -191,9 +246,23 @@ var slice = [].slice,
     }
     return result;
   };
+
+  /**
+   * Create a copy of the source object with all keys in camelCase
+   * @function Util.withCamelCaseKeys
+   * @param {Object} value - the object to copy
+   * @return {Object} a new object
+   */
   withCamelCaseKeys = function(source) {
     return convertKeys(source, Util.camelCase);
   };
+
+  /**
+   * Create a copy of the source object with all keys in snake_case
+   * @function Util.withSnakeCaseKeys
+   * @param {Object} value - the object to copy
+   * @return {Object} a new object
+   */
   withSnakeCaseKeys = function(source) {
     return convertKeys(source, Util.snakeCase);
   };
@@ -205,6 +274,14 @@ var slice = [].slice,
   } : function(input) {
     throw new Error("No base64 encoding function found");
   };
+
+  /**
+  * Returns the Base64-decoded version of url.<br>
+  * This method delegates to `btoa` if present. Otherwise it tries `Buffer`.
+  * @function Util.base64EncodeURL
+  * @param {string} url - the url to encode. the value is URIdecoded and then re-encoded before converting to base64 representation
+  * @return {string} the base64 representation of the URL
+   */
   base64EncodeURL = function(input) {
     var error1, ignore;
     try {
@@ -216,81 +293,17 @@ var slice = [].slice,
     return base64Encode(input);
   };
   BaseUtil = {
-
-    /**
-     * Return true if all items in list are strings
-     * @param {Array} list - an array of items
-     */
     allStrings: allStrings,
-
-    /**
-    * Convert string to camelCase
-    * @param {string} string - the string to convert
-    * @return {string} in camelCase format
-     */
     camelCase: camelCase,
     convertKeys: convertKeys,
-
-    /**
-     * Assign values from sources if they are not defined in the destination.
-     * Once a value is set it does not change
-     * @param {Object} destination - the object to assign defaults to
-     * @param {...Object} source - the source object(s) to assign defaults from
-     * @return {Object} destination after it was modified
-     */
     defaults: defaults,
-
-    /**
-     * Convert string to snake_case
-     * @param {string} string - the string to convert
-     * @return {string} in snake_case format
-     */
     snakeCase: snakeCase,
-
-    /**
-    * Creates a new array without the given item.
-    * @param {Array} array - original array
-    * @param {*} item - the item to exclude from the new array
-    * @return {Array} a new array made of the original array's items except for `item`
-     */
     without: without,
-
-    /**
-     * Checks if `value` is classified as a `Function` object.
-     *
-     * @static
-     * @param {*} value The value to check.
-     * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
-     * @example
-     *
-     * function Foo(){};  
-     * isFunction(Foo);
-     * // => true
-     *
-     * isFunction(/abc/);
-     * // => false
-     */
     isFunction: isFunction,
-
-    /**
-    * Return true is value is a number or a string representation of a number.
-    * @example
-    *    Util.isNumber(0) // true
-    *    Util.isNumber("1.3") // true
-    *    Util.isNumber("") // false
-    *    Util.isNumber(undefined) // false
-     */
     isNumberLike: isNumberLike,
     smartEscape: smartEscape,
     withCamelCaseKeys: withCamelCaseKeys,
     withSnakeCaseKeys: withSnakeCaseKeys,
-
-    /**
-    * Returns the Base64-decoded version of url.<br>
-    * This method delegates to `btoa` if present. Otherwise it tries `Buffer`.
-    * @param {string} url - the url to encode. the value is URIdecoded and then re-encoded before converting to base64 representation
-    * @return {string} the base64 representation of the URL
-     */
     base64EncodeURL: base64EncodeURL
   };
 
@@ -328,6 +341,7 @@ var slice = [].slice,
     * Get attribute from the DOM element.
     *
     * This method will use jQuery's `attr()` method if it is available, otherwise it will get the attribute directly
+    * @function Util.getAttribute
     * @param {Element} element - the element to set the attribute for
     * @param {string} name - the name of the attribute
     * @returns {*} the value of the attribute
@@ -341,35 +355,90 @@ var slice = [].slice,
     * Set attribute in the DOM element.
     *
     * This method will use jQuery's `attr()` method if it is available, otherwise it will set the attribute directly
+    * @function Util.setAttribute
     * @param {Element} element - the element to set the attribute for
     * @param {string} name - the name of the attribute
     * @param {*} value - the value to be set
-    *
    */
   setAttribute = function(element, name, value) {
     return jQuery(element).attr(name, value);
   };
+
+  /**
+   * Remove an attribute in the DOM element.
+   *
+   * @function Util.removeAttribute
+   * @param {Element} element - the element to set the attribute for
+   * @param {string} name - the name of the attribute
+   */
   removeAttribute = function(element, name) {
     return jQuery(element).removeAttr(name);
   };
+
+  /**
+    * Set a group of attributes to the element
+    * @function Util.setAttributes
+    * @param {Element} element - the element to set the attributes for
+    * @param {Object} attributes - a hash of attribute names and values
+   */
   setAttributes = function(element, attributes) {
     return jQuery(element).attr(attributes);
   };
+
+  /**
+    * Checks if element has a css class
+    * @function Util.hasClass
+    * @param {Element} element - the element to check
+    * @param {string} name - the class name
+    @returns {boolean} true if the element has the class
+   */
   hasClass = function(element, name) {
     return jQuery(element).hasClass(name);
   };
+
+  /**
+    * Add class to the element
+    * @function Util.addClass
+    * @param {Element} element - the element
+    * @param {string} name - the class name to add
+   */
   addClass = function(element, name) {
     return jQuery(element).addClass(name);
   };
   width = function(element) {
     return jQuery(element).width();
   };
+
+  /**
+   * Returns true if item is empty:
+   * <ul>
+   *   <li>item is null or undefined</li>
+   *   <li>item is an array or string of length 0</li>
+   *   <li>item is an object with no keys</li>
+   * </ul>
+   *   
+   * @param item
+   * @returns {boolean} true if item is empty
+   */
   isEmpty = function(item) {
     return (item == null) || (jQuery.isArray(item) || Util.isString(item)) && item.length === 0 || (jQuery.isPlainObject(item) && jQuery.isEmptyObject(item));
   };
+
+  /**
+   * Returns true if item is a string
+   * @param item
+   * @returns {boolean} true if item is a string
+   */
   isString = function(item) {
     return typeof item === 'string' || (item != null ? item.toString() : void 0) === '[object String]';
   };
+
+  /**
+   * Recursively assign source properties to destination
+   * @function Util.merge
+   * @param {Object} destination - the object to assign to
+   * @param {...Object} [sources] The source objects.
+   */
   merge = function() {
     var args, i;
     args = (function() {
@@ -384,6 +453,13 @@ var slice = [].slice,
     args.unshift(true);
     return jQuery.extend.apply(this, args);
   };
+
+  /**
+   * Creates a new array from the parameter with "falsey" values removed
+   * @function Util.compact
+   * @param {Array} array - the array to remove values from
+   * @return {Array} a new array without falsey values
+   */
   compact = function(arr) {
     var item, j, len, results;
     results = [];
@@ -395,6 +471,13 @@ var slice = [].slice,
     }
     return results;
   };
+
+  /**
+   * Create a new copy of the given object, including all internal objects.
+   * @function Util.cloneDeep
+   * @param {Object} value - the object to clone
+   * @return {Object} a new deep copy of the object
+   */
   cloneDeep = function() {
     var args;
     args = jQuery.makeArray(arguments);
@@ -402,6 +485,14 @@ var slice = [].slice,
     args.unshift(true);
     return jQuery.extend.apply(this, args);
   };
+
+  /**
+   * Check if a given item is included in the given array
+   * @function Util.contains
+   * @param {Array} array - the array to search in
+   * @param {*} item - the item to search for
+   * @return {boolean} true if the item is included in the array
+   */
   contains = function(arr, item) {
     var i, j, len;
     for (j = 0, len = arr.length; j < len; j++) {
@@ -412,6 +503,14 @@ var slice = [].slice,
     }
     return false;
   };
+
+  /**
+   * Returns values in the given array that are not included in the other array
+   * @function Util.difference
+   * @param {Array} arr - the array to select from
+   * @param {Array} values - values to filter from arr
+   * @return {Array} the filtered values
+   */
   difference = function(arr, values) {
     var item, j, len, results;
     results = [];
@@ -423,6 +522,13 @@ var slice = [].slice,
     }
     return results;
   };
+
+  /**
+   * Returns a list of all the function names in obj
+   * @function Util.functions
+   * @param {Object} object - the object to inspect
+   * @return {Array} a list of functions of object
+   */
   functions = function(object) {
     var i, results;
     results = [];
@@ -433,6 +539,13 @@ var slice = [].slice,
     }
     return results;
   };
+
+  /**
+   * Returns the provided value. This functions is used as a default predicate function.
+   * @function Util.identity
+   * @param {*} value
+   * @return {*} the provided value
+   */
   identity = function(value) {
     return value;
   };
@@ -457,64 +570,22 @@ var slice = [].slice,
     /**
      * Assign source properties to destination.
      * If the property is an object it is assigned as a whole, overriding the destination object.
+     * @function Util.assign
      * @param {Object} destination - the object to assign to
      */
     assign: jQuery.extend,
-
-    /**
-     * Recursively assign source properties to destination
-    * @param {Object} destination - the object to assign to
-     * @param {...Object} [sources] The source objects.
-     */
     merge: merge,
-
-    /**
-     * Create a new copy of the given object, including all internal objects.
-     * @param {Object} value - the object to clone
-     * @return {Object} a new deep copy of the object
-     */
     cloneDeep: cloneDeep,
-
-    /**
-     * Creates a new array from the parameter with "falsey" values removed
-     * @param {Array} array - the array to remove values from
-     * @return {Array} a new array without falsey values
-     */
     compact: compact,
-
-    /**
-     * Check if a given item is included in the given array
-     * @param {Array} array - the array to search in
-     * @param {*} item - the item to search for
-     * @return {boolean} true if the item is included in the array
-     */
     contains: contains,
-
-    /**
-     * Returns values in the given array that are not included in the other array
-     * @param {Array} arr - the array to select from
-     * @param {Array} values - values to filter from arr
-     * @return {Array} the filtered values
-     */
     difference: difference,
-
-    /**
-     * Returns a list of all the function names in obj
-     * @param {Object} object - the object to inspect
-     * @return {Array} a list of functions of object
-     */
     functions: functions,
-
-    /**
-     * Returns the provided value. This functions is used as a default predicate function.
-     * @param {*} value
-     * @return {*} the provided value
-     */
     identity: identity,
     isPlainObject: jQuery.isPlainObject,
 
     /**
      * Remove leading or trailing spaces from text
+     * @function Util.trim
      * @param {string} text
      * @return {string} the `text` without leading or trailing spaces
      */
