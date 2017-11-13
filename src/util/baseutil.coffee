@@ -32,6 +32,68 @@ defaults = (destination, sources...)->
     , destination
   )
 
+###********** lodash functions ###
+objectProto = Object.prototype
+
+###*
+# Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
+# of values.
+###
+
+objToString = objectProto.toString
+
+###*
+# Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
+# (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+#
+# @static
+# @param {*} value The value to check.
+# @returns {boolean} Returns `true` if `value` is an object, else `false`.
+# @example
+#
+#isObject({});
+# // => true
+#
+#isObject([1, 2, 3]);
+# // => true
+#
+#isObject(1);
+# // => false
+###
+
+isObject = (value) ->
+# Avoid a V8 JIT bug in Chrome 19-20.
+# See https://code.google.com/p/v8/issues/detail?id=2291 for more details.
+  type = typeof value
+  ! !value and (type == 'object' or type == 'function')
+
+funcTag = '[object Function]'
+
+###*
+# Checks if `value` is classified as a `Function` object.
+#
+# @static
+# @param {*} value The value to check.
+# @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+# @example
+#
+# function Foo(){};  
+# isFunction(Foo);
+# // => true
+#
+# isFunction(/abc/);
+# // => false
+###
+
+isFunction = (value) ->
+# The use of `Object#toString` avoids issues with the `typeof` operator
+# in older versions of Chrome and Safari which return 'function' for regexes
+# and Safari 8 which returns 'object' for typed array constructors.
+  isObject(value) and objToString.call(value) == funcTag
+
+###********** lodash functions ###
+  
+
 ###* Used to match words to create compound words. ###
 
 reWords = do ->
@@ -65,17 +127,29 @@ withCamelCaseKeys = (source)->
 withSnakeCaseKeys = (source)->
   convertKeys(source, Util.snakeCase)
 
-btoaImpl = (input)->
-  if typeof btoa != 'undefined'
-    return btoa(input)
+base64Encode =  
+  if typeof btoa != 'undefined' && isFunction(btoa)
+    # Browser
+    btoa
+  else if typeof Buffer != 'undefined' && isFunction(Buffer)
+    # Node.js
+    (input)->
+      input = new Buffer.from(String(input), 'binary') unless input instanceof Buffer
+      input.toString('base64')
+  else
+    (input)->
+      throw new Error("No base64 encoding function found")
 
-  # nodejs impl
-  if input instanceof Buffer
-    return input.toString('base64');
+base64EncodeURL = (input)->
+  try
+    input = decodeURI(input)
+  catch ignore
+  
+  input = encodeURI(input);
+  base64Encode(input);
+  
 
-  buffer = new Buffer(String(input), 'binary')
-  return buffer.toString('base64')
-
+    
 BaseUtil =
   ###*
    * Return true if all items in list are strings
@@ -111,6 +185,22 @@ BaseUtil =
   ###
   without: without
   ###*
+  # Checks if `value` is classified as a `Function` object.
+  #
+  # @static
+  # @param {*} value The value to check.
+  # @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+  # @example
+  #
+  # function Foo(){};  
+  # isFunction(Foo);
+  # // => true
+  #
+  # isFunction(/abc/);
+  # // => false
+  ###
+  isFunction: isFunction
+  ###*
   * Return true is value is a number or a string representation of a number.
   * @example
   *    Util.isNumber(0) // true
@@ -123,6 +213,9 @@ BaseUtil =
   withCamelCaseKeys: withCamelCaseKeys
   withSnakeCaseKeys: withSnakeCaseKeys
   ###*
-  * Cross-platform (nodejs/browser) btoa() implementation
+  * Returns the Base64-decoded version of url.<br>
+  * This method delegates to `btoa` if present. Otherwise it tries `Buffer`.
+  * @param {string} url - the url to encode. the value is URIdecoded and then re-encoded before converting to base64 representation
+  * @return {string} the base64 representation of the URL   
   ###
-  btoa: btoaImpl
+  base64EncodeURL: base64EncodeURL

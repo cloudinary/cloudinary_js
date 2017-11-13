@@ -30,7 +30,7 @@ var slice = [].slice,
   /*
    * Includes common utility methods and shims
    */
-  var ArrayParam, BaseUtil, ClientHintsMetaTag, Cloudinary, CloudinaryJQuery, Condition, Configuration, Expression, ExpressionParam, HtmlTag, ImageTag, Layer, LayerParam, Param, RangeParam, RawParam, SubtitlesLayer, TextLayer, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, btoaImpl, camelCase, cloneDeep, cloudinary, compact, contains, convertKeys, crc32, defaults, difference, functions, getAttribute, getData, hasClass, identity, isEmpty, isNumberLike, isString, m, merge, parameters, reWords, removeAttribute, setAttribute, setAttributes, setData, smartEscape, snakeCase, utf8_encode, webp, width, withCamelCaseKeys, withSnakeCaseKeys, without;
+  var ArrayParam, BaseUtil, ClientHintsMetaTag, Cloudinary, CloudinaryJQuery, Condition, Configuration, Expression, ExpressionParam, HtmlTag, ImageTag, Layer, LayerParam, Param, RangeParam, RawParam, SubtitlesLayer, TextLayer, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, base64Encode, base64EncodeURL, camelCase, cloneDeep, cloudinary, compact, contains, convertKeys, crc32, defaults, difference, funcTag, functions, getAttribute, getData, hasClass, identity, isEmpty, isFunction, isNumberLike, isObject, isString, m, merge, objToString, objectProto, parameters, reWords, removeAttribute, setAttribute, setAttributes, setData, smartEscape, snakeCase, utf8_encode, webp, width, withCamelCaseKeys, withSnakeCaseKeys, without;
   allStrings = function(list) {
     var item, j, len;
     for (j = 0, len = list.length; j < len; j++) {
@@ -80,6 +80,61 @@ var slice = [].slice,
       return dest;
     }, destination);
   };
+
+  /*********** lodash functions */
+  objectProto = Object.prototype;
+
+  /**
+   * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
+   * of values.
+   */
+  objToString = objectProto.toString;
+
+  /**
+   * Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
+   * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+   *
+   * @static
+   * @param {*} value The value to check.
+   * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+   * @example
+   *
+  #isObject({});
+   * // => true
+   *
+  #isObject([1, 2, 3]);
+   * // => true
+   *
+  #isObject(1);
+   * // => false
+   */
+  isObject = function(value) {
+    var type;
+    type = typeof value;
+    return !!value && (type === 'object' || type === 'function');
+  };
+  funcTag = '[object Function]';
+
+  /**
+   * Checks if `value` is classified as a `Function` object.
+   *
+   * @static
+   * @param {*} value The value to check.
+   * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+   * @example
+   *
+   * function Foo(){};  
+   * isFunction(Foo);
+   * // => true
+   *
+   * isFunction(/abc/);
+   * // => false
+   */
+  isFunction = function(value) {
+    return isObject(value) && objToString.call(value) === funcTag;
+  };
+
+  /*********** lodash functions */
 
   /** Used to match words to create compound words. */
   reWords = (function() {
@@ -142,16 +197,23 @@ var slice = [].slice,
   withSnakeCaseKeys = function(source) {
     return convertKeys(source, Util.snakeCase);
   };
-  btoaImpl = function(input) {
-    var buffer;
-    if (typeof btoa !== 'undefined') {
-      return btoa(input);
+  base64Encode = typeof btoa !== 'undefined' && isFunction(btoa) ? btoa : typeof Buffer !== 'undefined' && isFunction(Buffer) ? function(input) {
+    if (!(input instanceof Buffer)) {
+      input = new Buffer.from(String(input), 'binary');
     }
-    if (input instanceof Buffer) {
-      return input.toString('base64');
+    return input.toString('base64');
+  } : function(input) {
+    throw new Error("No base64 encoding function found");
+  };
+  base64EncodeURL = function(input) {
+    var error1, ignore;
+    try {
+      input = decodeURI(input);
+    } catch (error1) {
+      ignore = error1;
     }
-    buffer = new Buffer(String(input), 'binary');
-    return buffer.toString('base64');
+    input = encodeURI(input);
+    return base64Encode(input);
   };
   BaseUtil = {
 
@@ -194,6 +256,23 @@ var slice = [].slice,
     without: without,
 
     /**
+     * Checks if `value` is classified as a `Function` object.
+     *
+     * @static
+     * @param {*} value The value to check.
+     * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+     * @example
+     *
+     * function Foo(){};  
+     * isFunction(Foo);
+     * // => true
+     *
+     * isFunction(/abc/);
+     * // => false
+     */
+    isFunction: isFunction,
+
+    /**
     * Return true is value is a number or a string representation of a number.
     * @example
     *    Util.isNumber(0) // true
@@ -207,9 +286,12 @@ var slice = [].slice,
     withSnakeCaseKeys: withSnakeCaseKeys,
 
     /**
-    * Cross-platform (nodejs/browser) btoa() implementation
+    * Returns the Base64-decoded version of url.<br>
+    * This method delegates to `btoa` if present. Otherwise it tries `Buffer`.
+    * @param {string} url - the url to encode. the value is URIdecoded and then re-encoded before converting to base64 representation
+    * @return {string} the base64 representation of the URL
      */
-    btoa: btoaImpl
+    base64EncodeURL: base64EncodeURL
   };
 
   /**
@@ -415,13 +497,6 @@ var slice = [].slice,
      * @return {Array} the filtered values
      */
     difference: difference,
-
-    /**
-     * Returns true if argument is a function.
-     * @param {*} value - the value to check
-     * @return {boolean} true if the value is a function
-     */
-    isFunction: jQuery.isFunction,
 
     /**
      * Returns a list of all the function names in obj
@@ -1144,7 +1219,7 @@ var slice = [].slice,
           result = new cloudinary.Layer(layerOptions).toString();
         }
       } else if (Util.isString(layerOptions) && (layerOptions.search(/fetch:/) === 0)) {
-        result = "fetch:" + (cloudinary.Util.btoa(layerOptions.substr(6)));
+        result = "fetch:" + (cloudinary.Util.base64EncodeURL(layerOptions.substr(6)));
       } else {
         result = layerOptions;
       }

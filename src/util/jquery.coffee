@@ -163,12 +163,6 @@ Util = jQuery.extend BaseUtil,
   ###
   difference: difference
   ###*
-   * Returns true if argument is a function.
-   * @param {*} value - the value to check
-   * @return {boolean} true if the value is a function
-  ###
-  isFunction: jQuery.isFunction
-  ###*
    * Returns a list of all the function names in obj
    * @param {Object} object - the object to inspect
    * @return {Array} a list of functions of object
