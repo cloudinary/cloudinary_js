@@ -36,7 +36,7 @@ var slice = [].slice,
    * @function Util.allString
    * @param {Array} list - an array of items
    */
-  var ArrayParam, BaseUtil, ClientHintsMetaTag, Cloudinary, CloudinaryJQuery, Condition, Configuration, Expression, ExpressionParam, HtmlTag, ImageTag, Layer, LayerParam, Param, RangeParam, RawParam, SubtitlesLayer, TextLayer, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, base64Encode, base64EncodeURL, camelCase, cloneDeep, cloudinary, compact, contains, convertKeys, crc32, defaults, difference, funcTag, functions, getAttribute, getData, hasClass, identity, isEmpty, isFunction, isNumberLike, isObject, isString, m, merge, objToString, objectProto, parameters, reWords, removeAttribute, setAttribute, setAttributes, setData, smartEscape, snakeCase, utf8_encode, webp, width, withCamelCaseKeys, withSnakeCaseKeys, without;
+  var ArrayParam, BaseUtil, ClientHintsMetaTag, Cloudinary, CloudinaryJQuery, Condition, Configuration, Expression, ExpressionParam, FetchLayer, HtmlTag, ImageTag, Layer, LayerParam, Param, RangeParam, RawParam, SubtitlesLayer, TextLayer, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, base64Encode, base64EncodeURL, camelCase, cloneDeep, cloudinary, compact, contains, convertKeys, crc32, defaults, difference, funcTag, functions, getAttribute, getData, hasClass, identity, isEmpty, isFunction, isNumberLike, isObject, isString, m, merge, objToString, objectProto, parameters, reWords, removeAttribute, setAttribute, setAttributes, setData, smartEscape, snakeCase, utf8_encode, webp, width, withCamelCaseKeys, withSnakeCaseKeys, without;
   allStrings = function(list) {
     var item, j, len;
     for (j = 0, len = list.length; j < len; j++) {
@@ -328,6 +328,7 @@ var slice = [].slice,
     * Set data in the DOM element.
     *
     * This method will use jQuery's `data()` method if it is available, otherwise it will set the `data-` attribute
+    * @function Util.setData
     * @param {Element} element - the element to set the data in
     * @param {string} name - the name of the data item
     * @param {*} value - the value to be set
@@ -416,7 +417,7 @@ var slice = [].slice,
    *   <li>item is an array or string of length 0</li>
    *   <li>item is an object with no keys</li>
    * </ul>
-   *   
+   * @function Util.isEmpty
    * @param item
    * @returns {boolean} true if item is empty
    */
@@ -751,6 +752,43 @@ var slice = [].slice,
     return Layer;
 
   })();
+  FetchLayer = (function(superClass) {
+    extend(FetchLayer, superClass);
+
+
+    /**
+     * @constructor FetchLayer
+     * @param {Object|string} options - layer parameters or a url
+     */
+
+    function FetchLayer(options) {
+      FetchLayer.__super__.constructor.call(this, options);
+      if (Util.isString(options)) {
+        this.options.url = options;
+      } else if (options != null ? options.url : void 0) {
+        this.options.url = options.url;
+      }
+    }
+
+    FetchLayer.prototype.url = function(url) {
+      this.options.url = url;
+      return this;
+    };
+
+
+    /**
+     * generate the string representation of the layer
+     * @function FetchLayer#toString
+     * @return {String}
+     */
+
+    FetchLayer.prototype.toString = function() {
+      return "fetch:" + (cloudinary.Util.base64EncodeURL(this.options.url));
+    };
+
+    return FetchLayer;
+
+  })(Layer);
   TextLayer = (function(superClass) {
     extend(TextLayer, superClass);
 
@@ -1289,8 +1327,8 @@ var slice = [].slice,
         } else {
           result = new cloudinary.Layer(layerOptions).toString();
         }
-      } else if (Util.isString(layerOptions) && (layerOptions.search(/fetch:/) === 0)) {
-        result = "fetch:" + (cloudinary.Util.base64EncodeURL(layerOptions.substr(6)));
+      } else if (/^fetch:.+/.test(layerOptions)) {
+        result = new FetchLayer(layerOptions.substr(6)).toString();
       } else {
         result = layerOptions;
       }
@@ -4655,6 +4693,7 @@ var slice = [].slice,
     VideoTag: VideoTag,
     ClientHintsMetaTag: ClientHintsMetaTag,
     Layer: Layer,
+    FetchLayer: FetchLayer,
     TextLayer: TextLayer,
     SubtitlesLayer: SubtitlesLayer,
     Cloudinary: Cloudinary,

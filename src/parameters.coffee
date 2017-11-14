@@ -226,8 +226,8 @@ class LayerParam extends Param
         result = new cloudinary.Layer(layerOptions).toString()
       else
         result = new cloudinary.Layer(layerOptions).toString()
-    else if Util.isString(layerOptions) && (layerOptions.search(/fetch:/) == 0)
-      result = "fetch:#{cloudinary.Util.base64EncodeURL(layerOptions.substr(6))}"
+    else if /^fetch:.+/.test(layerOptions)
+      result = new FetchLayer(layerOptions.substr(6)).toString()
     else
       result = layerOptions
     result

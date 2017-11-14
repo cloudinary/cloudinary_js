@@ -204,6 +204,7 @@ module.exports = (grunt)->
       'src/utf8_encode.coffee',
       'src/crc32.coffee',
       'src/layer/layer.coffee',
+      'src/layer/fetchlayer.coffee',
       'src/layer/textlayer.coffee',
       'src/layer/subtitleslayer.coffee',
       'src/parameters.coffee',
@@ -257,6 +258,7 @@ module.exports = (grunt)->
               VideoTag: VideoTag
               ClientHintsMetaTag: ClientHintsMetaTag
               Layer: Layer
+              FetchLayer: FetchLayer
               TextLayer: TextLayer
               SubtitlesLayer: SubtitlesLayer
               Cloudinary: Cloudinary
