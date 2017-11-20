@@ -22,6 +22,7 @@ doc/
 src/**/*.map
 src/**/*.js
 build/
+.env
 
 # dotenv environment variables file
 .env

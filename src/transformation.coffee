@@ -272,7 +272,8 @@ class TransformationBase
     resultArray = for tr in @chained
         tr.serialize()
     paramList = @keys()
-    transformations = @get("transformation")?.serialize()
+    transformations = @get("transformation")?.serialize();
+    format = @get("format")?.serialize();
     ifParam = @get("if")?.serialize()
     variables = processVar(@get("variables")?.value())
     paramList = Util.difference(paramList, ["transformation", "if", "variables"])
@@ -301,7 +302,10 @@ class TransformationBase
     else if !Util.isEmpty(ifParam)
       transformationList.unshift(ifParam)
 
-    transformationString = Util.compact(transformationList).join(@param_separator)
+    transformationString = Util.compact(transformationList).join(@param_separator);
+    if format
+      transformationString = [transformationString, format].join(@trans_separator);
+    
     resultArray.push(transformationString) unless Util.isEmpty(transformationString)
     Util.compact(resultArray).join(@trans_separator)
 

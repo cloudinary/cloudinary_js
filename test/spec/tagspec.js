@@ -166,6 +166,15 @@ describe("Cloudinary.VideoTag", function() {
   });
   root_path = protocol + "//res.cloudinary.com/test123";
   upload_path = root_path + "/video/upload";
+  it("should not mutate the options argument", function() {
+    options = {
+      fetch_format: 'auto',
+      flags: 'progressive'
+    };
+    expect(cl.url('hello', options)).toEqual('http://res.cloudinary.com/test123/image/upload/f_auto,fl_progressive/hello');
+    expect(options.fetch_format).toEqual('auto');
+    return expect(options.flags).toEqual('progressive');
+  });
   describe("constructor", function() {
     var v;
     v = new cloudinary.VideoTag("pubid");

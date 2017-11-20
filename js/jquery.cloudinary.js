@@ -2446,7 +2446,7 @@ var slice = [].slice,
      */
 
     TransformationBase.prototype.serialize = function() {
-      var ifParam, j, len, paramList, ref, ref1, ref2, ref3, ref4, resultArray, t, tr, transformationList, transformationString, transformations, value, variables, vars;
+      var format, ifParam, j, len, paramList, ref, ref1, ref2, ref3, ref4, ref5, resultArray, t, tr, transformationList, transformationString, transformations, value, variables, vars;
       resultArray = (function() {
         var j, len, ref, results;
         ref = this.chained;
@@ -2459,17 +2459,18 @@ var slice = [].slice,
       }).call(this);
       paramList = this.keys();
       transformations = (ref = this.get("transformation")) != null ? ref.serialize() : void 0;
-      ifParam = (ref1 = this.get("if")) != null ? ref1.serialize() : void 0;
-      variables = processVar((ref2 = this.get("variables")) != null ? ref2.value() : void 0);
+      format = (ref1 = this.get("format")) != null ? ref1.serialize() : void 0;
+      ifParam = (ref2 = this.get("if")) != null ? ref2.serialize() : void 0;
+      variables = processVar((ref3 = this.get("variables")) != null ? ref3.value() : void 0);
       paramList = Util.difference(paramList, ["transformation", "if", "variables"]);
       vars = [];
       transformationList = [];
       for (j = 0, len = paramList.length; j < len; j++) {
         t = paramList[j];
         if (t.match(VAR_NAME_RE)) {
-          vars.push(t + "_" + Expression.normalize((ref3 = this.get(t)) != null ? ref3.value() : void 0));
+          vars.push(t + "_" + Expression.normalize((ref4 = this.get(t)) != null ? ref4.value() : void 0));
         } else {
-          transformationList.push((ref4 = this.get(t)) != null ? ref4.serialize() : void 0);
+          transformationList.push((ref5 = this.get(t)) != null ? ref5.serialize() : void 0);
         }
       }
       switch (false) {
@@ -2497,6 +2498,9 @@ var slice = [].slice,
         transformationList.unshift(ifParam);
       }
       transformationString = Util.compact(transformationList).join(this.param_separator);
+      if (format) {
+        transformationString = [transformationString, format].join(this.trans_separator);
+      }
       if (!Util.isEmpty(transformationString)) {
         resultArray.push(transformationString);
       }
@@ -3599,6 +3603,9 @@ var slice = [].slice,
       if (urlSuffix != null) {
         if (resourceType === 'image' && type === 'upload') {
           resourceType = "images";
+          type = null;
+        } else if (resourceType === 'image' && type === 'private') {
+          resourceType = 'private_images';
           type = null;
         } else if (resourceType === 'raw' && type === 'upload') {
           resourceType = 'files';
