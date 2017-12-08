@@ -29,6 +29,7 @@ class Expression
     "face_count": "fc"
     "faceCount": "fc"
     "height": "h"
+    "format": "format"
     "initial_aspect_ratio": "iar"
     "initial_height": "ih"
     "initial_width": "iw"

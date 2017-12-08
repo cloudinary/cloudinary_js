@@ -111,7 +111,7 @@ describe "Cloudinary::Utils", ->
       source =  "movie_id"
       options =  {cloud_name: "test123"}
       path =  cl.video_thumbnail_url(source, options)
-      expect(path).toEqual("#{upload_path}/movie_id.jpg")
+      expect(path).toEqual("#{upload_path}/jpg/movie_id.jpg")
 
 describe "video", ->
   VIDEO_UPLOAD_PATH = "#{protocol}//res.cloudinary.com/test123/video/upload/"
@@ -121,16 +121,16 @@ describe "video", ->
     cl = new cloudinary.Cloudinary(cloud_name: "test123", api_secret: "1234")
 
   it "should generate video tag", ->
-    expected_url = VIDEO_UPLOAD_PATH + "movie"
+    expected_url = (format) -> VIDEO_UPLOAD_PATH + format+ "/movie"
     tag = cl.video("movie")
-    expect(tag).toContain("<video poster=\"#{expected_url}.jpg\">")
-    expect(tag).toContain("<source src=\"#{expected_url}.webm\" type=\"video/webm\">")
-    expect(tag).toContain("<source src=\"#{expected_url}.mp4\" type=\"video/mp4\">")
-    expect(tag).toContain("<source src=\"#{expected_url}.ogv\" type=\"video/ogg\">")
+    expect(tag).toContain("<video poster=\"#{expected_url('jpg')}.jpg\">")
+    expect(tag).toContain("<source src=\"#{expected_url('webm')}.webm\" type=\"video/webm\">")
+    expect(tag).toContain("<source src=\"#{expected_url('mp4')}.mp4\" type=\"video/mp4\">")
+    expect(tag).toContain("<source src=\"#{expected_url('ogv')}.ogv\" type=\"video/ogg\">")
 
 
   it "should generate video tag with html5 attributes", ->
-    expected_url = VIDEO_UPLOAD_PATH + "movie"
+    expected_url = (format) -> VIDEO_UPLOAD_PATH + format+ "/movie"
     tag = cl.video("movie",
                             autoplay: 1,
                             controls: true,
@@ -138,10 +138,10 @@ describe "video", ->
                             muted: "true",
                             preload: true,
                             style: "border: 1px")
-    expect(tag).toContain("<video autoplay=\"1\" controls loop muted=\"true\" poster=\"#{expected_url}.jpg\" preload style=\"border: 1px\">")
-    expect(tag).toContain("<source src=\"#{expected_url}.webm\" type=\"video/webm\">")
-    expect(tag).toContain("<source src=\"#{expected_url}.mp4\" type=\"video/mp4\">")
-    expect(tag).toContain("<source src=\"#{expected_url}.ogv\" type=\"video/ogg\">")
+    expect(tag).toContain("<video autoplay=\"1\" controls loop muted=\"true\" poster=\"#{expected_url('jpg')}.jpg\" preload style=\"border: 1px\">")
+    expect(tag).toContain("<source src=\"#{expected_url('webm')}.webm\" type=\"video/webm\">")
+    expect(tag).toContain("<source src=\"#{expected_url('mp4')}.mp4\" type=\"video/mp4\">")
+    expect(tag).toContain("<source src=\"#{expected_url('ogv')}.ogv\" type=\"video/ogg\">")
 
 
   it "should generate video tag with various attributes", ->
@@ -153,103 +153,103 @@ describe "video", ->
       audio_codec : "acc",
       start_offset: 3
     }
-    expected_url = VIDEO_UPLOAD_PATH + "ac_acc,so_3,vc_h264/movie"
+    expected_url = (format) -> VIDEO_UPLOAD_PATH + "ac_acc,so_3,vc_h264/" + format + "/movie"
     expect(cl.video("movie", options)).toEqual(
-      "<video height=\"100\" poster=\"#{expected_url}.jpg\" src=\"#{expected_url}.mp4\" width=\"200\"></video>")
+      "<video height=\"100\" poster=\"#{expected_url('jpg')}.jpg\" src=\"#{expected_url('mp4')}.mp4\" width=\"200\"></video>")
 
     delete options['source_types']
     expect(cl.video("movie", options)).toEqual(
-      "<video height=\"100\" poster=\"#{expected_url}.jpg\" width=\"200\">" +
-      "<source src=\"#{expected_url}.webm\" type=\"video/webm\">" +
-      "<source src=\"#{expected_url}.mp4\" type=\"video/mp4\">" +
-      "<source src=\"#{expected_url}.ogv\" type=\"video/ogg\">" +
+      "<video height=\"100\" poster=\"#{expected_url('jpg')}.jpg\" width=\"200\">" +
+      "<source src=\"#{expected_url('webm')}.webm\" type=\"video/webm\">" +
+      "<source src=\"#{expected_url('mp4')}.mp4\" type=\"video/mp4\">" +
+      "<source src=\"#{expected_url('ogv')}.ogv\" type=\"video/ogg\">" +
       "</video>")
 
     delete options['html_height']
     delete options['html_width']
     options['width'] = 250
     options['crop'] = 'scale'
-    expected_url = VIDEO_UPLOAD_PATH + "ac_acc,c_scale,so_3,vc_h264,w_250/movie"
+    expected_url = (format) -> VIDEO_UPLOAD_PATH + "ac_acc,c_scale,so_3,vc_h264,w_250/" + format + "/movie"
     expect(cl.video("movie", options)).toEqual(
-      "<video poster=\"#{expected_url}.jpg\" width=\"250\">" +
-      "<source src=\"#{expected_url}.webm\" type=\"video/webm\">" +
-      "<source src=\"#{expected_url}.mp4\" type=\"video/mp4\">" +
-      "<source src=\"#{expected_url}.ogv\" type=\"video/ogg\">" +
+      "<video poster=\"#{expected_url('jpg')}.jpg\" width=\"250\">" +
+      "<source src=\"#{expected_url('webm')}.webm\" type=\"video/webm\">" +
+      "<source src=\"#{expected_url('mp4')}.mp4\" type=\"video/mp4\">" +
+      "<source src=\"#{expected_url('ogv')}.ogv\" type=\"video/ogg\">" +
       "</video>")
 
-    expected_url = VIDEO_UPLOAD_PATH + "ac_acc,c_fit,so_3,vc_h264,w_250/movie"
+    expected_url = (format) -> VIDEO_UPLOAD_PATH + "ac_acc,c_fit,so_3,vc_h264,w_250/" + format + "/movie"
     options['crop'] = 'fit'
     expect(cl.video("movie", options)).toEqual(
-      "<video poster=\"#{expected_url}.jpg\">" +
-      "<source src=\"#{expected_url}.webm\" type=\"video/webm\">" +
-      "<source src=\"#{expected_url}.mp4\" type=\"video/mp4\">" +
-      "<source src=\"#{expected_url}.ogv\" type=\"video/ogg\">" +
+      "<video poster=\"#{expected_url('jpg')}.jpg\">" +
+      "<source src=\"#{expected_url('webm')}.webm\" type=\"video/webm\">" +
+      "<source src=\"#{expected_url('mp4')}.mp4\" type=\"video/mp4\">" +
+      "<source src=\"#{expected_url('ogv')}.ogv\" type=\"video/ogg\">" +
       "</video>")
 
   it "should generate video tag with fallback", ->
-    expected_url = VIDEO_UPLOAD_PATH + "movie"
+    expected_url = (format) -> VIDEO_UPLOAD_PATH + format + "/movie"
     fallback = "<span id=\"spanid\">Cannot display video</span>"
     expect(cl.video("movie", fallback_content: fallback),
-      "<video poster=\"#{expected_url}.jpg\">" +
-      "<source src=\"#{expected_url}.webm\" type=\"video/webm\">" +
-      "<source src=\"#{expected_url}.mp4\" type=\"video/mp4\">" +
-      "<source src=\"#{expected_url}.ogv\" type=\"video/ogg\">" +
+      "<video poster=\"#{expected_url('jpg')}.jpg\">" +
+      "<source src=\"#{expected_url('webm')}.webm\" type=\"video/webm\">" +
+      "<source src=\"#{expected_url('mp4')}.mp4\" type=\"video/mp4\">" +
+      "<source src=\"#{expected_url('ogv')}.ogv\" type=\"video/ogg\">" +
       fallback +
       "</video>")
     expect(cl.video("movie", fallback_content: fallback, source_types: "mp4")).toEqual(
-      "<video poster=\"#{expected_url}.jpg\" src=\"#{expected_url}.mp4\">" +
+      "<video poster=\"#{expected_url('jpg')}.jpg\" src=\"#{expected_url('mp4')}.mp4\">" +
       fallback +
       "</video>")
 
 
   it "should generate video tag with source types", ->
-    expected_url = VIDEO_UPLOAD_PATH + "movie"
+    expected_url = (format) -> VIDEO_UPLOAD_PATH + format + "/movie"
     expect(cl.video("movie", source_types: ['ogv', 'mp4'])).toEqual(
-      "<video poster=\"#{expected_url}.jpg\">" +
-      "<source src=\"#{expected_url}.ogv\" type=\"video/ogg\">" +
-      "<source src=\"#{expected_url}.mp4\" type=\"video/mp4\">" +
+      "<video poster=\"#{expected_url('jpg')}.jpg\">" +
+      "<source src=\"#{expected_url('ogv')}.ogv\" type=\"video/ogg\">" +
+      "<source src=\"#{expected_url('mp4')}.mp4\" type=\"video/mp4\">" +
       "</video>")
 
   it "should generate video tag with source transformation", ->
-    expected_url = VIDEO_UPLOAD_PATH + "q_50/c_scale,w_100/movie"
-    expected_ogv_url = VIDEO_UPLOAD_PATH + "q_50/c_scale,q_70,w_100/movie"
-    expected_mp4_url = VIDEO_UPLOAD_PATH + "q_50/c_scale,q_30,w_100/movie"
+    expected_url = (format) -> VIDEO_UPLOAD_PATH + "q_50/c_scale,w_100/"+ format + "/movie"
+    expected_ogv_url = (format) -> VIDEO_UPLOAD_PATH + "q_50/c_scale,q_70,w_100/"+ format + "/movie"
+    expected_mp4_url = (format) -> VIDEO_UPLOAD_PATH + "q_50/c_scale,q_30,w_100/"+ format + "/movie"
     expect(cl.video("movie", width: 100, crop: "scale", transformation: {'quality': 50}, source_transformation: {'ogv': {'quality': 70}, 'mp4': {'quality': 30}})).toEqual(
-      "<video poster=\"#{expected_url}.jpg\" width=\"100\">" +
-      "<source src=\"#{expected_url}.webm\" type=\"video/webm\">" +
-      "<source src=\"#{expected_mp4_url}.mp4\" type=\"video/mp4\">" +
-      "<source src=\"#{expected_ogv_url}.ogv\" type=\"video/ogg\">" +
+      "<video poster=\"#{expected_url('jpg')}.jpg\" width=\"100\">" +
+      "<source src=\"#{expected_url('webm')}.webm\" type=\"video/webm\">" +
+      "<source src=\"#{expected_mp4_url('mp4')}.mp4\" type=\"video/mp4\">" +
+      "<source src=\"#{expected_ogv_url('ogv')}.ogv\" type=\"video/ogg\">" +
       "</video>")
 
     expect(cl.video("movie", width: 100, crop: "scale", transformation: {'quality': 50}, source_transformation: {'ogv': {'quality': 70}, 'mp4': {'quality': 30}}, source_types: ['webm', 'mp4'])).toEqual(
-      "<video poster=\"#{expected_url}.jpg\" width=\"100\">" +
-      "<source src=\"#{expected_url}.webm\" type=\"video/webm\">" +
-      "<source src=\"#{expected_mp4_url}.mp4\" type=\"video/mp4\">" +
+      "<video poster=\"#{expected_url('jpg')}.jpg\" width=\"100\">" +
+      "<source src=\"#{expected_url('webm')}.webm\" type=\"video/webm\">" +
+      "<source src=\"#{expected_mp4_url('mp4')}.mp4\" type=\"video/mp4\">" +
       "</video>")
 
   describe "poster", ->
-    expected_url = VIDEO_UPLOAD_PATH + "movie"
+    expected_url = (format) -> VIDEO_UPLOAD_PATH + format + "/movie"
 
     it "should accept a URL", ->
       expected_poster_url = 'http://image/somewhere.jpg'
       expect(cl.video("movie", poster: expected_poster_url, source_types: "mp4")).toEqual(
-        "<video poster=\"#{expected_poster_url}\" src=\"#{expected_url}.mp4\"></video>")
+        "<video poster=\"#{expected_poster_url}\" src=\"#{expected_url('mp4')}.mp4\"></video>")
 
     it "should accept an object", ->
-      expected_poster_url = VIDEO_UPLOAD_PATH + "g_north/movie.jpg"
+      expected_poster_url = VIDEO_UPLOAD_PATH + "g_north/jpg/movie.jpg"
       expect(cl.video("movie", poster: {'gravity': 'north'}, source_types: "mp4")).toEqual(
-        "<video poster=\"#{expected_poster_url}\" src=\"#{expected_url}.mp4\"></video>")
+        "<video poster=\"#{expected_poster_url}\" src=\"#{expected_url('mp4')}.mp4\"></video>")
 
     it "should accept a different public ID", ->
-      expected_poster_url = DEFAULT_UPLOAD_PATH + "g_north/my_poster.jpg"
+      expected_poster_url = DEFAULT_UPLOAD_PATH + "g_north/jpg/my_poster.jpg"
       expect(cl.video("movie", poster: {'gravity': 'north', 'public_id': 'my_poster', 'format': 'jpg'}, source_types: "mp4")).toEqual(
-        "<video poster=\"#{expected_poster_url}\" src=\"#{expected_url}.mp4\"></video>")
+        "<video poster=\"#{expected_poster_url}\" src=\"#{expected_url('mp4')}.mp4\"></video>")
 
     it "should accept an empty string", ->
       expect(cl.video("movie", poster: "", source_types: "mp4")).toEqual(
-        "<video src=\"#{expected_url}.mp4\"></video>")
+        "<video src=\"#{expected_url('mp4')}.mp4\"></video>")
 
     it "should accept 'false'", ->
       expect(cl.video("movie", poster: false, source_types: "mp4")).toEqual(
-        "<video src=\"#{expected_url}.mp4\"></video>")
+        "<video src=\"#{expected_url('mp4')}.mp4\"></video>")
 

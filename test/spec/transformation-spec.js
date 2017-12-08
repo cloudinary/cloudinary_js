@@ -333,7 +333,7 @@ describe("Transformation", function() {
     return test_cloudinary_url('http://cloudinary.com/images/logo.png', {
       type: 'fetch',
       format: 'jpg'
-    }, protocol + '//res.cloudinary.com/test123/image/fetch/f_jpg/http://cloudinary.com/images/logo.png', {});
+    }, protocol + '//res.cloudinary.com/test123/image/fetch/f_jpg/jpg/http://cloudinary.com/images/logo.png', {});
   });
   it('should support effect', function() {
     return test_cloudinary_url('test', {
@@ -500,7 +500,30 @@ describe("Transformation", function() {
         });
       });
     });
-    describe('if end', function() {
+    describe('should support with transformation and format conversion', function() {
+      return it('should return a proper responsive breakpoints hash in the response ', function() {
+        var url;
+        url = this.cl.url("sample", {
+          transformation: {
+            effect: "sepia"
+          },
+          format: "jpg"
+        });
+        expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/e_sepia/jpg/sample.jpg");
+        url = this.cl.url("sample", {
+          transformation: {
+            effect: "sepia"
+          },
+          format: "gif"
+        });
+        expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/e_sepia/gif/sample.gif");
+        url = this.cl.url("sample", {
+          format: "png"
+        });
+        return expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/png/sample.png");
+      });
+    });
+    describe('should support if_end with transformation parameters', function() {
       it("should include the if_end as the last parameter in its component", function() {
         var url;
         url = this.cl.url("sample", {
