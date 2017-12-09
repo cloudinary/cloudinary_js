@@ -9,6 +9,9 @@ describe "TextLayer", ->
     layer = new TextLayer(options)
     expect(layer.textStyleIdentifier()).toEqual("Arial_18")
     expect(layer.toString()).toEqual("text:Arial_18:Cloudinary%20for%20the%20win%21")
+    transformation = new Transformation().overlay(options).toString()
+    expect(transformation.toString()).toEqual("l_text:Arial_18:Cloudinary%20for%20the%20win%21")
+    
 describe "FetchLayer", ->
   it "should serialize a fetch url layer", ->
     layer = new FetchLayer({url: 'http://res.cloudinary.com/demo/sample.jpg'}).toString()
@@ -19,4 +22,9 @@ describe "FetchLayer", ->
   it "should support unicode URLs", ->
     layer = new FetchLayer("https://upload.wikimedia.org/wikipedia/commons/2/2b/고창갯벌.jpg").toString()
     expect(layer).toEqual("fetch:aHR0cHM6Ly91cGxvYWQud2lraW1lZGlhLm9yZy93aWtpcGVkaWEvY29tbW9ucy8yLzJiLyVFQSVCMyVBMCVFQyVCMCVCRCVFQSVCMCVBRiVFQiVCMiU4Qy5qcGc=")
+    transformation = new Transformation().overlay(
+      resourceType: 'fetch'
+      url: "https://upload.wikimedia.org/wikipedia/commons/2/2b/고창갯벌.jpg"
+    )
+    expect(transformation.toString()).toEqual("l_fetch:aHR0cHM6Ly91cGxvYWQud2lraW1lZGlhLm9yZy93aWtpcGVkaWEvY29tbW9ucy8yLzJiLyVFQSVCMyVBMCVFQyVCMCVCRCVFQSVCMCVBRiVFQiVCMiU4Qy5qcGc=")
     

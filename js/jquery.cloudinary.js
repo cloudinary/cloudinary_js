@@ -759,6 +759,7 @@ var slice = [].slice,
     /**
      * @constructor FetchLayer
      * @param {Object|string} options - layer parameters or a url
+     * @param {string} options.url the url of the image to fetch
      */
 
     function FetchLayer(options) {
@@ -1318,12 +1319,13 @@ var slice = [].slice,
       var layerOptions, result;
       layerOptions = this.origValue;
       if (cloudinary.Util.isPlainObject(layerOptions)) {
-        if (layerOptions.resource_type === "text" || (layerOptions.text != null)) {
+        layerOptions = Util.withCamelCaseKeys(layerOptions);
+        if (layerOptions.resourceType === "text" || (layerOptions.text != null)) {
           result = new cloudinary.TextLayer(layerOptions).toString();
-        } else if (layerOptions.resource_type === "subtitles") {
+        } else if (layerOptions.resourceType === "subtitles") {
           result = new cloudinary.SubtitlesLayer(layerOptions).toString();
-        } else if (layerOptions.resource_type === "fetch") {
-          result = new cloudinary.Layer(layerOptions).toString();
+        } else if (layerOptions.resourceType === "fetch" || (layerOptions.url != null)) {
+          result = new cloudinary.FetchLayer(layerOptions).toString();
         } else {
           result = new cloudinary.Layer(layerOptions).toString();
         }
@@ -3599,6 +3601,9 @@ var slice = [].slice,
       if (urlSuffix != null) {
         if (resourceType === 'image' && type === 'upload') {
           resourceType = "images";
+          type = null;
+        } else if (resourceType === 'image' && type === 'private') {
+          resourceType = 'private_images';
           type = null;
         } else if (resourceType === 'raw' && type === 'upload') {
           resourceType = 'files';

@@ -2,6 +2,7 @@ class FetchLayer extends Layer
   ###*
    * @constructor FetchLayer
    * @param {Object|string} options - layer parameters or a url
+   * @param {string} options.url the url of the image to fetch
   ###
   constructor: (options)->
     super(options)

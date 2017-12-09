@@ -218,12 +218,13 @@ class LayerParam extends Param
     layerOptions = @origValue
     
     if cloudinary.Util.isPlainObject(layerOptions)
-      if layerOptions.resource_type == "text" || layerOptions.text?
+      layerOptions = Util.withCamelCaseKeys(layerOptions)
+      if layerOptions.resourceType == "text" || layerOptions.text?
         result = new cloudinary.TextLayer(layerOptions).toString()
-      else if layerOptions.resource_type == "subtitles"
+      else if layerOptions.resourceType == "subtitles"
         result = new cloudinary.SubtitlesLayer(layerOptions).toString()
-      else if layerOptions.resource_type == "fetch"
-        result = new cloudinary.Layer(layerOptions).toString()
+      else if layerOptions.resourceType == "fetch" || layerOptions.url?
+        result = new cloudinary.FetchLayer(layerOptions).toString()
       else
         result = new cloudinary.Layer(layerOptions).toString()
     else if /^fetch:.+/.test(layerOptions)
