@@ -1,4 +1,24 @@
 
+2.4.0 / 2017-12-09
+==================
+
+New functionality and features
+------------------------------
+
+  * Support fetch URL in layers
+  * Support SEO suffix for private images
+
+Other Changes
+-------------
+
+  * Add documentation
+  * Refactor `btoa`; Add POJO `isFunction`
+  * Update Node version list to test; Remove env vars
+  * Update dependencies and configuration
+  * Fix CLOUDINARY_URL regex
+  * Update npm installation instructions
+  * Update dependencies
+
 2.3.0 / 2017-03-27
 ==================
 
