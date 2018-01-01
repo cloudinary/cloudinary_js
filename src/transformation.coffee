@@ -316,7 +316,7 @@ class TransformationBase
 
 
   ###*
-   * Returns attributes for an HTML tag.
+   * Returns the attributes for an HTML tag.
    * @function Cloudinary.toHtmlAttributes
    * @return PlainObject
   ###

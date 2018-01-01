@@ -9,9 +9,7 @@ class Cloudinary
 
   ###*
   * @const {Object} Cloudinary.DEFAULT_IMAGE_PARAMS
-  * Defaults values for image parameters.
-  *
-  * (Previously defined using option_consume() )
+  * Default values for image parameters.
   ###
   @DEFAULT_IMAGE_PARAMS =
     resource_type: "image"
@@ -19,9 +17,8 @@ class Cloudinary
     type: 'upload'
 
   ###*
-  * Defaults values for video parameters.
+  * Default values for video parameters.
   * @const {Object} Cloudinary.DEFAULT_VIDEO_PARAMS
-  * (Previously defined using option_consume() )
   ###
   @DEFAULT_VIDEO_PARAMS =
     fallback_content: ''
@@ -32,13 +29,16 @@ class Cloudinary
     type: 'upload'
 
   ###*
-   * Main Cloudinary class
+   * Main class for accessing Cloudinary functionality.
    * @class Cloudinary
-   * @param {Object} options - options to configure Cloudinary
-   * @see Configuration for more details
+   * @param {Object} options - A {@link Configuration} object for globally configuring Cloudinary account settings.
+   
    * @example
-   *    var cl = new cloudinary.Cloudinary( { cloud_name: "mycloud"});
-   *    var imgTag = cl.image("myPicID");
+   * var cl = new cloudinary.Cloudinary( { cloud_name: "mycloud"});
+   * var imgTag = cl.image("myPicID");
+
+   * @see {@link https://cloudinary.com/documentation/solution_overview#configuration_parameters|Available Configuration Options}
+   
   ###
   constructor: (options)->
 
@@ -282,46 +282,51 @@ class Cloudinary
     @image publicId, Util.merge( {}, DEFAULT_POSTER_OPTIONS, options)
 
   ###*
+   * Fetches a facebook profile image and delivers it in an image tag element.
    * @function Cloudinary#facebook_profile_image
-   * @param {string} publicId - the public ID of the image
-   * @param {Object} [options] - options for the tag and transformations
-   * @return {HTMLImageElement} an image tag element
+   * @param {string} publicId - The Facebook numeric ID of the image to fetch.
+   * @param {Object} [options] - The {@link Transformation} to apply to the fetched image.
+   * @return {HTMLImageElement} An image tag element.
   ###
   facebook_profile_image: (publicId, options) ->
     @image publicId, Util.assign({type: 'facebook'}, options)
 
   ###*
+   * Fetches a Twitter profile image by ID and delivers it in an image tag element.
    * @function Cloudinary#twitter_profile_image
-   * @param {string} publicId - the public ID of the image
-   * @param {Object} [options] - options for the tag and transformations
-   * @return {HTMLImageElement} an image tag element
+   * @param {string} publicId - The Twitter numeric ID of the image to fetch.
+   * @param {Object} [options] - The {@link Transformation} to apply to the fetched image.
+   * @return {HTMLImageElement} An image tag element.
   ###
   twitter_profile_image: (publicId, options) ->
     @image publicId, Util.assign({type: 'twitter'}, options)
 
   ###*
+   * Fetches a Twitter profile image by name and delivers it in an image tag element.
    * @function Cloudinary#twitter_name_profile_image
-   * @param {string} publicId - the public ID of the image
-   * @param {Object} [options] - options for the tag and transformations
-   * @return {HTMLImageElement} an image tag element
+   * @param {string} publicId - The Twitter profile name.
+   * @param {Object} [options] - The {@link Transformation} to apply to the fetched image.
+   * @return {HTMLImageElement} An image tag element.
   ###
   twitter_name_profile_image: (publicId, options) ->
     @image publicId, Util.assign({type: 'twitter_name'}, options)
 
   ###*
+   * Fetches a Gravatar profile image and delivers it in an image tag element.
    * @function Cloudinary#gravatar_image
-   * @param {string} publicId - the public ID of the image
-   * @param {Object} [options] - options for the tag and transformations
-   * @return {HTMLImageElement} an image tag element
+   * @param {string} publicId - The calculated hash for the Gravatar email address.
+   * @param {Object} [options] - The {@link Transformation} to apply to the fetched image.
+   * @return {HTMLImageElement} An image tag element.
   ###
   gravatar_image: (publicId, options) ->
     @image publicId, Util.assign({type: 'gravatar'}, options)
 
   ###*
+   * Fetches an image from a remote URL and delivers it in an image tag element.
    * @function Cloudinary#fetch_image
-   * @param {string} publicId - the public ID of the image
-   * @param {Object} [options] - options for the tag and transformations
-   * @return {HTMLImageElement} an image tag element
+   * @param {string} publicId - The full URL of the image to fetch, including the extension.
+   * @param {Object} [options] - The {@link Transformation} to apply to the fetched image.
+   * @return {HTMLImageElement} An image tag element.
   ###
   fetch_image: (publicId, options) ->
     @image publicId, Util.assign({type: 'fetch'}, options)
@@ -347,7 +352,7 @@ class Cloudinary
     new VideoTag(publicId, options)
 
   ###*
-   * Generate the URL of the sprite image
+   * Generates the URL of the sprite image.
    * @function Cloudinary#sprite_css
    * @param {string} publicId - the public ID of the resource
    * @param {Object} [options] - options for the tag and transformations
@@ -547,17 +552,17 @@ class Cloudinary
     imageWidth
 
   ###*
-  * Update hidpi (dpr_auto) and responsive (w_auto) fields according to the current container size and the device pixel ratio.
+  * Updates the hidpi (for dpr_auto) and responsive (for w_auto) fields according to the current container size and the device pixel ratio.
   * Only images marked with the cld-responsive class have w_auto updated.
   * @function Cloudinary#cloudinary_update
-  * @param {(Array|string|NodeList)} elements - the elements to modify
+  * @param {(Array|string|NodeList)} elements - The elements to modify.
   * @param {Object} options
   * @param {boolean|string} [options.responsive_use_breakpoints=true]
-  *  - when `true`, always use breakpoints for width
-  * - when `"resize"` use exact width on first render and breakpoints on resize
-  * - when `false` always use exact width
-  * @param {boolean} [options.responsive] - if `true`, enable responsive on this element. Can be done by adding cld-responsive.
-  * @param {boolean} [options.responsive_preserve_height] - if set to true, original css height is preserved.
+  * - When `true`, always use breakpoints for width.
+  * - When `"resize"`, use exact width on first render and breakpoints on resize.
+  * - when `false`, always use exact width.
+  * @param {boolean} [options.responsive] - If `true`, enable responsive on this element. Can be done by adding cld-responsive.
+  * @param {boolean} [options.responsive_preserve_height] - If `true`, original css height is preserved.
   *   Should only be used if the transformation supports different aspect ratios.
   ###
   cloudinary_update: (elements, options = {}) ->

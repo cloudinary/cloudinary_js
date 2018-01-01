@@ -1,12 +1,12 @@
 
 ###*
- * Cloudinary configuration class
+ * Class for defining account configuration options.
  * Depends on 'utils'
 ###
 class Configuration
 
   ###*
-   * Defaults configuration.
+   * Default configuration.
   ###
   DEFAULT_CONFIGURATION_PARAMS ={
     responsive_class: 'cld-responsive'
@@ -41,7 +41,7 @@ class Configuration
     "version"
   ]
   ###*
-   * Cloudinary configuration class
+   * Class for defining account configuration options.
    * @constructor Configuration
    * @param {Object} options - configuration parameters
   ###
