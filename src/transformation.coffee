@@ -399,6 +399,9 @@ class Transformation  extends TransformationBase
    * // or
    *
    * t = new cloudinary.Transformation( {angle: 20, crop: "scale", width: "auto"});
+   * @see <a href="https://cloudinary.com/documentation/image_transformation_reference" target="_new">Available image transformations</a>
+   * @see <a href="https://cloudinary.com/documentation/video_transformation_reference" target="_new">Available video transformations</a>
+
   ###
   constructor: (options = {})->
     super(options)

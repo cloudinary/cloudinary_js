@@ -43,7 +43,8 @@ class Configuration
   ###*
    * Class for defining account configuration options.
    * @constructor Configuration
-   * @param {Object} options - configuration parameters
+   * @param {Object} options - The account configuration parameters to set. 
+   * @see <a href="https://cloudinary.com/documentation/solution_overview#configuration_parameters" target="_new">Available configuration options</a>
   ###
   constructor: (options ={})->
     @configuration = Util.cloneDeep(options)
