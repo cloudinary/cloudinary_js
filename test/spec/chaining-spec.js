@@ -47,11 +47,13 @@ describe("Chaining", function() {
   return describe("Cloudinary.ImageTag", function() {
     return it("should generate video tag with various attributes", function() {
       var expected_url, tag;
-      expected_url = VIDEO_UPLOAD_PATH + "ac_acc,so_3,vc_h264/movie";
+      expected_url = function(format) {
+        return VIDEO_UPLOAD_PATH + "ac_acc,so_3,vc_h264/" + format + "/movie";
+      };
       tag = new cloudinary.Cloudinary(options).videoTag("movie").setSourceTypes('mp4').transformation().htmlHeight("100").htmlWidth("200").videoCodec({
         codec: "h264"
       }).audioCodec("acc").startOffset(3).toHtml();
-      return expect(tag).toEqual("<video height=\"100\" poster=\"" + expected_url + ".jpg\" src=\"" + expected_url + ".mp4\" width=\"200\"></video>");
+      return expect(tag).toEqual("<video height=\"100\" poster=\"" + (expected_url('jpg')) + ".jpg\" src=\"" + (expected_url('mp4')) + ".mp4\" width=\"200\"></video>");
     });
   });
 });

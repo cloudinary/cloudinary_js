@@ -1403,6 +1403,7 @@ var slice = [].slice,
       "face_count": "fc",
       "faceCount": "fc",
       "height": "h",
+      "format": "format",
       "initial_aspect_ratio": "iar",
       "initial_height": "ih",
       "initial_width": "iw",
@@ -2448,7 +2449,7 @@ var slice = [].slice,
      */
 
     TransformationBase.prototype.serialize = function() {
-      var ifParam, j, len, paramList, ref, ref1, ref2, ref3, ref4, resultArray, t, tr, transformationList, transformationString, transformations, value, variables, vars;
+      var format, ifParam, j, len, paramList, ref, ref1, ref2, ref3, ref4, ref5, resultArray, t, tr, transformationList, transformationString, transformations, value, variables, vars;
       resultArray = (function() {
         var j, len, ref, results;
         ref = this.chained;
@@ -2463,15 +2464,16 @@ var slice = [].slice,
       transformations = (ref = this.get("transformation")) != null ? ref.serialize() : void 0;
       ifParam = (ref1 = this.get("if")) != null ? ref1.serialize() : void 0;
       variables = processVar((ref2 = this.get("variables")) != null ? ref2.value() : void 0);
-      paramList = Util.difference(paramList, ["transformation", "if", "variables"]);
+      format = processVar((ref3 = this.get("format")) != null ? ref3.value() : void 0);
+      paramList = Util.difference(paramList, ["transformation", "if", "variables", "format"]);
       vars = [];
       transformationList = [];
       for (j = 0, len = paramList.length; j < len; j++) {
         t = paramList[j];
         if (t.match(VAR_NAME_RE)) {
-          vars.push(t + "_" + Expression.normalize((ref3 = this.get(t)) != null ? ref3.value() : void 0));
+          vars.push(t + "_" + Expression.normalize((ref4 = this.get(t)) != null ? ref4.value() : void 0));
         } else {
-          transformationList.push((ref4 = this.get(t)) != null ? ref4.serialize() : void 0);
+          transformationList.push((ref5 = this.get(t)) != null ? ref5.serialize() : void 0);
         }
       }
       switch (false) {
@@ -2499,6 +2501,7 @@ var slice = [].slice,
         transformationList.unshift(ifParam);
       }
       transformationString = Util.compact(transformationList).join(this.param_separator);
+      transformationString = Util.compact([transformationString, format]).join(this.trans_separator);
       if (!Util.isEmpty(transformationString)) {
         resultArray.push(transformationString);
       }

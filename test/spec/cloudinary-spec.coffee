@@ -59,7 +59,7 @@ describe 'Cloudinary', ->
     test_cloudinary_url 'test', { private_cdn: true }, protocol + '//test123-res.cloudinary.com/image/upload/test', {}
 
   it 'should use format from options', ->
-    test_cloudinary_url 'test', { format: 'jpg' }, protocol + '//res.cloudinary.com/test123/image/upload/test.jpg', {}
+    test_cloudinary_url 'test', { format: 'jpg' }, protocol + '//res.cloudinary.com/test123/image/upload/jpg/test.jpg', {}
 
 
   it 'should use type from options', ->
@@ -169,7 +169,7 @@ describe 'Cloudinary', ->
       url_suffix: 'hello'
       private_cdn: true
       format: 'jpg'
-    }, protocol + '//test123-res.cloudinary.com/images/test/hello.jpg', {}
+    }, protocol + '//test123-res.cloudinary.com/images/jpg/test/hello.jpg', {}
 
   it 'should support url_suffix for raw uploads', ->
     test_cloudinary_url 'test', {
@@ -238,7 +238,7 @@ describe 'Cloudinary', ->
 
   it 'should generate sprite css urls', ->
     result = cl.sprite_css('test')
-    expect(result).toEqual protocol + '//res.cloudinary.com/test123/image/sprite/test.css'
+    expect(result).toEqual protocol + '//res.cloudinary.com/test123/image/sprite/css/test.css'
     result = cl.sprite_css('test.css')
     expect(result).toEqual protocol + '//res.cloudinary.com/test123/image/sprite/test.css'
 

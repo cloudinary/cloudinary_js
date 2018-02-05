@@ -268,6 +268,7 @@ class TransformationBase
    * @function Transformation#serialize
    * @return {string} Returns the transformation as a string
   ###
+
   serialize: ->
     resultArray = for tr in @chained
         tr.serialize()
@@ -275,7 +276,8 @@ class TransformationBase
     transformations = @get("transformation")?.serialize()
     ifParam = @get("if")?.serialize()
     variables = processVar(@get("variables")?.value())
-    paramList = Util.difference(paramList, ["transformation", "if", "variables"])
+    format = processVar(@get("format")?.value())
+    paramList = Util.difference(paramList, ["transformation", "if", "variables", "format"])
     vars = []
     transformationList = []
     for t in paramList
@@ -301,7 +303,9 @@ class TransformationBase
     else if !Util.isEmpty(ifParam)
       transformationList.unshift(ifParam)
 
-    transformationString = Util.compact(transformationList).join(@param_separator)
+    transformationString = Util.compact(transformationList).join(@param_separator);
+    transformationString =  Util.compact([transformationString, format]).join(@trans_separator)
+    
     resultArray.push(transformationString) unless Util.isEmpty(transformationString)
     Util.compact(resultArray).join(@trans_separator)
 

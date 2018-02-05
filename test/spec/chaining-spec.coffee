@@ -32,7 +32,7 @@ describe "Chaining", () ->
       expect(t.getParent()).toBe(cl)
   describe "Cloudinary.ImageTag", ()->
     it "should generate video tag with various attributes", ->
-      expected_url = VIDEO_UPLOAD_PATH + "ac_acc,so_3,vc_h264/movie"
+      expected_url = (format) -> VIDEO_UPLOAD_PATH + "ac_acc,so_3,vc_h264/"+format+"/movie"
       tag = new cloudinary.Cloudinary(options).videoTag("movie").setSourceTypes('mp4')
              .transformation()
              .htmlHeight("100")
@@ -42,4 +42,4 @@ describe "Chaining", () ->
              .startOffset(3)
              .toHtml()
       expect(tag).toEqual(
-         "<video height=\"100\" poster=\"#{expected_url}.jpg\" src=\"#{expected_url}.mp4\" width=\"200\"></video>")
+         "<video height=\"100\" poster=\"#{expected_url('jpg')}.jpg\" src=\"#{expected_url('mp4')}.mp4\" width=\"200\"></video>")

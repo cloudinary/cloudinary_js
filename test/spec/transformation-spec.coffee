@@ -233,7 +233,7 @@ describe "Transformation", ->
     test_cloudinary_url 'http://cloudinary.com/images/logo.png', {
       type: 'fetch'
       format: 'jpg'
-    }, protocol + '//res.cloudinary.com/test123/image/fetch/f_jpg/http://cloudinary.com/images/logo.png', {}
+    }, protocol + '//res.cloudinary.com/test123/image/fetch/f_jpg/jpg/http://cloudinary.com/images/logo.png', {}
 
   it 'should support effect', ->
     test_cloudinary_url 'test', { effect: 'sepia' }, protocol + '//res.cloudinary.com/test123/image/upload/e_sepia/test', {}
@@ -323,7 +323,16 @@ describe "Transformation", ->
           url = @cl.url("sample", { if: "w < 200", crop: "fill", height: 120, width: 80} )
           expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_w_lt_200,c_fill,h_120,w_80/sample")
 
-    describe 'if end', ->
+    describe 'should support with transformation and format conversion', ->
+      it 'should return a proper responsive breakpoints hash in the response ', ->
+        url = @cl.url("sample", {transformation:{effect: "sepia"}, format:"jpg"})
+        expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/e_sepia/jpg/sample.jpg")
+        url = @cl.url("sample", {transformation:{effect: "sepia"}, format:"gif"})
+        expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/e_sepia/gif/sample.gif")
+        url = @cl.url("sample", {format:"png"})
+        expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/png/sample.png")
+
+    describe 'should support if_end with transformation parameters', ->
       it "should include the if_end as the last parameter in its component", ->
         url = @cl.url("sample", transformation: [{if: "w_lt_200"},
           {crop: "fill", height: 120, width: 80,effect: "sharpen"},
