@@ -6,6 +6,12 @@ module.exports = (grunt)->
     'cloudinary-jquery-file-upload'
   ]
 
+  lodashCalls = grunt.file.read('src/util/lodash.coffee').match(/_\.\w+/g)
+  lodashInclude = []
+  # gather unique function names
+  lodashInclude.push(func[2..]) for func in lodashCalls when lodashInclude.indexOf(func[2..]) < 0
+  lodashInclude.sort()
+
 #  grunt.initConfig
   gruntOptions =
     pkg: grunt.file.readJSON('package.json')
@@ -231,10 +237,15 @@ module.exports = (grunt)->
           ###
 
           ((root, factory) ->
+            <%= /jquery|shrink/.test(grunt.task.current.target) ?
+                  "" :
+                  "factoryWrapper = (#{lodashInclude.join(', ')}) -> #{
+                    "factory {#{lodashInclude.map((include) -> [include, include].join(': ')).join(', ')}}"
+                  }" %>
             if (typeof define == 'function') && define.amd
-              define  <%= /jquery/.test(grunt.task.current.target) ? "['jquery']," : (/shrink/.test(grunt.task.current.target) ? "" : "['lodash']," )%> factory
+              define  <%= /jquery/.test(grunt.task.current.target) ? "['jquery'], factory" : (/shrink/.test(grunt.task.current.target) ? "factory" : "[#{lodashInclude.map((include) -> "'lodash/#{include}'").join(', ')}], factoryWrapper" )%>
             else if typeof exports == 'object'
-              module.exports = factory(<%= /jquery/.test(grunt.task.current.target) ? "require('jquery')" : (/shrink/.test(grunt.task.current.target) ? "" : "require('lodash')")%>)
+              module.exports = <%= /jquery/.test(grunt.task.current.target) ? "factory(require('jquery'))" : (/shrink/.test(grunt.task.current.target) ? "factory()" : "factoryWrapper(#{lodashInclude.map((include) -> "require('lodash/#{include}')").join(', ')})")%>
             else
               root.cloudinary ||= {}
               for name, value of factory(<%=/jquery/.test(grunt.task.current.target) ? "jQuery" : (/shrink/.test(grunt.task.current.target) ? "" : "_")%>)
@@ -323,12 +334,8 @@ module.exports = (grunt)->
   grunt.registerTask('compile', ['clean:build', 'clean:js', 'concat', 'coffee', 'copy:backward-compatible'])
   grunt.registerTask('build', ['clean', 'concat', 'coffee', 'uglify', 'copy:backward-compatible', 'copy:types', 'jsdoc'])
   grunt.registerTask('lodash', (name, target)->
-    lodashCalls = grunt.file.read('src/util/lodash.coffee').match(/_\.\w+/g)
-    include = []
-    # gather unique function names
-    include.push(func[2..]) for func in lodashCalls when include.indexOf(func[2..]) < 0
     require('lodash-cli')([
-      "include=#{include.join(',')}",
+      "include=#{lodashInclude.join(',')}",
       "exports=none",
       "iife=var lodash = _ = (function() {%output%; \nreturn lodash;\n}.call(this));",
       "--output", "build/lodash-shrinkwrap.js",
