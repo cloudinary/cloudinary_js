@@ -122,13 +122,9 @@ describe 'Cloudinary', ->
   it 'should allow to shorted image/upload urls', ->
     test_cloudinary_url 'test', { shorten: true }, protocol + '//res.cloudinary.com/test123/iu/test', {}
 
-  it 'should disallow url_suffix in shared distribution', ->
-    expect(->
-      cl.url 'test',
-        url_suffix: 'hello'
-        private_cdn: false
-
-    ).toThrow()
+  it "should support url_suffix in shared distribution", ->
+    test_cloudinary_url("test", {url_suffix:"hello"}, protocol + "//res.cloudinary.com/test123/images/test/hello", {})
+    test_cloudinary_url("test", {url_suffix:"hello", angle: 0}, protocol + "//res.cloudinary.com/test123/images/a_0/test/hello", {})
 
   it 'should disallow url_suffix in non upload types', ->
     expect(->
@@ -184,7 +180,7 @@ describe 'Cloudinary', ->
       private_cdn: true
       resource_type: 'image'
       type: 'private'
-   }, protocol + '//test123-res.cloudinary.com/private_images/test/hello', {}
+    }, protocol + '//test123-res.cloudinary.com/private_images/test/hello', {}
 
   it 'should support use_root_path in shared distribution', ->
     test_cloudinary_url 'test', {

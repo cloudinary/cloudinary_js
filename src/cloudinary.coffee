@@ -6,6 +6,12 @@ class Cloudinary
   SHARED_CDN = AKAMAI_SHARED_CDN
   DEFAULT_POSTER_OPTIONS = { format: 'jpg', resource_type: 'video' }
   DEFAULT_VIDEO_SOURCE_TYPES = ['webm', 'mp4', 'ogv']
+  SEO_TYPES =
+    "image/upload": "images",
+    "image/private": "private_images",
+    "image/authenticated": "authenticated_images",
+    "raw/upload": "files",
+    "video/upload": "videos"
 
   ###*
   * @const {Object} Cloudinary.DEFAULT_IMAGE_PARAMS
@@ -98,7 +104,7 @@ class Cloudinary
    * @returns {string} resource_type/type
    * @ignore
   ###
-  finalizeResourceType = (resourceType,type,urlSuffix,useRootPath,shorten) ->
+  finalizeResourceType = (resourceType = "image",type = "upload",urlSuffix,useRootPath,shorten) ->
     if Util.isPlainObject(resourceType)
       options = resourceType
       resourceType = options.resource_type
@@ -109,17 +115,10 @@ class Cloudinary
 
     type?='upload'
     if urlSuffix?
-      if resourceType=='image' && type=='upload'
-        resourceType = "images"
-        type = null
-      else if resourceType== 'image' && type== 'private'
-        resourceType = 'private_images'
-        type = null
-      else if resourceType== 'raw' && type== 'upload'
-        resourceType = 'files'
-        type = null
-      else
-        throw new Error("URL Suffix only supported for image/upload and raw/upload")
+      resourceType = SEO_TYPES[ "#{resourceType}/#{type}"]
+      type = null
+      unless resourceType?
+        throw new Error("URL Suffix only supported for #{(key for key of SEO_TYPES).join(', ')}")
     if useRootPath
       if (resourceType== 'image' && type== 'upload' || resourceType == "images")
         resourceType = null
@@ -165,8 +164,6 @@ class Cloudinary
     transformationString = transformation.serialize()
 
     throw 'Unknown cloud_name' unless options.cloud_name
-
-    throw 'URL Suffix only supported in private CDN' if options.url_suffix and !options.private_cdn
 
     # if publicId has a '/' and doesn't begin with v<number> and doesn't start with http[s]:/ and version is empty
     if publicId.search('/') >= 0 and !publicId.match(/^v[0-9]+/) and !publicId.match(/^https?:\//) and !options.version?.toString()
