@@ -1,6 +1,6 @@
 
 /**
- * Cloudinary's JavaScript library - Version 2.4.0
+ * Cloudinary's JavaScript library - Version 2.5.0
  * Copyright Cloudinary
  * see https://github.com/cloudinary/cloudinary_js
  *
@@ -3460,9 +3460,9 @@ var slice = [].slice,
 
   })(HtmlTag);
   Cloudinary = (function() {
-    var AKAMAI_SHARED_CDN, CF_SHARED_CDN, DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_SOURCE_TYPES, OLD_AKAMAI_SHARED_CDN, SHARED_CDN, VERSION, absolutize, applyBreakpoints, cdnSubdomainNumber, closestAbove, cloudinaryUrlPrefix, defaultBreakpoints, finalizeResourceType, findContainerWidth, maxWidth, updateDpr;
+    var AKAMAI_SHARED_CDN, CF_SHARED_CDN, DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_SOURCE_TYPES, OLD_AKAMAI_SHARED_CDN, SEO_TYPES, SHARED_CDN, VERSION, absolutize, applyBreakpoints, cdnSubdomainNumber, closestAbove, cloudinaryUrlPrefix, defaultBreakpoints, finalizeResourceType, findContainerWidth, maxWidth, updateDpr;
 
-    VERSION = "2.4.0";
+    VERSION = "2.5.0";
 
     CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
 
@@ -3478,6 +3478,14 @@ var slice = [].slice,
     };
 
     DEFAULT_VIDEO_SOURCE_TYPES = ['webm', 'mp4', 'ogv'];
+
+    SEO_TYPES = {
+      "image/upload": "images",
+      "image/private": "private_images",
+      "image/authenticated": "authenticated_images",
+      "raw/upload": "files",
+      "video/upload": "videos"
+    };
 
 
     /**
@@ -3586,7 +3594,13 @@ var slice = [].slice,
      */
 
     finalizeResourceType = function(resourceType, type, urlSuffix, useRootPath, shorten) {
-      var options;
+      var key, options;
+      if (resourceType == null) {
+        resourceType = "image";
+      }
+      if (type == null) {
+        type = "upload";
+      }
       if (Util.isPlainObject(resourceType)) {
         options = resourceType;
         resourceType = options.resource_type;
@@ -3599,17 +3613,17 @@ var slice = [].slice,
         type = 'upload';
       }
       if (urlSuffix != null) {
-        if (resourceType === 'image' && type === 'upload') {
-          resourceType = "images";
-          type = null;
-        } else if (resourceType === 'image' && type === 'private') {
-          resourceType = 'private_images';
-          type = null;
-        } else if (resourceType === 'raw' && type === 'upload') {
-          resourceType = 'files';
-          type = null;
-        } else {
-          throw new Error("URL Suffix only supported for image/upload and raw/upload");
+        resourceType = SEO_TYPES[resourceType + "/" + type];
+        type = null;
+        if (resourceType == null) {
+          throw new Error("URL Suffix only supported for " + (((function() {
+            var results;
+            results = [];
+            for (key in SEO_TYPES) {
+              results.push(key);
+            }
+            return results;
+          })()).join(', ')));
         }
       }
       if (useRootPath) {
@@ -3673,9 +3687,6 @@ var slice = [].slice,
       transformationString = transformation.serialize();
       if (!options.cloud_name) {
         throw 'Unknown cloud_name';
-      }
-      if (options.url_suffix && !options.private_cdn) {
-        throw 'URL Suffix only supported in private CDN';
       }
       if (publicId.search('/') >= 0 && !publicId.match(/^v[0-9]+/) && !publicId.match(/^https?:\//) && !((ref = options.version) != null ? ref.toString() : void 0)) {
         options.version = 1;
@@ -4702,7 +4713,7 @@ var slice = [].slice,
     TextLayer: TextLayer,
     SubtitlesLayer: SubtitlesLayer,
     Cloudinary: Cloudinary,
-    VERSION: "2.4.0",
+    VERSION: "2.5.0",
     CloudinaryJQuery: CloudinaryJQuery
   };
   return cloudinary;

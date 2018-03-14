@@ -167,13 +167,14 @@ describe('Cloudinary', function() {
       shorten: true
     }, protocol + '//res.cloudinary.com/test123/iu/test', {});
   });
-  it('should disallow url_suffix in shared distribution', function() {
-    return expect(function() {
-      return cl.url('test', {
-        url_suffix: 'hello',
-        private_cdn: false
-      });
-    }).toThrow();
+  it("should support url_suffix in shared distribution", function() {
+    test_cloudinary_url("test", {
+      url_suffix: "hello"
+    }, protocol + "//res.cloudinary.com/test123/images/test/hello", {});
+    return test_cloudinary_url("test", {
+      url_suffix: "hello",
+      angle: 0
+    }, protocol + "//res.cloudinary.com/test123/images/a_0/test/hello", {});
   });
   it('should disallow url_suffix in non upload types', function() {
     return expect(function() {

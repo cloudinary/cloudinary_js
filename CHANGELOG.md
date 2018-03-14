@@ -1,4 +1,19 @@
 
+2.5.0 / 2018-02-13
+==================
+
+New functionality and features
+------------------------------
+
+  * Support SEO urls
+  * Merge pull request #136 from ignatiusreza/lodash/diet
+    * selectively import lodash to avoid bundling the whole lodash
+
+Other Changes
+-------------
+
+  * Update `package-lock.json`
+
 2.4.0 / 2017-12-09
 ==================
 
