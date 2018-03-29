@@ -412,7 +412,7 @@ class Cloudinary
     @url publicId, options
 
   ###*
-  * Initializes responsive image behavior for all image tags with the 'cld-responsive' (or the specified 'responsive_class') class.<br>
+  * Initializes responsive image behavior for all image tags with the 'cld-responsive' (or other defined {@link Cloudinary#responsive|responsive} class).<br>
   * This method should be invoked after the page has loaded.<br/>
   * <b>Note</b>: Calls {@link Cloudinary#cloudinary_update|cloudinary_update} to modify image tags.
    * @function Cloudinary#responsive
@@ -552,7 +552,7 @@ class Cloudinary
   ###*
   * Applies responsive to all &lt;img&gt; tags under each relevant node (regardless of whether the tag contains the {@link Cloudinary#responsive|responsive} class).
   * @param {Element[]} nodes The parent nodes where you want to search for &lt;img&gt; tags.
-  * @param {Object} options The {@link Cloudinary#cloudinary_update|cloudinary_update} options to apply.
+  * @param {Object} [options] The {@link Cloudinary#cloudinary_update|cloudinary_update} options to apply.
   * @see <a href="https://cloudinary.com/documentation/image_transformation_reference" target="_new">Available image transformations</a>
   * @function Cloudinary#processImageTags
   ###
