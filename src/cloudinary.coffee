@@ -219,7 +219,12 @@ class Cloudinary
    * @function Cloudinary#video_url
    * @param {string} publicId - The public ID of the video.
    * @param {Object} [options] - The {@link Transformation} parameters to include in the URL.
-   * @param {string} [options.type='upload'] - the classification of the resource
+   * @param {string} [options.type='upload'] - The asset's storage type. <p>Possible values:
+   * - `upload`
+   * - `private`
+   * - `authenticated` 
+   * - `fetch`
+   *For details on all fetch types, see <a href="https://cloudinary.com/documentation/image_transformations#fetching_images_from_remote_locations" target="_new">Fetch types</a>. 
    * @return {string} The video URL.
    * @see <a href="https://cloudinary.com/documentation/video_transformation_reference" target="_new">Available video transformations</a>   
   ###
@@ -232,7 +237,11 @@ class Cloudinary
    * @function Cloudinary#video_thumbnail_url
    * @param {string} publicId -  The unique identifier of the video from which you want to generate a thumbnail image.
    * @param {Object} [options] - The image {@link Transformation} parameters to apply to the thumbnail. In addition to standard image transformations, you can also use the `start_offset` transformation parameter to instruct Cloudinary to generate the thumbnail from a frame other than the middle frame of the video. For details, see <a href="https://cloudinary.com/documentation/video_manipulation_and_delivery#generating_video_thumbnails" target="_new">Generating video thumbnails</a> in the Cloudinary documentation.
-   * @param {string} [options.type='upload']
+   * @param {string} [options.type='upload'] - The asset's storage type. <p>Possible values:
+   * - `upload`
+   * - `private`
+   * - `authenticated` 
+   * - `fetch`
    * @return {string} The URL of the video thumbnail image.
    * @see <a href="https://cloudinary.com/documentation/image_transformation_reference" target="_new">Available image transformations</a>
    
