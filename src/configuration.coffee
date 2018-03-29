@@ -51,10 +51,9 @@ class Configuration
     Util.defaults( @configuration, DEFAULT_CONFIGURATION_PARAMS)
 
   ###*
-   * Initialize the configuration.
-   * The function first tries to retrieve the configuration form the environment and then from the document.
+   * Initializes the configuration. This method is a convenience method that invokes both {@link Configuration#fromEnvironment|fromEnvironment()} (Node.js environment only) and {@link Configuration#fromDocument|fromDocument()}. It first tries to retrieve the configuration from the environment variable. If not available, it tries from the document meta tags. 
    * @function Configuration#init
-   * @return {Configuration} returns this for chaining
+   * @return {Configuration} Returns this `configuration` for chaining.
    * @see fromDocument
    * @see fromEnvironment
   ###
