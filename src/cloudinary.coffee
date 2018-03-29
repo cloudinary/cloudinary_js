@@ -606,7 +606,7 @@ class Cloudinary
 
   ###*
   * Updates the dpr (for `dpr_auto`) and responsive (for `w_auto`) fields according to the current container size and the device pixel ratio.
-  * <b>Note</b>:`w_auto` is updated only for images marked with the `cld-responsive` class.
+  * <br/><b>Note</b>:`w_auto` is updated only for images marked with the `cld-responsive` (or other defined {@link Cloudinary#responsive|responsive}) class.
   * @function Cloudinary#cloudinary_update
   * @param {(Array|string|NodeList)} elements - The HTML image elements to modify.
   * @param {Object} options
