@@ -38,7 +38,7 @@ describe("Cloudinary::Utils", function() {
       results = [];
       for (i = 0, len = params.length; i < len; i++) {
         test = params[i];
-        let name, url_param, range;
+        var name, url_param, range;
         name = test[0], url_param = test[1], range = test[2];
         results.push(describe("when provided with " + name + " " + range, function() {
           return it("should produce a range transformation in the format of " + url_param, function() {

@@ -33,7 +33,7 @@ describe "Cloudinary::Utils", ->
         ['float', 'fps_24.5', 24.5]
       ]
       for test in params
-        `let name, url_param, range`
+        `var name, url_param, range`
         [name, url_param, range ]= test
 
         describe "when provided with #{name} #{range}", ->
