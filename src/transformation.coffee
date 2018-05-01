@@ -450,6 +450,13 @@ class Transformation  extends TransformationBase
   format: (value)->               @param value,       "format"
   flags: (value)->                @arrayParam value,  "flags", "fl", "."
   gravity: (value)->              @param value,       "gravity", "g"
+  fps: (value)->                  @param value, "fps", "fps", (fps) =>
+    if (Util.isString(fps))
+      fps
+    else if (Util.isArray(fps))
+      fps.join("-")
+    else
+      fps
   height: (value)->               @param value,       "height", "h", =>
     if ( @getValue("crop") || @getValue("overlay") || @getValue("underlay"))
       Expression.normalize(value)

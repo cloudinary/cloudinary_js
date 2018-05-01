@@ -22,6 +22,25 @@ describe "Cloudinary::Utils", ->
 
   describe "cloudinary_url", ->
 
+    describe ":fps", ->
+      subject = (options)->
+        cl.url("fps", options)
+      params = [
+        ['string range', 'fps_24-29.97', '24-29.97'],
+        ['integer', 'fps_24', 24],
+        ['array', 'fps_24-29.97', [24,29.97]],
+        ['range', 'fps_-24', -24],
+        ['float', 'fps_24.5', 24.5]
+      ]
+      for test in params
+        `let name, url_param, range`
+        [name, url_param, range ]= test
+
+        describe "when provided with #{name} #{range}", ->
+          it "should produce a range transformation in the format of #{url_param}", ->
+            options = { resource_type: 'video', fps: range }        
+            expect( new cloudinary.Transformation(options).toString() ).toEqual(url_param)
+            
     describe ":video_codec", ->
       it 'should support a string value', ->
         test_cloudinary_url("video_id", { resource_type: 'video', video_codec: 'auto' }, "#{upload_path}/vc_auto/video_id", {})

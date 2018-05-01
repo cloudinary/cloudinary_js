@@ -2780,6 +2780,20 @@ var slice = [].slice,
       return this.param(value, "gravity", "g");
     };
 
+    Transformation.prototype.fps = function(value) {
+      return this.param(value, "fps", "fps", (function(_this) {
+        return function(fps) {
+          if (Util.isString(fps)) {
+            return fps;
+          } else if (Util.isArray(fps)) {
+            return fps.join("-");
+          } else {
+            return fps;
+          }
+        };
+      })(this));
+    };
+
     Transformation.prototype.height = function(value) {
       return this.param(value, "height", "h", (function(_this) {
         return function() {

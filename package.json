@@ -53,5 +53,7 @@
     "requirejs": "^2.3.0",
     "typescript": "^2.5.2"
   },
-  "dependencies": {}
+  "dependencies": {
+    "bower": "^1.8.4"
+  }
 }

@@ -29,6 +29,30 @@ describe("Cloudinary::Utils", function() {
   upload_path = root_path + "/video/upload";
   describe("cloudinary_url", function() {
     var i, len, long, ref, short;
+    describe(":fps", function() {
+      var i, len, name, params, range, results, subject, test, url_param;
+      subject = function(options) {
+        return cl.url("fps", options);
+      };
+      params = [['string range', 'fps_24-29.97', '24-29.97'], ['integer', 'fps_24', 24], ['array', 'fps_24-29.97', [24, 29.97]], ['range', 'fps_-24', -24], ['float', 'fps_24.5', 24.5]];
+      results = [];
+      for (i = 0, len = params.length; i < len; i++) {
+        test = params[i];
+        let name, url_param, range;
+        name = test[0], url_param = test[1], range = test[2];
+        results.push(describe("when provided with " + name + " " + range, function() {
+          return it("should produce a range transformation in the format of " + url_param, function() {
+            var options;
+            options = {
+              resource_type: 'video',
+              fps: range
+            };
+            return expect(new cloudinary.Transformation(options).toString()).toEqual(url_param);
+          });
+        }));
+      }
+      return results;
+    });
     describe(":video_codec", function() {
       it('should support a string value', function() {
         return test_cloudinary_url("video_id", {
