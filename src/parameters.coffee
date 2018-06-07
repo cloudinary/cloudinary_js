@@ -215,23 +215,23 @@ class LayerParam extends Param
   # @return [string] layer transformation string
   # @private
   value: ()->
-    layerOptions = @origValue
-    
-    if cloudinary.Util.isPlainObject(layerOptions)
-      layerOptions = Util.withCamelCaseKeys(layerOptions)
+    result = @origValue
+    return result if !result?
+    if @origValue instanceOf(cloudinary.Layer)
+      result = @origValue
+    else if cloudinary.Util.isPlainObject(@origValue)
+      layerOptions = Util.withCamelCaseKeys(@origValue)
       if layerOptions.resourceType == "text" || layerOptions.text?
-        result = new cloudinary.TextLayer(layerOptions).toString()
+        result = new cloudinary.TextLayer(layerOptions)
       else if layerOptions.resourceType == "subtitles"
-        result = new cloudinary.SubtitlesLayer(layerOptions).toString()
+        result = new cloudinary.SubtitlesLayer(layerOptions)
       else if layerOptions.resourceType == "fetch" || layerOptions.url?
-        result = new cloudinary.FetchLayer(layerOptions).toString()
+        result = new cloudinary.FetchLayer(layerOptions)
       else
-        result = new cloudinary.Layer(layerOptions).toString()
-    else if /^fetch:.+/.test(layerOptions)
-      result = new FetchLayer(layerOptions.substr(6)).toString()
-    else
-      result = layerOptions
-    result
+        result = new cloudinary.Layer(layerOptions)
+    else if Util.isString(@origValue) && /^fetch:.+/.test(@origValue)
+      result = new FetchLayer(@origValue.substr(6))
+    result.toString?() || result
 
   LAYER_KEYWORD_PARAMS =[
     ["font_weight", "normal"],

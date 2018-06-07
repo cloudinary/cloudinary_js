@@ -484,6 +484,9 @@ describe "Transformation", ->
       transformation = new Transformation().overlay("fetch:http://cloudinary.com/images/old_logo.png");
       result = transformation.serialize()
       expect(result).toEqual("l_fetch:aHR0cDovL2Nsb3VkaW5hcnkuY29tL2ltYWdlcy9vbGRfbG9nby5wbmc=")
+      transformation = new Transformation({overlay: new FetchLayer("http://cloudinary.com/images/old_logo.png")});
+      result = transformation.serialize()
+      expect(result).toEqual("l_fetch:aHR0cDovL2Nsb3VkaW5hcnkuY29tL2ltYWdlcy9vbGRfbG9nby5wbmc=")
       transformation = new Transformation().overlay("fetch:https://upload.wikimedia.org/wikipedia/commons/2/2b/고창갯벌.jpg");
       result = transformation.serialize()
       expect(result).toEqual("l_fetch:aHR0cHM6Ly91cGxvYWQud2lraW1lZGlhLm9yZy93aWtpcGVkaWEvY29tbW9ucy8yLzJiLyVFQSVCMyVBMCVFQyVCMCVCRCVFQSVCMCVBRiVFQiVCMiU4Qy5qcGc=")

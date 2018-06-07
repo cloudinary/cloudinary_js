@@ -1317,24 +1317,27 @@ var slice = [].slice,
 
     LayerParam.prototype.value = function() {
       var layerOptions, result;
-      layerOptions = this.origValue;
-      if (cloudinary.Util.isPlainObject(layerOptions)) {
-        layerOptions = Util.withCamelCaseKeys(layerOptions);
-        if (layerOptions.resourceType === "text" || (layerOptions.text != null)) {
-          result = new cloudinary.TextLayer(layerOptions).toString();
-        } else if (layerOptions.resourceType === "subtitles") {
-          result = new cloudinary.SubtitlesLayer(layerOptions).toString();
-        } else if (layerOptions.resourceType === "fetch" || (layerOptions.url != null)) {
-          result = new cloudinary.FetchLayer(layerOptions).toString();
-        } else {
-          result = new cloudinary.Layer(layerOptions).toString();
-        }
-      } else if (/^fetch:.+/.test(layerOptions)) {
-        result = new FetchLayer(layerOptions.substr(6)).toString();
-      } else {
-        result = layerOptions;
+      result = this.origValue;
+      if (result == null) {
+        return result;
       }
-      return result;
+      if (this.origValue(instanceOf(cloudinary.Layer))) {
+        result = this.origValue;
+      } else if (cloudinary.Util.isPlainObject(this.origValue)) {
+        layerOptions = Util.withCamelCaseKeys(this.origValue);
+        if (layerOptions.resourceType === "text" || (layerOptions.text != null)) {
+          result = new cloudinary.TextLayer(layerOptions);
+        } else if (layerOptions.resourceType === "subtitles") {
+          result = new cloudinary.SubtitlesLayer(layerOptions);
+        } else if (layerOptions.resourceType === "fetch" || (layerOptions.url != null)) {
+          result = new cloudinary.FetchLayer(layerOptions);
+        } else {
+          result = new cloudinary.Layer(layerOptions);
+        }
+      } else if (Util.isString(this.origValue) && /^fetch:.+/.test(this.origValue)) {
+        result = new FetchLayer(this.origValue.substr(6));
+      }
+      return (typeof result.toString === "function" ? result.toString() : void 0) || result;
     };
 
     LAYER_KEYWORD_PARAMS = [["font_weight", "normal"], ["font_style", "normal"], ["text_decoration", "none"], ["text_align", null], ["stroke", "none"], ["letter_spacing", null], ["line_spacing", null]];
