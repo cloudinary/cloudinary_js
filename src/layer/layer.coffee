@@ -59,3 +59,6 @@ class Layer
     components.push(@getFullPublicId())
 
     Util.compact(components).join( ":")
+
+  clone: ()->
+    new @constructor(@options)

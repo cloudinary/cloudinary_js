@@ -217,7 +217,7 @@ class LayerParam extends Param
   value: ()->
     result = @origValue
     return result if !result?
-    if @origValue instanceOf(cloudinary.Layer)
+    if @origValue instanceof cloudinary.Layer
       result = @origValue
     else if cloudinary.Util.isPlainObject(@origValue)
       layerOptions = Util.withCamelCaseKeys(@origValue)

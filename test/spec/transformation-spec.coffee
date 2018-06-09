@@ -23,6 +23,11 @@ describe "Transformation", ->
       fixtureContainer.id="fixture";
       document.body.appendChild(fixtureContainer)
 
+  it 'should clone', ->
+    first = cloudinary.Transformation.new(width: 100, crop: 'scale').chain()
+      .angle(10)
+    second = first.clone()
+    expect(first.toString()).toEqual(second.toString())
   it 'should ignore empty values', ->
     expect(cl.url( 'test',
       width: undefined , # regular
@@ -480,13 +485,15 @@ describe "Transformation", ->
       expect(result).toEqual("h_100,l_text:hello,w_100")
       expect(transformation.toHtmlAttributes().height).toBeUndefined()
       expect(transformation.toHtmlAttributes().width).toBeUndefined()
-    it "should support fetch:URL", ->
+    it "should support fetch:URL literal", ->
       transformation = new Transformation().overlay("fetch:http://cloudinary.com/images/old_logo.png");
       result = transformation.serialize()
       expect(result).toEqual("l_fetch:aHR0cDovL2Nsb3VkaW5hcnkuY29tL2ltYWdlcy9vbGRfbG9nby5wbmc=")
+    it "should support fetch:URL FetchLayer", ->
       transformation = new Transformation({overlay: new FetchLayer("http://cloudinary.com/images/old_logo.png")});
       result = transformation.serialize()
       expect(result).toEqual("l_fetch:aHR0cDovL2Nsb3VkaW5hcnkuY29tL2ltYWdlcy9vbGRfbG9nby5wbmc=")
+    it "should support fetch:URL Unicode", ->
       transformation = new Transformation().overlay("fetch:https://upload.wikimedia.org/wikipedia/commons/2/2b/고창갯벌.jpg");
       result = transformation.serialize()
       expect(result).toEqual("l_fetch:aHR0cHM6Ly91cGxvYWQud2lraW1lZGlhLm9yZy93aWtpcGVkaWEvY29tbW9ucy8yLzJiLyVFQSVCMyVBMCVFQyVCMCVCRCVFQSVCMCVBRiVFQiVCMiU4Qy5qcGc=")

@@ -749,6 +749,10 @@ var slice = [].slice,
       return Util.compact(components).join(":");
     };
 
+    Layer.prototype.clone = function() {
+      return new this.constructor(this.options);
+    };
+
     return Layer;
 
   })();
@@ -1321,7 +1325,7 @@ var slice = [].slice,
       if (result == null) {
         return result;
       }
-      if (this.origValue(instanceOf(cloudinary.Layer))) {
+      if (this.origValue instanceof cloudinary.Layer) {
         result = this.origValue;
       } else if (cloudinary.Util.isPlainObject(this.origValue)) {
         layerOptions = Util.withCamelCaseKeys(this.origValue);
@@ -2384,8 +2388,8 @@ var slice = [].slice,
           };
         }
         options = Util.cloneDeep(options, function(value) {
-          if (value instanceof TransformationBase) {
-            return new value.constructor(value.toOptions());
+          if (value instanceof TransformationBase || value instanceof Layer) {
+            return value.clone();
           }
         });
         if (options["if"]) {
@@ -2394,12 +2398,14 @@ var slice = [].slice,
         }
         for (key in options) {
           opt = options[key];
-          if (key.match(VAR_NAME_RE)) {
-            if (key !== '$attr') {
-              this.set('variable', key, opt);
+          if (opt != null) {
+            if (key.match(VAR_NAME_RE)) {
+              if (key !== '$attr') {
+                this.set('variable', key, opt);
+              }
+            } else {
+              this.set(key, opt);
             }
-          } else {
-            this.set(key, opt);
           }
         }
       }
@@ -2588,6 +2594,10 @@ var slice = [].slice,
 
     TransformationBase.prototype.toString = function() {
       return this.serialize();
+    };
+
+    TransformationBase.prototype.clone = function() {
+      return new this.constructor(this.toOptions(true));
     };
 
     processVar = function(varArray) {

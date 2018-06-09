@@ -28,6 +28,15 @@ describe("Transformation", function() {
       return document.body.appendChild(fixtureContainer);
     }
   });
+  it('should clone', function() {
+    var first, second;
+    first = cloudinary.Transformation["new"]({
+      width: 100,
+      crop: 'scale'
+    }).chain().angle(10);
+    second = first.clone();
+    return expect(first.toString()).toEqual(second.toString());
+  });
   it('should ignore empty values', function() {
     expect(cl.url('test', {
       width: void 0,
@@ -795,11 +804,22 @@ describe("Transformation", function() {
       expect(transformation.toHtmlAttributes().height).toBeUndefined();
       return expect(transformation.toHtmlAttributes().width).toBeUndefined();
     });
-    it("should support fetch:URL", function() {
+    it("should support fetch:URL literal", function() {
       var result, transformation;
       transformation = new Transformation().overlay("fetch:http://cloudinary.com/images/old_logo.png");
       result = transformation.serialize();
-      expect(result).toEqual("l_fetch:aHR0cDovL2Nsb3VkaW5hcnkuY29tL2ltYWdlcy9vbGRfbG9nby5wbmc=");
+      return expect(result).toEqual("l_fetch:aHR0cDovL2Nsb3VkaW5hcnkuY29tL2ltYWdlcy9vbGRfbG9nby5wbmc=");
+    });
+    it("should support fetch:URL FetchLayer", function() {
+      var result, transformation;
+      transformation = new Transformation({
+        overlay: new FetchLayer("http://cloudinary.com/images/old_logo.png")
+      });
+      result = transformation.serialize();
+      return expect(result).toEqual("l_fetch:aHR0cDovL2Nsb3VkaW5hcnkuY29tL2ltYWdlcy9vbGRfbG9nby5wbmc=");
+    });
+    it("should support fetch:URL Unicode", function() {
+      var result, transformation;
       transformation = new Transformation().overlay("fetch:https://upload.wikimedia.org/wikipedia/commons/2/2b/고창갯벌.jpg");
       result = transformation.serialize();
       return expect(result).toEqual("l_fetch:aHR0cHM6Ly91cGxvYWQud2lraW1lZGlhLm9yZy93aWtpcGVkaWEvY29tbW9ucy8yLzJiLyVFQSVCMyVBMCVFQyVCMCVCRCVFQSVCMCVBRiVFQiVCMiU4Qy5qcGc=");

@@ -22,6 +22,7 @@
   ClientHintsMetaTag: ClientHintsMetaTag
   Layer: Layer
   TextLayer: TextLayer
+  FetchLayer: FetchLayer
   SubtitlesLayer: SubtitlesLayer
   Cloudinary: Cloudinary
 )

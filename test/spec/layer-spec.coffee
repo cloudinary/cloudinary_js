@@ -1,6 +1,16 @@
-TextLayer = cloudinary.TextLayer
-FetchLayer = cloudinary.FetchLayer
+{Layer, TextLayer, FetchLayer} = cloudinary
+
 describe "TextLayer", ->
+  it "should clone", ->
+    options =
+      text: "Cloudinary for the win!",
+      fontFamily: "Arial",
+      fontSize: 18
+    first = new TextLayer(options)
+    second = first.clone()
+    expect(first).not.toBe(second)
+    expect(first).toEqual(second)
+    expect(first.toString()).toEqual(second.toString())
   it "should serialize a text layer object", ->
     options =
       text: "Cloudinary for the win!",

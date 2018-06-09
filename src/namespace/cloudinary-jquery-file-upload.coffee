@@ -21,6 +21,10 @@
   ImageTag: ImageTag
   VideoTag: VideoTag
   ClientHintsMetaTag: ClientHintsMetaTag
+  Layer: Layer
+  TextLayer: TextLayer
+  FetchLayer: FetchLayer
+  SubtitlesLayer: SubtitlesLayer
   Cloudinary: Cloudinary
   CloudinaryJQuery: CloudinaryJQuery
 )

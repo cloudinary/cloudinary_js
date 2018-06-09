@@ -224,14 +224,14 @@ class TransformationBase
       options or= {}
       options = {transformation: options } if Util.isString(options) || Util.isArray(options)
       options = Util.cloneDeep(options, (value) ->
-        if value instanceof TransformationBase
-          new value.constructor( value.toOptions())
+        if value instanceof TransformationBase || value instanceof Layer
+          value.clone()
       )
       # Handling of "if" statements precedes other options as it creates a chained transformation
       if options["if"]
         @set "if", options["if"]
         delete options["if"]
-      for key, opt of options
+      for key, opt of options when opt?
         if key.match(VAR_NAME_RE)
           @set( 'variable', key, opt) unless key == '$attr'
         else
@@ -359,6 +359,9 @@ class TransformationBase
 
   toString: ()->
     @serialize()
+
+  clone: ()->
+    new @constructor(@toOptions(true))
 
 
   processVar = (varArray)->
