@@ -1321,9 +1321,8 @@ var slice = [].slice,
 
     LayerParam.prototype.value = function() {
       var layerOptions, result;
-      result = this.origValue;
-      if (result == null) {
-        return result;
+      if (this.origValue == null) {
+        return '';
       }
       if (this.origValue instanceof cloudinary.Layer) {
         result = this.origValue;
@@ -1338,10 +1337,16 @@ var slice = [].slice,
         } else {
           result = new cloudinary.Layer(layerOptions);
         }
-      } else if (Util.isString(this.origValue) && /^fetch:.+/.test(this.origValue)) {
-        result = new FetchLayer(this.origValue.substr(6));
+      } else if (cloudinary.Util.isString(this.origValue)) {
+        if (/^fetch:.+/.test(this.origValue)) {
+          result = new FetchLayer(this.origValue.substr(6));
+        } else {
+          result = this.origValue;
+        }
+      } else {
+        result = '';
       }
-      return (typeof result.toString === "function" ? result.toString() : void 0) || result;
+      return result.toString();
     };
 
     LAYER_KEYWORD_PARAMS = [["font_weight", "normal"], ["font_style", "normal"], ["text_decoration", "none"], ["text_align", null], ["stroke", "none"], ["letter_spacing", null], ["line_spacing", null]];

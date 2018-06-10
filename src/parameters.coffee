@@ -215,8 +215,7 @@ class LayerParam extends Param
   # @return [string] layer transformation string
   # @private
   value: ()->
-    result = @origValue
-    return result if !result?
+    return '' if !@origValue?
     if @origValue instanceof cloudinary.Layer
       result = @origValue
     else if cloudinary.Util.isPlainObject(@origValue)
@@ -229,9 +228,14 @@ class LayerParam extends Param
         result = new cloudinary.FetchLayer(layerOptions)
       else
         result = new cloudinary.Layer(layerOptions)
-    else if Util.isString(@origValue) && /^fetch:.+/.test(@origValue)
-      result = new FetchLayer(@origValue.substr(6))
-    result.toString?() || result
+    else if cloudinary.Util.isString(@origValue)
+      if /^fetch:.+/.test(@origValue)
+        result = new FetchLayer(@origValue.substr(6))
+      else
+        result = @origValue
+    else
+      result = ''
+    result.toString()
 
   LAYER_KEYWORD_PARAMS =[
     ["font_weight", "normal"],
