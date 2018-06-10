@@ -1854,13 +1854,13 @@ var slice = [].slice,
   })(Expression);
 
   /**
-   * Cloudinary configuration class
+   * Class for defining account configuration options.
    * Depends on 'utils'
    */
   Configuration = (function() {
 
     /**
-     * Defaults configuration.
+     * Default configuration.
      */
     var DEFAULT_CONFIGURATION_PARAMS, ref;
 
@@ -1875,9 +1875,10 @@ var slice = [].slice,
 
 
     /**
-     * Cloudinary configuration class
+     * Class for defining account configuration options.
      * @constructor Configuration
-     * @param {Object} options - configuration parameters
+     * @param {Object} options - The account configuration parameters to set. 
+     * @see <a href="https://cloudinary.com/documentation/solution_overview#configuration_parameters" target="_new">Available configuration options</a>
      */
 
     function Configuration(options) {
@@ -1890,10 +1891,9 @@ var slice = [].slice,
 
 
     /**
-     * Initialize the configuration.
-     * The function first tries to retrieve the configuration form the environment and then from the document.
+     * Initializes the configuration. This method is a convenience method that invokes both {@link Configuration#fromEnvironment|fromEnvironment()} (Node.js environment only) and {@link Configuration#fromDocument|fromDocument()}. It first tries to retrieve the configuration from the environment variable. If not available, it tries from the document meta tags. 
      * @function Configuration#init
-     * @return {Configuration} returns this for chaining
+     * @return {Configuration} Returns this `configuration` for chaining.
      * @see fromDocument
      * @see fromEnvironment
      */
@@ -2054,7 +2054,7 @@ var slice = [].slice,
 
   })();
 
-  /**
+  /** 
    * TransformationBase
    * Depends on 'configuration', 'parameters','util'
    * @internal
@@ -2519,7 +2519,7 @@ var slice = [].slice,
 
 
     /**
-     * Returns attributes for an HTML tag.
+     * Returns the attributes for an HTML tag.
      * @function Cloudinary.toHtmlAttributes
      * @return PlainObject
      */
@@ -2638,6 +2638,8 @@ var slice = [].slice,
      * // or
      *
      * t = new cloudinary.Transformation( {angle: 20, crop: "scale", width: "auto"});
+     * @see <a href="https://cloudinary.com/documentation/image_transformation_reference" target="_new">Available image transformations</a>
+     * @see <a href="https://cloudinary.com/documentation/video_transformation_reference" target="_new">Available video transformations</a>
      */
 
     function Transformation(options) {
@@ -3437,9 +3439,12 @@ var slice = [].slice,
 
 
     /**
-     * Creates an HTML (DOM) Meta tag that enables client-hints.
+     * Creates an HTML (DOM) Meta tag that enables Client-Hints for the HTML page. <br/>Browsers that support Client-Hints will send information about the available width for an image on a user’s device and the pixel density of their screen. Cloudinary can then decide on the size of the image the browser needs for displaying the image to the user, and select and deliver an optimal resource – all at the CDN level. See <a href="https://cloudinary.com/documentation/responsive_images#automating_responsive_images_with_client_hints" target="_new">Automating responsive images with Client Hints</a> for more details.
      * @constructor ClientHintsMetaTag
-     * @extends HtmlTag
+     * @extends HtmlTag  
+     * @example 
+     * tag = new ClientHintsMetaTag()
+     * //returns: <meta http-equiv="Accept-CH" content="DPR, Viewport-Width, Width">
      */
 
     function ClientHintsMetaTag(options) {
@@ -3490,9 +3495,7 @@ var slice = [].slice,
 
     /**
     * @const {Object} Cloudinary.DEFAULT_IMAGE_PARAMS
-    * Defaults values for image parameters.
-    *
-    * (Previously defined using option_consume() )
+    * Default values for image parameters.
      */
 
     Cloudinary.DEFAULT_IMAGE_PARAMS = {
@@ -3503,9 +3506,8 @@ var slice = [].slice,
 
 
     /**
-    * Defaults values for video parameters.
+    * Default values for video parameters.
     * @const {Object} Cloudinary.DEFAULT_VIDEO_PARAMS
-    * (Previously defined using option_consume() )
      */
 
     Cloudinary.DEFAULT_VIDEO_PARAMS = {
@@ -3519,13 +3521,15 @@ var slice = [].slice,
 
 
     /**
-     * Main Cloudinary class
+     * Main class for accessing Cloudinary functionality.
      * @class Cloudinary
-     * @param {Object} options - options to configure Cloudinary
-     * @see Configuration for more details
+     * @param {Object} options - A {@link Configuration} object for globally configuring Cloudinary account settings.
+     
      * @example
-     *    var cl = new cloudinary.Cloudinary( { cloud_name: "mycloud"});
-     *    var imgTag = cl.image("myPicID");
+     * var cl = new cloudinary.Cloudinary( { cloud_name: "mycloud"});
+     * var imgTag = cl.image("myPicID");
+      
+     * @see <a href="https://cloudinary.com/documentation/solution_overview#configuration_parameters" target="_new">Available configuration options</a>
      */
 
     function Cloudinary(options) {
@@ -3539,8 +3543,8 @@ var slice = [].slice,
       };
 
       /**
-       * Use \<meta\> tags in the document to configure this Cloudinary instance.
-       * @return {Cloudinary} this for chaining
+       * Use \<meta\> tags in the document to configure this `cloudinary` instance.
+       * @return This {Cloudinary} instance for chaining.
        */
       this.fromDocument = function() {
         configuration.fromDocument();
@@ -3548,8 +3552,8 @@ var slice = [].slice,
       };
 
       /**
-       * Use environment variables to configure this Cloudinary instance.
-       * @return {Cloudinary} this for chaining
+       * Use environment variables to configure this `cloudinary`  instance.
+       * @return This {Cloudinary} instance for chaining.
        */
       this.fromEnvironment = function() {
         configuration.fromEnvironment();
@@ -3557,10 +3561,10 @@ var slice = [].slice,
       };
 
       /**
-       * Initialize configuration.
+       * Initializes the configuration of this `cloudinary` instance. This is a convenience method that invokes both {@link Configuration#fromEnvironment|fromEnvironment()} (Node.js environment only) and {@link Configuration#fromDocument|fromDocument()}. It first tries to retrieve the configuration from the environment variable. If not available, it tries from the document meta tags. 
        * @function Cloudinary#init
        * @see Configuration#init
-       * @return {Cloudinary} this for chaining
+       * @return This {Cloudinary} instance for chaining.
        */
       this.init = function() {
         configuration.init();
@@ -3582,7 +3586,7 @@ var slice = [].slice,
 
 
     /**
-     * Return the resource type and action type based on the given configuration
+     * Returns the resource type and action type based on the specified configuration.
      * @function Cloudinary#finalizeResourceType
      * @param {Object|string} resourceType
      * @param {string} [type='upload']
@@ -3657,14 +3661,26 @@ var slice = [].slice,
 
 
     /**
-     * Generate an resource URL.
+     * Generates a URL for any asset in your Media library.
      * @function Cloudinary#url
-     * @param {string} publicId - the public ID of the resource
-     * @param {Object} [options] - options for the tag and transformations, possible values include all {@link Transformation} parameters
-     *                          and {@link Configuration} parameters
-     * @param {string} [options.type='upload'] - the classification of the resource
-     * @param {Object} [options.resource_type='image'] - the type of the resource
-     * @return {string} The resource URL
+     * @param {string} publicId - The public ID of the media asset.
+     * @param {Object} [options] - The {@link Transformation} parameters to include in the URL.
+     * @param {string} [options.type='upload'] - The asset's storage type. <p>Possible values:
+     * - `upload`
+     * - `private`
+     * - `authenticated` 
+     * - `sprite` 
+     * - `fetch`
+     * - A social media fetch type (Ex: `facebook`, `twitter`) 
+     * - A video thumbnail fetch type (Ex: `youtube`, `vimeo`).  
+     *For details on all fetch types, see <a href="https://cloudinary.com/documentation/image_transformations#fetching_images_from_remote_locations" target="_new">Fetch types</a>. 
+     * @param {Object} [options.resource_type='image'] - The type of asset. <p>Possible values: 
+     * - `image`
+     * - `video`
+     * - `raw` 
+     * @return {string} The media asset URL.
+     * @see <a href="https://cloudinary.com/documentation/image_transformation_reference" target="_new">Available image transformations</a>
+     * @see <a href="https://cloudinary.com/documentation/video_transformation_reference" target="_new">Available video transformations</a>
      */
 
     Cloudinary.prototype.url = function(publicId, options) {
@@ -3725,13 +3741,18 @@ var slice = [].slice,
 
 
     /**
-     * Generate an video resource URL.
+     * Generates a video asset URL.
      * @function Cloudinary#video_url
-     * @param {string} publicId - the public ID of the resource
-     * @param {Object} [options] - options for the tag and transformations, possible values include all {@link Transformation} parameters
-     *                          and {@link Configuration} parameters
-     * @param {string} [options.type='upload'] - the classification of the resource
-     * @return {string} The video URL
+     * @param {string} publicId - The public ID of the video.
+     * @param {Object} [options] - The {@link Transformation} parameters to include in the URL.
+     * @param {string} [options.type='upload'] - The asset's storage type. <p>Possible values:
+     * - `upload`
+     * - `private`
+     * - `authenticated` 
+     * - `fetch`
+     *For details on all fetch types, see <a href="https://cloudinary.com/documentation/image_transformations#fetching_images_from_remote_locations" target="_new">Fetch types</a>. 
+     * @return {string} The video URL.
+     * @see <a href="https://cloudinary.com/documentation/video_transformation_reference" target="_new">Available video transformations</a>
      */
 
     Cloudinary.prototype.video_url = function(publicId, options) {
@@ -3743,13 +3764,17 @@ var slice = [].slice,
 
 
     /**
-     * Generate an video thumbnail URL.
+     * Generates an the URL for an image intended to be used as a thumbnail for the specified video. Identical to {@link Cloudinary#url|url}, except that the `resource_type` is `video` and the default `format` is `jpg`. 
      * @function Cloudinary#video_thumbnail_url
-     * @param {string} publicId - the public ID of the resource
-     * @param {Object} [options] - options for the tag and transformations, possible values include all {@link Transformation} parameters
-     *                          and {@link Configuration} parameters
-     * @param {string} [options.type='upload'] - the classification of the resource
-     * @return {string} The video thumbnail URL
+     * @param {string} publicId -  The unique identifier of the video from which you want to generate a thumbnail image.
+     * @param {Object} [options] - The image {@link Transformation} parameters to apply to the thumbnail. In addition to standard image transformations, you can also use the `start_offset` transformation parameter to instruct Cloudinary to generate the thumbnail from a frame other than the middle frame of the video. For details, see <a href="https://cloudinary.com/documentation/video_manipulation_and_delivery#generating_video_thumbnails" target="_new">Generating video thumbnails</a> in the Cloudinary documentation.
+     * @param {string} [options.type='upload'] - The asset's storage type. <p>Possible values:
+     * - `upload`
+     * - `private`
+     * - `authenticated` 
+     * - `fetch`
+     * @return {string} The URL of the video thumbnail image.
+     * @see <a href="https://cloudinary.com/documentation/image_transformation_reference" target="_new">Available image transformations</a>
      */
 
     Cloudinary.prototype.video_thumbnail_url = function(publicId, options) {
@@ -3759,10 +3784,12 @@ var slice = [].slice,
 
 
     /**
-     * Generate a string representation of the provided transformation options.
+     * Generates a string representation of the specified transformation options.
      * @function Cloudinary#transformation_string
-     * @param {Object} options - the transformation options
-     * @returns {string} The transformation string
+     * @param {Object} options - The {@link Transformation} options.
+     * @returns {string} The transformation string.
+     * @see <a href="https://cloudinary.com/documentation/image_transformation_reference" target="_new">Available image transformations</a>
+     * @see <a href="https://cloudinary.com/documentation/video_transformation_reference" target="_new">Available video transformations</a>
      */
 
     Cloudinary.prototype.transformation_string = function(options) {
@@ -3771,11 +3798,13 @@ var slice = [].slice,
 
 
     /**
-     * Generate an image tag.
+     * Generates an image tag.
      * @function Cloudinary#image
-     * @param {string} publicId - the public ID of the image
-     * @param {Object} [options] - options for the tag and transformations
-     * @return {HTMLImageElement} an image tag element
+     * @param {string} publicId - The public ID of the image.
+     * @param {Object} options - The {@link Transformation} parameters, {@link Configuration} parameters, and standard HTML &lt;img&gt; tag attributes to apply to the image tag.
+     * @return {HTMLImageElement} An image tag DOM element.
+     * @see <a href="https://cloudinary.com/documentation/image_transformation_reference" target="_new">Available image transformations</a>
+     * @see <a href="https://cloudinary.com/documentation/solution_overview#configuration_parameters" target="_new">Available configuration options</a>
      */
 
     Cloudinary.prototype.image = function(publicId, options) {
@@ -3798,11 +3827,13 @@ var slice = [].slice,
 
 
     /**
-     * Creates a new ImageTag instance, configured using this own's configuration.
+     * Creates a new ImageTag instance using the configuration defined for this `cloudinary` instance.
      * @function Cloudinary#imageTag
-     * @param {string} publicId - the public ID of the resource
-     * @param {Object} options - additional options to pass to the new ImageTag instance
-     * @return {ImageTag} An ImageTag that is attached (chained) to this Cloudinary instance
+     * @param {string} publicId - The public ID of the image.
+     * @param {Object} [options] - The {@link Transformation} parameters, {@link Configuration} parameters, and standard HTML &lt;img&gt; tag attributes to apply to the image tag.
+     * @return {ImageTag} An ImageTag instance that is attached (chained) to this Cloudinary instance.
+     * @see <a href="https://cloudinary.com/documentation/image_transformation_reference" target="_new">Available image transformations</a>
+     * @see <a href="https://cloudinary.com/documentation/solution_overview#configuration_parameters" target="_new">Available configuration options</a>
      */
 
     Cloudinary.prototype.imageTag = function(publicId, options) {
@@ -3814,11 +3845,13 @@ var slice = [].slice,
 
 
     /**
-     * Generate an image tag for the video thumbnail.
+     * Generates a video thumbnail URL from the specified remote video and includes it in an image tag.
      * @function Cloudinary#video_thumbnail
-     * @param {string} publicId - the public ID of the video
-     * @param {Object} [options] - options for the tag and transformations
-     * @return {HTMLImageElement} An image tag element
+     * @param {string} publicId - The unique identifier of the video from the relevant video site. Additionally, either append the image extension type to the identifier value or set the image delivery format in the 'options' parameter using the 'format' transformation option. For example, a YouTube video might have the identifier: 'o-urnlaJpOA.jpg'.
+     * @param {Object} [options] - The {@link Transformation} parameters to apply.
+     * @return {HTMLImageElement} An HTML image tag element
+     * @see <a href="https://cloudinary.com/documentation/video_transformation_reference" target="_new">Available video transformations</a>
+     * @see <a href="https://cloudinary.com/documentation/solution_overview#configuration_parameters" target="_new">Available configuration options</a>
      */
 
     Cloudinary.prototype.video_thumbnail = function(publicId, options) {
@@ -3827,10 +3860,13 @@ var slice = [].slice,
 
 
     /**
+     * Fetches a facebook profile image and delivers it in an image tag element.
      * @function Cloudinary#facebook_profile_image
-     * @param {string} publicId - the public ID of the image
-     * @param {Object} [options] - options for the tag and transformations
-     * @return {HTMLImageElement} an image tag element
+     * @param {string} publicId - The Facebook numeric ID. Additionally, either append the image extension type to the ID or set the image delivery format in the 'options' parameter using the 'format' transformation option. 
+     * @param {Object} [options] - The {@link Transformation} parameters, {@link Configuration} parameters, and standard HTML &lt;img&gt; tag attributes to apply to the image tag.
+     * @return {HTMLImageElement} An image tag element.
+     * @see <a href="https://cloudinary.com/documentation/image_transformation_reference" target="_new">Available image transformations</a>
+     * @see <a href="https://cloudinary.com/documentation/solution_overview#configuration_parameters" target="_new">Available configuration options</a>
      */
 
     Cloudinary.prototype.facebook_profile_image = function(publicId, options) {
@@ -3841,10 +3877,13 @@ var slice = [].slice,
 
 
     /**
+     * Fetches a Twitter profile image by ID and delivers it in an image tag element.
      * @function Cloudinary#twitter_profile_image
-     * @param {string} publicId - the public ID of the image
-     * @param {Object} [options] - options for the tag and transformations
-     * @return {HTMLImageElement} an image tag element
+     * @param {string} publicId - The Twitter numeric ID. Additionally, either append the image extension type to the ID or set the image delivery format in the 'options' parameter using the 'format' transformation option. 
+     * @param {Object} [options] - The {@link Transformation} parameters, {@link Configuration} parameters, and standard HTML &lt;img&gt; tag attributes to apply to the image tag.
+     * @return {HTMLImageElement} An image tag element.
+     * @see <a href="https://cloudinary.com/documentation/image_transformation_reference" target="_new">Available image transformations</a>
+     * @see <a href="https://cloudinary.com/documentation/solution_overview#configuration_parameters" target="_new">Available configuration options</a>
      */
 
     Cloudinary.prototype.twitter_profile_image = function(publicId, options) {
@@ -3855,10 +3894,13 @@ var slice = [].slice,
 
 
     /**
+     * Fetches a Twitter profile image by name and delivers it in an image tag element.
      * @function Cloudinary#twitter_name_profile_image
-     * @param {string} publicId - the public ID of the image
-     * @param {Object} [options] - options for the tag and transformations
-     * @return {HTMLImageElement} an image tag element
+     * @param {string} publicId - The Twitter screen name. Additionally, either append the image extension type to the screen name or set the image delivery format in the 'options' parameter using the 'format' transformation option. 
+     * @param {Object} [options] - The {@link Transformation} parameters, {@link Configuration} parameters, and standard HTML &lt;img&gt; tag attributes to apply to the image tag.
+     * @return {HTMLImageElement} An image tag element.
+     * @see <a href="https://cloudinary.com/documentation/image_transformation_reference" target="_new">Available image transformations</a>
+     * @see <a href="https://cloudinary.com/documentation/solution_overview#configuration_parameters" target="_new">Available configuration options</a>
      */
 
     Cloudinary.prototype.twitter_name_profile_image = function(publicId, options) {
@@ -3869,10 +3911,13 @@ var slice = [].slice,
 
 
     /**
+     * Fetches a Gravatar profile image and delivers it in an image tag element.
      * @function Cloudinary#gravatar_image
-     * @param {string} publicId - the public ID of the image
-     * @param {Object} [options] - options for the tag and transformations
-     * @return {HTMLImageElement} an image tag element
+     * @param {string} publicId - The calculated hash for the Gravatar email address. Additionally, either append the image extension type to the screen name or set the image delivery format in the 'options' parameter using the 'format' transformation option.  
+     * @param {Object} [options] - The {@link Transformation} parameters, {@link Configuration} parameters, and standard HTML &lt;img&gt; tag attributes to apply to the image tag.
+     * @return {HTMLImageElement} An image tag element.
+     * @see <a href="https://cloudinary.com/documentation/image_transformation_reference" target="_new">Available image transformations</a>
+     * @see <a href="https://cloudinary.com/documentation/solution_overview#configuration_parameters" target="_new">Available configuration options</a>
      */
 
     Cloudinary.prototype.gravatar_image = function(publicId, options) {
@@ -3883,10 +3928,13 @@ var slice = [].slice,
 
 
     /**
+     * Fetches an image from a remote URL and delivers it in an image tag element. 
      * @function Cloudinary#fetch_image
-     * @param {string} publicId - the public ID of the image
-     * @param {Object} [options] - options for the tag and transformations
-     * @return {HTMLImageElement} an image tag element
+     * @param {string} publicId - The full URL of the image to fetch, including the extension.
+     * @param {Object} [options] - The {@link Transformation} parameters, {@link Configuration} parameters, and standard HTML &lt;img&gt; tag attributes to apply to the image tag.
+     * @return {HTMLImageElement} An image tag element.
+     * @see <a href="https://cloudinary.com/documentation/image_transformation_reference" target="_new">Available image transformations</a>
+     * @see <a href="https://cloudinary.com/documentation/solution_overview#configuration_parameters" target="_new">Available configuration options</a>
      */
 
     Cloudinary.prototype.fetch_image = function(publicId, options) {
@@ -3897,10 +3945,13 @@ var slice = [].slice,
 
 
     /**
+     * Generates a video tag.
      * @function Cloudinary#video
-     * @param {string} publicId - the public ID of the image
-     * @param {Object} [options] - options for the tag and transformations
-     * @return {HTMLImageElement} an image tag element
+     * @param {string} publicId - The public ID of the video.
+     * @param {Object} [options] - The {@link Transformation} parameters, {@link Configuration} parameters, and standard HTML &lt;img&gt; tag attributes to apply to the image tag.
+     * @return {HTMLVideoElement} A video tag DOM element.
+     * @see <a href="https://cloudinary.com/documentation/video_transformation_reference" target="_new">Available video transformations</a>
+     * @see <a href="https://cloudinary.com/documentation/solution_overview#configuration_parameters" target="_new">Available configuration options</a>
      */
 
     Cloudinary.prototype.video = function(publicId, options) {
@@ -3912,11 +3963,13 @@ var slice = [].slice,
 
 
     /**
-     * Creates a new VideoTag instance, configured using this own's configuration.
+     * Creates a new VideoTag instance using the configuration defined for this `cloudinary` instance.
      * @function Cloudinary#videoTag
-     * @param {string} publicId - the public ID of the resource
-     * @param {Object} options - additional options to pass to the new VideoTag instance
-     * @return {VideoTag} A VideoTag that is attached (chained) to this Cloudinary instance
+     * @param {string} publicId - The public ID of the video.
+     * @param {Object} options - The {@link Transformation} parameters, {@link Configuration} parameters, and standard HTML &lt;img&gt; tag attributes to apply to the image tag.
+     * @return {VideoTag} A VideoTag that is attached (chained) to this `cloudinary` instance.
+     * @see <a href="https://cloudinary.com/documentation/video_transformation_reference" target="_new">Available video transformations</a>
+     * @see <a href="https://cloudinary.com/documentation/solution_overview#configuration_parameters" target="_new">Available configuration options</a>
      */
 
     Cloudinary.prototype.videoTag = function(publicId, options) {
@@ -3926,11 +3979,13 @@ var slice = [].slice,
 
 
     /**
-     * Generate the URL of the sprite image
+     * Generates a sprite PNG image that contains all images with the specified tag and the corresponding css file.
      * @function Cloudinary#sprite_css
-     * @param {string} publicId - the public ID of the resource
-     * @param {Object} [options] - options for the tag and transformations
-     * @see {@link http://cloudinary.com/documentation/sprite_generation Sprite generation}
+     * @param {string} publicId - The tag on which to base the sprite image.
+     * @param {Object} [options] - The {@link Transformation} parameters to include in the URL.
+     * @return {string} The URL of the generated CSS file. The sprite image has the same URL, but with a PNG extension.
+     * @see <a href="https://cloudinary.com/documentation/sprite_generation" target="_new">Sprite generation</a>
+     * @see <a href="https://cloudinary.com/documentation/image_transformation_reference" target="_new">Available image transformations</a>
      */
 
     Cloudinary.prototype.sprite_css = function(publicId, options) {
@@ -3945,14 +4000,16 @@ var slice = [].slice,
 
 
     /**
-    * Initialize the responsive behaviour.<br>
-    * Calls {@link Cloudinary#cloudinary_update} to modify image tags.
+    * Initializes responsive image behavior for all image tags with the 'cld-responsive' (or other defined {@link Cloudinary#responsive|responsive} class).<br>
+    * This method should be invoked after the page has loaded.<br/>
+    * <b>Note</b>: Calls {@link Cloudinary#cloudinary_update|cloudinary_update} to modify image tags.
      * @function Cloudinary#responsive
     * @param {Object} options
-    * @param {String} [options.responsive_class='cld-responsive'] - provide an alternative class used to locate img tags
-    * @param {number} [options.responsive_debounce=100] - the debounce interval in milliseconds.
-    * @param {boolean} [bootstrap=true] if true processes the img tags by calling cloudinary_update. When false the tags will be processed only after a resize event.
-    * @see {@link Cloudinary#cloudinary_update} for additional configuration parameters
+    * @param {String} [options.responsive_class='cld-responsive'] - An alternative class to locate the relevant &lt;img&gt; tags.
+    * @param {number} [options.responsive_debounce=100] - The debounce interval in milliseconds.
+    * @param {boolean} [bootstrap=true] If true (default), processes the &lt;img&gt; tags by calling {@link Cloudinary#cloudinary_update|cloudinary_update}. When false, the tags are processed only after a resize event.
+    * @see {@link Cloudinary#cloudinary_update|cloudinary_update} for additional configuration parameters
+    * @see <a href="https://dev.cloudinary.com/documentation/responsive_images#automating_responsive_images_with_javascript" target="_new">Automating responsive images with JavaScript</a>
      */
 
     Cloudinary.prototype.responsive = function(options, bootstrap) {
@@ -4127,9 +4184,10 @@ var slice = [].slice,
 
 
     /**
-    * Finds all `img` tags under each node and sets it up to provide the image through Cloudinary
-    * @param {Element[]} nodes the parent nodes to search for img under
-    * @param {Object} [options={}] options and transformations params
+    * Applies responsive to all &lt;img&gt; tags under each relevant node (regardless of whether the tag contains the {@link Cloudinary#responsive|responsive} class).
+    * @param {Element[]} nodes The parent nodes where you want to search for &lt;img&gt; tags.
+    * @param {Object} [options] The {@link Cloudinary#cloudinary_update|cloudinary_update} options to apply.
+    * @see <a href="https://cloudinary.com/documentation/image_transformation_reference" target="_new">Available image transformations</a>
     * @function Cloudinary#processImageTags
      */
 
@@ -4209,18 +4267,19 @@ var slice = [].slice,
 
 
     /**
-    * Update hidpi (dpr_auto) and responsive (w_auto) fields according to the current container size and the device pixel ratio.
-    * Only images marked with the cld-responsive class have w_auto updated.
+    * Updates the dpr (for `dpr_auto`) and responsive (for `w_auto`) fields according to the current container size and the device pixel ratio.
+    * <br/><b>Note</b>:`w_auto` is updated only for images marked with the `cld-responsive` (or other defined {@link Cloudinary#responsive|responsive}) class.
     * @function Cloudinary#cloudinary_update
-    * @param {(Array|string|NodeList)} elements - the elements to modify
+    * @param {(Array|string|NodeList)} elements - The HTML image elements to modify.
     * @param {Object} options
     * @param {boolean|string} [options.responsive_use_breakpoints=true]
-    *  - when `true`, always use breakpoints for width
-    * - when `"resize"` use exact width on first render and breakpoints on resize
-    * - when `false` always use exact width
-    * @param {boolean} [options.responsive] - if `true`, enable responsive on this element. Can be done by adding cld-responsive.
-    * @param {boolean} [options.responsive_preserve_height] - if set to true, original css height is preserved.
-    *   Should only be used if the transformation supports different aspect ratios.
+    * Possible values:
+    * - `true`: Always use breakpoints for width.
+    * - `resize`: Use exact width on first render and breakpoints on resize.
+    * - `false`: Always use exact width.
+    * @param {boolean} [options.responsive] - If `true`, enable responsive on all specified elements. Alternatively, you can define specific HTML elements to modify by adding the `cld-responsive` (or other custom-defined {@link Cloudinary#responsive|responsive_class}) class to those elements.
+    * @param {boolean} [options.responsive_preserve_height] - If `true`, original css height is preserved.
+    *   Should be used only if the transformation supports different aspect ratios.
      */
 
     Cloudinary.prototype.cloudinary_update = function(elements, options) {
@@ -4289,10 +4348,12 @@ var slice = [].slice,
 
 
     /**
-     * Provide a transformation object, initialized with own's options, for chaining purposes.
+     * Returns a Transformation object, initialized with the specified options, for chaining purposes.
      * @function Cloudinary#transformation
-     * @param {Object} options
+     * @param {Object} options The {@link Transformation} options to apply.
      * @return {Transformation}
+     * @see <a href="https://cloudinary.com/documentation/image_transformation_reference" target="_new">Available image transformations</a>
+     * @see <a href="https://cloudinary.com/documentation/video_transformation_reference" target="_new">Available video transformations</a>
      */
 
     Cloudinary.prototype.transformation = function(options) {

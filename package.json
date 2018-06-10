@@ -11,6 +11,9 @@
     "test": "grunt karma --browsers=PhantomJS",
     "compile-ts": "grunt ts"
   },
+  "script": {
+    "generate-docs": "node_modules/.bin/jsdoc --configure .jsdoc.json --verbose"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/cloudinary/cloudinary_js.git"
