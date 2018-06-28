@@ -1,9 +1,11 @@
 {
   "tags": {
-    "allowUnknownTags": true
+    "allowUnknownTags": true,
+    "dictionaries": ["jsdoc"]
   },
   "plugins": ["plugins/markdown"],
   "templates": {
+    "referenceTitle": "Cloudinary JavaScript SDK",
     "cleverLinks": false,
     "monospaceLinks": false,
     "dateFormat": "ddd MMM Do YYYY",
@@ -23,6 +25,6 @@
 
   },
   "opts": {
-    "template": "jsdoc-template"
+    "template": "node_modules/jsdoc-template"
   }
 }

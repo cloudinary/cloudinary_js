@@ -118,7 +118,6 @@ module.exports = (grunt)->
 
     jsdoc:
       options:
-        template: 'jsdoc-template'
         configure: "jsdoc-conf.json"
       'cloudinary-core':
         options:
