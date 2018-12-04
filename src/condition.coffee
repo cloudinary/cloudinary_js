@@ -1,4 +1,6 @@
-class Condition extends Expression
+import Expression from './expression'
+
+export default class Condition extends Expression
   ###*
    * Represents a transformation condition
    * @param {string} conditionStr - a condition in string format
@@ -64,5 +66,3 @@ class Condition extends Expression
    * @return {Condition} this condition
   ###
   faceCount: (operator, value)-> @predicate("fc", operator, value)
-
-

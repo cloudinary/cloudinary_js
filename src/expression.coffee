@@ -1,4 +1,4 @@
-class Expression
+export default class Expression
 
   ###*
    * @internal

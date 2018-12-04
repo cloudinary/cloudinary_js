@@ -1,41 +1,75 @@
+import url from './url'
+import Configuration from './configuration'
+import Transformation from './transformation'
+import HtmlTag from './tags/htmltag'
+import ImageTag from './tags/imagetag'
+import VideoTag from './tags/videotag'
+
+import {
+  addClass,
+  assign,
+  defaults,
+  getData,
+  isArray,
+  isEmpty,
+  isFunction,
+  isPlainObject,
+  isString,
+  merge,
+  removeAttribute,
+  setAttribute,
+  setData,
+  width
+} from './util'
+
+import {
+  VERSION,
+  CF_SHARED_CDN,
+  OLD_AKAMAI_SHARED_CDN,
+  AKAMAI_SHARED_CDN,
+  SHARED_CDN,
+  DEFAULT_POSTER_OPTIONS,
+  DEFAULT_VIDEO_SOURCE_TYPES,
+  SEO_TYPES,
+  DEFAULT_IMAGE_PARAMS,
+  DEFAULT_VIDEO_PARAMS
+} from './constants'
+
+defaultBreakpoints = (width, steps = 100) ->
+  steps * Math.ceil(width / steps)
+
+closestAbove = (list, value) ->
+  i = list.length - 2
+  while i >= 0 and list[i] >= value
+    i--
+  list[i + 1]
+
+applyBreakpoints = (tag, width, steps, options)->
+  responsive_use_breakpoints = options['responsive_use_breakpoints'] ? options['responsive_use_stoppoints'] ? @config('responsive_use_breakpoints') ? @config('responsive_use_stoppoints')
+  if (!responsive_use_breakpoints) || (responsive_use_breakpoints == 'resize' and !options.resizing)
+    width
+  else
+    @calc_breakpoint(tag, width, steps)
+
+findContainerWidth = (element) ->
+  containerWidth = 0
+  while ((element = element?.parentNode) instanceof Element) and !containerWidth
+    style = window.getComputedStyle(element);
+    containerWidth = width(element) unless /^inline/.test(style.display)
+  containerWidth
+
+updateDpr = (dataSrc, roundDpr) ->
+  dataSrc.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + @device_pixel_ratio(roundDpr))
+
+maxWidth = (requiredWidth, tag) ->
+  imageWidth = getData(tag, 'width') or 0
+  if requiredWidth > imageWidth
+    imageWidth = requiredWidth
+    setData(tag, 'width', requiredWidth)
+  imageWidth
+
+
 class Cloudinary
-  VERSION = "2.5.0"
-  CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net"
-  OLD_AKAMAI_SHARED_CDN = "cloudinary-a.akamaihd.net"
-  AKAMAI_SHARED_CDN = "res.cloudinary.com"
-  SHARED_CDN = AKAMAI_SHARED_CDN
-  DEFAULT_POSTER_OPTIONS = { format: 'jpg', resource_type: 'video' }
-  DEFAULT_VIDEO_SOURCE_TYPES = ['webm', 'mp4', 'ogv']
-  SEO_TYPES =
-    "image/upload": "images",
-    "image/private": "private_images",
-    "image/authenticated": "authenticated_images",
-    "raw/upload": "files",
-    "video/upload": "videos"
-
-  ###*
-  * @const {Object} Cloudinary.DEFAULT_IMAGE_PARAMS
-  * Defaults values for image parameters.
-  *
-  * (Previously defined using option_consume() )
-  ###
-  @DEFAULT_IMAGE_PARAMS =
-    resource_type: "image"
-    transformation: []
-    type: 'upload'
-
-  ###*
-  * Defaults values for video parameters.
-  * @const {Object} Cloudinary.DEFAULT_VIDEO_PARAMS
-  * (Previously defined using option_consume() )
-  ###
-  @DEFAULT_VIDEO_PARAMS =
-    fallback_content: ''
-    resource_type: "video"
-    source_transformation: {}
-    source_types: DEFAULT_VIDEO_SOURCE_TYPES
-    transformation: []
-    type: 'upload'
 
   ###*
    * Main Cloudinary class
@@ -94,53 +128,6 @@ class Cloudinary
   @new = (options)-> new @(options)
 
   ###*
-   * Return the resource type and action type based on the given configuration
-   * @function Cloudinary#finalizeResourceType
-   * @param {Object|string} resourceType
-   * @param {string} [type='upload']
-   * @param {string} [urlSuffix]
-   * @param {boolean} [useRootPath]
-   * @param {boolean} [shorten]
-   * @returns {string} resource_type/type
-   * @ignore
-  ###
-  finalizeResourceType = (resourceType = "image",type = "upload",urlSuffix,useRootPath,shorten) ->
-    if Util.isPlainObject(resourceType)
-      options = resourceType
-      resourceType = options.resource_type
-      type = options.type
-      urlSuffix = options.url_suffix
-      useRootPath = options.use_root_path
-      shorten = options.shorten
-
-    type?='upload'
-    if urlSuffix?
-      resourceType = SEO_TYPES[ "#{resourceType}/#{type}"]
-      type = null
-      unless resourceType?
-        throw new Error("URL Suffix only supported for #{(key for key of SEO_TYPES).join(', ')}")
-    if useRootPath
-      if (resourceType== 'image' && type== 'upload' || resourceType == "images")
-        resourceType = null
-        type = null
-      else
-        throw new Error("Root path only supported for image/upload")
-    if shorten && resourceType== 'image' && type== 'upload'
-      resourceType = 'iu'
-      type = null
-    [resourceType,type].join("/")
-
-  absolutize = (url) ->
-    if !url.match(/^https?:\//)
-      prefix = document.location.protocol + '//' + document.location.host
-      if url[0] == '?'
-        prefix += document.location.pathname
-      else if url[0] != '/'
-        prefix += document.location.pathname.replace(/\/[^\/]*$/, '/')
-      url = prefix + url
-    url
-
-  ###*
    * Generate an resource URL.
    * @function Cloudinary#url
    * @param {string} publicId - the public ID of the resource
@@ -152,54 +139,7 @@ class Cloudinary
   ###
 
   url: (publicId, options = {}) ->
-    if (!publicId)
-      return publicId
-    options = options.toOptions() if options instanceof Transformation
-    options = Util.defaults({}, options, @config(), Cloudinary.DEFAULT_IMAGE_PARAMS)
-    if options.type == 'fetch'
-      options.fetch_format = options.fetch_format or options.format
-      publicId = absolutize(publicId)
-
-    transformation = new Transformation(options)
-    transformationString = transformation.serialize()
-
-    throw 'Unknown cloud_name' unless options.cloud_name
-
-    # if publicId has a '/' and doesn't begin with v<number> and doesn't start with http[s]:/ and version is empty
-    if publicId.search('/') >= 0 and !publicId.match(/^v[0-9]+/) and !publicId.match(/^https?:\//) and !options.version?.toString()
-      options.version = 1
-
-    if publicId.match(/^https?:/)
-      if options.type == 'upload' or options.type == 'asset'
-        url = publicId
-      else
-        publicId = encodeURIComponent(publicId).replace(/%3A/g, ':').replace(/%2F/g, '/')
-    else
-      # Make sure publicId is URI encoded.
-      try
-        publicId = decodeURIComponent(publicId)
-      catch error
-
-      publicId = encodeURIComponent(publicId).replace(/%3A/g, ':').replace(/%2F/g, '/')
-      if options.url_suffix
-        if options.url_suffix.match(/[\.\/]/)
-          throw 'url_suffix should not include . or /'
-        publicId = publicId + '/' + options.url_suffix
-      if options.format
-        if !options.trust_public_id
-          publicId = publicId.replace(/\.(jpg|png|gif|webp)$/, '')
-        publicId = publicId + '.' + options.format
-    prefix = cloudinaryUrlPrefix(publicId, options)
-    resourceTypeAndType = finalizeResourceType(options.resource_type, options.type, options.url_suffix, options.use_root_path, options.shorten)
-    version = if options.version then 'v' + options.version else ''
-
-    url ||  Util.compact([
-      prefix
-      resourceTypeAndType
-      transformationString
-      version
-      publicId
-    ]).join('/').replace(/([^:])\/+/g, '$1/')
+    url(publicId, options, @config())
 
   ###*
    * Generate an video resource URL.
@@ -211,7 +151,7 @@ class Cloudinary
    * @return {string} The video URL
   ###
   video_url: (publicId, options) ->
-    options = Util.assign({ resource_type: 'video' }, options)
+    options = assign({ resource_type: 'video' }, options)
     @url(publicId, options)
 
   ###*
@@ -224,7 +164,7 @@ class Cloudinary
    * @return {string} The video thumbnail URL
   ###
   video_thumbnail_url: (publicId, options) ->
-    options = Util.assign({}, DEFAULT_POSTER_OPTIONS, options)
+    options = assign({}, DEFAULT_POSTER_OPTIONS, options)
     @url(publicId, options)
 
   ###*
@@ -251,7 +191,7 @@ class Cloudinary
     img = img.toDOM()
     unless client_hints
       # cache the image src
-      Util.setData(img, 'src-cache', @url(publicId, options))
+      setData(img, 'src-cache', @url(publicId, options))
       # set image src taking responsiveness in account
       @cloudinary_update(img, options)
     img
@@ -276,7 +216,7 @@ class Cloudinary
    * @return {HTMLImageElement} An image tag element
   ###
   video_thumbnail: (publicId, options) ->
-    @image publicId, Util.merge( {}, DEFAULT_POSTER_OPTIONS, options)
+    @image publicId, merge( {}, DEFAULT_POSTER_OPTIONS, options)
 
   ###*
    * @function Cloudinary#facebook_profile_image
@@ -285,7 +225,7 @@ class Cloudinary
    * @return {HTMLImageElement} an image tag element
   ###
   facebook_profile_image: (publicId, options) ->
-    @image publicId, Util.assign({type: 'facebook'}, options)
+    @image publicId, assign({type: 'facebook'}, options)
 
   ###*
    * @function Cloudinary#twitter_profile_image
@@ -294,7 +234,7 @@ class Cloudinary
    * @return {HTMLImageElement} an image tag element
   ###
   twitter_profile_image: (publicId, options) ->
-    @image publicId, Util.assign({type: 'twitter'}, options)
+    @image publicId, assign({type: 'twitter'}, options)
 
   ###*
    * @function Cloudinary#twitter_name_profile_image
@@ -303,7 +243,7 @@ class Cloudinary
    * @return {HTMLImageElement} an image tag element
   ###
   twitter_name_profile_image: (publicId, options) ->
-    @image publicId, Util.assign({type: 'twitter_name'}, options)
+    @image publicId, assign({type: 'twitter_name'}, options)
 
   ###*
    * @function Cloudinary#gravatar_image
@@ -312,7 +252,7 @@ class Cloudinary
    * @return {HTMLImageElement} an image tag element
   ###
   gravatar_image: (publicId, options) ->
-    @image publicId, Util.assign({type: 'gravatar'}, options)
+    @image publicId, assign({type: 'gravatar'}, options)
 
   ###*
    * @function Cloudinary#fetch_image
@@ -321,7 +261,7 @@ class Cloudinary
    * @return {HTMLImageElement} an image tag element
   ###
   fetch_image: (publicId, options) ->
-    @image publicId, Util.assign({type: 'fetch'}, options)
+    @image publicId, assign({type: 'fetch'}, options)
 
   ###*
    * @function Cloudinary#video
@@ -340,7 +280,7 @@ class Cloudinary
    * @return {VideoTag} A VideoTag that is attached (chained) to this Cloudinary instance
   ###
   videoTag: (publicId, options)->
-    options = Util.defaults({}, options, @config())
+    options = defaults({}, options, @config())
     new VideoTag(publicId, options)
 
   ###*
@@ -351,7 +291,7 @@ class Cloudinary
    * @see {@link http://cloudinary.com/documentation/sprite_generation Sprite generation}
   ###
   sprite_css: (publicId, options) ->
-    options = Util.assign({ type: 'sprite' }, options)
+    options = assign({ type: 'sprite' }, options)
     if !publicId.match(/.css$/)
       options.format = 'css'
     @url publicId, options
@@ -367,7 +307,7 @@ class Cloudinary
   * @see {@link Cloudinary#cloudinary_update} for additional configuration parameters
   ###
   responsive: (options, bootstrap = true) ->
-    @responsiveConfig = Util.merge(@responsiveConfig or {}, options)
+    @responsiveConfig = merge(@responsiveConfig or {}, options)
     responsiveClass = @responsiveConfig['responsive_class'] ? @config('responsive_class')
     @cloudinary_update( "img.#{responsiveClass}, img.cld-hidpi", @responsiveConfig) if bootstrap
     responsiveResize = @responsiveConfig['responsive_resize'] ? @config('responsive_resize') ? true
@@ -403,11 +343,11 @@ class Cloudinary
    * @ignore
   ###
   calc_breakpoint: (element, width, steps) ->
-    breakpoints = Util.getData(element, 'breakpoints') or Util.getData(element, 'stoppoints') or @config('breakpoints') or @config('stoppoints') or defaultBreakpoints
-    if Util.isFunction breakpoints
+    breakpoints = getData(element, 'breakpoints') or getData(element, 'stoppoints') or @config('breakpoints') or @config('stoppoints') or defaultBreakpoints
+    if isFunction breakpoints
       breakpoints(width, steps)
     else
-      if Util.isString breakpoints
+      if isString breakpoints
         breakpoints = (parseInt(point) for point in breakpoints.split(',')).sort((a, b) -> a - b)
       closestAbove breakpoints, width
 
@@ -417,7 +357,8 @@ class Cloudinary
    * @private
    * @ignore
   ###
-  calc_stoppoint: @::calc_breakpoint
+  calc_stoppoint: (element, width, steps) ->
+    @calc_breakpoint(element, width, steps)
 
   ###*
    * @function Cloudinary#device_pixel_ratio
@@ -433,61 +374,6 @@ class Cloudinary
       dprString += '.0'
     dprString
 
-  defaultBreakpoints = (width, steps = 100) ->
-    steps * Math.ceil(width / steps)
-
-  closestAbove = (list, value) ->
-    i = list.length - 2
-    while i >= 0 and list[i] >= value
-      i--
-    list[i + 1]
-
-  # Produce a number between 1 and 5 to be used for cdn sub domains designation
-  cdnSubdomainNumber = (publicId)->
-    crc32(publicId) % 5 + 1
-
-  #  * cdn_subdomain - Boolean (default: false). Whether to automatically build URLs with multiple CDN sub-domains. See this blog post for more details.
-  #  * private_cdn - Boolean (default: false). Should be set to true for Advanced plan's users that have a private CDN distribution.
-  #  * secure_distribution - The domain name of the CDN distribution to use for building HTTPS URLs. Relevant only for Advanced plan's users that have a private CDN distribution.
-  #  * cname - Custom domain name to use for building HTTP URLs. Relevant only for Advanced plan's users that have a private CDN distribution and a custom CNAME.
-  #  * secure - Boolean (default: false). Force HTTPS URLs of images even if embedded in non-secure HTTP pages.
-  cloudinaryUrlPrefix = (publicId, options) ->
-    return '/res'+options.cloud_name if options.cloud_name?.indexOf("/")==0
-
-    # defaults
-    protocol = "http://"
-    cdnPart = ""
-    subdomain = "res"
-    host = ".cloudinary.com"
-    path = "/" + options.cloud_name
-
-    # modifications
-    if options.protocol
-      protocol = options.protocol + '//'
-
-    if options.private_cdn
-      cdnPart = options.cloud_name + "-"
-      path = ""
-
-    if options.cdn_subdomain
-      subdomain = "res-" + cdnSubdomainNumber(publicId)
-
-    if options.secure
-      protocol = "https://"
-      subdomain = "res" if options.secure_cdn_subdomain == false
-      if options.secure_distribution? && options.secure_distribution != OLD_AKAMAI_SHARED_CDN && options.secure_distribution != SHARED_CDN
-        cdnPart = ""
-        subdomain = ""
-        host = options.secure_distribution
-
-    else if options.cname
-      protocol = "http://"
-      cdnPart = ""
-      subdomain = if options.cdn_subdomain then 'a'+((crc32(publicId)%5)+1)+'.' else ''
-      host = options.cname
-
-    [protocol, cdnPart, subdomain, host, path].join("")
-
 
   ###*
   * Finds all `img` tags under each node and sets it up to provide the image through Cloudinary
@@ -497,10 +383,10 @@ class Cloudinary
   ###
   processImageTags: (nodes, options = {}) ->
 # similar to `$.fn.cloudinary`
-    return this if Util.isEmpty(nodes)
-    options = Util.defaults({}, options, @config())
+    return this if isEmpty(nodes)
+    options = defaults({}, options, @config())
     images = for node in nodes when node.tagName?.toUpperCase() == 'IMG'
-      imgOptions = Util.assign(
+      imgOptions = assign(
         {
           width: node.getAttribute('width')
           height: node.getAttribute('height')
@@ -511,37 +397,13 @@ class Cloudinary
       delete imgOptions['src']
       url = @url(publicId, imgOptions)
       imgOptions = new Transformation(imgOptions).toHtmlAttributes()
-      Util.setData(node, 'src-cache', url)
+      setData(node, 'src-cache', url)
       node.setAttribute('width', imgOptions.width)
       node.setAttribute('height', imgOptions.height)
       node
-      
+
     @cloudinary_update( images, options)
     this
-
-  applyBreakpoints = (tag, width, steps, options)->
-    responsive_use_breakpoints = options['responsive_use_breakpoints'] ? options['responsive_use_stoppoints'] ? @config('responsive_use_breakpoints') ? @config('responsive_use_stoppoints')
-    if (!responsive_use_breakpoints) || (responsive_use_breakpoints == 'resize' and !options.resizing)
-      width
-    else
-      @calc_breakpoint(tag, width, steps)
-
-  findContainerWidth = (element) ->
-    containerWidth = 0
-    while ((element = element?.parentNode) instanceof Element) and !containerWidth
-      style = window.getComputedStyle(element);
-      containerWidth = Util.width(element) unless /^inline/.test(style.display)
-    containerWidth
-
-  updateDpr = (dataSrc, roundDpr) ->
-    dataSrc.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + @device_pixel_ratio(roundDpr))
-
-  maxWidth = (requiredWidth, tag) ->
-    imageWidth = Util.getData(tag, 'width') or 0
-    if requiredWidth > imageWidth
-      imageWidth = requiredWidth
-      Util.setData(tag, 'width', requiredWidth)
-    imageWidth
 
   ###*
   * Update hidpi (dpr_auto) and responsive (w_auto) fields according to the current container size and the device pixel ratio.
@@ -563,11 +425,11 @@ class Cloudinary
     responsive = options.responsive ? @config('responsive') ? false
 
     elements = switch
-      when Util.isArray(elements)
+      when isArray(elements)
         elements
       when elements.constructor.name == "NodeList"
         elements
-      when Util.isString(elements)
+      when isString(elements)
         document.querySelectorAll(elements)
       else
         [elements]
@@ -579,9 +441,9 @@ class Cloudinary
       setUrl = true
 
       if responsive
-        Util.addClass(tag, responsiveClass)
-      dataSrc = Util.getData(tag, 'src-cache') or Util.getData(tag, 'src')
-      unless Util.isEmpty(dataSrc)
+        addClass(tag, responsiveClass)
+      dataSrc = getData(tag, 'src-cache') or getData(tag, 'src')
+      unless isEmpty(dataSrc)
         # Update dpr according to the device's devicePixelRatio
         dataSrc = updateDpr.call(this, dataSrc, roundDpr)
         if HtmlTag.isResponsive(tag, responsiveClass)
@@ -596,12 +458,12 @@ class Cloudinary
                 requiredWidth = maxWidth(requiredWidth, tag)
                 dataSrc = dataSrc.replace( /w_auto[^,\/]*/g, "w_#{requiredWidth}")
 
-            Util.removeAttribute(tag, 'width')
-            Util.removeAttribute(tag, 'height') unless options.responsive_preserve_height
+            removeAttribute(tag, 'width')
+            removeAttribute(tag, 'height') unless options.responsive_preserve_height
           else
             # Container doesn't know the size yet - usually because the image is hidden or outside the DOM.
             setUrl = false
-        Util.setAttribute(tag, 'src', dataSrc) if setUrl
+        setAttribute(tag, 'src', dataSrc) if setUrl
     this
 
   ###*
@@ -613,3 +475,4 @@ class Cloudinary
   transformation: (options)->
     Transformation.new( @config()).fromOptions(options).setParent( this)
 
+export default Cloudinary

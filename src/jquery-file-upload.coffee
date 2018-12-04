@@ -2,6 +2,7 @@
  * This module extends CloudinaryJquery to support jQuery File Upload
  * Depends on 'jquery', 'util', 'cloudinaryjquery', 'jquery.ui.widget', 'jquery.iframe-transport','jquery.fileupload'
 ###
+import CloudinaryJQuery from './cloudinaryjquery'
 
 ###*
  * Delete a resource using the upload token
@@ -184,3 +185,4 @@ jQuery.fn.unsigned_cloudinary_upload = (upload_preset, upload_params = {}, optio
   this
 
 jQuery.cloudinary = new CloudinaryJQuery()
+export default CloudinaryJQuery

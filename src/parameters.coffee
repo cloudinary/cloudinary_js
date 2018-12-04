@@ -1,3 +1,23 @@
+import Expression from './expression'
+
+import {
+  allStrings,
+  compact,
+  identity,
+  isArray,
+  isEmpty,
+  isFunction,
+  isPlainObject,
+  isString,
+  withCamelCaseKeys
+} from './util'
+
+import Layer from './layer/layer'
+import TextLayer from './layer/textlayer'
+import SubtitlesLayer from './layer/subtitleslayer'
+import FetchLayer from './layer/fetchlayer'
+
+
 ###*
  * Transformation parameters
  * Depends on 'util', 'transformation'
@@ -9,10 +29,10 @@ class Param
    * @param {string} name - The name of the parameter in snake_case
    * @param {string} shortName - The name of the serialized form of the parameter.
    *                         If a value is not provided, the parameter will not be serialized.
-   * @param {function} [process=cloudinary.Util.identity ] - Manipulate origValue when value is called
+   * @param {function} [process=Util.identity ] - Manipulate origValue when value is called
    * @ignore
   ###
-  constructor: (name, shortName, process = cloudinary.Util.identity)->
+  constructor: (name, shortName, process = Util.identity)->
     ###*
      * The name of the parameter in snake_case
      * @member {string} Param#name
@@ -46,8 +66,8 @@ class Param
   ###
   serialize: ->
     val = @value()
-    valid = if cloudinary.Util.isArray(val) || cloudinary.Util.isPlainObject(val) || cloudinary.Util.isString(val)
-        !cloudinary.Util.isEmpty(val)
+    valid = if isArray(val) || isPlainObject(val) || isString(val)
+        !isEmpty(val)
       else
         val?
     if @shortName? && valid
@@ -65,7 +85,7 @@ class Param
   @norm_color: (value) -> value?.replace(/^#/, 'rgb:')
 
   build_array: (arg = []) ->
-    if cloudinary.Util.isArray(arg)
+    if isArray(arg)
       arg
     else
       [arg]
@@ -104,25 +124,25 @@ class ArrayParam extends Param
    * @param {string} shortName - The name of the serialized form of the parameter
    *                         If a value is not provided, the parameter will not be serialized.
    * @param {string} [sep='.'] - The separator to use when joining the array elements together
-   * @param {function} [process=cloudinary.Util.identity ] - Manipulate origValue when value is called
+   * @param {function} [process=Util.identity ] - Manipulate origValue when value is called
    * @class ArrayParam
    * @extends Param
    * @ignore
   ###
   constructor: (name, shortName, sep = '.', process) ->
-    @sep = sep
     super(name, shortName, process)
+    @sep = sep
 
   serialize: ->
     if @shortName?
       arrayValue = @value()
-      if cloudinary.Util.isEmpty(arrayValue)
+      if isEmpty(arrayValue)
         ''
-      else if cloudinary.Util.isString(arrayValue)
+      else if isString(arrayValue)
         "#{@shortName}_#{arrayValue}"
       else
         flat = for t in arrayValue
-          if cloudinary.Util.isFunction( t.serialize)
+          if isFunction( t.serialize)
             t.serialize() # Param or Transformation
           else
             t
@@ -131,13 +151,13 @@ class ArrayParam extends Param
       ''
 
   value: ()->
-    if cloudinary.Util.isArray(@origValue)
+    if isArray(@origValue)
       @process(v) for v in @origValue
     else
       @process(@origValue)
 
   set: (origValue)->
-    if !origValue? || cloudinary.Util.isArray(origValue)
+    if !origValue? || isArray(origValue)
       super(origValue)
     else
       super([origValue])
@@ -148,36 +168,36 @@ class TransformationParam extends Param
    * @param {string} name - The name of the parameter in snake_case
    * @param {string} [shortName='t'] - The name of the serialized form of the parameter
    * @param {string} [sep='.'] - The separator to use when joining the array elements together
-   * @param {function} [process=cloudinary.Util.identity ] - Manipulate origValue when value is called
+   * @param {function} [process=Util.identity ] - Manipulate origValue when value is called
    * @class TransformationParam
    * @extends Param
    * @ignore
   ###
   constructor: (name, shortName = "t", sep = '.', process) ->
-    @sep = sep
     super(name, shortName, process)
+    @sep = sep
 
   serialize: ->
-    if cloudinary.Util.isEmpty(@value())
+    if isEmpty(@value())
       ''
-    else if cloudinary.Util.allStrings(@value())
+    else if allStrings(@value())
       joined = @value().join(@sep)
-      if !cloudinary.Util.isEmpty(joined)
+      if !isEmpty(joined)
         "#{@shortName}_#{joined}"
       else
         ''
     else
       result = for t in @value() when t?
-        if cloudinary.Util.isString( t) && !cloudinary.Util.isEmpty(t)
+        if isString( t) && !isEmpty(t)
           "#{@shortName}_#{t}"
-        else if cloudinary.Util.isFunction( t.serialize)
+        else if isFunction( t.serialize)
           t.serialize()
-        else if cloudinary.Util.isPlainObject(t) && !cloudinary.Util.isEmpty(t)
+        else if isPlainObject(t) && !isEmpty(t)
           new Transformation(t).serialize()
-      cloudinary.Util.compact(result)
+      compact(result)
 
   set: (@origValue)->
-    if cloudinary.Util.isArray(@origValue)
+    if isArray(@origValue)
       super(@origValue)
     else
       super([@origValue])
@@ -193,8 +213,9 @@ class RangeParam extends Param
    * @extends Param
    * @ignore
   ###
-  constructor: (name, shortName, process = @norm_range_value)->
+  constructor: (name, shortName, process)->
     super(name, shortName, process)
+    @process ||= @norm_range_value
 
   @norm_range_value: (value) ->
     offset = String(value).match(new RegExp('^' + offset_any_pattern + '$'))
@@ -204,7 +225,7 @@ class RangeParam extends Param
     value
 
 class RawParam extends Param
-  constructor: (name, shortName, process = cloudinary.Util.identity)->
+  constructor: (name, shortName, process = Util.identity)->
     super(name, shortName, process)
   serialize: ->
     @value()
@@ -217,16 +238,16 @@ class LayerParam extends Param
   value: ()->
     layerOptions = @origValue
     
-    if cloudinary.Util.isPlainObject(layerOptions)
-      layerOptions = Util.withCamelCaseKeys(layerOptions)
+    if isPlainObject(layerOptions)
+      layerOptions = withCamelCaseKeys(layerOptions)
       if layerOptions.resourceType == "text" || layerOptions.text?
-        result = new cloudinary.TextLayer(layerOptions).toString()
+        result = new TextLayer(layerOptions).toString()
       else if layerOptions.resourceType == "subtitles"
-        result = new cloudinary.SubtitlesLayer(layerOptions).toString()
+        result = new SubtitlesLayer(layerOptions).toString()
       else if layerOptions.resourceType == "fetch" || layerOptions.url?
-        result = new cloudinary.FetchLayer(layerOptions).toString()
+        result = new FetchLayer(layerOptions).toString()
       else
-        result = new cloudinary.Layer(layerOptions).toString()
+        result = new Layer(layerOptions).toString()
     else if /^fetch:.+/.test(layerOptions)
       result = new FetchLayer(layerOptions.substr(6)).toString()
     else
@@ -244,18 +265,18 @@ class LayerParam extends Param
   ]
 
   textStyle: (layer)->
-    (new cloudinary.TextLayer(layer)).textStyleIdentifier()
+    (new TextLayer(layer)).textStyleIdentifier()
 
 class ExpressionParam extends Param
   serialize: ()->
     Expression.normalize(super())
 
-parameters = {}
-parameters.Param = Param
-parameters.ArrayParam = ArrayParam
-parameters.RangeParam = RangeParam
-parameters.RawParam = RawParam
-parameters.TransformationParam = TransformationParam
-parameters.LayerParam = LayerParam
-parameters.ExpressionParam = ExpressionParam
-
+export {
+  Param,
+  ArrayParam,
+  TransformationParam,
+  RangeParam,
+  RawParam,
+  LayerParam,
+  ExpressionParam
+}

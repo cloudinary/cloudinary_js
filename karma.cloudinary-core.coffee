@@ -15,7 +15,7 @@ module.exports = (config) ->
 
     # list of files / patterns to load in the browser
     files: [
-      'bower_components/lodash/lodash.js'
+      'node_modules/lodash/lodash.js'
       'build/cloudinary-core.js'
       'test/spec/spec-helper.js'
       'test/spec/cloudinary-spec.js'
@@ -25,15 +25,16 @@ module.exports = (config) ->
       'test/spec/chaining-spec.js'
       'test/spec/layer-spec.js'
       'test/spec/responsive-core-spec.js'
-      {pattern: 'build/*', watched: false, included: false, served: true, nocache: false}
+      {pattern: 'dist/*', watched: false, included: false, served: true, nocache: false}
       {pattern: 'test/docRoot/responsive-core-test.html', watched: false, included: false, served: true, nocache: false}
-      {pattern: 'bower_components/bootstrap/dist/css/*', watched: false, included: false, served: true, nocache: false}
-      {pattern: 'bower_components/bootstrap/dist/js/*', watched: false, included: false, served: true, nocache: false}
+      {pattern: 'node_modules/bootstrap/dist/css/*', watched: false, included: false, served: true, nocache: false}
+      {pattern: 'node_modules/bootstrap/dist/js/*', watched: false, included: false, served: true, nocache: false}
       {pattern: 'test/docRoot/css/logo-nav.css', watched: false, included: false, served: true, nocache: false}
     ]
     coffeePreprocessor:
       options:
         sourceMap: true
+        bare: true
 
 
 # preprocess matching files before serving them to the browser

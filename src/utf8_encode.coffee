@@ -2,7 +2,7 @@
  * UTF8 encoder
  *
 ###
-utf8_encode = (argString) ->
+export default utf8_encode = (argString) ->
   # http://kevin.vanzonneveld.net
   # +   original by: Webtoolkit.info (http://www.webtoolkit.info/)
   # +   improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)

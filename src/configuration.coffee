@@ -1,8 +1,16 @@
-
 ###*
  * Cloudinary configuration class
  * Depends on 'utils'
 ###
+
+import {
+  defaults,
+  assign,
+  isString,
+  isPlainObject,
+  cloneDeep
+} from './util'
+
 class Configuration
 
   ###*
@@ -46,8 +54,8 @@ class Configuration
    * @param {Object} options - configuration parameters
   ###
   constructor: (options ={})->
-    @configuration = Util.cloneDeep(options)
-    Util.defaults( @configuration, DEFAULT_CONFIGURATION_PARAMS)
+    @configuration = cloneDeep(options)
+    defaults( @configuration, DEFAULT_CONFIGURATION_PARAMS)
 
   ###*
    * Initialize the configuration.
@@ -84,7 +92,7 @@ class Configuration
     @configuration[name]
 
   merge: (config={})->
-    Util.assign(@configuration, Util.cloneDeep(config))
+    assign(@configuration, cloneDeep(config))
     this
 
   ###*
@@ -147,9 +155,9 @@ class Configuration
       when new_value != undefined
         @set(new_config, new_value)
         @configuration
-      when Util.isString(new_config)
+      when isString(new_config)
         @get(new_config)
-      when Util.isPlainObject(new_config)
+      when isPlainObject(new_config)
         @merge(new_config)
         @configuration
       else
@@ -162,4 +170,6 @@ class Configuration
    * @returns {Object} a key:value collection of the configuration parameters
   ###
   toOptions: ()->
-    Util.cloneDeep(@configuration)
+    cloneDeep(@configuration)
+
+export default Configuration

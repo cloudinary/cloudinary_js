@@ -3,6 +3,37 @@
  * Depends on 'configuration', 'parameters','util'
  * @internal
 ###
+import {
+  assign,
+  camelCase,
+  contains,
+  functions,
+  snakeCase
+} from './util'
+#import assign from 'lodash/assign'
+#import functions from 'lodash/functions'
+import Expression from './expression'
+import Configuration from './configuration'
+import {
+  identity,
+  isArray,
+  isEmpty,
+  isFunction,
+  isPlainObject,
+  isString,
+  cloneDeep,
+  compact,
+  difference
+} from './util';
+
+import {
+  Param,
+  ArrayParam,
+  LayerParam
+  RangeParam,
+  RawParam,
+  TransformationParam,
+} from "./parameters"
 
 class TransformationBase
   VAR_NAME_RE = /^\$[a-zA-Z0-9]+$/
@@ -10,7 +41,7 @@ class TransformationBase
   param_separator: ','
   lastArgCallback = (args)->
     callback = args?[args.length - 1]
-    if(Util.isFunction(callback))
+    if(isFunction(callback))
       callback
     else
       undefined
@@ -39,7 +70,7 @@ class TransformationBase
         opt[key]= value.origValue
       for key, value of @otherOptions when value != undefined
         opt[key]= value
-      if withChain && !Util.isEmpty(@chained)
+      if withChain && !isEmpty(@chained)
         list = for tr in @chained
           tr.toOptions()
         list.push(opt)
@@ -79,33 +110,33 @@ class TransformationBase
     ###* @protected ###
     @param ||= (value, name, abbr, defaultValue, process) ->
       unless process?
-        if Util.isFunction(defaultValue)
+        if isFunction(defaultValue)
           process = defaultValue
         else
-          process = Util.identity
+          process = identity
       trans[name] = new Param(name, abbr, process).set(value)
       @
 
     ###* @protected ###
-    @rawParam ||= (value, name, abbr, defaultValue, process = Util.identity) ->
+    @rawParam ||= (value, name, abbr, defaultValue, process = identity) ->
       process = lastArgCallback(arguments)
       trans[name] = new RawParam(name, abbr, process).set(value)
       @
 
     ###* @protected ###
-    @rangeParam ||= (value, name, abbr, defaultValue, process = Util.identity) ->
+    @rangeParam ||= (value, name, abbr, defaultValue, process = identity) ->
       process = lastArgCallback(arguments)
       trans[name] = new RangeParam(name, abbr, process).set(value)
       @
 
     ###* @protected ###
-    @arrayParam ||= (value, name, abbr, sep = ":", defaultValue = [], process = Util.identity) ->
+    @arrayParam ||= (value, name, abbr, sep = ":", defaultValue = [], process = identity) ->
       process = lastArgCallback(arguments)
       trans[name] = new ArrayParam(name, abbr, sep, process).set(value)
       @
 
     ###* @protected ###
-    @transformationParam ||= (value, name, abbr, sep = ".", defaultValue, process = Util.identity) ->
+    @transformationParam ||= (value, name, abbr, sep = ".", defaultValue, process = identity) ->
       process = lastArgCallback(arguments)
       trans[name] = new TransformationParam(name, abbr, sep, process).set(value)
       @
@@ -162,7 +193,7 @@ class TransformationBase
      * @return {Array<string>} the keys in snakeCase format
     ###
     @keys ||= ()->
-      ((if key.match(VAR_NAME_RE) then key else Util.snakeCase(key)) for key of trans when key?).sort()
+      ((if key.match(VAR_NAME_RE) then key else snakeCase(key)) for key of trans when key?).sort()
 
     ###*
      * Returns a plain object representation of the transformation. Values are processed.
@@ -173,8 +204,8 @@ class TransformationBase
       hash = {}
       for key of trans
         hash[key] = trans[key].value()
-        hash[key] = Util.cloneDeep(hash[key]) if Util.isPlainObject(hash[key])
-      unless Util.isEmpty(@chained)
+        hash[key] = cloneDeep(hash[key]) if isPlainObject(hash[key])
+      unless isEmpty(@chained)
         list = for tr in @chained
           tr.toPlainObject()
         list.push(hash)
@@ -210,7 +241,7 @@ class TransformationBase
 
     # Finished constructing the instance, now process the options
 
-    @fromOptions(options) unless Util.isEmpty(options)
+    @fromOptions(options) unless isEmpty(options)
 
   ###*
    * Merge the provided options with own's options
@@ -222,8 +253,8 @@ class TransformationBase
       @fromTransformation(options)
     else
       options or= {}
-      options = {transformation: options } if Util.isString(options) || Util.isArray(options)
-      options = Util.cloneDeep(options, (value) ->
+      options = {transformation: options } if isString(options) || isArray(options)
+      options = cloneDeep(options, (value) ->
         if value instanceof TransformationBase
           new value.constructor( value.toOptions())
       )
@@ -252,8 +283,8 @@ class TransformationBase
    * @returns {Transformation} Returns this instance for chaining
   ###
   set: (key, values...)->
-    camelKey = Util.camelCase( key)
-    if Util.contains( Transformation.methods, camelKey)
+    camelKey = camelCase( key)
+    if contains( Transformation.methods, camelKey)
       this[camelKey].apply(this, values)
     else
       @otherOptions[key] = values[0]
@@ -275,7 +306,7 @@ class TransformationBase
     transformations = @get("transformation")?.serialize()
     ifParam = @get("if")?.serialize()
     variables = processVar(@get("variables")?.value())
-    paramList = Util.difference(paramList, ["transformation", "if", "variables"])
+    paramList = difference(paramList, ["transformation", "if", "variables"])
     vars = []
     transformationList = []
     for t in paramList
@@ -285,12 +316,12 @@ class TransformationBase
         transformationList.push(@get(t)?.serialize())
 
     switch
-      when Util.isString(transformations)
+      when isString(transformations)
         transformationList.push( transformations)
-      when Util.isArray( transformations)
+      when isArray( transformations)
         resultArray = resultArray.concat(transformations)
     transformationList = (
-      for value in transformationList when Util.isArray(value) &&!Util.isEmpty(value) || !Util.isArray(value) && value
+      for value in transformationList when isArray(value) &&!isEmpty(value) || !isArray(value) && value
         value
     )
 
@@ -298,12 +329,12 @@ class TransformationBase
 
     if ifParam == "if_end"
       transformationList.push(ifParam)
-    else if !Util.isEmpty(ifParam)
+    else if !isEmpty(ifParam)
       transformationList.unshift(ifParam)
 
-    transformationString = Util.compact(transformationList).join(@param_separator)
-    resultArray.push(transformationString) unless Util.isEmpty(transformationString)
-    Util.compact(resultArray).join(@trans_separator)
+    transformationString = compact(transformationList).join(@param_separator)
+    resultArray.push(transformationString) unless isEmpty(transformationString)
+    compact(resultArray).join(@trans_separator)
 
   ###*
    * Provide a list of all the valid transformation option names
@@ -322,14 +353,14 @@ class TransformationBase
   ###
   toHtmlAttributes: ()->
     options = {}
-    for key, value of @otherOptions when  !Util.contains(Transformation.PARAM_NAMES, Util.snakeCase(key))
+    for key, value of @otherOptions when  !contains(Transformation.PARAM_NAMES, snakeCase(key))
       attrName = if /^html_/.test(key) then key.slice(5) else key
       options[attrName] = value
     # convert all "html_key" to "key" with the same value
     for key in @keys() when /^html_/.test(key)
-      options[Util.camelCase(key.slice(5))] = @getValue(key)
+      options[camelCase(key.slice(5))] = @getValue(key)
 
-    unless @hasLayer()|| @getValue("angle") || Util.contains( ["fit", "limit", "lfill"],@getValue("crop"))
+    unless @hasLayer()|| @getValue("angle") || contains( ["fit", "limit", "lfill"],@getValue("crop"))
       width = @get("width")?.origValue
       height = @get("height")?.origValue
       if parseFloat(width) >= 1.0
@@ -339,7 +370,7 @@ class TransformationBase
     options
 
   isValidParamName: (name) ->
-    Transformation.methods.indexOf(Util.camelCase(name)) >= 0
+    Transformation.methods.indexOf(camelCase(name)) >= 0
 
   ###*
    * Delegate to the parent (up the call chain) to produce HTML
@@ -362,7 +393,7 @@ class TransformationBase
 
 
   processVar = (varArray)->
-    if Util.isArray(varArray)
+    if isArray(varArray)
       "#{name}_#{Expression.normalize(v)}" for [name,v] in varArray
     else
       varArray
@@ -387,7 +418,7 @@ class TransformationBase
      * @see toHtmlAttributes
     ###
 
-class Transformation  extends TransformationBase
+export default class Transformation  extends TransformationBase
 
   ###*
    *  Represents a single transformation.
@@ -423,8 +454,8 @@ class Transformation  extends TransformationBase
   background: (value)->           @param value, "background", "b", Param.norm_color
   bitRate: (value)->              @param value, "bit_rate", "br"
   border: (value)->               @param value, "border", "bo", (border) ->
-    if (Util.isPlainObject(border))
-      border = Util.assign({}, {color: "black", width: 2}, border)
+    if (isPlainObject(border))
+      border = assign({}, {color: "black", width: 2}, border)
       "#{border.width}px_solid_#{Param.norm_color(border.color)}"
     else
       border
@@ -451,9 +482,9 @@ class Transformation  extends TransformationBase
   flags: (value)->                @arrayParam value,  "flags", "fl", "."
   gravity: (value)->              @param value,       "gravity", "g"
   fps: (value)->                  @param value, "fps", "fps", (fps) =>
-    if (Util.isString(fps))
+    if (isString(fps))
       fps
-    else if (Util.isArray(fps))
+    else if (isArray(fps))
       fps.join("-")
     else
       fps
@@ -489,9 +520,9 @@ class Transformation  extends TransformationBase
           Condition.new(value).toString()
   keyframeInterval: (value)->     @param value, "keyframe_interval",  "ki"
   offset: (value)->
-    [start_o, end_o] = if( Util.isFunction(value?.split))
+    [start_o, end_o] = if( isFunction(value?.split))
       value.split('..')
-    else if Util.isArray(value)
+    else if isArray(value)
       value
     else
       [null,null]
@@ -506,7 +537,7 @@ class Transformation  extends TransformationBase
   radius: (value)->               @param value, "radius",   "r", Expression.normalize
   rawTransformation: (value)->    @rawParam value, "raw_transformation"
   size: (value)->
-    if( Util.isFunction(value?.split))
+    if( isFunction(value?.split))
       [width, height] = value.split('x')
       @width(width)
       @height(height)
@@ -534,11 +565,13 @@ class Transformation  extends TransformationBase
  * This is a list of the parameters defined in Transformation.
  * Values are camelCased.
 ###
-Transformation.methods ||= Util.difference(Util.functions(Transformation.prototype), Util.functions(TransformationBase.prototype))
+Transformation.methods ||= difference(functions(Transformation.prototype), functions(TransformationBase.prototype))
+if !Transformation.methods || Transformation.methods.length == 0
+  Transformation.methods = Object.getOwnPropertyNames(Transformation.prototype)
 
 ###*
  * Parameters that are filtered out before passing the options to an HTML tag.
  *
  * The list of parameters is a combination of `Transformation::methods` and `Configuration::CONFIG_PARAMS`
 ###
-Transformation.PARAM_NAMES ||= (Util.snakeCase(m) for m in Transformation.methods).concat( Configuration.CONFIG_PARAMS)
+Transformation.PARAM_NAMES ||= (snakeCase(m) for m in Transformation.methods).concat( Configuration.CONFIG_PARAMS)

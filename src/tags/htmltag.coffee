@@ -2,7 +2,15 @@
  * Generic HTML tag
  * Depends on 'transformation', 'util'
 ###
-class HtmlTag
+  
+import {
+  isPlainObject,
+  isFunction,
+  getData,
+  hasClass
+} from '../util'
+
+export default class HtmlTag
   ###*
    * Represents an HTML (DOM) tag
    * @constructor HtmlTag
@@ -15,7 +23,7 @@ class HtmlTag
     @name = name
     @publicId = publicId
     if !options?
-      if Util.isPlainObject(publicId)
+      if isPlainObject(publicId)
         options = publicId
         @publicId = undefined
       else
@@ -158,11 +166,11 @@ class HtmlTag
    * @returns {Element}
   ###
   toDOM: ()->
-    throw "Can't create DOM if document is not present!" unless Util.isFunction( document?.createElement)
+    throw "Can't create DOM if document is not present!" unless isFunction( document?.createElement)
     element = document.createElement(@name)
     element[name] = value for name, value of @attributes()
     element
 
   @isResponsive: (tag, responsiveClass)->
-    dataSrc = Util.getData(tag, 'src-cache') or Util.getData(tag, 'src')
-    Util.hasClass(tag, responsiveClass) and /\bw_auto\b/.exec(dataSrc)
+    dataSrc = getData(tag, 'src-cache') or getData(tag, 'src')
+    hasClass(tag, responsiveClass) and /\bw_auto\b/.exec(dataSrc)

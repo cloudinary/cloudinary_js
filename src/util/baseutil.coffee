@@ -8,7 +8,7 @@
  * @function Util.allString
  * @param {Array} list - an array of items
 ###
-allStrings = (list)->
+export allStrings = (list)->
   for item in list
     return false unless Util.isString(item)
   return true
@@ -20,7 +20,7 @@ allStrings = (list)->
 * @param {*} item - the item to exclude from the new array
 * @return {Array} a new array made of the original array's items except for `item`
 ###
-without = (array, item)->
+export without = (array, item)->
   newArray = []
   i = -1; length = array.length;
   while ++i < length
@@ -38,7 +38,7 @@ without = (array, item)->
 *    Util.isNumber("") // false
 *    Util.isNumber(undefined) // false
 ###
-isNumberLike = (value)->
+export isNumberLike = (value)->
   value? && !isNaN(parseFloat(value))
 
 ###*
@@ -48,7 +48,7 @@ isNumberLike = (value)->
  * @param {RegExp} unsafe - characters that must be escaped
  * @return {string} escaped string
 ###
-smartEscape = (string, unsafe = /([^a-zA-Z0-9_.\-\/:]+)/g)->
+export smartEscape = (string, unsafe = /([^a-zA-Z0-9_.\-\/:]+)/g)->
   string.replace unsafe, (match)->
     match.split("").map((c)-> "%"+c.charCodeAt(0).toString(16).toUpperCase()).join("")
 
@@ -60,7 +60,7 @@ smartEscape = (string, unsafe = /([^a-zA-Z0-9_.\-\/:]+)/g)->
  * @param {...Object} source - the source object(s) to assign defaults from
  * @return {Object} destination after it was modified
 ###
-defaults = (destination, sources...)->
+export defaults = (destination, sources...)->
   sources.reduce(
     (dest, source)->
       for key, value of source when dest[key] == undefined
@@ -70,14 +70,14 @@ defaults = (destination, sources...)->
   )
 
 ###********** lodash functions ###
-objectProto = Object.prototype
+export objectProto = Object.prototype
 
 ###*
 # Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
 # of values.
 ###
 
-objToString = objectProto.toString
+export objToString = objectProto.toString
 
 ###*
 # Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
@@ -97,13 +97,13 @@ objToString = objectProto.toString
 # // => false
 ###
 
-isObject = (value) ->
+export isObject = (value) ->
 # Avoid a V8 JIT bug in Chrome 19-20.
 # See https://code.google.com/p/v8/issues/detail?id=2291 for more details.
   type = typeof value
   ! !value and (type == 'object' or type == 'function')
 
-funcTag = '[object Function]'
+export funcTag = '[object Function]'
 
 ###*
 * Checks if `value` is classified as a `Function` object.
@@ -119,7 +119,7 @@ funcTag = '[object Function]'
 * isFunction(/abc/);
 * // => false
 ###
-isFunction = (value) ->
+export isFunction = (value) ->
 # The use of `Object#toString` avoids issues with the `typeof` operator
 # in older versions of Chrome and Safari which return 'function' for regexes
 # and Safari 8 which returns 'object' for typed array constructors.
@@ -130,7 +130,7 @@ isFunction = (value) ->
 
 ###* Used to match words to create compound words. ###
 
-reWords = do ->
+export reWords = do ->
   upper = '[A-Z]'
   lower = '[a-z]+'
   RegExp upper + '+(?=' + upper + lower + ')|' + upper + '?' + lower + '|' + upper + '+|[0-9]+', 'g'
@@ -141,7 +141,7 @@ reWords = do ->
 * @param {string} string - the string to convert
 * @return {string} in camelCase format
 ###
-camelCase = (source)->
+export camelCase = (source)->
   words = source.match(reWords)
   words = for word, i in words
     word = word.toLocaleLowerCase()
@@ -154,13 +154,13 @@ camelCase = (source)->
  * @param {string} string - the string to convert
  * @return {string} in snake_case format
 ###
-snakeCase = (source)->
+export snakeCase = (source)->
   words = source.match(reWords)
   words = for word, i in words
     word.toLocaleLowerCase()
   words.join('_')
 
-convertKeys = (source, converter = Util.identity)->
+export convertKeys = (source, converter = Util.identity)->
   result = {}
   for key, value of source
     key = converter(key)
@@ -173,7 +173,7 @@ convertKeys = (source, converter = Util.identity)->
  * @param {Object} value - the object to copy
  * @return {Object} a new object
 ###
-withCamelCaseKeys = (source)->
+export withCamelCaseKeys = (source)->
   convertKeys(source, Util.camelCase)
 
 ###*
@@ -182,10 +182,10 @@ withCamelCaseKeys = (source)->
  * @param {Object} value - the object to copy
  * @return {Object} a new object
 ###
-withSnakeCaseKeys = (source)->
+export withSnakeCaseKeys = (source)->
   convertKeys(source, Util.snakeCase)
 
-base64Encode =  
+export base64Encode =
   if typeof btoa != 'undefined' && isFunction(btoa)
     # Browser
     btoa
@@ -205,7 +205,7 @@ base64Encode =
 * @param {string} url - the url to encode. the value is URIdecoded and then re-encoded before converting to base64 representation
 * @return {string} the base64 representation of the URL   
 ###
-base64EncodeURL = (input)->
+export base64EncodeURL = (input)->
   try
     input = decodeURI(input)
   catch ignore
@@ -213,16 +213,17 @@ base64EncodeURL = (input)->
   input = encodeURI(input);
   base64Encode(input);
     
-BaseUtil =
-  allStrings: allStrings
-  camelCase: camelCase
-  convertKeys: convertKeys
-  defaults: defaults
-  snakeCase: snakeCase
-  without: without
-  isFunction: isFunction
-  isNumberLike: isNumberLike
-  smartEscape: smartEscape
-  withCamelCaseKeys: withCamelCaseKeys
-  withSnakeCaseKeys: withSnakeCaseKeys
-  base64EncodeURL: base64EncodeURL
+#export default BaseUtil = {
+#  allStrings
+#  camelCase
+#  convertKeys
+#  defaults
+#  snakeCase
+#  without
+#  isFunction
+#  isNumberLike
+#  smartEscape
+#  withCamelCaseKeys
+#  withSnakeCaseKeys
+#  base64EncodeURL
+#}

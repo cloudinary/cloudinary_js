@@ -2,7 +2,19 @@
  * Video Tag
  * Depends on 'tags/htmltag', 'util', 'cloudinary'
 ###
-class VideoTag extends HtmlTag
+import {DEFAULT_VIDEO_PARAMS, DEFAULT_IMAGE_PARAMS} from '../constants'
+import url from '../url'
+
+import {
+  defaults,
+  isPlainObject,
+  contains,
+  isArray
+} from '../util'
+
+import HtmlTag from './htmltag'
+
+export default class VideoTag extends HtmlTag
 
   VIDEO_TAG_PARAMS = ['source_types', 'source_transformation', 'fallback_content', 'poster']
   DEFAULT_VIDEO_SOURCE_TYPES = ['webm', 'mp4', 'ogv']
@@ -16,7 +28,7 @@ class VideoTag extends HtmlTag
    * @param {Object} [options]
   ###
   constructor: (publicId, options = {})->
-    options = Util.defaults({}, options, Cloudinary.DEFAULT_VIDEO_PARAMS)
+    options = defaults({}, options, DEFAULT_VIDEO_PARAMS)
     super("video", publicId.replace(/\.(mp4|ogv|webm)$/, ''), options)
 
   ###*
@@ -66,11 +78,11 @@ class VideoTag extends HtmlTag
     sourceTransformation = @transformation().getValue('source_transformation')
     fallback = @transformation().getValue('fallback_content')
 
-    if Util.isArray(sourceTypes)
+    if isArray(sourceTypes)
       cld = new Cloudinary(@getOptions())
       innerTags = for srcType in sourceTypes
         transformation = sourceTransformation[srcType] or {}
-        src = cld.url("#{@publicId }", Util.defaults({}, transformation, {resource_type: 'video', format: srcType}))
+        src = cld.url("#{@publicId }", defaults({}, transformation, {resource_type: 'video', format: srcType}))
         videoType = if srcType == 'ogv' then 'ogg' else srcType
         mimeType = 'video/' + videoType
         "<source #{@htmlAttrs(src: src, type: mimeType)}>"
@@ -82,17 +94,16 @@ class VideoTag extends HtmlTag
     sourceTypes = @getOption('source_types')
     poster = @getOption('poster') ? {}
 
-    if Util.isPlainObject(poster)
-      defaults = if poster.public_id? then Cloudinary.DEFAULT_IMAGE_PARAMS else DEFAULT_POSTER_OPTIONS
-      poster = new Cloudinary(@getOptions()).url(
+    if isPlainObject(poster)
+      defaultOptions = if poster.public_id? then DEFAULT_IMAGE_PARAMS else DEFAULT_POSTER_OPTIONS
+      poster = url(
         poster.public_id ? @publicId,
-        Util.defaults({}, poster, defaults))
+        defaults({}, poster, defaultOptions, @getOptions()))
 
     attr = super() || []
-    attr = a for a in attr when !Util.contains(VIDEO_TAG_PARAMS)
-    unless  Util.isArray(sourceTypes)
-      attr["src"] = new Cloudinary(@getOptions())
-      .url(@publicId, {resource_type: 'video', format: sourceTypes})
+    attr = a for a in attr when !contains(VIDEO_TAG_PARAMS)
+    unless  isArray(sourceTypes)
+      attr["src"] = url(@publicId, @getOptions(), {resource_type: 'video', format: sourceTypes})
     if poster?
       attr["poster"] = poster
     attr

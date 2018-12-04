@@ -1,3 +1,5 @@
+import utf8_encode from './utf8_encode'
+
 ###*
  * CRC32 calculator
  * Depends on 'utf8_encode'
@@ -29,3 +31,5 @@ crc32 = (str) ->
   if crc < 0
     crc += 4294967296
   crc
+
+export default crc32

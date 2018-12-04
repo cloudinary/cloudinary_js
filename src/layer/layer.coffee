@@ -1,3 +1,5 @@
+import {snakeCase, compact} from '../util'
+
 class Layer
   ###*
    * Layer
@@ -8,7 +10,7 @@ class Layer
     @options = {}
     if options?
       ["resourceType", "type", "publicId", "format"].forEach (key)=>
-        @options[key] = options[key] ? options[Util.snakeCase(key)]
+        @options[key] = options[key] ? options[snakeCase(key)]
 
   resourceType: (value)->
     @options.resourceType = value
@@ -58,4 +60,6 @@ class Layer
 
     components.push(@getFullPublicId())
 
-    Util.compact(components).join( ":")
+    compact(components).join( ":")
+
+export default Layer;

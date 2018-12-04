@@ -2,7 +2,7 @@
 ###*
   * Includes utility methods and lodash / jQuery shims
 ###
-
+export * from './baseutil'
 ###*
   * Get data from the DOM element.
   *
@@ -12,7 +12,7 @@
   * @returns the value associated with the `name`
   * @function Util.getData
 ###
-getData = ( element, name)->
+export getData = ( element, name)->
   jQuery(element).data(name)
 
 ###*
@@ -25,7 +25,7 @@ getData = ( element, name)->
   * @param {*} value - the value to be set
   *
 ###
-setData = (element, name, value)->
+export setData = (element, name, value)->
   jQuery(element).data(name, value)
 
 ###*
@@ -38,7 +38,7 @@ setData = (element, name, value)->
   * @returns {*} the value of the attribute
   *
 ###
-getAttribute = ( element, name)->
+export getAttribute = ( element, name)->
   jQuery(element).attr(name)
 ###*
   * Set attribute in the DOM element.
@@ -49,7 +49,7 @@ getAttribute = ( element, name)->
   * @param {string} name - the name of the attribute
   * @param {*} value - the value to be set
 ###
-setAttribute = (element, name, value)->
+export setAttribute = (element, name, value)->
   jQuery(element).attr(name, value)
 
 ###*
@@ -59,7 +59,7 @@ setAttribute = (element, name, value)->
  * @param {Element} element - the element to set the attribute for
  * @param {string} name - the name of the attribute
 ###
-removeAttribute = (element, name)->
+export removeAttribute = (element, name)->
   jQuery(element).removeAttr(name)
 
 ###*
@@ -68,7 +68,7 @@ removeAttribute = (element, name)->
   * @param {Element} element - the element to set the attributes for
   * @param {Object} attributes - a hash of attribute names and values
 ###
-setAttributes = (element, attributes)->
+export setAttributes = (element, attributes)->
   jQuery(element).attr(attributes)
 
 ###*
@@ -78,7 +78,7 @@ setAttributes = (element, attributes)->
   * @param {string} name - the class name
   @returns {boolean} true if the element has the class
 ###
-hasClass = (element, name)->
+export hasClass = (element, name)->
   jQuery(element).hasClass(name)
 
 ###*
@@ -87,11 +87,11 @@ hasClass = (element, name)->
   * @param {Element} element - the element
   * @param {string} name - the class name to add
 ###
-addClass = (element, name)->
+export addClass = (element, name)->
   jQuery(element).addClass( name)
 
 
-width = (element)->
+export width = (element)->
   jQuery(element).width()
 
 ###*
@@ -105,7 +105,7 @@ width = (element)->
 # @param item
 # @returns {boolean} true if item is empty
 ###
-isEmpty = (item)->
+export isEmpty = (item)->
   !item? ||
   (jQuery.isArray(item) || Util.isString(item)) && item.length == 0 ||
   (jQuery.isPlainObject(item) && jQuery.isEmptyObject(item))
@@ -116,7 +116,7 @@ isEmpty = (item)->
 # @param item
 # @returns {boolean} true if item is a string
 ###
-isString = (item)->
+export isString = (item)->
   typeof item == 'string' || item?.toString() == '[object String]'
 
 ###*
@@ -125,7 +125,7 @@ isString = (item)->
  * @param {Object} destination - the object to assign to
  * @param {...Object} [sources] The source objects.
 ###
-merge = ()->
+export merge = ()->
   args = (i for i in arguments)
   args.unshift(true) # deep extend
   jQuery.extend.apply(this, args )
@@ -136,7 +136,7 @@ merge = ()->
  * @param {Array} array - the array to remove values from
  * @return {Array} a new array without falsey values
 ###
-compact = (arr)->
+export compact = (arr)->
   for item in arr when item
     item
 
@@ -146,7 +146,7 @@ compact = (arr)->
  * @param {Object} value - the object to clone
  * @return {Object} a new deep copy of the object
 ###
-cloneDeep = ()->
+export cloneDeep = ()->
   args = jQuery.makeArray(arguments)
   args.unshift({}) # add "fresh" destination
   args.unshift(true) # deep
@@ -159,7 +159,7 @@ cloneDeep = ()->
  * @param {*} item - the item to search for
  * @return {boolean} true if the item is included in the array
 ###
-contains = (arr, item)->
+export contains = (arr, item)->
   for i in arr when i == item
     return true
   return false
@@ -171,7 +171,7 @@ contains = (arr, item)->
  * @param {Array} values - values to filter from arr
  * @return {Array} the filtered values
 ###
-difference = (arr, values)->
+export difference = (arr, values)->
   for item in arr when !contains(values, item)
     item
 
@@ -181,7 +181,7 @@ difference = (arr, values)->
  * @param {Object} object - the object to inspect
  * @return {Array} a list of functions of object
 ###
-functions = (object)->
+export functions = (object)->
   for i of object when jQuery.isFunction(object[i])
     i
 
@@ -191,43 +191,18 @@ functions = (object)->
  * @param {*} value
  * @return {*} the provided value
 ###
-identity = (value)-> value
+export identity = (value)-> value
 
 ###*
  * @class Util
 ###
-Util = jQuery.extend BaseUtil,
-  hasClass: hasClass
-  addClass: addClass
-  getAttribute: getAttribute
-  setAttribute: setAttribute
-  removeAttribute: removeAttribute
-  setAttributes: setAttributes
-  getData: getData
-  setData: setData
-  width: width
-  isString: isString
-  isArray: jQuery.isArray
-  isEmpty: isEmpty
-  ###*
-   * Assign source properties to destination.
-   * If the property is an object it is assigned as a whole, overriding the destination object.
-   * @function Util.assign
-   * @param {Object} destination - the object to assign to
-  ###
-  assign: jQuery.extend
-  merge: merge
-  cloneDeep: cloneDeep
-  compact: compact
-  contains: contains
-  difference: difference
-  functions: functions
-  identity: identity
-  isPlainObject: jQuery.isPlainObject
+export isArray = jQuery.isArray
+export assign = jQuery.extend
+export isPlainObject = jQuery.isPlainObject
   ###*
    * Remove leading or trailing spaces from text
    * @function Util.trim
    * @param {string} text
    * @return {string} the `text` without leading or trailing spaces
   ###
-  trim: jQuery.trim
+export trim = jQuery.trim

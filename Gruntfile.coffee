@@ -5,12 +5,12 @@ module.exports = (grunt)->
     'cloudinary-jquery',
     'cloudinary-jquery-file-upload'
   ]
-
-  lodashCalls = grunt.file.read('src/util/lodash.coffee').match(/_\.\w+/g)
+#
+#  lodashCalls = grunt.file.read('src/util/lodash.coffee').match(/lodash\\\w+/g)
   lodashInclude = []
-  # gather unique function names
-  lodashInclude.push(func[2..]) for func in lodashCalls when lodashInclude.indexOf(func[2..]) < 0
-  lodashInclude.sort()
+#  # gather unique function names
+#  lodashInclude.push(func[2..]) for func in lodashCalls when lodashInclude.indexOf(func[2..]) < 0
+#  lodashInclude.sort()
 
 #  grunt.initConfig
   gruntOptions =
@@ -34,7 +34,7 @@ module.exports = (grunt)->
         ext: '.js'
       build:
         expand: true
-        bare: false
+        bare: true
         sourceMap: true
         cwd: 'build'
         src: ['*.coffee']
@@ -53,7 +53,7 @@ module.exports = (grunt)->
           ext: '.min.js'
 
     karmaCommon: [
-      "build/<%= grunt.task.current.target %>.js"
+      "dist/<%= grunt.task.current.target %>.js"
       'test/spec/spec-helper.js'
       'test/spec/cloudinary-spec.js'
       'test/spec/transformation-spec.js'

@@ -1,4 +1,14 @@
-class TextLayer extends Layer
+import Layer from './layer'
+
+import{
+  compact,
+  isEmpty,
+  isNumberLike
+  smartEscape,
+  snakeCase
+} from '../util'
+
+export default class TextLayer extends Layer
   ###*
    * @constructor TextLayer
    * @param {Object} options - layer parameters

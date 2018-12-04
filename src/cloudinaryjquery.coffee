@@ -2,6 +2,8 @@
  * Cloudinary jQuery plugin
  * Depends on 'jquery', 'util', 'transformation', 'cloudinary'
 ###
+import Cloudinary from './cloudinary'
+
 class CloudinaryJQuery extends Cloudinary
   ###*
    * Cloudinary class with jQuery support
@@ -135,3 +137,5 @@ jQuery.fn.fetchify = (options) ->
 
 jQuery.cloudinary = new CloudinaryJQuery()
 jQuery.cloudinary.fromDocument()
+
+export default CloudinaryJQuery

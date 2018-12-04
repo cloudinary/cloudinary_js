@@ -1,3 +1,6 @@
+import Layer from './layer'
+import {isString} from '../util'
+
 class FetchLayer extends Layer
   ###*
    * @constructor FetchLayer
@@ -6,7 +9,7 @@ class FetchLayer extends Layer
   ###
   constructor: (options)->
     super(options)
-    if( Util.isString(options))
+    if( isString(options))
       @options.url = options
     else if options?.url
       @options.url = options.url
@@ -22,3 +25,5 @@ class FetchLayer extends Layer
   ###
   toString: ()->
     "fetch:#{cloudinary.Util.base64EncodeURL(@options.url)}"
+
+export default FetchLayer;
