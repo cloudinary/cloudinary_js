@@ -28,6 +28,19 @@ without = (array, item)->
   newArray
 
 ###*
+* Simplified version of lodash _.omit. Doesn't support deep paths.
+* @function Util.omit
+* @param {Object} object to filter
+* @param {Array} array of keys to filter
+* @return {Object} a filtered object, without specified in param keys.
+###
+omit = (obj, keys)->
+  obj = obj || {}
+  filtered = {}
+  filtered[key] = value for key, value of obj when !Util.contains(keys, key)
+  filtered
+
+###*
 * Return true is value is a number or a string representation of a number.
 * @function Util.isNumberLike
 * @param {*} value
@@ -220,6 +233,7 @@ BaseUtil =
   defaults: defaults
   snakeCase: snakeCase
   without: without
+  omit: omit
   isFunction: isFunction
   isNumberLike: isNumberLike
   smartEscape: smartEscape

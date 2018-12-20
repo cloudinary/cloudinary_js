@@ -272,3 +272,79 @@ describe "video", ->
       expect(cl.video("movie", poster: false, source_types: "mp4")).toEqual(
         "<video src=\"#{expected_url}.mp4\"></video>")
 
+  describe "sources", ->
+    expected_url = VIDEO_UPLOAD_PATH + "movie"
+    expected_url_mp4 = VIDEO_UPLOAD_PATH + "vc_auto/movie.mp4"
+    expected_url_webm = VIDEO_UPLOAD_PATH + "vc_auto/movie.webm"
+
+    it "should generate video tag with default sources", ->
+      expected_url_h265_mp4 = VIDEO_UPLOAD_PATH + "vc_h265/movie.mp4"
+      expected_url_vp9_webm = VIDEO_UPLOAD_PATH + "vc_vp9/movie.webm"
+      expect(cl.video("movie", sources: Cloudinary.DEFAULT_VIDEO_SOURCES)).toEqual(
+        "<video poster=\"#{expected_url}.jpg\">" +
+          "<source src=\"#{expected_url_h265_mp4}\" type=\"video/mp4; codecs=hev1\">" +
+          "<source src=\"#{expected_url_vp9_webm}\" type=\"video/webm; codecs=vp9\">" +
+          "<source src=\"#{expected_url_mp4}\" type=\"video/mp4\">" +
+          "<source src=\"#{expected_url_webm}\" type=\"video/webm\">" +
+        "</video>")
+
+    it "should generate video tag with custom sources", ->
+      custom_sources = [
+        {
+          type: "mp4"
+          codecs: "vp8, vorbis"
+          transformations: {video_codec: "auto"}
+        }
+        {
+          type: "webm"
+          codecs: "avc1.4D401E, mp4a.40.2"
+          transformations: {video_codec: "auto"}
+        }
+      ]
+      expect(cl.video("movie", sources: custom_sources)).toEqual(
+        "<video poster=\"#{expected_url}.jpg\">" +
+          "<source src=\"#{expected_url_mp4}\" type=\"video/mp4; codecs=vp8, vorbis\">" +
+          "<source src=\"#{expected_url_webm}\" type=\"video/webm; codecs=avc1.4D401E, mp4a.40.2\">" +
+        "</video>")
+
+    it "should generate video tag with codecs array", ->
+      custom_sources = [
+        {
+          type: "mp4"
+          codecs: ["vp8", "vorbis"]
+          transformations: {video_codec: "auto"}
+        }
+        {
+          type: "webm"
+          codecs: ["avc1.4D401E", "mp4a.40.2"]
+          transformations: {video_codec: "auto"}
+        }
+      ]
+      expect(cl.video("movie", sources: custom_sources)).toEqual(
+        "<video poster=\"#{expected_url}.jpg\">" +
+          "<source src=\"#{expected_url_mp4}\" type=\"video/mp4; codecs=vp8, vorbis\">" +
+          "<source src=\"#{expected_url_webm}\" type=\"video/webm; codecs=avc1.4D401E, mp4a.40.2\">" +
+        "</video>")
+
+    it "should generate video tag with sources and transformations", ->
+      options = {
+        source_types: "mp4"
+        html_height: "100"
+        html_width: "200"
+        video_codec: { codec: "h264" }
+        audio_codec: "acc"
+        start_offset: 3
+        sources: Cloudinary.DEFAULT_VIDEO_SOURCES
+      }
+      expected_poster_url = VIDEO_UPLOAD_PATH + "ac_acc,so_3,vc_h264/movie.jpg"
+      expected_url_mp4_codecs = VIDEO_UPLOAD_PATH + "ac_acc,so_3,vc_h265/movie.mp4"
+      expected_url_webm_codecs = VIDEO_UPLOAD_PATH + "ac_acc,so_3,vc_vp9/movie.webm"
+      expected_url_mp4_audio = VIDEO_UPLOAD_PATH + "ac_acc,so_3,vc_auto/movie.mp4"
+      expected_url_webm_audio = VIDEO_UPLOAD_PATH + "ac_acc,so_3,vc_auto/movie.webm"
+      expect(cl.video("movie", options)).toEqual(
+        "<video height=\"100\" poster=\"#{expected_poster_url}\" width=\"200\">" +
+          "<source src=\"#{expected_url_mp4_codecs}\" type=\"video/mp4; codecs=hev1\">" +
+          "<source src=\"#{expected_url_webm_codecs}\" type=\"video/webm; codecs=vp9\">" +
+          "<source src=\"#{expected_url_mp4_audio}\" type=\"video/mp4\">" +
+          "<source src=\"#{expected_url_webm_audio}\" type=\"video/webm\">" +
+        "</video>")

@@ -4,8 +4,28 @@
 ###
 class VideoTag extends HtmlTag
 
-  VIDEO_TAG_PARAMS = ['source_types', 'source_transformation', 'fallback_content', 'poster']
+  VIDEO_TAG_PARAMS = ['source_types', 'source_transformation', 'fallback_content', 'poster', 'sources']
   DEFAULT_VIDEO_SOURCE_TYPES = ['webm', 'mp4', 'ogv']
+  DEFAULT_VIDEO_SOURCES = [
+    {
+      type: "mp4",
+      codecs: "hev1",
+      transformations: {video_codec: "h265"}
+    }
+    {
+      type: "webm",
+      codecs: "vp9",
+      transformations: {video_codec: "vp9"}
+    }
+    {
+      type: "mp4",
+      transformations: {video_codec: "auto"}
+    }
+    {
+      type: "webm",
+      transformations: {video_codec: "auto"}
+    }
+  ]
   DEFAULT_POSTER_OPTIONS = {format: 'jpg', resource_type: 'video'}
 
   ###*
@@ -65,21 +85,31 @@ class VideoTag extends HtmlTag
     sourceTypes = @transformation().getValue('source_types')
     sourceTransformation = @transformation().getValue('source_transformation')
     fallback = @transformation().getValue('fallback_content')
+    sources = @getOption('sources')
+    cld = new Cloudinary(@getOptions())
+    innerTags = []
 
-    if Util.isArray(sourceTypes)
-      cld = new Cloudinary(@getOptions())
-      innerTags = for srcType in sourceTypes
-        transformation = sourceTransformation[srcType] or {}
-        src = cld.url("#{@publicId }", Util.defaults({}, transformation, {resource_type: 'video', format: srcType}))
-        videoType = if srcType == 'ogv' then 'ogg' else srcType
-        mimeType = 'video/' + videoType
-        "<source #{@htmlAttrs(src: src, type: mimeType)}>"
+    if Util.isArray(sources) and !Util.isEmpty(sources)
+      innerTags = for sourceData in sources
+        sourceType = sourceData.type
+        codecs = sourceData.codecs
+        transformations = sourceData.transformations or {}
+        src = cld.url("#{@publicId}", Util.defaults({}, transformations, {resource_type: 'video', format: sourceType}))
+        @createSourceTag(src, sourceType, codecs)
     else
-      innerTags = []
+      if Util.isEmpty(sourceTypes)
+        sourceTypes = DEFAULT_VIDEO_SOURCE_TYPES
+
+      if Util.isArray(sourceTypes)
+        innerTags = for srcType in sourceTypes
+          transformation = sourceTransformation[srcType] or {}
+          src = cld.url("#{@publicId}", Util.defaults({}, transformation, {resource_type: 'video', format: srcType}))
+          @createSourceTag(src, srcType)
     innerTags.join('') + fallback
 
   attributes: ()->
     sourceTypes = @getOption('source_types')
+    sources = @getOption('sources')
     poster = @getOption('poster') ? {}
 
     if Util.isPlainObject(poster)
@@ -88,11 +118,26 @@ class VideoTag extends HtmlTag
         poster.public_id ? @publicId,
         Util.defaults({}, poster, defaults))
 
-    attr = super() || []
-    attr = a for a in attr when !Util.contains(VIDEO_TAG_PARAMS)
-    unless  Util.isArray(sourceTypes)
+    attr = super() || {}
+    attr = Util.omit(attr, VIDEO_TAG_PARAMS)
+
+    # in case of empty sourceTypes - fallback to default source types is used.
+    hasSourceTags = !Util.isEmpty(sources) or Util.isEmpty(sourceTypes) or Util.isArray(sourceTypes)
+    unless hasSourceTags
       attr["src"] = new Cloudinary(@getOptions())
       .url(@publicId, {resource_type: 'video', format: sourceTypes})
     if poster?
       attr["poster"] = poster
     attr
+
+
+  createSourceTag: (src, sourceType, codecs = null)->
+    mimeType = null
+    unless Util.isEmpty sourceType
+      videoType = if sourceType == 'ogv' then 'ogg' else sourceType
+      mimeType = 'video/' + videoType
+      unless Util.isEmpty codecs
+        codecsStr = if Util.isArray codecs then codecs.join ', ' else codecs
+        mimeType += '; codecs=' + codecsStr
+    "<source #{@htmlAttrs src: src, type: mimeType}>"
+

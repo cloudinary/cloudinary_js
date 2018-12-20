@@ -334,6 +334,7 @@ export namespace Transformation {
         offset?: string, // [float, float] or [string, string] or a range. Shortcut to set video cutting using a combination of start_offset and end_offset values
         poster?: string | Object,
         sourceType?: string;
+        sources?: Array<object>;
         sourceTransformation?: string;
         startOffset?: number | string; // Float or string
         streamingProfile?: StreamingProfiles

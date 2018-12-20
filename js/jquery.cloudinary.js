@@ -36,7 +36,7 @@ var slice = [].slice,
    * @function Util.allString
    * @param {Array} list - an array of items
    */
-  var ArrayParam, BaseUtil, ClientHintsMetaTag, Cloudinary, CloudinaryJQuery, Condition, Configuration, Expression, ExpressionParam, FetchLayer, HtmlTag, ImageTag, Layer, LayerParam, Param, RangeParam, RawParam, SubtitlesLayer, TextLayer, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, base64Encode, base64EncodeURL, camelCase, cloneDeep, cloudinary, compact, contains, convertKeys, crc32, defaults, difference, funcTag, functions, getAttribute, getData, hasClass, identity, isEmpty, isFunction, isNumberLike, isObject, isString, m, merge, objToString, objectProto, parameters, reWords, removeAttribute, setAttribute, setAttributes, setData, smartEscape, snakeCase, utf8_encode, webp, width, withCamelCaseKeys, withSnakeCaseKeys, without;
+  var ArrayParam, BaseUtil, ClientHintsMetaTag, Cloudinary, CloudinaryJQuery, Condition, Configuration, Expression, ExpressionParam, FetchLayer, HtmlTag, ImageTag, Layer, LayerParam, Param, RangeParam, RawParam, SubtitlesLayer, TextLayer, Transformation, TransformationBase, TransformationParam, Util, VideoTag, addClass, allStrings, base64Encode, base64EncodeURL, camelCase, cloneDeep, cloudinary, compact, contains, convertKeys, crc32, defaults, difference, funcTag, functions, getAttribute, getData, hasClass, identity, isEmpty, isFunction, isNumberLike, isObject, isString, m, merge, objToString, objectProto, omit, parameters, reWords, removeAttribute, setAttribute, setAttributes, setData, smartEscape, snakeCase, utf8_encode, webp, width, withCamelCaseKeys, withSnakeCaseKeys, without;
   allStrings = function(list) {
     var item, j, len;
     for (j = 0, len = list.length; j < len; j++) {
@@ -66,6 +66,26 @@ var slice = [].slice,
       }
     }
     return newArray;
+  };
+
+  /**
+  * Simplified version of lodash _.omit. Doesn't support deep paths.
+  * @function Util.omit
+  * @param {Object} object to filter
+  * @param {Array} array of keys to filter
+  * @return {Object} a filtered object, without specified in param keys.
+   */
+  omit = function(obj, keys) {
+    var filtered, key, value;
+    obj = obj || {};
+    filtered = {};
+    for (key in obj) {
+      value = obj[key];
+      if (!Util.contains(keys, key)) {
+        filtered[key] = value;
+      }
+    }
+    return filtered;
   };
 
   /**
@@ -299,6 +319,7 @@ var slice = [].slice,
     defaults: defaults,
     snakeCase: snakeCase,
     without: without,
+    omit: omit,
     isFunction: isFunction,
     isNumberLike: isNumberLike,
     smartEscape: smartEscape,
@@ -3295,13 +3316,39 @@ var slice = [].slice,
    * Depends on 'tags/htmltag', 'util', 'cloudinary'
    */
   VideoTag = (function(superClass) {
-    var DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_SOURCE_TYPES, VIDEO_TAG_PARAMS;
+    var DEFAULT_POSTER_OPTIONS, DEFAULT_VIDEO_SOURCES, DEFAULT_VIDEO_SOURCE_TYPES, VIDEO_TAG_PARAMS;
 
     extend(VideoTag, superClass);
 
-    VIDEO_TAG_PARAMS = ['source_types', 'source_transformation', 'fallback_content', 'poster'];
+    VIDEO_TAG_PARAMS = ['source_types', 'source_transformation', 'fallback_content', 'poster', 'sources'];
 
     DEFAULT_VIDEO_SOURCE_TYPES = ['webm', 'mp4', 'ogv'];
+
+    DEFAULT_VIDEO_SOURCES = [
+      {
+        type: "mp4",
+        codecs: "hev1",
+        transformations: {
+          video_codec: "h265"
+        }
+      }, {
+        type: "webm",
+        codecs: "vp9",
+        transformations: {
+          video_codec: "vp9"
+        }
+      }, {
+        type: "mp4",
+        transformations: {
+          video_codec: "auto"
+        }
+      }, {
+        type: "webm",
+        transformations: {
+          video_codec: "auto"
+        }
+      }
+    ];
 
     DEFAULT_POSTER_OPTIONS = {
       format: 'jpg',
@@ -3380,53 +3427,67 @@ var slice = [].slice,
     };
 
     VideoTag.prototype.content = function() {
-      var cld, fallback, innerTags, mimeType, sourceTransformation, sourceTypes, src, srcType, transformation, videoType;
+      var cld, codecs, fallback, innerTags, sourceData, sourceTransformation, sourceType, sourceTypes, sources, src, srcType, transformation, transformations;
       sourceTypes = this.transformation().getValue('source_types');
       sourceTransformation = this.transformation().getValue('source_transformation');
       fallback = this.transformation().getValue('fallback_content');
-      if (Util.isArray(sourceTypes)) {
-        cld = new Cloudinary(this.getOptions());
+      sources = this.getOption('sources');
+      cld = new Cloudinary(this.getOptions());
+      innerTags = [];
+      if (Util.isArray(sources) && !Util.isEmpty(sources)) {
         innerTags = (function() {
           var j, len, results;
           results = [];
-          for (j = 0, len = sourceTypes.length; j < len; j++) {
-            srcType = sourceTypes[j];
-            transformation = sourceTransformation[srcType] || {};
-            src = cld.url("" + this.publicId, Util.defaults({}, transformation, {
+          for (j = 0, len = sources.length; j < len; j++) {
+            sourceData = sources[j];
+            sourceType = sourceData.type;
+            codecs = sourceData.codecs;
+            transformations = sourceData.transformations || {};
+            src = cld.url("" + this.publicId, Util.defaults({}, transformations, {
               resource_type: 'video',
-              format: srcType
+              format: sourceType
             }));
-            videoType = srcType === 'ogv' ? 'ogg' : srcType;
-            mimeType = 'video/' + videoType;
-            results.push("<source " + (this.htmlAttrs({
-              src: src,
-              type: mimeType
-            })) + ">");
+            results.push(this.createSourceTag(src, sourceType, codecs));
           }
           return results;
         }).call(this);
       } else {
-        innerTags = [];
+        if (Util.isEmpty(sourceTypes)) {
+          sourceTypes = DEFAULT_VIDEO_SOURCE_TYPES;
+        }
+        if (Util.isArray(sourceTypes)) {
+          innerTags = (function() {
+            var j, len, results;
+            results = [];
+            for (j = 0, len = sourceTypes.length; j < len; j++) {
+              srcType = sourceTypes[j];
+              transformation = sourceTransformation[srcType] || {};
+              src = cld.url("" + this.publicId, Util.defaults({}, transformation, {
+                resource_type: 'video',
+                format: srcType
+              }));
+              results.push(this.createSourceTag(src, srcType));
+            }
+            return results;
+          }).call(this);
+        }
       }
       return innerTags.join('') + fallback;
     };
 
     VideoTag.prototype.attributes = function() {
-      var a, attr, j, len, poster, ref, ref1, sourceTypes;
+      var attr, hasSourceTags, poster, ref, ref1, sourceTypes, sources;
       sourceTypes = this.getOption('source_types');
+      sources = this.getOption('sources');
       poster = (ref = this.getOption('poster')) != null ? ref : {};
       if (Util.isPlainObject(poster)) {
         defaults = poster.public_id != null ? Cloudinary.DEFAULT_IMAGE_PARAMS : DEFAULT_POSTER_OPTIONS;
         poster = new Cloudinary(this.getOptions()).url((ref1 = poster.public_id) != null ? ref1 : this.publicId, Util.defaults({}, poster, defaults));
       }
-      attr = VideoTag.__super__.attributes.call(this) || [];
-      for (j = 0, len = attr.length; j < len; j++) {
-        a = attr[j];
-        if (!Util.contains(VIDEO_TAG_PARAMS)) {
-          attr = a;
-        }
-      }
-      if (!Util.isArray(sourceTypes)) {
+      attr = VideoTag.__super__.attributes.call(this) || {};
+      attr = Util.omit(attr, VIDEO_TAG_PARAMS);
+      hasSourceTags = !Util.isEmpty(sources) || Util.isEmpty(sourceTypes) || Util.isArray(sourceTypes);
+      if (!hasSourceTags) {
         attr["src"] = new Cloudinary(this.getOptions()).url(this.publicId, {
           resource_type: 'video',
           format: sourceTypes
@@ -3436,6 +3497,26 @@ var slice = [].slice,
         attr["poster"] = poster;
       }
       return attr;
+    };
+
+    VideoTag.prototype.createSourceTag = function(src, sourceType, codecs) {
+      var codecsStr, mimeType, videoType;
+      if (codecs == null) {
+        codecs = null;
+      }
+      mimeType = null;
+      if (!Util.isEmpty(sourceType)) {
+        videoType = sourceType === 'ogv' ? 'ogg' : sourceType;
+        mimeType = 'video/' + videoType;
+        if (!Util.isEmpty(codecs)) {
+          codecsStr = Util.isArray(codecs) ? codecs.join(', ') : codecs;
+          mimeType += '; codecs=' + codecsStr;
+        }
+      }
+      return "<source " + (this.htmlAttrs({
+        src: src,
+        type: mimeType
+      })) + ">";
     };
 
     return VideoTag;
@@ -3530,6 +3611,38 @@ var slice = [].slice,
       transformation: [],
       type: 'upload'
     };
+
+
+    /**
+    * Recommended sources for video tag
+    * @const {Object} Cloudinary.DEFAULT_VIDEO_SOURCES
+     */
+
+    Cloudinary.DEFAULT_VIDEO_SOURCES = [
+      {
+        type: "mp4",
+        codecs: "hev1",
+        transformations: {
+          video_codec: "h265"
+        }
+      }, {
+        type: "webm",
+        codecs: "vp9",
+        transformations: {
+          video_codec: "vp9"
+        }
+      }, {
+        type: "mp4",
+        transformations: {
+          video_codec: "auto"
+        }
+      }, {
+        type: "webm",
+        transformations: {
+          video_codec: "auto"
+        }
+      }
+    ];
 
 
     /**

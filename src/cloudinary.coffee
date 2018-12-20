@@ -38,6 +38,31 @@ class Cloudinary
     type: 'upload'
 
   ###*
+  * Recommended sources for video tag
+  * @const {Object} Cloudinary.DEFAULT_VIDEO_SOURCES
+  ###
+  @DEFAULT_VIDEO_SOURCES = [
+    {
+      type: "mp4",
+      codecs: "hev1",
+      transformations: {video_codec: "h265"}
+    }
+    {
+      type: "webm",
+      codecs: "vp9",
+      transformations: {video_codec: "vp9"}
+    }
+    {
+      type: "mp4",
+      transformations: {video_codec: "auto"}
+    }
+    {
+      type: "webm",
+      transformations: {video_codec: "auto"}
+    }
+  ]
+
+  ###*
    * Main Cloudinary class
    * @class Cloudinary
    * @param {Object} options - options to configure Cloudinary
