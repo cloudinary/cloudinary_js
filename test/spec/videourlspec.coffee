@@ -65,6 +65,9 @@ describe "Cloudinary::Utils", ->
         test_cloudinary_url("video_id", { resource_type: 'video', video_sampling: 20 }, "#{upload_path}/vs_20/video_id", {})
       it "should support an string value in the a form of \"<float>s\"", ->
         test_cloudinary_url("video_id", { resource_type: 'video', video_sampling: "2.3s" }, "#{upload_path}/vs_2.3s/video_id", {})
+    describe ":start_offset_auto", ->
+      it 'should support auto as a valid start_offset', ->
+        test_cloudinary_url("video_id", {resource_type: 'video', start_offset: 'auto'},  "#{upload_path}/so_auto/video_id", {})
     for short, long in { so: 'start_offset', eo: 'end_offset', du: 'duration' }
       describe ":#{long}", ->
         it "should support decimal seconds ", ->
