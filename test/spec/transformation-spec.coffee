@@ -244,6 +244,13 @@ describe "Transformation", ->
       -10
     ] }, protocol + '//res.cloudinary.com/test123/image/upload/e_sepia:-10/test', {}
 
+
+  it 'should support art effect with param', ->
+    test_cloudinary_url 'test', { effect: [
+      'art'
+      'incognito'
+    ] }, protocol + '//res.cloudinary.com/test123/image/upload/e_art:incognito/test', {}
+
   it 'should support density', ->
     test_cloudinary_url 'test', { density: 150 }, protocol + '//res.cloudinary.com/test123/image/upload/dn_150/test', {}
 
