@@ -40,16 +40,18 @@ describe("Cloudinary::Utils", function() {
         test = params[i];
         var name, url_param, range;
         name = test[0], url_param = test[1], range = test[2];
-        results.push(describe("when provided with " + name + " " + range, function() {
-          return it("should produce a range transformation in the format of " + url_param, function() {
-            var options;
-            options = {
-              resource_type: 'video',
-              fps: range
-            };
-            return expect(new cloudinary.Transformation(options).toString()).toEqual(url_param);
+        results.push((function(name, url_param, range) {
+          return describe("when provided with " + name + " " + range, function() {
+            return it("should produce a range transformation in the format of " + url_param, function() {
+              var options;
+              options = {
+                resource_type: 'video',
+                fps: range
+              };
+              return expect(new cloudinary.Transformation(options).toString()).toEqual(url_param);
+            });
           });
-        }));
+        })(name, url_param, range));
       }
       return results;
     });

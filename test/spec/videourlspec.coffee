@@ -35,11 +35,11 @@ describe "Cloudinary::Utils", ->
       for test in params
         `var name, url_param, range`
         [name, url_param, range ]= test
-
-        describe "when provided with #{name} #{range}", ->
-          it "should produce a range transformation in the format of #{url_param}", ->
-            options = { resource_type: 'video', fps: range }        
-            expect( new cloudinary.Transformation(options).toString() ).toEqual(url_param)
+        do(name, url_param, range) ->
+          describe "when provided with #{name} #{range}", ->
+            it "should produce a range transformation in the format of #{url_param}", ->
+              options = { resource_type: 'video', fps: range }
+              expect( new cloudinary.Transformation(options).toString() ).toEqual(url_param)
             
     describe ":video_codec", ->
       it 'should support a string value', ->
