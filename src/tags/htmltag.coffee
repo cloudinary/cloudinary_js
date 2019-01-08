@@ -168,7 +168,7 @@ export default class HtmlTag
   toDOM: ()->
     throw "Can't create DOM if document is not present!" unless isFunction( document?.createElement)
     element = document.createElement(@name)
-    element[name] = value for name, value of @attributes()
+    element.setAttribute(name, value) for name, value of @attributes()
     element
 
   @isResponsive: (tag, responsiveClass)->
