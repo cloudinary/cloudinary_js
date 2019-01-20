@@ -15,8 +15,8 @@ module.exports = (config) ->
 
     # list of files / patterns to load in the browser
     files: [
-      'bower_components/jquery/dist/jquery.js'
-      'build/cloudinary-jquery.js'
+      'node_modules/jquery/dist/jquery.js'
+      'dist/cloudinary-jquery.js'
       'test/spec/spec-helper.js'
       'test/spec/cloudinary-spec.js'
       'test/spec/cloudinary-jquery-spec.js'
@@ -26,10 +26,10 @@ module.exports = (config) ->
       'test/spec/chaining-spec.js'
       'test/spec/layer-spec.js'
       'test/spec/responsive-jquery-spec.js'
-      {pattern: 'build/*', watched: false, included: false, served: true, nocache: false}
+      {pattern: 'dist/*', watched: false, included: false, served: true, nocache: false}
       {pattern: 'test/docRoot/responsive-jquery-test.html', watched: false, included: false, served: true, nocache: false}
-      {pattern: 'bower_components/bootstrap/dist/css/*', watched: false, included: false, served: true, nocache: false}
-      {pattern: 'bower_components/bootstrap/dist/js/*', watched: false, included: false, served: true, nocache: false}
+      {pattern: 'node_modules/bootstrap/dist/css/*', watched: false, included: false, served: true, nocache: false}
+      {pattern: 'node_modules/bootstrap/dist/js/*', watched: false, included: false, served: true, nocache: false}
       {pattern: 'test/docRoot/css/logo-nav.css', watched: false, included: false, served: true, nocache: false}
     ]
 
@@ -39,7 +39,7 @@ module.exports = (config) ->
     # preprocess matching files before serving them to the browser
     # available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      'js/*.js': ['coverage']
+      'dist/*.js': ['coverage']
     }
 
 
@@ -84,7 +84,6 @@ module.exports = (config) ->
       'karma-coverage'
       'karma-story-reporter'
       'karma-chrome-launcher'
-      'karma-phantomjs-launcher'
       'karma-firefox-launcher'
       'karma-safari-launcher'
     ]

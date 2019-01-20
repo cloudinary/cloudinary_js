@@ -1,8 +1,7 @@
-var includeContext, itBehavesLike, sharedContext, sharedExamples,
-  slice = [].slice;
+var SharedExamples, includeContext, itBehavesLike, sharedContext, sharedExamples;
 
-sharedExamples = (function() {
-  function sharedExamples(name, examples) {
+SharedExamples = class SharedExamples {
+  constructor(name, examples) {
     if (this.allExamples == null) {
       this.allExamples = {};
     }
@@ -14,29 +13,27 @@ sharedExamples = (function() {
         return this.allExamples[name];
       } else {
         return function() {
-          return console.log("Shared example " + name + " was not found!");
+          return console.log(`Shared example ${name} was not found!`);
         };
       }
     }
   }
 
-  return sharedExamples;
+};
 
-})();
+sharedExamples = function(name, examples) {
+  return new SharedExamples(name, examples);
+};
 
 sharedContext = sharedExamples;
 
-itBehavesLike = function() {
-  var args, name;
-  name = arguments[0], args = 2 <= arguments.length ? slice.call(arguments, 1) : [];
-  return describe.call(this, "behaves like " + name, function() {
+itBehavesLike = function(name, ...args) {
+  return describe.call(this, `behaves like ${name}`, function() {
     return sharedExamples(name).apply(this, args);
   });
 };
 
-includeContext = function() {
-  var args, name;
-  name = arguments[0], args = 2 <= arguments.length ? slice.call(arguments, 1) : [];
+includeContext = function(name, ...args) {
   return sharedExamples(name).apply(this, args);
 };
 

@@ -315,6 +315,7 @@ describe('Cloudinary', function() {
       'protocol': 'custom:'
     };
     result = cl.url('test', options);
+    //expect(new Cloudinary.Transformation(options).toHtmlAttributes()).toEqual({});
     return expect(result).toEqual('custom://res.cloudinary.com/test123/image/upload/test');
   });
   it('should not fail on falsy public_id', function() {

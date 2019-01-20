@@ -3,7 +3,8 @@ describe("Transformation", function() {
   cl = {};
   fixtureContainer = void 0;
   protocol = window.location.protocol === "file:" ? "http:" : window.location.protocol;
-  upload_path = protocol + "//res.cloudinary.com/test123/image/upload";
+  upload_path = `${protocol}//res.cloudinary.com/test123/image/upload`;
+  // copy cloudinary namespace for easy access
   cloudinary.Util.assign(self, cloudinary);
   test_cloudinary_url = function(public_id, options, expected_url, expected_options) {
     var result;
@@ -30,25 +31,25 @@ describe("Transformation", function() {
   });
   it('should ignore empty values', function() {
     expect(cl.url('test', {
-      width: void 0,
+      width: void 0, // regular
       crop: 'crop',
-      flags: void 0,
-      startOffset: void 0,
-      transformation: void 0
+      flags: void 0, // array
+      startOffset: void 0, //range
+      transformation: void 0 //transformation
     })).toBe(protocol + '//res.cloudinary.com/test123/image/upload/c_crop/test');
     expect(cl.url('test', {
-      width: '',
+      width: '', // regular
       crop: 'crop',
       flags: [],
       startOffset: [],
       transformation: []
     })).toBe(protocol + '//res.cloudinary.com/test123/image/upload/c_crop/test');
     expect(cl.url('test', {
-      width: '',
+      width: '', // regular
       crop: 'crop',
       flags: [],
-      startOffset: '',
-      transformation: ''
+      startOffset: '', //range
+      transformation: '' //transformation
     })).toBe(protocol + '//res.cloudinary.com/test123/image/upload/c_crop/test');
     return expect(cl.url('test', {
       transformation: {}
@@ -65,7 +66,7 @@ describe("Transformation", function() {
         height: 100,
         crop: 'crop'
       })).toBe(protocol + '//res.cloudinary.com/test123/image/upload/c_crop,h_100,w_100/test');
-      return expect(cl.url('test', cloudinary.Transformation["new"]().width(100).height(100).crop('crop'))).toBe(protocol + '//res.cloudinary.com/test123/image/upload/c_crop,h_100,w_100/test');
+      return expect(cl.url('test', cloudinary.Transformation.new().width(100).height(100).crop('crop'))).toBe(protocol + '//res.cloudinary.com/test123/image/upload/c_crop,h_100,w_100/test');
     });
     it('should not pass width and height to html in case of fit, lfill or limit crop', function() {
       test_cloudinary_url('test', {
@@ -83,7 +84,7 @@ describe("Transformation", function() {
         height: 100,
         crop: 'fit'
       }, protocol + '//res.cloudinary.com/test123/image/upload/c_fit,h_100,w_100/test', {});
-      return test_cloudinary_url('test', cloudinary.Transformation["new"]().width(100).height(100).crop('fit'), protocol + '//res.cloudinary.com/test123/image/upload/c_fit,h_100,w_100/test', {});
+      return test_cloudinary_url('test', cloudinary.Transformation.new().width(100).height(100).crop('fit'), protocol + '//res.cloudinary.com/test123/image/upload/c_fit,h_100,w_100/test', {});
     });
     it('should not pass width and height to html in case angle was used', function() {
       return test_cloudinary_url('test', {
@@ -97,37 +98,37 @@ describe("Transformation", function() {
       test_cloudinary_url("test", {
         width: "auto:20",
         crop: 'fill'
-      }, upload_path + "/c_fill,w_auto:20/test", {});
+      }, `${upload_path}/c_fill,w_auto:20/test`, {});
       test_cloudinary_url("test", {
         width: "auto:20:350",
         crop: 'fill'
-      }, upload_path + "/c_fill,w_auto:20:350/test", {});
+      }, `${upload_path}/c_fill,w_auto:20:350/test`, {});
       test_cloudinary_url("test", {
         width: "auto:breakpoints",
         crop: 'fill'
-      }, upload_path + "/c_fill,w_auto:breakpoints/test", {});
+      }, `${upload_path}/c_fill,w_auto:breakpoints/test`, {});
       test_cloudinary_url("test", {
         width: "auto:breakpoints_100_1900_20_15",
         crop: 'fill'
-      }, upload_path + "/c_fill,w_auto:breakpoints_100_1900_20_15/test", {});
+      }, `${upload_path}/c_fill,w_auto:breakpoints_100_1900_20_15/test`, {});
       return test_cloudinary_url("test", {
         width: "auto:breakpoints:json",
         crop: 'fill'
-      }, upload_path + "/c_fill,w_auto:breakpoints:json/test", {});
+      }, `${upload_path}/c_fill,w_auto:breakpoints:json/test`, {});
     });
     it('should support oh,ow', function() {
       return test_cloudinary_url("test", {
         width: "ow",
         height: "oh",
         crop: "crop"
-      }, upload_path + "/c_crop,h_oh,w_ow/test", {});
+      }, `${upload_path}/c_crop,h_oh,w_ow/test`, {});
     });
     return it('should support ih,iw', function() {
       return test_cloudinary_url("test", {
         width: "iw",
         height: "ih",
         crop: "crop"
-      }, upload_path + "/c_crop,h_ih,w_iw/test", {});
+      }, `${upload_path}/c_crop,h_ih,w_iw/test`, {});
     });
   });
   it('should support aspect_ratio', function() {
@@ -175,8 +176,8 @@ describe("Transformation", function() {
           width: 100,
           height: 100,
           crop: 'crop',
-          gravity: "auto:" + focal
-        }, "http://res.cloudinary.com/test123/image/upload/c_crop,g_auto:" + focal + ",h_100,w_100/test", {
+          gravity: `auto:${focal}`
+        }, `http://res.cloudinary.com/test123/image/upload/c_crop,g_auto:${focal},h_100,w_100/test`, {
           width: 100,
           height: 100
         });
@@ -188,8 +189,8 @@ describe("Transformation", function() {
           width: 100,
           height: 100,
           crop: 'thumb',
-          gravity: "auto:" + level
-        }, "http://res.cloudinary.com/test123/image/upload/c_thumb,g_auto:" + level + ",h_100,w_100/test", {
+          gravity: `auto:${level}`
+        }, `http://res.cloudinary.com/test123/image/upload/c_thumb,g_auto:${level},h_100,w_100/test`, {
           width: 100,
           height: 100
         });
@@ -197,8 +198,8 @@ describe("Transformation", function() {
           width: 100,
           height: 100,
           crop: 'thumb',
-          gravity: "auto:adv_faces:" + level
-        }, "http://res.cloudinary.com/test123/image/upload/c_thumb,g_auto:adv_faces:" + level + ",h_100,w_100/test", {
+          gravity: `auto:adv_faces:${level}`
+        }, `http://res.cloudinary.com/test123/image/upload/c_thumb,g_auto:adv_faces:${level},h_100,w_100/test`, {
           width: 100,
           height: 100
         });
@@ -225,7 +226,7 @@ describe("Transformation", function() {
         gravity: "center",
         quality: 80,
         prefix: "a"
-      }, upload_path + "/g_center,p_a,q_80,r_3,x_1,y_2/test", {});
+      }, `${upload_path}/g_center,p_a,q_80,r_3,x_1,y_2/test`, {});
       return test_cloudinary_url("test", {
         x: 1,
         y: 2,
@@ -233,7 +234,7 @@ describe("Transformation", function() {
         gravity: "center",
         quality: "80:444",
         prefix: "a"
-      }, upload_path + "/g_center,p_a,q_80:444,r_3,x_1,y_2/test", {});
+      }, `${upload_path}/g_center,p_a,q_80:444,r_3,x_1,y_2/test`, {});
     });
     return it("should support auto value", function() {
       test_cloudinary_url("test", {
@@ -243,7 +244,7 @@ describe("Transformation", function() {
         gravity: "center",
         quality: "auto",
         prefix: "a"
-      }, upload_path + "/g_center,p_a,q_auto,r_3,x_1,y_2/test", {});
+      }, `${upload_path}/g_center,p_a,q_auto,r_3,x_1,y_2/test`, {});
       return test_cloudinary_url("test", {
         x: 1,
         y: 2,
@@ -251,7 +252,7 @@ describe("Transformation", function() {
         gravity: "center",
         quality: "auto:good",
         prefix: "a"
-      }, upload_path + "/g_center,p_a,q_auto:good,r_3,x_1,y_2/test", {});
+      }, `${upload_path}/g_center,p_a,q_auto:good,r_3,x_1,y_2/test`, {});
     });
   });
   it('should support named tranformation', function() {
@@ -283,7 +284,8 @@ describe("Transformation", function() {
           y: 100,
           width: 200,
           crop: 'fill'
-        }, {
+        },
+        {
           radius: 10
         }
       ],
@@ -294,11 +296,13 @@ describe("Transformation", function() {
   it('should not include empty tranformations', function() {
     return expect(cl.url('test', {
       transformation: [
-        {}, {
+        {},
+        {
           x: 100,
           y: 100,
           crop: 'fill'
-        }, {}
+        },
+        {}
       ]
     })).toBe(protocol + '//res.cloudinary.com/test123/image/upload/c_fill,x_100,y_100/test');
   });
@@ -397,22 +401,22 @@ describe("Transformation", function() {
   });
   describe("keyframe_interval", function() {
     it('should support keyframe_interval in options', function() {
-      return expect(Transformation["new"]({
+      return expect(Transformation.new({
         keyframe_interval: 10
       }).toString()).toEqual("ki_10");
     });
     return it('should support keyframeInterval()', function() {
-      return expect(Transformation["new"]().keyframeInterval(10).toString()).toEqual("ki_10");
+      return expect(Transformation.new().keyframeInterval(10).toString()).toEqual("ki_10");
     });
   });
   describe("streaming_profile", function() {
     it('should support streaming_profile in options', function() {
-      return expect(Transformation["new"]({
+      return expect(Transformation.new({
         streaming_profile: "somë-profilé"
       }).toString()).toEqual("sp_somë-profilé");
     });
     return it('should support streamingProfile()', function() {
-      return expect(Transformation["new"]().streamingProfile("somë-profilé").toString()).toEqual("sp_somë-profilé");
+      return expect(Transformation.new().streamingProfile("somë-profilé").toString()).toEqual("sp_somë-profilé");
     });
   });
   describe('zoom', function() {
@@ -443,7 +447,7 @@ describe("Transformation", function() {
   });
   describe('Conditional Transformation', function() {
     beforeEach(function() {
-      return this.cl = cloudinary.Cloudinary["new"]({
+      return this.cl = cloudinary.Cloudinary.new({
         cloud_name: "sdk-test"
       });
     });
@@ -452,7 +456,7 @@ describe("Transformation", function() {
       it("should include the if parameter as the first component in the transformation string", function() {
         var url;
         url = this.cl.url("sample", {
-          "if": "w_lt_200",
+          if: "w_lt_200",
           crop: "fill",
           height: 120,
           width: 80
@@ -461,7 +465,7 @@ describe("Transformation", function() {
         url = this.cl.url("sample", {
           crop: "fill",
           height: 120,
-          "if": "w_lt_200",
+          if: "w_lt_200",
           width: 80
         });
         return expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_w_lt_200,c_fill,h_120,w_80/sample");
@@ -471,16 +475,18 @@ describe("Transformation", function() {
         url = this.cl.url("sample", {
           transformation: [
             {
-              "if": "w_lt_200",
+              if: "w_lt_200",
               crop: "fill",
               height: 120,
               width: 80
-            }, {
-              "if": "w_gt_400",
+            },
+            {
+              if: "w_gt_400",
               crop: "fit",
               width: 150,
               height: 150
-            }, {
+            },
+            {
               effect: "sepia"
             }
           ]
@@ -491,7 +497,7 @@ describe("Transformation", function() {
         return it("should translate operators", function() {
           var url;
           url = this.cl.url("sample", {
-            "if": "w < 200",
+            if: "w < 200",
             crop: "fill",
             height: 120,
             width: 80
@@ -506,19 +512,23 @@ describe("Transformation", function() {
         url = this.cl.url("sample", {
           transformation: [
             {
-              "if": "w_lt_200"
-            }, {
+              if: "w_lt_200"
+            },
+            {
               crop: "fill",
               height: 120,
               width: 80,
               effect: "sharpen"
-            }, {
+            },
+            {
               effect: "brightness:50"
-            }, {
+            },
+            {
               effect: "shadow",
               color: "red"
-            }, {
-              "if": "end"
+            },
+            {
+              if: "end"
             }
           ]
         });
@@ -529,12 +539,13 @@ describe("Transformation", function() {
         url = this.cl.url("sample", {
           transformation: [
             {
-              "if": "w_lt_200",
+              if: "w_lt_200",
               crop: "fill",
               height: 120,
               width: 80
-            }, {
-              "if": "else",
+            },
+            {
+              if: "else",
               crop: "fill",
               height: 90,
               width: 100
@@ -548,14 +559,17 @@ describe("Transformation", function() {
         url = this.cl.url("sample", {
           transformation: [
             {
-              "if": "aspect_ratio_lt_0.7"
-            }, {
+              if: "aspect_ratio_lt_0.7"
+            },
+            {
               crop: "fill",
               height: 120,
               width: 80
-            }, {
-              "if": "else"
-            }, {
+            },
+            {
+              if: "else"
+            },
+            {
               crop: "fill",
               height: 90,
               width: 100
@@ -568,33 +582,33 @@ describe("Transformation", function() {
     describe('Chaining with literal conditions', function() {
       return it("should add an if parameter", function() {
         var url;
-        url = this.cl.url("sample", cloudinary.Transformation["new"]()["if"]("ar_gt_3:4").width(100).crop("scale"));
+        url = this.cl.url("sample", cloudinary.Transformation.new().if("ar_gt_3:4").width(100).crop("scale"));
         return expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_ar_gt_3:4,c_scale,w_100/sample");
       });
     });
     return describe('chaining conditions', function() {
       it("should passing an operator and a value adds a condition", function() {
         var url;
-        url = this.cl.url("sample", cloudinary.Transformation["new"]()["if"]().aspectRatio("gt", "3:4").then().width(100).crop("scale"));
+        url = this.cl.url("sample", cloudinary.Transformation.new().if().aspectRatio("gt", "3:4").then().width(100).crop("scale"));
         return expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_ar_gt_3:4,c_scale,w_100/sample");
       });
       it("should chaining condition with `and`", function() {
         var url;
-        url = this.cl.url("sample", cloudinary.Transformation["new"]()["if"]().aspectRatio("gt", "3:4").and().width("gt", 100).then().width(50).crop("scale"));
+        url = this.cl.url("sample", cloudinary.Transformation.new().if().aspectRatio("gt", "3:4").and().width("gt", 100).then().width(50).crop("scale"));
         return expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_ar_gt_3:4_and_w_gt_100,c_scale,w_50/sample");
       });
       it("should chain conditions with `or`", function() {
         var url;
-        url = this.cl.url("sample", cloudinary.Transformation["new"]()["if"]().aspectRatio("gt", "3:4").and().width("gt", 100).or().width("gt", 200).then().width(50).crop("scale"));
+        url = this.cl.url("sample", cloudinary.Transformation.new().if().aspectRatio("gt", "3:4").and().width("gt", 100).or().width("gt", 200).then().width(50).crop("scale"));
         return expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_ar_gt_3:4_and_w_gt_100_or_w_gt_200,c_scale,w_50/sample");
       });
       it("should translate operators", function() {
         var url;
-        url = this.cl.url("sample", cloudinary.Transformation["new"]()["if"]().aspectRatio(">", "3:4").and().width("<=", 100).or().width("gt", 200).then().width(50).crop("scale"));
+        url = this.cl.url("sample", cloudinary.Transformation.new().if().aspectRatio(">", "3:4").and().width("<=", 100).or().width("gt", 200).then().width(50).crop("scale"));
         expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_ar_gt_3:4_and_w_lte_100_or_w_gt_200,c_scale,w_50/sample");
-        url = this.cl.url("sample", cloudinary.Transformation["new"]()["if"]().aspectRatio(">", "3:4").and().width("<=", 100).or().width(">", 200).then().width(50).crop("scale"));
+        url = this.cl.url("sample", cloudinary.Transformation.new().if().aspectRatio(">", "3:4").and().width("<=", 100).or().width(">", 200).then().width(50).crop("scale"));
         expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_ar_gt_3:4_and_w_lte_100_or_w_gt_200,c_scale,w_50/sample");
-        url = this.cl.url("sample", cloudinary.Transformation["new"]()["if"]().aspectRatio(">=", "3:4").and().pageCount(">=", 100).or().pageCount("!=", 0).then().width(50).crop("scale"));
+        url = this.cl.url("sample", cloudinary.Transformation.new().if().aspectRatio(">=", "3:4").and().pageCount(">=", 100).or().pageCount("!=", 0).then().width(50).crop("scale"));
         return expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_ar_gte_3:4_and_pc_gte_100_or_pc_ne_0,c_scale,w_50/sample");
       });
       it("Chains transformations to an image tag", function() {
@@ -641,7 +655,8 @@ describe("Transformation", function() {
               "width": 120,
               "height": 150,
               "crop": "pad"
-            }, {
+            },
+            {
               "if": "else",
               "width": 120,
               "height": 150,
@@ -657,7 +672,8 @@ describe("Transformation", function() {
               "height": 150,
               "if": "ils_gt_0.5",
               "width": 120
-            }, {
+            },
+            {
               "crop": "fill",
               "height": 150,
               "if": "else",
@@ -673,17 +689,21 @@ describe("Transformation", function() {
           "transformation": [
             {
               "if": "ils_gt_0.5"
-            }, {
+            },
+            {
               "width": 120,
               "height": 150,
               "crop": "pad"
-            }, {
+            },
+            {
               "if": "else"
-            }, {
+            },
+            {
               "width": 120,
               "height": 150,
               "crop": "fill"
-            }, {
+            },
+            {
               "if": "end"
             }
           ]
@@ -693,23 +713,23 @@ describe("Transformation", function() {
       it("should support and translate operators:  '=', '!=', '<', '>', '<=', '>=', '&&', '||'", function() {
         var allOperators;
         allOperators = 'if_' + 'w_eq_0_and' + '_h_ne_0_or' + '_ar_lt_0_and' + '_pc_gt_0_and' + '_fc_lte_0_and' + '_w_gte_0' + ',e_grayscale';
-        expect(cloudinary.Transformation["new"]()["if"]().width("=", 0).and().height("!=", 0).or().aspectRatio("<", 0).and().pageCount(">", 0).and().faceCount("<=", 0).and().width(">=", 0).then().effect("grayscale").serialize()).toEqual(allOperators);
-        return expect(cloudinary.Transformation["new"]()["if"]("w = 0 && height != 0 || aspectRatio < 0 and pageCount > 0 and faceCount <= 0 and width >= 0").effect("grayscale").serialize()).toEqual(allOperators);
+        expect(cloudinary.Transformation.new().if().width("=", 0).and().height("!=", 0).or().aspectRatio("<", 0).and().pageCount(">", 0).and().faceCount("<=", 0).and().width(">=", 0).then().effect("grayscale").serialize()).toEqual(allOperators);
+        return expect(cloudinary.Transformation.new().if("w = 0 && height != 0 || aspectRatio < 0 and pageCount > 0 and faceCount <= 0 and width >= 0").effect("grayscale").serialize()).toEqual(allOperators);
       });
       return describe('endIf()', function() {
         it("should serialize to 'if_end'", function() {
           var url;
-          url = this.cl.url("sample", cloudinary.Transformation["new"]()["if"]().width("gt", 100).and().width("lt", 200).then().width(50).crop("scale").endIf());
+          url = this.cl.url("sample", cloudinary.Transformation.new().if().width("gt", 100).and().width("lt", 200).then().width(50).crop("scale").endIf());
           return expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_w_gt_100_and_w_lt_200/c_scale,w_50/if_end/sample");
         });
         it("force the if clause to be chained", function() {
           var url;
-          url = this.cl.url("sample", cloudinary.Transformation["new"]()["if"]().width("gt", 100).and().width("lt", 200).then().width(50).crop("scale").endIf());
+          url = this.cl.url("sample", cloudinary.Transformation.new().if().width("gt", 100).and().width("lt", 200).then().width(50).crop("scale").endIf());
           return expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_w_gt_100_and_w_lt_200/c_scale,w_50/if_end/sample");
         });
         return it("force the if_else clause to be chained", function() {
           var url;
-          url = this.cl.url("sample", cloudinary.Transformation["new"]()["if"]().width("gt", 100).and().width("lt", 200).then().width(50).crop("scale")["else"]().width(100).crop("crop").endIf());
+          url = this.cl.url("sample", cloudinary.Transformation.new().if().width("gt", 100).and().width("lt", 200).then().width(50).crop("scale").else().width(100).crop("crop").endIf());
           return expect(url).toEqual("http://res.cloudinary.com/sdk-test/image/upload/if_w_gt_100_and_w_lt_200/c_scale,w_50/if_else/c_crop,w_100/if_end/sample");
         });
       });
@@ -719,7 +739,7 @@ describe("Transformation", function() {
     it("array should define a set of variables", function() {
       var options, t;
       options = {
-        "if": "face_count > 2",
+        if: "face_count > 2",
         variables: [["$z", 5], ["$foo", "$z * 2"]],
         crop: "scale",
         width: "$foo * 200"
@@ -733,13 +753,16 @@ describe("Transformation", function() {
         transformation: [
           {
             $foo: 10
-          }, {
-            "if": "face_count > 2"
-          }, {
+          },
+          {
+            if: "face_count > 2"
+          },
+          {
             crop: "scale",
             width: "$foo * 200 / face_count"
-          }, {
-            "if": "end"
+          },
+          {
+            if: "end"
           }
         ]
       };
@@ -810,7 +833,7 @@ describe("Transformation", function() {
         tests = [[new Layer().publicId("logo"), "logo"], [new Layer().publicId("folder/logo"), "folder:logo"], [new Layer().publicId("logo").type("private"), "private:logo"], [new Layer().publicId("logo").format("png"), "logo.png"], [new Layer().resourceType("video").publicId("cat"), "video:cat"], [new TextLayer().text("Hello World, Nice to meet you?").fontFamily("Arial").fontSize(18), "text:Arial_18:Hello%20World%252C%20Nice%20to%20meet%20you%3F"], [new TextLayer().text("Hello World, Nice to meet you?").fontFamily("Arial").fontSize(19).fontWeight("bold").fontStyle("italic").letterSpacing("4"), "text:Arial_19_bold_italic_letter_spacing_4:Hello%20World%252C%20Nice%20to%20meet%20you%3F"], [new SubtitlesLayer().publicId("sample_sub_en.srt"), "subtitles:sample_sub_en.srt"], [new SubtitlesLayer().publicId("sample_sub_he.srt").fontFamily("Arial").fontSize(40), "subtitles:Arial_40:sample_sub_he.srt"]];
         return tests.forEach(function(test) {
           var expected, layer;
-          layer = test[0], expected = test[1];
+          [layer, expected] = test;
           return expect(layer.toString()).toEqual(expected);
         });
       });
@@ -829,19 +852,32 @@ describe("Transformation", function() {
       text_layer = "Hello World, /Nice to meet you?";
       text_encoded = "Hello%20World%252C%20%252FNice%20to%20meet%20you%3F";
       layers_options = [
-        ["string", "text:test_text:hello", "text:test_text:hello"], ["explicit layer parameter", "text:test_text:" + text_encoded, "text:test_text:" + text_encoded], [
-          "text parameter", {
+        ["string",
+        "text:test_text:hello",
+        "text:test_text:hello"],
+        ["explicit layer parameter",
+        `text:test_text:${text_encoded}`,
+        `text:test_text:${text_encoded}`],
+        [
+          "text parameter",
+          {
             public_id: "test_text",
             text: text_layer
-          }, "text:test_text:" + text_encoded
-        ], [
-          "text with font family and size parameters", {
+          },
+          `text:test_text:${text_encoded}`
+        ],
+        [
+          "text with font family and size parameters",
+          {
             text: text_layer,
             font_family: "Arial",
             font_size: "18"
-          }, "text:Arial_18:" + text_encoded
-        ], [
-          "text with text style parameter", {
+          },
+          `text:Arial_18:${text_encoded}`
+        ],
+        [
+          "text with text style parameter",
+          {
             text: text_layer,
             font_family: "Arial",
             font_size: "18",
@@ -849,34 +885,41 @@ describe("Transformation", function() {
             font_style: "italic",
             letter_spacing: 4,
             line_spacing: 2
-          }, "text:Arial_18_bold_italic_letter_spacing_4_line_spacing_2:" + text_encoded
-        ], [
-          "subtitles", {
+          },
+          `text:Arial_18_bold_italic_letter_spacing_4_line_spacing_2:${text_encoded}`
+        ],
+        [
+          "subtitles",
+          {
             resource_type: "subtitles",
             public_id: "subtitles.srt"
-          }, "subtitles:subtitles.srt"
-        ], [
-          "subtitles with font family and size", {
+          },
+          "subtitles:subtitles.srt"
+        ],
+        [
+          "subtitles with font family and size",
+          {
             resource_type: "subtitles",
             public_id: "subtitles.srt",
             font_family: "Arial",
             font_size: "40"
-          }, "subtitles:Arial_40:subtitles.srt"
+          },
+          "subtitles:Arial_40:subtitles.srt"
         ]
       ];
       layers = [['overlay', 'l'], ['underlay', 'u']];
       return layers.forEach(function(layer) {
         var param, short;
-        param = layer[0], short = layer[1];
+        [param, short] = layer;
         return describe(param, function() {
           layers_options.forEach(function(test) {
             var name, options, result;
-            name = test[0], options = test[1], result = test[2];
-            return it("should support " + name, function() {
+            [name, options, result] = test;
+            return it(`should support ${name}`, function() {
               var testOptions;
               testOptions = {};
               testOptions[param] = options;
-              return expect(new cloudinary.Transformation(testOptions).serialize()).toEqual(short + "_" + result);
+              return expect(new cloudinary.Transformation(testOptions).serialize()).toEqual(`${short}_${result}`);
             });
           });
           return it('should not pass width/height to html for ' + param, function() {
@@ -886,7 +929,7 @@ describe("Transformation", function() {
               width: 100
             };
             testOptions[param] = 'text:hello';
-            return test_cloudinary_url('test', testOptions, protocol + "//res.cloudinary.com/test123/image/upload/h_100," + short + "_text:hello,w_100/test", {});
+            return test_cloudinary_url('test', testOptions, `${protocol}//res.cloudinary.com/test123/image/upload/h_100,${short}_text:hello,w_100/test`, {});
           });
         });
       });

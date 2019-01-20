@@ -51,7 +51,7 @@ module.exports = (config) ->
 
 # start these browsers
 # available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['Chrome' , 'Firefox', 'Safari', 'PhantomJS']
+    browsers: ['Chrome' , 'Firefox', 'Safari']
 
 
 # Continuous Integration mode
@@ -61,7 +61,6 @@ module.exports = (config) ->
       'karma-jasmine'
       'karma-story-reporter'
       'karma-chrome-launcher'
-      'karma-phantomjs-launcher'
       'karma-firefox-launcher'
       'karma-safari-launcher'
     ]

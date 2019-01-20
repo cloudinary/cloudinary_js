@@ -79,18 +79,18 @@ describe("Cloudinary.ImageTag", function() {
   beforeEach(function() {
     return cl = new cloudinary.Cloudinary(config);
   });
-  DEFAULT_UPLOAD_PATH = protocol + "//res.cloudinary.com/test123/image/upload/";
+  DEFAULT_UPLOAD_PATH = `${protocol}//res.cloudinary.com/test123/image/upload/`;
   it("should create an image tag", function() {
     var tag;
     tag = new cloudinary.ImageTag('image_id', config).toHtml();
-    return expect(tag).toBe("<img src=\"" + DEFAULT_UPLOAD_PATH + "image_id\">");
+    return expect(tag).toBe(`<img src="${DEFAULT_UPLOAD_PATH}image_id">`);
   });
   it("should set data-src instead of src when using responsive", function() {
     var tag;
     tag = new cloudinary.ImageTag('image_id', cloudinary.Util.assign({
       responsive: true
     }, config)).toHtml();
-    return expect(tag).toBe("<img data-src=\"" + DEFAULT_UPLOAD_PATH + "image_id\">");
+    return expect(tag).toBe(`<img data-src="${DEFAULT_UPLOAD_PATH}image_id">`);
   });
   return describe(":client_hints", function() {
     describe("as option", function() {
@@ -147,8 +147,8 @@ describe("Cloudinary.ImageTag", function() {
 
 describe("Cloudinary.VideoTag", function() {
   var DEFAULT_UPLOAD_PATH, VIDEO_UPLOAD_PATH, config, options, root_path, upload_path;
-  VIDEO_UPLOAD_PATH = protocol + "//res.cloudinary.com/test123/video/upload/";
-  DEFAULT_UPLOAD_PATH = protocol + "//res.cloudinary.com/test123/image/upload/";
+  VIDEO_UPLOAD_PATH = `${protocol}//res.cloudinary.com/test123/video/upload/`;
+  DEFAULT_UPLOAD_PATH = `${protocol}//res.cloudinary.com/test123/image/upload/`;
   config = {
     cloud_name: "test123",
     secure_distribution: null,
@@ -164,8 +164,8 @@ describe("Cloudinary.VideoTag", function() {
     cl = new cloudinary.Cloudinary(config);
     return options = simpleClone(config);
   });
-  root_path = protocol + "//res.cloudinary.com/test123";
-  upload_path = root_path + "/video/upload";
+  root_path = `${protocol}//res.cloudinary.com/test123`;
+  upload_path = `${root_path}/video/upload`;
   describe("constructor", function() {
     var v;
     v = new cloudinary.VideoTag("pubid");
@@ -173,21 +173,24 @@ describe("Cloudinary.VideoTag", function() {
       return expect(v.constructor.name).toBe("VideoTag");
     });
   });
+  //    it 'should support a hash value', ->
+  //      test_cloudinary_url("video_id", { resource_type: 'video', video_codec: { codec: 'h264', profile: 'basic', level: '3.1' } },
+  //                          "#{upload_path}/vc_h264:basic:3.1/video_id", {})
   it("should generate video tag", function() {
-    var expected_url, ref, ref1, ref2, ref3, tag, videoTag;
+    var expected_url, tag, videoTag;
     expected_url = VIDEO_UPLOAD_PATH + "movie";
     videoTag = new cloudinary.VideoTag("movie", options).toHtml();
-    ref = getTag(videoTag), videoTag = ref[0], tag = ref[1];
-    expect(tag).toBe("<video poster=\"" + expected_url + ".jpg\">");
-    ref1 = getTag(videoTag), videoTag = ref1[0], tag = ref1[1];
-    expect(tag).toBe("<source src=\"" + expected_url + ".webm\" type=\"video/webm\">");
-    ref2 = getTag(videoTag), videoTag = ref2[0], tag = ref2[1];
-    expect(tag).toBe("<source src=\"" + expected_url + ".mp4\" type=\"video/mp4\">");
-    ref3 = getTag(videoTag), videoTag = ref3[0], tag = ref3[1];
-    return expect(tag).toBe("<source src=\"" + expected_url + ".ogv\" type=\"video/ogg\">");
+    [videoTag, tag] = getTag(videoTag);
+    expect(tag).toBe(`<video poster="${expected_url}.jpg">`);
+    [videoTag, tag] = getTag(videoTag);
+    expect(tag).toBe(`<source src="${expected_url}.webm" type="video/webm">`);
+    [videoTag, tag] = getTag(videoTag);
+    expect(tag).toBe(`<source src="${expected_url}.mp4" type="video/mp4">`);
+    [videoTag, tag] = getTag(videoTag);
+    return expect(tag).toBe(`<source src="${expected_url}.ogv" type="video/ogg">`);
   });
   it("should generate video tag with html5 attributes", function() {
-    var expected_url, ref, ref1, ref2, ref3, tag, videoTag;
+    var expected_url, tag, videoTag;
     expected_url = VIDEO_UPLOAD_PATH + "movie";
     videoTag = new cloudinary.VideoTag("movie", simpleAssign({
       autoplay: 1,
@@ -197,14 +200,14 @@ describe("Cloudinary.VideoTag", function() {
       preload: true,
       style: "border: 1px"
     }, options)).toHtml();
-    ref = getTag(videoTag), videoTag = ref[0], tag = ref[1];
-    expect(tag).toBe("<video autoplay=\"1\" controls loop muted=\"true\" poster=\"" + expected_url + ".jpg\" preload style=\"border: 1px\">");
-    ref1 = getTag(videoTag), videoTag = ref1[0], tag = ref1[1];
-    expect(tag).toBe("<source src=\"" + expected_url + ".webm\" type=\"video/webm\">");
-    ref2 = getTag(videoTag), videoTag = ref2[0], tag = ref2[1];
-    expect(tag).toBe("<source src=\"" + expected_url + ".mp4\" type=\"video/mp4\">");
-    ref3 = getTag(videoTag), videoTag = ref3[0], tag = ref3[1];
-    return expect(tag).toBe("<source src=\"" + expected_url + ".ogv\" type=\"video/ogg\">");
+    [videoTag, tag] = getTag(videoTag);
+    expect(tag).toBe(`<video autoplay="1" controls loop muted="true" poster="${expected_url}.jpg" preload style="border: 1px">`);
+    [videoTag, tag] = getTag(videoTag);
+    expect(tag).toBe(`<source src="${expected_url}.webm" type="video/webm">`);
+    [videoTag, tag] = getTag(videoTag);
+    expect(tag).toBe(`<source src="${expected_url}.mp4" type="video/mp4">`);
+    [videoTag, tag] = getTag(videoTag);
+    return expect(tag).toBe(`<source src="${expected_url}.ogv" type="video/ogg">`);
   });
   it("should generate video tag with various attributes", function() {
     var expected_url, options2, tag;
@@ -219,22 +222,22 @@ describe("Cloudinary.VideoTag", function() {
       start_offset: 3
     });
     expected_url = VIDEO_UPLOAD_PATH + "ac_acc,so_3,vc_h264/movie";
-    expect(new cloudinary.VideoTag("movie", options2).toHtml()).toEqual("<video height=\"100\" poster=\"" + expected_url + ".jpg\" src=\"" + expected_url + ".mp4\" width=\"200\"></video>");
+    expect(new cloudinary.VideoTag("movie", options2).toHtml()).toEqual(`<video height="100" poster="${expected_url}.jpg" src="${expected_url}.mp4" width="200"></video>`);
     delete options2['source_types'];
     tag = new cloudinary.VideoTag("movie", options2).toHtml();
-    expect(tag).toContain("<video height=\"100\" poster=\"" + expected_url + ".jpg\" width=\"200\">");
-    expect(tag).toContain("<source src=\"" + expected_url + ".webm\" type=\"video/webm\">");
-    expect(tag).toContain("<source src=\"" + expected_url + ".mp4\" type=\"video/mp4\">");
-    expect(tag).toContain("<source src=\"" + expected_url + ".ogv\" type=\"video/ogg\">");
+    expect(tag).toContain(`<video height="100" poster="${expected_url}.jpg" width="200">`);
+    expect(tag).toContain(`<source src="${expected_url}.webm" type="video/webm">`);
+    expect(tag).toContain(`<source src="${expected_url}.mp4" type="video/mp4">`);
+    expect(tag).toContain(`<source src="${expected_url}.ogv" type="video/ogg">`);
     delete options2['html_height'];
     delete options2['html_width'];
     options2['width'] = 250;
     options2['crop'] = 'scale';
     expected_url = VIDEO_UPLOAD_PATH + "ac_acc,c_scale,so_3,vc_h264,w_250/movie";
-    expect(new cloudinary.VideoTag("movie", options2).toHtml()).toEqual(("<video poster=\"" + expected_url + ".jpg\" width=\"250\">") + ("<source src=\"" + expected_url + ".webm\" type=\"video/webm\">") + ("<source src=\"" + expected_url + ".mp4\" type=\"video/mp4\">") + ("<source src=\"" + expected_url + ".ogv\" type=\"video/ogg\">") + "</video>");
+    expect(new cloudinary.VideoTag("movie", options2).toHtml()).toEqual(`<video poster="${expected_url}.jpg" width="250">` + `<source src="${expected_url}.webm" type="video/webm">` + `<source src="${expected_url}.mp4" type="video/mp4">` + `<source src="${expected_url}.ogv" type="video/ogg">` + "</video>");
     expected_url = VIDEO_UPLOAD_PATH + "ac_acc,c_fit,so_3,vc_h264,w_250/movie";
     options2['crop'] = 'fit';
-    return expect(new cloudinary.VideoTag("movie", options2).toHtml()).toEqual(("<video poster=\"" + expected_url + ".jpg\">") + ("<source src=\"" + expected_url + ".webm\" type=\"video/webm\">") + ("<source src=\"" + expected_url + ".mp4\" type=\"video/mp4\">") + ("<source src=\"" + expected_url + ".ogv\" type=\"video/ogg\">") + "</video>");
+    return expect(new cloudinary.VideoTag("movie", options2).toHtml()).toEqual(`<video poster="${expected_url}.jpg">` + `<source src="${expected_url}.webm" type="video/webm">` + `<source src="${expected_url}.mp4" type="video/mp4">` + `<source src="${expected_url}.ogv" type="video/ogg">` + "</video>");
   });
   it("should generate video tag with fallback", function() {
     var expected_url, fallback;
@@ -242,18 +245,18 @@ describe("Cloudinary.VideoTag", function() {
     fallback = "<span id=\"spanid\">Cannot display video</span>";
     expect(new cloudinary.VideoTag("movie", simpleAssign({
       fallback_content: fallback
-    }, options)).toHtml()).toBe(("<video poster=\"" + expected_url + ".jpg\">") + ("<source src=\"" + expected_url + ".webm\" type=\"video/webm\">") + ("<source src=\"" + expected_url + ".mp4\" type=\"video/mp4\">") + ("<source src=\"" + expected_url + ".ogv\" type=\"video/ogg\">") + fallback + "</video>");
+    }, options)).toHtml()).toBe(`<video poster="${expected_url}.jpg">` + `<source src="${expected_url}.webm" type="video/webm">` + `<source src="${expected_url}.mp4" type="video/mp4">` + `<source src="${expected_url}.ogv" type="video/ogg">` + fallback + "</video>");
     return expect(new cloudinary.VideoTag("movie", simpleAssign({
       fallback_content: fallback,
       source_types: "mp4"
-    }, options)).toHtml()).toEqual(("<video poster=\"" + expected_url + ".jpg\" src=\"" + expected_url + ".mp4\">") + fallback + "</video>");
+    }, options)).toHtml()).toEqual(`<video poster="${expected_url}.jpg" src="${expected_url}.mp4">` + fallback + "</video>");
   });
   it("should generate video tag with source types", function() {
     var expected_url;
     expected_url = VIDEO_UPLOAD_PATH + "movie";
     return expect(cl.video("movie", {
       source_types: ['ogv', 'mp4']
-    })).toEqual(("<video poster=\"" + expected_url + ".jpg\">") + ("<source src=\"" + expected_url + ".ogv\" type=\"video/ogg\">") + ("<source src=\"" + expected_url + ".mp4\" type=\"video/mp4\">") + "</video>");
+    })).toEqual(`<video poster="${expected_url}.jpg">` + `<source src="${expected_url}.ogv" type="video/ogg">` + `<source src="${expected_url}.mp4" type="video/mp4">` + "</video>");
   });
   it("should generate video tag with source transformation", function() {
     var expected_mp4_url, expected_ogv_url, expected_url;
@@ -274,7 +277,7 @@ describe("Cloudinary.VideoTag", function() {
           'quality': 30
         }
       }
-    })).toEqual(("<video poster=\"" + expected_url + ".jpg\" width=\"100\">") + ("<source src=\"" + expected_url + ".webm\" type=\"video/webm\">") + ("<source src=\"" + expected_mp4_url + ".mp4\" type=\"video/mp4\">") + ("<source src=\"" + expected_ogv_url + ".ogv\" type=\"video/ogg\">") + "</video>");
+    })).toEqual(`<video poster="${expected_url}.jpg" width="100">` + `<source src="${expected_url}.webm" type="video/webm">` + `<source src="${expected_mp4_url}.mp4" type="video/mp4">` + `<source src="${expected_ogv_url}.ogv" type="video/ogg">` + "</video>");
     return expect(cl.video("movie", {
       width: 100,
       crop: "scale",
@@ -290,7 +293,7 @@ describe("Cloudinary.VideoTag", function() {
         }
       },
       source_types: ['webm', 'mp4']
-    })).toEqual(("<video poster=\"" + expected_url + ".jpg\" width=\"100\">") + ("<source src=\"" + expected_url + ".webm\" type=\"video/webm\">") + ("<source src=\"" + expected_mp4_url + ".mp4\" type=\"video/mp4\">") + "</video>");
+    })).toEqual(`<video poster="${expected_url}.jpg" width="100">` + `<source src="${expected_url}.webm" type="video/webm">` + `<source src="${expected_mp4_url}.mp4" type="video/mp4">` + "</video>");
   });
   it("should generate video tag with configurable poster", function() {
     var expected_poster_url, expected_url;
@@ -299,14 +302,14 @@ describe("Cloudinary.VideoTag", function() {
     expect(cl.video("movie", {
       poster: expected_poster_url,
       source_types: "mp4"
-    })).toEqual("<video poster=\"" + expected_poster_url + "\" src=\"" + expected_url + ".mp4\"></video>");
+    })).toEqual(`<video poster="${expected_poster_url}" src="${expected_url}.mp4"></video>`);
     expected_poster_url = VIDEO_UPLOAD_PATH + "g_north/movie.jpg";
     expect(cl.video("movie", {
       poster: {
         'gravity': 'north'
       },
       source_types: "mp4"
-    })).toEqual("<video poster=\"" + expected_poster_url + "\" src=\"" + expected_url + ".mp4\"></video>");
+    })).toEqual(`<video poster="${expected_poster_url}" src="${expected_url}.mp4"></video>`);
     expected_poster_url = DEFAULT_UPLOAD_PATH + "g_north/my_poster.jpg";
     expect(cl.video("movie", {
       poster: {
@@ -315,19 +318,19 @@ describe("Cloudinary.VideoTag", function() {
         'format': 'jpg'
       },
       source_types: "mp4"
-    })).toEqual("<video poster=\"" + expected_poster_url + "\" src=\"" + expected_url + ".mp4\"></video>");
+    })).toEqual(`<video poster="${expected_poster_url}" src="${expected_url}.mp4"></video>`);
     expect(cl.video("movie", {
       poster: "",
       source_types: "mp4"
-    })).toEqual("<video src=\"" + expected_url + ".mp4\"></video>");
+    })).toEqual(`<video src="${expected_url}.mp4"></video>`);
     return expect(cl.video("movie", {
       poster: false,
       source_types: "mp4"
-    })).toEqual("<video src=\"" + expected_url + ".mp4\"></video>");
+    })).toEqual(`<video src="${expected_url}.mp4"></video>`);
   });
   describe("attributes", function() {
     var tag;
-    tag = cloudinary.HtmlTag["new"]("div", {
+    tag = cloudinary.HtmlTag.new("div", {
       id: "foobar"
     });
     return describe("removeAttr()", function() {
@@ -348,9 +351,9 @@ describe("Cloudinary.VideoTag", function() {
   });
   return describe("toDOM", function() {
     var element;
-    element = cloudinary.HtmlTag["new"]("div").toDOM();
+    element = cloudinary.HtmlTag.new("div").toDOM();
     return it("should generate a DOM Element", function() {
-      expect(element != null ? element.nodeType : void 0).toBe(1);
+      expect(element != null ? element.nodeType : void 0).toBe(1); // element
       return expect(element.tagName).toMatch(/div/i);
     });
   });

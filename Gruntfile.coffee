@@ -67,21 +67,21 @@ module.exports = (grunt)->
       options:
         reporters: ['dots']
         configFile: 'karma.coffee'
-        browsers: grunt.option("browsers")?.toString().split(",") || ['Chrome' , 'Firefox', 'PhantomJS'] # 'Safari' disabled until window.open is resolved
+        browsers: grunt.option("browsers")?.toString().split(",") || ['Chrome' , 'Firefox'] # 'Safari' disabled until window.open is resolved
         browserDisconnectTolerance: 3
         singleRun: !grunt.option("watch")
         files: [
           { pattern: 'test/docRoot/*', watched: false, included: false, served: true, nocache: false}
           { pattern: 'test/docRoot/css/*', watched: false, included: false, served: true, nocache: false}
-          { pattern: 'bower_components/bootstrap/dist/css/*', watched: false, included: false, served: true, nocache: false}
-          { pattern: 'bower_components/bootstrap/dist/js/*', watched: false, included: false, served: true, nocache: false}
+          { pattern: 'node_modules/bootstrap/dist/css/*', watched: false, included: false, served: true, nocache: false}
+          { pattern: 'node_modules/bootstrap/dist/js/*', watched: false, included: false, served: true, nocache: false}
         ]
 
       'cloudinary-core':
         files:
           src:
             [
-              "bower_components/lodash/lodash.js"
+              "node_modules/lodash/lodash.js"
               "<%= karmaCommon %>"
               "test/spec/responsive-core-spec.js"
             ]
@@ -97,7 +97,7 @@ module.exports = (grunt)->
       'cloudinary-jquery':
         files:
           src: [
-              "bower_components/jquery/dist/jquery.js"
+              "node_modules/jquery/dist/jquery.js"
               "<%= karmaCommon %>"
               "test/spec/responsive-jquery-spec.js"
             ]
@@ -105,12 +105,12 @@ module.exports = (grunt)->
       'cloudinary-jquery-file-upload':
         files:
           src: [
-              "bower_components/jquery/dist/jquery.js"
-              "bower_components/blueimp-file-upload/js/vendor/jquery.ui.widget.js"
-              "bower_components/blueimp-file-upload/js/jquery.fileupload.js"
-              "bower_components/blueimp-file-upload/js/jquery.fileupload-process.js"
-              "bower_components/blueimp-file-upload/js/jquery.iframe-transport.js"
-              "bower_components/blueimp-file-upload/js/jquery.fileupload-image.js"
+              "node_modules/jquery/dist/jquery.js"
+              "node_modules/blueimp-file-upload/js/vendor/jquery.ui.widget.js"
+              "node_modules/blueimp-file-upload/js/jquery.fileupload.js"
+              "node_modules/blueimp-file-upload/js/jquery.fileupload-process.js"
+              "node_modules/blueimp-file-upload/js/jquery.iframe-transport.js"
+              "node_modules/blueimp-file-upload/js/jquery.fileupload-image.js"
               "<%= karmaCommon %>"
               "test/spec/cloudinary-jquery-upload-spec.js"
             ]
@@ -151,14 +151,14 @@ module.exports = (grunt)->
             expand: true
             flatten: true
             src: [
-              "bower_components/blueimp-canvas-to-blob/js/canvas-to-blob.min.js"
-              "bower_components/blueimp-load-image/js/load-image.all.min.js" # formerly load-image.min.js
-              "bower_components/blueimp-file-upload/js/jquery.fileupload-image.js"
-              "bower_components/blueimp-file-upload/js/jquery.fileupload-process.js"
-              "bower_components/blueimp-file-upload/js/jquery.fileupload-validate.js"
-              "bower_components/blueimp-file-upload/js/jquery.fileupload.js"
-              "bower_components/blueimp-file-upload/js/jquery.iframe-transport.js"
-              "bower_components/blueimp-file-upload/js/vendor/jquery.ui.widget.js"
+              "node_modules/blueimp-canvas-to-blob/js/canvas-to-blob.min.js"
+              "node_modules/blueimp-load-image/js/load-image.all.min.js" # formerly load-image.min.js
+              "node_modules/blueimp-file-upload/js/jquery.fileupload-image.js"
+              "node_modules/blueimp-file-upload/js/jquery.fileupload-process.js"
+              "node_modules/blueimp-file-upload/js/jquery.fileupload-validate.js"
+              "node_modules/blueimp-file-upload/js/jquery.fileupload.js"
+              "node_modules/blueimp-file-upload/js/jquery.iframe-transport.js"
+              "node_modules/blueimp-file-upload/js/vendor/jquery.ui.widget.js"
             ]
             dest: "js/"
           }

@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/cloudinary/cloudinary_js.svg)](https://travis-ci.org/cloudinary/cloudinary_js) [![npm](https://img.shields.io/npm/v/cloudinary_js.svg?maxAge=2592000)]() [![Bower](https://img.shields.io/bower/v/cloudinary_js.svg?maxAge=2592000)]() [![license](https://img.shields.io/github/license/cloudinary/cloudinary_js.svg?maxAge=2592000)]()
+[![Build Status](https://travis-ci.org/cloudinary/cloudinary_js.svg)](https://travis-ci.org/cloudinary/cloudinary_js) [![npm](https://img.shields.io/npm/v/cloudinary_js.svg?maxAge=2592000)]() [![license](https://img.shields.io/github/license/cloudinary/cloudinary_js.svg?maxAge=2592000)]()
 
 # Cloudinary Client Side JavaScript Library
 
@@ -24,37 +24,16 @@ Github Repository                                                               
 [pkg-cloudinary-jquery](https://github.com/cloudinary/pkg-cloudinary-jquery)                         | `cloudinary-jquery`             | Core Library + jQuery plugin
 [pkg-cloudinary-jquery-file-upload](https://github.com/cloudinary/pkg-cloudinary-jquery-file-upload) | `cloudinary-jquery-file-upload` | Core Library + jQuery plugin <br/>+ Blueimp File Upload adapter
 
-The same package names are used in both bower and NPM.
-
 ### Backward compatibility
 The cloudinary-jquery-file-upload library is fully backwards compatible with the cloudinary_js library `v1.0.25`.
 The relevant Blueimp files can still be found in the `js` folder for backward compatibility. If you rely on the Blueimp 
 files located in the repository’s `js` folder, make sure to update your links to `load-image.all.min.js` which replaces `load-image.min.js` from previous versions. 
-However, we encourage developers to use a dependency manager such as bower or NPM to install the 3rd party libraries, and not to rely on the files in the `js` folder.
+However, we encourage developers to use a dependency manager such as NPM to install the 3rd party libraries, and not to rely on the files in the `js` folder.
 
 ## Installation
 
 The following instructions detail the installation of the **Cloudinary jQuery File Upload library**.
 For installation instructions of the core library which is not dependent on jQuery follow this [link](https://github.com/cloudinary/pkg-cloudinary-core#installation)
-
-### bower
-
-1. Install the files using the following command. Use the optional `--save` parameter if you wish to save the dependency in your `bower.json` file.
-
-   ```shell
-   bower install cloudinary-jquery-file-upload
-   ```
-
-1. Include the javascript file in your HTML. For Example:
-
-   ```html
-   <script src="bower_components/jquery/dist/jquery.js"                                          type="text/javascript"></script>
-   <script src="bower_components/blueimp-file-upload/js/vendor/jquery.ui.widget.js"              type="text/javascript"></script>
-   <script src="bower_components/blueimp-file-upload/js/jquery.iframe-transport.js"              type="text/javascript"></script>
-   <script src="bower_components/blueimp-file-upload/js/jquery.fileupload.js"                    type="text/javascript"></script>
-
-   <script src="bower_components/cloudinary-jquery-file-upload/cloudinary-jquery-file-upload.js" type="text/javascript"></script>
-   ```
 
 ### NPM
 The following instructions describe the installation of the **client-side libraries**. For the server side NodeJS library, see https://github.com/cloudinary/cloudinary_npm
@@ -267,16 +246,16 @@ See the File Processing Options in https://github.com/blueimp/jQuery-File-Upload
 Modify your script tags based on the the following example (order is important!):
 
 ```    
-<script src="bower_components/jquery/dist/jquery.js" type="text/javascript"></script>
-<script src="bower_components/jquery.ui/ui/widget.js" type="text/javascript"></script>
-<script src="bower_components/blueimp-load-image/js/load-image.all.min.js"></script>
-<script src="bower_components/blueimp-canvas-to-blob/js/canvas-to-blob.min.js"></script>
-<script src="bower_components/blueimp-file-upload/js/jquery.iframe-transport.js" type="text/javascript"></script>
-<script src="bower_components/blueimp-file-upload/js/jquery.fileupload.js" type="text/javascript"></script>
-<script src="bower_components/blueimp-file-upload/js/jquery.fileupload-process.js"></script>
-<script src="bower_components/blueimp-file-upload/js/jquery.fileupload-image.js" type="text/javascript"></script>
-<script src="bower_components/blueimp-file-upload/js/jquery.fileupload-validate.js"></script>
-<script src="bower_components/cloudinary-jquery-file-upload/cloudinary-jquery-file-upload.js" type="text/javascript"></script>
+<script src="node_modules/jquery/dist/jquery.js" type="text/javascript"></script>
+<script src="node_modules/jquery.ui/ui/widget.js" type="text/javascript"></script>
+<script src="node_modules/blueimp-load-image/js/load-image.all.min.js"></script>
+<script src="node_modules/blueimp-canvas-to-blob/js/canvas-to-blob.min.js"></script>
+<script src="node_modules/blueimp-file-upload/js/jquery.iframe-transport.js" type="text/javascript"></script>
+<script src="node_modules/blueimp-file-upload/js/jquery.fileupload.js" type="text/javascript"></script>
+<script src="node_modules/blueimp-file-upload/js/jquery.fileupload-process.js"></script>
+<script src="node_modules/blueimp-file-upload/js/jquery.fileupload-image.js" type="text/javascript"></script>
+<script src="node_modules/blueimp-file-upload/js/jquery.fileupload-validate.js"></script>
+<script src="node_modules/cloudinary-jquery-file-upload/cloudinary-jquery-file-upload.js" type="text/javascript"></script>
 ```
 
 Also, add the following javascript:

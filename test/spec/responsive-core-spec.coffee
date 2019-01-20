@@ -1,6 +1,6 @@
-describe 'client side responsive', ->
-  if navigator.userAgent.toLowerCase().indexOf('phantom') > -1
-    console.warn("Skipping responsive tests in PhantomJS")
+describe 'client side responsive' + navigator.userAgent , ->
+  if /phantom|HeadlessChrome/i.test(navigator.userAgent)
+    console.warn("Skipping responsive tests in PhantomJS or HeadlessChrome")
     return
   defaultConfig = cloud_name: 'sdk-test'
   cl = null
@@ -127,6 +127,7 @@ describe 'client side responsive', ->
         done()
       testWindow.addEventListener 'resize', handler
       testWindow.resizeBy(200,0)
+      triggerResize window
 
     describe "responsive_class", ->
       it "should set the class used for responsive functionality", ->

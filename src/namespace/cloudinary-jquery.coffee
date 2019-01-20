@@ -20,22 +20,3 @@ export {default as SubtitlesLayer} from '../layer/subtitleslayer'
 
 export {default as Cloudinary} from '../cloudinary'
 export {default as CloudinaryJQuery} from '../cloudinaryjquery'
-export default {
-  utf8_encode,
-  crc32,
-  Util,
-  Transformation,
-  Condition,
-  Configuration,
-  HtmlTag,
-  ImageTag,
-  VideoTag,
-  ClientHintsMetaTag,
-  Layer,
-  FetchLayer,
-  TextLayer,
-  SubtitlesLayer,
-  Cloudinary,
-  CloudinaryJQuery
-};
-

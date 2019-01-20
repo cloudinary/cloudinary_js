@@ -2,8 +2,8 @@ topPosition = 0
 
 cl =null
 describe 'client side responsive', ->
-  if navigator.userAgent.toLowerCase().indexOf('phantom') > -1
-    console.warn("Skipping responsive tests in PhantomJS")
+  if /phantom|HeadlessChrome/i.test(navigator.userAgent)
+    console.warn("Skipping responsive tests in PhantomJS or HeadlessChrome")
     return
   defaultConfig = cloud_name: 'sdk-test'
   describe "responsive", ()->

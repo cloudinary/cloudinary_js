@@ -16,7 +16,7 @@ module.exports = (config) ->
     # list of files / patterns to load in the browser
     files: [
       'node_modules/lodash/lodash.js'
-      'build/cloudinary-core.js'
+      'dist/cloudinary-core.js'
       'test/spec/spec-helper.js'
       'test/spec/cloudinary-spec.js'
       'test/spec/transformation-spec.js'
@@ -84,7 +84,6 @@ module.exports = (config) ->
       'karma-coverage'
       'karma-story-reporter'
       'karma-chrome-launcher'
-      'karma-phantomjs-launcher'
       'karma-firefox-launcher'
       'karma-safari-launcher'
     ]

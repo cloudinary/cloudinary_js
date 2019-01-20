@@ -1,4 +1,4 @@
-class sharedExamples
+class SharedExamples
   constructor: (name, examples)->
     @allExamples ?= {}
     if cloudinary.Util.isFunction(examples)
@@ -10,6 +10,9 @@ class sharedExamples
       else
         return ->
           console.log("Shared example #{name} was not found!")
+
+sharedExamples = (name, examples)->
+  new SharedExamples(name, examples)
 
 sharedContext = sharedExamples
 

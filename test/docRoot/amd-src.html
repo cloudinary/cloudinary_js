@@ -4,34 +4,34 @@
     <meta charset="UTF-8">
     <title>cloudinary_js</title>
     <link rel="shortcut icon" type="image/png"
-          href="../../bower_components/jasmine/images/jasmine_favicon.png">
+          href="../../node_modules/jasmine-core/images/jasmine_favicon.png">
 
     <link rel="stylesheet" type="text/css"
-          href="../../bower_components/jasmine/lib/jasmine-core/jasmine.css">
+          href="../../node_modules/jasmine-core/lib/jasmine-core/jasmine.css">
     <script type="text/javascript"
-            src="../../bower_components/jasmine/lib/jasmine-core/jasmine.js"></script>
+            src="../../node_modules/jasmine-core/lib/jasmine-core/jasmine.js"></script>
     <script type="text/javascript"
-            src="../../bower_components/jasmine/lib/jasmine-core/jasmine-html.js"></script>
+            src="../../node_modules/jasmine-core/lib/jasmine-core/jasmine-html.js"></script>
     <script type="text/javascript"
-            src="../../bower_components/jasmine/lib/jasmine-core/boot.js"></script>
+            src="../../node_modules/jasmine-core/lib/jasmine-core/boot.js"></script>
     <script>
         window.bootJasmine = window.onload;
         window.onload = undefined;
     </script>
-    <script src="../../bower_components/requirejs-bower/require.js"></script>
+    <script src="../../node_modules/requirejs/require.js"></script>
 </head>
 <body>
 <script>
     requirejs.config({
         baseUrl: '../../src',
         paths: {
-            'jquery': '../bower_components/jquery/dist/jquery.min',
-            'jquery.ui.widget': '../bower_components/blueimp-file-upload/js/vendor/jquery.ui.widget',
-            'jquery-ui/widget': '../bower_components/blueimp-file-upload/js/vendor/jquery.ui.widget',
-            'jquery.iframe-transport': '../bower_components/blueimp-file-upload/js/jquery.iframe-transport',
-            'jquery.fileupload': '../bower_components/blueimp-file-upload/js/jquery.fileupload',
+            'jquery': '../node_modules/jquery/dist/jquery.min',
+            'jquery.ui.widget': '../node_modules/blueimp-file-upload/js/vendor/jquery.ui.widget',
+            'jquery-ui/widget': '../node_modules/blueimp-file-upload/js/vendor/jquery.ui.widget',
+            'jquery.iframe-transport': '../node_modules/blueimp-file-upload/js/jquery.iframe-transport',
+            'jquery.fileupload': '../node_modules/blueimp-file-upload/js/jquery.fileupload',
             'spec': '../test/spec',
-            'lodash': '../bower_components/lodash/lodash',
+            'lodash': '../node_modules/lodash/lodash',
             'util': 'util/lodash'
         }
     });

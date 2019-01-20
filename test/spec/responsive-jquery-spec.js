@@ -6,8 +6,8 @@ cl = null;
 
 describe('client side responsive', function() {
   var defaultConfig;
-  if (navigator.userAgent.toLowerCase().indexOf('phantom') > -1) {
-    console.warn("Skipping responsive tests in PhantomJS");
+  if (/phantom|HeadlessChrome/i.test(navigator.userAgent)) {
+    console.warn("Skipping responsive tests in PhantomJS or HeadlessChrome");
     return;
   }
   defaultConfig = {
@@ -23,21 +23,21 @@ describe('client side responsive', function() {
     handler = void 0;
     beforeAll(function(done) {
       var testURL;
+      // Open a new window with test HTML. A dynamic title is required in order to open a *new* window each time even if
+      // previous window was not closed.
       testURL = "responsive-jquery-test.html";
       if (typeof __karma__ !== "undefined") {
-        testURL = "/base/test/docRoot/" + testURL;
+        testURL = `/base/test/docRoot/${testURL}`;
       }
-      testWindow = window.open(testURL, "Cloudinary test " + ((new Date()).toLocaleString()), "width=500, height=500, top=" + topPosition, false);
+      testWindow = window.open(testURL, `Cloudinary test ${(new Date()).toLocaleString()}`, "width=500, height=500, top=" + topPosition, false);
       topPosition = 500;
-      return testWindow.addEventListener('karma-ready', (function(_this) {
-        return function() {
-          var image1;
-          testDocument = testWindow.document;
-          image1 = testDocument.getElementById('image1');
-          expect(image1).toBeDefined();
-          return done();
-        };
-      })(this), {
+      return testWindow.addEventListener('karma-ready', () => {
+        var image1;
+        testDocument = testWindow.document;
+        image1 = testDocument.getElementById('image1');
+        expect(image1).toBeDefined();
+        return done();
+      }, {
         capture: false,
         once: true
       });
@@ -123,9 +123,11 @@ describe('client side responsive', function() {
       expect(img.attr('src')).toEqual(window.location.protocol + '//res.cloudinary.com/sdk-test/image/upload/c_scale,dpr_' + dpr + ',w_200/sample.jpg');
       $(window).resize();
       return window.setTimeout((function() {
+        // wait(200)
         expect(img.attr('src')).toEqual(window.location.protocol + '//res.cloudinary.com/sdk-test/image/upload/c_scale,dpr_' + dpr + ',w_300/sample.jpg');
         container.css('width', 101);
         return window.setTimeout((function() {
+          // wait(200)
           expect(img.attr('src')).toEqual(window.location.protocol + '//res.cloudinary.com/sdk-test/image/upload/c_scale,dpr_' + dpr + ',w_300/sample.jpg');
           return done();
         }), 200);
