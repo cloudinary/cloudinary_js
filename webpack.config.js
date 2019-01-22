@@ -25,67 +25,66 @@ const lodashExternals= [
     return map;
   }, {}
 );
-let baseConfig = (name, entry, util) => ({
-  mode: 'development',
-  entry: {
-    [name]: entry
-  },
-  output: {
-    library: 'cloudinary',
-    libraryTarget: 'umd',
-    filename: './cloudinary-[name].js',
-    auxiliaryComment: 'Test Comment'
-  },
-  module: {
-    rules: [
-      {
-        test: /\.coffee$/,
-        use: [
-          'coffee-loader',
-        ]
-      }
-    ]
-  },
-  resolve: {
-    extensions: ['.coffee', '.js'],
-    alias: {
-      "../util": path.resolve(__dirname, `src/util/${util}`),
-      "./util": path.resolve(__dirname, `src/util/${util}`)
-    }
-  },
-  externals: [{
-    jquery: 'jQuery',
-    lodash: {
-      commonjs: 'lodash',
-      amd: 'lodash',
-      root: '_' // indicates global variable
+
+module.exports = function(env, argv){
+  const isProd = argv.mode === 'production' || env === 'prod' || env && env.prod;
+  const mode = isProd ?  'production' : 'development';
+  console.log(`mode: ${mode}`);
+  let baseConfig = (name, entry, util) => ({
+    mode,
+    entry: {
+      [name]: entry
     },
-    ...lodashExternals,
-  },
-    function(context, request, callback) {
-      if(/^lodash\//.test(request)){
-        callback(null,   request.split('/'), 'amd')
-      } else {
-        callback()
+    output: {
+      library: 'cloudinary',
+      libraryTarget: 'umd',
+      filename: `./cloudinary-[name]${isProd ? '.min' : ''}.js`,
+      auxiliaryComment: 'Test Comment'
+    },
+    optimization: {
+      namedModules: true
+    },
+    resolve: {
+      extensions: ['.js'],
+      alias: {
+        "../util": path.resolve(__dirname, `src/util/${util}`),
+        "./util": path.resolve(__dirname, `src/util/${util}`)
       }
+    },
+    externals: [{
+      jquery: 'jQuery',
+      lodash: {
+        commonjs: 'lodash',
+        amd: 'lodash',
+        root: '_' // indicates global variable
+      },
+      ...lodashExternals,
+    },
+      function (context, request, callback) {
+        if (/^lodash\//.test(request)) {
+          callback(null, request.split('/'), 'amd')
+        } else {
+          callback()
+        }
+      }
+    ],
+    node: {
+      Buffer: false
+    },
+    devtool: "source-map"
+  });
+
+
+  return [
+    baseConfig("core", './src/namespace/cloudinary-core.js', "lodash"),
+    baseConfig("jquery", './src/namespace/cloudinary-jquery.js', "jquery"),
+    baseConfig("jquery-file-upload", './src/namespace/cloudinary-jquery-file-upload.js', "jquery"),
+    {
+      ...baseConfig("core-shrinkwrap", './src/namespace/cloudinary-core.js', "lodash"),
+      externals: {
+        jquery: 'jQuery'
+      }
+
     }
-  ],
-  node: {
-    Buffer: false
-  },
-  devtool: "source-map"
-});
-
-
-module.exports = [
-  baseConfig("core", './src/namespace/cloudinary-core.coffee', "lodash"),
-  baseConfig("jquery", './src/namespace/cloudinary-jquery.coffee', "jquery"),
-  baseConfig("jquery-file-upload", './src/namespace/cloudinary-jquery-file-upload.coffee', "jquery"),
-  {
-    ...baseConfig("core-shrinkwrap", './src/namespace/cloudinary-core.coffee', "lodash"),
-    externals: {
-      jquery: 'jQuery'
-    }
-
-  }
-];
+  ];
+};

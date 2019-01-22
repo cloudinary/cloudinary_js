@@ -20,8 +20,8 @@ bower_components
 doc/
 
 src/**/*.map
-src/**/*.js
 build/
+dist/
 
 # dotenv environment variables file
 .env
