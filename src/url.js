@@ -1,25 +1,3 @@
-/**
- * Generate an resource URL.
- * @function Cloudinary#url
- * @param {string} publicId - the public ID of the resource
- * @param {Object} [options] - options for the tag and transformations, possible values include all {@link Transformation} parameters
- *                          and {@link Configuration} parameters
- * @param {string} [options.type='upload'] - the classification of the resource
- * @param {Object} [options.resource_type='image'] - the type of the resource
- * @return {string} The resource URL
- */
-/**
- * Return the resource type and action type based on the given configuration
- * @function Cloudinary#finalizeResourceType
- * @param {Object|string} resourceType
- * @param {string} [type='upload']
- * @param {string} [urlSuffix]
- * @param {boolean} [useRootPath]
- * @param {boolean} [shorten]
- * @returns {string} resource_type/type
- * @ignore
- */
-var absolutize, cdnSubdomainNumber, cloudinaryUrlPrefix, finalizeResourceType;
 
 import Transformation from './transformation';
 
@@ -38,7 +16,7 @@ import {
 
 import crc32 from './crc32';
 
-absolutize = function(url) {
+function absolutize(url) {
   var prefix;
   if (!url.match(/^https?:\//)) {
     prefix = document.location.protocol + '//' + document.location.host;
@@ -50,19 +28,19 @@ absolutize = function(url) {
     url = prefix + url;
   }
   return url;
-};
+}
 
 // Produce a number between 1 and 5 to be used for cdn sub domains designation
-cdnSubdomainNumber = function(publicId) {
+function cdnSubdomainNumber(publicId) {
   return crc32(publicId) % 5 + 1;
-};
+}
 
 //  * cdn_subdomain - Boolean (default: false). Whether to automatically build URLs with multiple CDN sub-domains. See this blog post for more details.
 //  * private_cdn - Boolean (default: false). Should be set to true for Advanced plan's users that have a private CDN distribution.
 //  * secure_distribution - The domain name of the CDN distribution to use for building HTTPS URLs. Relevant only for Advanced plan's users that have a private CDN distribution.
 //  * cname - Custom domain name to use for building HTTP URLs. Relevant only for Advanced plan's users that have a private CDN distribution and a custom CNAME.
 //  * secure - Boolean (default: false). Force HTTPS URLs of images even if embedded in non-secure HTTP pages.
-cloudinaryUrlPrefix = function(publicId, options) {
+function cloudinaryUrlPrefix(publicId, options) {
   var cdnPart, host, path, protocol, ref, subdomain;
   if (((ref = options.cloud_name) != null ? ref.indexOf("/") : void 0) === 0) {
     return '/res' + options.cloud_name;
@@ -101,9 +79,20 @@ cloudinaryUrlPrefix = function(publicId, options) {
     host = options.cname;
   }
   return [protocol, cdnPart, subdomain, host, path].join("");
-};
+}
 
-finalizeResourceType = function(resourceType = "image", type = "upload", urlSuffix, useRootPath, shorten) {
+/**
+ * Return the resource type and action type based on the given configuration
+ * @function Cloudinary#finalizeResourceType
+ * @param {Object|string} resourceType
+ * @param {string} [type='upload']
+ * @param {string} [urlSuffix]
+ * @param {boolean} [useRootPath]
+ * @param {boolean} [shorten]
+ * @returns {string} resource_type/type
+ * @ignore
+ */
+function finalizeResourceType(resourceType = "image", type = "upload", urlSuffix, useRootPath, shorten) {
   var key, options;
   if (isPlainObject(resourceType)) {
     options = resourceType;
@@ -120,7 +109,7 @@ finalizeResourceType = function(resourceType = "image", type = "upload", urlSuff
     resourceType = SEO_TYPES[`${resourceType}/${type}`];
     type = null;
     if (resourceType == null) {
-      throw new Error(`URL Suffix only supported for ${((function() {
+      throw new Error(`URL Suffix only supported for ${((function () {
         var results;
         results = [];
         for (key in SEO_TYPES) {
@@ -143,9 +132,20 @@ finalizeResourceType = function(resourceType = "image", type = "upload", urlSuff
     type = null;
   }
   return [resourceType, type].join("/");
-};
+}
 
-export default function(publicId, options = {}, config = {}) {
+/**
+ * Generate an resource URL.
+ * @function Cloudinary#url
+ * @param {string} publicId - the public ID of the resource
+ * @param {Object} [options] - options for the tag and transformations, possible values include all {@link Transformation} parameters
+ *                          and {@link Configuration} parameters
+ * @param {string} [options.type='upload'] - the classification of the resource
+ * @param {Object} [options.resource_type='image'] - the type of the resource
+ * @param {Object} [config] URL configuration
+ * @return {string} The resource URL
+ */
+export default function url(publicId, options = {}, config = {}) {
   var error, prefix, ref, resourceTypeAndType, transformation, transformationString, url, version;
   if (!publicId) {
     return publicId;

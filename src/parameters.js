@@ -1,11 +1,8 @@
-var ArrayParam, ExpressionParam, LayerParam, Param, RangeParam, RawParam, TransformationParam;
-
 import Expression from './expression';
+import Transformation from "./transformation";
 
 import {
   allStrings,
-  compact,
-  identity,
   isArray,
   isEmpty,
   isFunction,
@@ -26,7 +23,7 @@ import FetchLayer from './layer/fetchlayer';
  * Transformation parameters
  * Depends on 'util', 'transformation'
  */
-Param = class Param {
+var Param = class Param {
   /**
    * Represents a single parameter
    * @class Param
@@ -137,7 +134,7 @@ Param = class Param {
 
 };
 
-ArrayParam = class ArrayParam extends Param {
+var ArrayParam = class ArrayParam extends Param {
   /**
    * A parameter that represents an array
    * @param {string} name - The name of the parameter in snake_case
@@ -155,28 +152,15 @@ ArrayParam = class ArrayParam extends Param {
   }
 
   serialize() {
-    var arrayValue, flat, t;
     if (this.shortName != null) {
-      arrayValue = this.value();
+      let arrayValue = this.value();
       if (isEmpty(arrayValue)) {
         return '';
       } else if (isString(arrayValue)) {
         return `${this.shortName}_${arrayValue}`;
       } else {
-        flat = (function() {
-          var i, len, results;
-          results = [];
-          for (i = 0, len = arrayValue.length; i < len; i++) {
-            t = arrayValue[i];
-            if (isFunction(t.serialize)) {
-              results.push(t.serialize()); // Param or Transformation
-            } else {
-              results.push(t);
-            }
-          }
-          return results;
-        })();
-        return `${this.shortName}_${flat.join(this.sep)}`;
+        let flat = arrayValue.map(t=>isFunction(t.serialize) ? t.serialize() : t).join(this.sep);
+        return `${this.shortName}_${flat}`;
       }
     } else {
       return '';
@@ -184,15 +168,8 @@ ArrayParam = class ArrayParam extends Param {
   }
 
   value() {
-    var i, len, ref, results, v;
     if (isArray(this.origValue)) {
-      ref = this.origValue;
-      results = [];
-      for (i = 0, len = ref.length; i < len; i++) {
-        v = ref[i];
-        results.push(this.process(v));
-      }
-      return results;
+      return this.origValue.map(v=>this.process(v));
     } else {
       return this.process(this.origValue);
     }
@@ -208,7 +185,7 @@ ArrayParam = class ArrayParam extends Param {
 
 };
 
-TransformationParam = class TransformationParam extends Param {
+var TransformationParam = class TransformationParam extends Param {
   /**
    * A parameter that represents a transformation
    * @param {string} name - The name of the parameter in snake_case
@@ -225,38 +202,27 @@ TransformationParam = class TransformationParam extends Param {
   }
 
   serialize() {
-    var joined, result, t;
     if (isEmpty(this.value())) {
       return '';
     } else if (allStrings(this.value())) {
-      joined = this.value().join(this.sep);
+      let joined = this.value().join(this.sep);
       if (!isEmpty(joined)) {
         return `${this.shortName}_${joined}`;
       } else {
         return '';
       }
     } else {
-      result = (function() {
-        var i, len, ref, results;
-        ref = this.value();
-        results = [];
-        for (i = 0, len = ref.length; i < len; i++) {
-          t = ref[i];
-          if (t != null) {
-            if (isString(t) && !isEmpty(t)) {
-              results.push(`${this.shortName}_${t}`);
-            } else if (isFunction(t.serialize)) {
-              results.push(t.serialize());
-            } else if (isPlainObject(t) && !isEmpty(t)) {
-              results.push(new Transformation(t).serialize());
-            } else {
-              results.push(void 0);
-            }
-          }
+      return this.value().map(t=>{
+        if (isString(t) && !isEmpty(t)) {
+          return `${this.shortName}_${t}`;
+        } else if (isFunction(t.serialize)) {
+          return t.serialize();
+        } else if (isPlainObject(t) && !isEmpty(t)) {
+          return new Transformation(t).serialize();
+        } else {
+          return undefined;
         }
-        return results;
-      }).call(this);
-      return compact(result);
+      }).filter(t=>t);
     }
   }
 
@@ -271,7 +237,7 @@ TransformationParam = class TransformationParam extends Param {
 
 };
 
-RangeParam = class RangeParam extends Param {
+var RangeParam = class RangeParam extends Param {
   /**
    * A parameter that represents a range
    * @param {string} name - The name of the parameter in snake_case
@@ -299,7 +265,7 @@ RangeParam = class RangeParam extends Param {
 
 };
 
-RawParam = class RawParam extends Param {
+var RawParam = class RawParam extends Param {
   constructor(name, shortName, process = Util.identity) {
     super(name, shortName, process);
   }
@@ -310,8 +276,15 @@ RawParam = class RawParam extends Param {
 
 };
 
-LayerParam = (function() {
-  var LAYER_KEYWORD_PARAMS;
+const LAYER_KEYWORD_PARAMS = [
+  ["font_weight", "normal"],
+  ["font_style", "normal"],
+  ["text_decoration", "none"],
+  ["text_align", null],
+  ["stroke", "none"],
+  ["letter_spacing", null],
+  ["line_spacing", null]
+];
 
   class LayerParam extends Param {
     // Parse layer options
@@ -339,19 +312,13 @@ LayerParam = (function() {
       return result;
     }
 
-    textStyle(layer) {
-      return (new TextLayer(layer)).textStyleIdentifier();
-    }
+  textStyle(layer) {
+    return (new TextLayer(layer)).textStyleIdentifier();
+  }
 
-  };
+}
 
-  LAYER_KEYWORD_PARAMS = [["font_weight", "normal"], ["font_style", "normal"], ["text_decoration", "none"], ["text_align", null], ["stroke", "none"], ["letter_spacing", null], ["line_spacing", null]];
-
-  return LayerParam;
-
-}).call(this);
-
-ExpressionParam = class ExpressionParam extends Param {
+var ExpressionParam = class ExpressionParam extends Param {
   serialize() {
     return Expression.normalize(super.serialize());
   }

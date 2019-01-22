@@ -2,13 +2,12 @@
  * Image Tag
  * Depends on 'tags/htmltag', 'cloudinary'
  */
-var ImageTag;
 
 import HtmlTag from './htmltag';
 
 import url from '../url';
 
-export default ImageTag = class ImageTag extends HtmlTag {
+var ImageTag = class ImageTag extends HtmlTag {
   /**
    * Creates an HTML (DOM) Image tag using Cloudinary as the source.
    * @constructor ImageTag
@@ -38,3 +37,5 @@ export default ImageTag = class ImageTag extends HtmlTag {
   }
 
 };
+
+export default ImageTag;

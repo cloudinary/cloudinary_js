@@ -1,8 +1,6 @@
-var Condition;
-
 import Expression from './expression';
 
-export default Condition = class Condition extends Expression {
+var Condition = class Condition extends Expression {
   /**
    * Represents a transformation condition
    * @param {string} conditionStr - a condition in string format
@@ -81,3 +79,5 @@ export default Condition = class Condition extends Expression {
   }
 
 };
+
+export default Condition;

@@ -56,16 +56,10 @@ module.exports = function(config) {
         nocache: false
       }
     ],
-    coffeePreprocessor: {
-      options: {
-        sourceMap: true,
-        bare: true
-      }
-    },
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      'build/*.js': ['coverage']
+      'dist/*.js': ['coverage']
     },
     // test results reporter to use
     // possible values: 'dots', 'progress'

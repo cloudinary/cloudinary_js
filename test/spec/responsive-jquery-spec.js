@@ -20,7 +20,6 @@ describe('client side responsive', function() {
     container = void 0;
     testWindow = null;
     originalTimeout = 0;
-    handler = void 0;
     beforeAll(function(done) {
       var testURL;
       // Open a new window with test HTML. A dynamic title is required in order to open a *new* window each time even if
@@ -37,10 +36,7 @@ describe('client side responsive', function() {
         image1 = testDocument.getElementById('image1');
         expect(image1).toBeDefined();
         return done();
-      }, {
-        capture: false,
-        once: true
-      });
+      }, false);
     });
     afterAll(function() {
       testWindow.removeEventListener('resize', handler);
@@ -122,22 +118,23 @@ describe('client side responsive', function() {
       container.css('width', 211);
       expect(img.attr('src')).toEqual(window.location.protocol + '//res.cloudinary.com/sdk-test/image/upload/c_scale,dpr_' + dpr + ',w_200/sample.jpg');
       $(window).resize();
-      return window.setTimeout((function() {
+      return window.setTimeout(function() {
         // wait(200)
         expect(img.attr('src')).toEqual(window.location.protocol + '//res.cloudinary.com/sdk-test/image/upload/c_scale,dpr_' + dpr + ',w_300/sample.jpg');
         container.css('width', 101);
-        return window.setTimeout((function() {
+        return window.setTimeout(function() {
           // wait(200)
           expect(img.attr('src')).toEqual(window.location.protocol + '//res.cloudinary.com/sdk-test/image/upload/c_scale,dpr_' + dpr + ',w_300/sample.jpg');
           return done();
-        }), 200);
-      }), 200);
+        }, 200);
+      }, 200);
     });
     it("should not resize images with fixed width containers", function(done) {
       var currentWidth, image1, src;
       image1 = testDocument.getElementById('image1');
       src = image1.getAttribute('src');
       expect(src).toBeDefined();
+      expect(src).not.toBe('');
       currentWidth = src.match(/w_(auto:)?(breakpoints[_\d]*:)?(\d+)/)[3];
       handler = function() {
         var newWidth;
@@ -148,7 +145,8 @@ describe('client side responsive', function() {
         return done();
       };
       testWindow.addEventListener('resize', handler);
-      return testWindow.resizeBy(200, 0);
+      testWindow.resizeBy(200, 0);
+      triggerResize(window);
     });
     return describe("responsive_class", function() {
       return it("should set the class used for responsive functionality", function() {

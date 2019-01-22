@@ -2,7 +2,6 @@
  * Image Tag
  * Depends on 'tags/htmltag', 'cloudinary'
  */
-var ClientHintsMetaTag;
 
 import HtmlTag from './htmltag';
 
@@ -10,7 +9,7 @@ import {
   assign
 } from '../util';
 
-export default ClientHintsMetaTag = class ClientHintsMetaTag extends HtmlTag {
+var ClientHintsMetaTag = class ClientHintsMetaTag extends HtmlTag {
   /**
    * Creates an HTML (DOM) Meta tag that enables client-hints.
    * @constructor ClientHintsMetaTag
@@ -29,3 +28,5 @@ export default ClientHintsMetaTag = class ClientHintsMetaTag extends HtmlTag {
   }
 
 };
+
+export default ClientHintsMetaTag;

@@ -1,8 +1,6 @@
-var SubtitlesLayer;
-
 import TextLayer from './textlayer';
 
-export default SubtitlesLayer = class SubtitlesLayer extends TextLayer {
+const SubtitlesLayer = class SubtitlesLayer extends TextLayer {
   /**
    * Represent a subtitles layer
    * @constructor SubtitlesLayer
@@ -14,3 +12,4 @@ export default SubtitlesLayer = class SubtitlesLayer extends TextLayer {
   }
 
 };
+export default SubtitlesLayer;

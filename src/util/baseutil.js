@@ -1,6 +1,9 @@
 /*
  * Includes common utility methods and shims
  */
+import {isString} from "../util";
+import {isEmpty} from "../util";
+
 /**
  * Return true if all items in list are strings
  * @function Util.allString
@@ -10,7 +13,7 @@ export var allStrings = function(list) {
   var item, j, len;
   for (j = 0, len = list.length; j < len; j++) {
     item = list[j];
-    if (!Util.isString(item)) {
+    if (!isString(item)) {
       return false;
     }
   }
@@ -131,7 +134,7 @@ export var funcTag = '[object Function]';
 * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
 * @example
 *
-* function Foo(){};  
+* function Foo(){};
 * isFunction(Foo);
 * // => true
 *
@@ -207,7 +210,7 @@ export var convertKeys = function(source, converter = Util.identity) {
   for (key in source) {
     value = source[key];
     key = converter(key);
-    if (!Util.isEmpty(key)) {
+    if (!isEmpty(key)) {
       result[key] = value;
     }
   }
@@ -250,7 +253,7 @@ export var base64Encode = typeof btoa !== 'undefined' && isFunction(btoa) ? btoa
 * This method delegates to `btoa` if present. Otherwise it tries `Buffer`.
 * @function Util.base64EncodeURL
 * @param {string} url - the url to encode. the value is URIdecoded and then re-encoded before converting to base64 representation
-* @return {string} the base64 representation of the URL   
+* @return {string} the base64 representation of the URL
  */
 export var base64EncodeURL = function(input) {
   var ignore;
@@ -262,3 +265,73 @@ export var base64EncodeURL = function(input) {
   input = encodeURI(input);
   return base64Encode(input);
 };
+
+/**
+ * A list of keys used by the url() function.
+ * @private
+ */
+const URL_KEYS = [
+  'api_secret',
+  'auth_token',
+  'cdn_subdomain',
+  'cloud_name',
+  'cname',
+  'format',
+  'private_cdn',
+  'resource_type',
+  'secure',
+  'secure_cdn_subdomain',
+  'secure_distribution',
+  'shorten',
+  'sign_url',
+  'ssl_detected',
+  'type',
+  'url_suffix',
+  'use_root_path',
+  'version'
+];
+
+/**
+ * Create a new object with only URL parameters
+ * @param {object} options The source object
+ * @return {Object} An object containing only URL parameters
+ */
+export function extractUrlParams(options) {
+  return URL_KEYS.reduce((obj, key) => {
+    if (options[key] != null) {
+      obj[key] = options[key];
+    }
+    return obj;
+  }, {});
+}
+
+
+/**
+ * Handle the format parameter for fetch urls
+ * @private
+ * @param options url and transformation options. This argument may be changed by the function!
+ */
+export function patchFetchFormat(options={}) {
+  if (options.type === "fetch") {
+    if (options.fetch_format == null) {
+      options.fetch_format = optionConsume(options, "format");
+    }
+  }
+}
+
+/**
+ * Deletes `option_name` from `options` and return the value if present.
+ * If `options` doesn't contain `option_name` the default value is returned.
+ * @param {Object} options a collection
+ * @param {String} option_name the name (key) of the desired value
+ * @param {*} [default_value] the value to return is option_name is missing
+ */
+export function optionConsume(options, option_name, default_value) {
+  let result = options[option_name];
+  delete options[option_name];
+  if (result != null) {
+    return result;
+  } else {
+    return default_value;
+  }
+}

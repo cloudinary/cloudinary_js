@@ -1,5 +1,3 @@
-var TextLayer;
-
 import Layer from './layer';
 
 import {
@@ -10,7 +8,7 @@ import {
   snakeCase
 } from '../util';
 
-export default TextLayer = class TextLayer extends Layer {
+var TextLayer = class TextLayer extends Layer {
   /**
    * @constructor TextLayer
    * @param {Object} options - layer parameters
@@ -159,3 +157,5 @@ export default TextLayer = class TextLayer extends Layer {
   }
 
 };
+
+export default TextLayer;

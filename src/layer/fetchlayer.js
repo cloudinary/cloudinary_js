@@ -1,12 +1,10 @@
-var FetchLayer;
-
 import Layer from './layer';
 
 import {
   isString
 } from '../util';
 
-FetchLayer = class FetchLayer extends Layer {
+const FetchLayer = class FetchLayer extends Layer {
   /**
    * @constructor FetchLayer
    * @param {Object|string} options - layer parameters or a url

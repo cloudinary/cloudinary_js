@@ -66,27 +66,7 @@ export {
   isElement
 };
 
-export {
-  //export {default} from './baseutil'
-  allStrings,
-  base64Encode,
-  base64EncodeURL,
-  camelCase,
-  convertKeys,
-  defaults,
-  funcTag,
-  isFunction,
-  isNumberLike,
-  isObject,
-  objectProto,
-  objToString,
-  reWords,
-  smartEscape,
-  snakeCase,
-  withCamelCaseKeys,
-  without,
-  withSnakeCaseKeys
-} from './baseutil';
+export * from './baseutil';
 
 /*
  * Includes utility methods and lodash / jQuery shims
@@ -100,7 +80,7 @@ export {
  * @returns the value associated with the `name`
  * @function Util.getData
  */
-export var getData = function(element, name) {
+export var getData = function (element, name) {
   var ref;
   switch (false) {
     case !(element == null):
@@ -111,7 +91,7 @@ export var getData = function(element, name) {
       return element.getAttr(`data-${name}`);
     case !isFunction(element.data):
       return element.data(name);
-    case !(isFunction(typeof jQuery !== "undefined" && jQuery !== null ? (ref = jQuery.fn) != null ? ref.data : void 0 : void 0) && isElement(element)):
+    case !(isFunction(typeof jQuery !== "undefined" && jQuery.fn && jQuery.fn.data) && isElement(element)):
       return jQuery(element).data(name);
   }
 };
@@ -126,7 +106,7 @@ export var getData = function(element, name) {
  * @param {*} value - the value to be set
  *
  */
-export var setData = function(element, name, value) {
+export var setData = function (element, name, value) {
   var ref;
   switch (false) {
     case !(element == null):
@@ -137,7 +117,7 @@ export var setData = function(element, name, value) {
       return element.setAttr(`data-${name}`, value);
     case !isFunction(element.data):
       return element.data(name, value);
-    case !(isFunction(typeof jQuery !== "undefined" && jQuery !== null ? (ref = jQuery.fn) != null ? ref.data : void 0 : void 0) && isElement(element)):
+    case !(isFunction(typeof jQuery !== "undefined" && jQuery.fn && jQuery.fn.data) && isElement(element)):
       return jQuery(element).data(name, value);
   }
 };
@@ -151,7 +131,7 @@ export var setData = function(element, name, value) {
  * @returns {*} the value of the attribute
  *
  */
-export var getAttribute = function(element, name) {
+export var getAttribute = function (element, name) {
   switch (false) {
     case !(element == null):
       return void 0;
@@ -172,7 +152,7 @@ export var getAttribute = function(element, name) {
  * @param {string} name - the name of the attribute
  * @param {*} value - the value to be set
  */
-export var setAttribute = function(element, name, value) {
+export var setAttribute = function (element, name, value) {
   switch (false) {
     case !(element == null):
       return void 0;
@@ -192,7 +172,7 @@ export var setAttribute = function(element, name, value) {
  * @param {Element} element - the element to set the attribute for
  * @param {string} name - the name of the attribute
  */
-export var removeAttribute = function(element, name) {
+export var removeAttribute = function (element, name) {
   switch (false) {
     case !(element == null):
       return void 0;
@@ -204,12 +184,12 @@ export var removeAttribute = function(element, name) {
 };
 
 /**
-  * Set a group of attributes to the element
-  * @function Util.setAttributes
-  * @param {Element} element - the element to set the attributes for
-  * @param {Object} attributes - a hash of attribute names and values
+ * Set a group of attributes to the element
+ * @function Util.setAttributes
+ * @param {Element} element - the element to set the attributes for
+ * @param {Object} attributes - a hash of attribute names and values
  */
-export var setAttributes = function(element, attributes) {
+export var setAttributes = function (element, attributes) {
   var name, results, value;
   results = [];
   for (name in attributes) {
@@ -224,32 +204,32 @@ export var setAttributes = function(element, attributes) {
 };
 
 /**
-  * Checks if element has a css class
-  * @function Util.hasClass
-  * @param {Element} element - the element to check
-  * @param {string} name - the class name
-  @returns {boolean} true if the element has the class
+ * Checks if element has a css class
+ * @function Util.hasClass
+ * @param {Element} element - the element to check
+ * @param {string} name - the class name
+ @returns {boolean} true if the element has the class
  */
-export var hasClass = function(element, name) {
+export var hasClass = function (element, name) {
   if (isElement(element)) {
     return element.className.match(new RegExp(`\\b${name}\\b`));
   }
 };
 
 /**
-  * Add class to the element
-  * @function Util.addClass
-  * @param {Element} element - the element
-  * @param {string} name - the class name to add
+ * Add class to the element
+ * @function Util.addClass
+ * @param {Element} element - the element
+ * @param {string} name - the class name to add
  */
-export var addClass = function(element, name) {
+export var addClass = function (element, name) {
   if (!element.className.match(new RegExp(`\\b${name}\\b`))) {
     return element.className = trim(`${element.className} ${name}`);
   }
 };
 
 // The following code is taken from jQuery
-export var getStyles = function(elem) {
+export var getStyles = function (elem) {
   // Support: IE<=11+, Firefox<=30+ (#15098, #14150)
   // IE throws on elements created in popups
   // FF meanwhile throws on frame elements through "defaultView.getComputedStyle"
@@ -261,7 +241,7 @@ export var getStyles = function(elem) {
 
 export var cssExpand = ["Top", "Right", "Bottom", "Left"];
 
-nodeContains = function(a, b) {
+nodeContains = function (a, b) {
   var adown, bup;
   adown = (a.nodeType === 9 ? a.documentElement : a);
   bup = b && b.parentNode;
@@ -269,13 +249,13 @@ nodeContains = function(a, b) {
 };
 
 // Truncated version of jQuery.style(elem, name)
-export var domStyle = function(elem, name) {
+export var domStyle = function (elem, name) {
   if (!(!elem || elem.nodeType === 3 || elem.nodeType === 8 || !elem.style)) {
     return elem.style[name];
   }
 };
 
-export var curCSS = function(elem, name, computed) {
+export var curCSS = function (elem, name, computed) {
   var maxWidth, minWidth, ret, rmargin, style, width;
   rmargin = /^margin/;
   width = void 0;
@@ -320,7 +300,7 @@ export var curCSS = function(elem, name, computed) {
   }
 };
 
-export var cssValue = function(elem, name, convert, styles) {
+export var cssValue = function (elem, name, convert, styles) {
   var val;
   val = curCSS(elem, name, styles);
   if (convert) {
@@ -330,7 +310,7 @@ export var cssValue = function(elem, name, convert, styles) {
   }
 };
 
-export var augmentWidthOrHeight = function(elem, name, extra, isBorderBox, styles) {
+export var augmentWidthOrHeight = function (elem, name, extra, isBorderBox, styles) {
   var i, len, side, sides, val;
   // If we already have the right measurement, avoid augmentation
   // Otherwise initialize for horizontal or vertical properties
@@ -367,11 +347,11 @@ export var augmentWidthOrHeight = function(elem, name, extra, isBorderBox, style
   }
 };
 
-export var pnum = /[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/.source;
+var pnum = /[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/.source;
 
-export var rnumnonpx = new RegExp("^(" + pnum + ")(?!px)[a-z%]+$", "i");
+var rnumnonpx = new RegExp("^(" + pnum + ")(?!px)[a-z%]+$", "i");
 
-export var getWidthOrHeight = function(elem, name, extra) {
+export var getWidthOrHeight = function (elem, name, extra) {
   var isBorderBox, styles, val, valueIsBorderBox;
   // Start with offset property, which is equivalent to the border-box value
   valueIsBorderBox = true;
@@ -402,109 +382,84 @@ export var getWidthOrHeight = function(elem, name, extra) {
   return val + augmentWidthOrHeight(elem, name, extra || (isBorderBox ? "border" : "content"), valueIsBorderBox, styles);
 };
 
-export var width = function(element) {
+export var width = function (element) {
   return getWidthOrHeight(element, "width", "content");
 };
 
 
-//###*
-// * @class Util
-//###
-//Util = assign BaseUtil,
-//  hasClass: hasClass
-//  addClass: addClass
-//  getAttribute: getAttribute
-//  setAttribute: setAttribute
-//  removeAttribute: removeAttribute
-//  setAttributes: setAttributes
-//  getData: getData
-//  setData: setData
-//  width: width
-//  ###*
-//  # Returns true if item is a string
-//  # @function Util.isString
-//  # @param item
-//  # @returns {boolean} true if item is a string
-//  ###
-//  isString: isString
-//  isArray: isArray
-//  ###*
-//  # Returns true if item is empty:
-//  # <ul>
-//  #   <li>item is null or undefined</li>
-//  #   <li>item is an array or string of length 0</li>
-//  #   <li>item is an object with no keys</li>
-//  # </ul>
-//  # @function Util.isEmpty
-//  # @param item
-//  # @returns {boolean} true if item is empty
-//  ###
-//  isEmpty: isEmpty
-//  ###*
-//   * Assign source properties to destination.
-//   * If the property is an object it is assigned as a whole, overriding the destination object.
-//   * @function Util.assign
-//   * @param {Object} destination - the object to assign to
-//  ###
-//  assign: assign
-//  ###*
-//   * Recursively assign source properties to destination
-//   * @function Util.merge
-//   * @param {Object} destination - the object to assign to
-//   * @param {...Object} [sources] The source objects.
-//  ###
-//  merge: merge
-//  ###*
-//   * Create a new copy of the given object, including all internal objects.
-//   * @function Util.cloneDeep
-//   * @param {Object} value - the object to clone
-//   * @return {Object} a new deep copy of the object
-//  ###
-//  cloneDeep: cloneDeep
-//  ###*
-//   * Creates a new array from the parameter with "falsey" values removed
-//   * @function Util.compact
-//   * @param {Array} array - the array to remove values from
-//   * @return {Array} a new array without falsey values
-//  ###
-//  compact: compact
-//  ###*
-//   * Check if a given item is included in the given array
-//   * @function Util.contains
-//   * @param {Array} array - the array to search in
-//   * @param {*} item - the item to search for
-//   * @return {boolean} true if the item is included in the array
-//  ###
-//  contains: includes
-//  ###*
-//   * Returns values in the given array that are not included in the other array
-//   * @function Util.difference
-//   * @param {Array} arr - the array to select from
-//   * @param {Array} values - values to filter from arr
-//   * @return {Array} the filtered values
-//  ###
-//  difference: difference
-//  ###*
-//   * Returns a list of all the function names in obj
-//   * @function Util.functions
-//   * @param {Object} object - the object to inspect
-//   * @return {Array} a list of functions of object
-//  ###
-//  functions: functions
-//  ###*
-//   * Returns the provided value. This functions is used as a default predicate function.
-//   * @function Util.identity
-//   * @param {*} value
-//   * @return {*} the provided value
-//  ###
-//  identity: identity
-//  isPlainObject: isPlainObject
-//  ###*
-//   * Remove leading or trailing spaces from text
-//   * @function Util.trim
-//   * @param {string} text
-//   * @return {string} the `text` without leading or trailing spaces
-//  ###
-//  trim: trim
-
-//export default Util
+/**
+ * @class Util
+ */
+/**
+ * Returns true if item is a string
+ * @function Util.isString
+ * @param item
+ * @returns {boolean} true if item is a string
+ */
+/**
+ * Returns true if item is empty:
+ * <ul>
+ *   <li>item is null or undefined</li>
+ *   <li>item is an array or string of length 0</li>
+ *   <li>item is an object with no keys</li>
+ * </ul>
+ * @function Util.isEmpty
+ * @param item
+ * @returns {boolean} true if item is empty
+ */
+/**
+ * Assign source properties to destination.
+ * If the property is an object it is assigned as a whole, overriding the destination object.
+ * @function Util.assign
+ * @param {Object} destination - the object to assign to
+ */
+/**
+ * Recursively assign source properties to destination
+ * @function Util.merge
+ * @param {Object} destination - the object to assign to
+ * @param {...Object} [sources] The source objects.
+ */
+/**
+ * Create a new copy of the given object, including all internal objects.
+ * @function Util.cloneDeep
+ * @param {Object} value - the object to clone
+ * @return {Object} a new deep copy of the object
+ */
+/**
+ * Creates a new array from the parameter with "falsey" values removed
+ * @function Util.compact
+ * @param {Array} array - the array to remove values from
+ * @return {Array} a new array without falsey values
+ */
+/**
+ * Check if a given item is included in the given array
+ * @function Util.contains
+ * @param {Array} array - the array to search in
+ * @param {*} item - the item to search for
+ * @return {boolean} true if the item is included in the array
+ */
+/**
+ * Returns values in the given array that are not included in the other array
+ * @function Util.difference
+ * @param {Array} arr - the array to select from
+ * @param {Array} values - values to filter from arr
+ * @return {Array} the filtered values
+ */
+/**
+ * Returns a list of all the function names in obj
+ * @function Util.functions
+ * @param {Object} object - the object to inspect
+ * @return {Array} a list of functions of object
+ */
+/**
+ * Returns the provided value. This functions is used as a default predicate function.
+ * @function Util.identity
+ * @param {*} value
+ * @return {*} the provided value
+ */
+/**
+ * Remove leading or trailing spaces from text
+ * @function Util.trim
+ * @param {string} text
+ * @return {string} the `text` without leading or trailing spaces
+ */

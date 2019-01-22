@@ -2,11 +2,21 @@
  * Cloudinary jQuery plugin
  * Depends on 'jquery', 'util', 'transformation', 'cloudinary'
  */
-var CloudinaryJQuery, webp;
+var webp;
 
 import Cloudinary from './cloudinary';
 
-CloudinaryJQuery = class CloudinaryJQuery extends Cloudinary {
+function firstNotNull(...args) {
+  while(args && args.length > 0) {
+    let next = args.shift();
+    if( next != null){
+      return next;
+    }
+  }
+  return null;
+}
+
+const CloudinaryJQuery = class CloudinaryJQuery extends Cloudinary {
   /**
    * Cloudinary class with jQuery support
    * @constructor CloudinaryJQuery
@@ -20,9 +30,9 @@ CloudinaryJQuery = class CloudinaryJQuery extends Cloudinary {
    * @override
    */
   image(publicId, options = {}) {
-    var client_hints, img, ref, ref1;
+    var client_hints, img;
     img = this.imageTag(publicId, options);
-    client_hints = (ref = (ref1 = options.client_hints) != null ? ref1 : this.config('client_hints')) != null ? ref : false;
+    client_hints = firstNotNull(options.client_hints, this.config('client_hints'), false);
     if (!((options.src != null) || client_hints)) {
       // generate a tag without the image src
       img.setAttr("src", '');
@@ -40,27 +50,26 @@ CloudinaryJQuery = class CloudinaryJQuery extends Cloudinary {
    * @override
    */
   responsive(options) {
-    var ref, ref1, ref2, responsiveClass, responsiveConfig, responsiveResizeInitialized, responsive_resize, timeout;
+    var responsiveClass, responsiveConfig, responsiveResizeInitialized, responsive_resize, timeout;
     responsiveConfig = jQuery.extend(responsiveConfig || {}, options);
-    responsiveClass = (ref = this.responsiveConfig['responsive_class']) != null ? ref : this.config('responsive_class');
+    responsiveClass = this.responsiveConfig['responsive_class'] || this.config('responsive_class');
     jQuery(`img.${responsiveClass}, img.cld-hidpi`).cloudinary_update(responsiveConfig);
-    responsive_resize = (ref1 = (ref2 = responsiveConfig['responsive_resize']) != null ? ref2 : this.config('responsive_resize')) != null ? ref1 : true;
+    responsive_resize = firstNotNull(responsiveConfig['responsive_resize'], this.config('responsive_resize'), true);
     if (responsive_resize && !responsiveResizeInitialized) {
       responsiveConfig.resizing = responsiveResizeInitialized = true;
       timeout = null;
       return jQuery(window).on('resize', () => {
-        var debounce, ref3, ref4, reset, run, wait;
-        debounce = (ref3 = (ref4 = responsiveConfig['responsive_debounce']) != null ? ref4 : this.config('responsive_debounce')) != null ? ref3 : 100;
-        reset = function() {
+        const debounce = firstNotNull(responsiveConfig.responsive_debounce, this.config('responsive_debounce'), 100);
+        let reset = function() {
           if (timeout) {
             clearTimeout(timeout);
             return timeout = null;
           }
         };
-        run = function() {
+        let run = function() {
           return jQuery(`img.${responsiveClass}`).cloudinary_update(responsiveConfig);
         };
-        wait = function() {
+        let wait = function() {
           reset();
           return setTimeout((function() {
             reset();
@@ -76,7 +85,7 @@ CloudinaryJQuery = class CloudinaryJQuery extends Cloudinary {
     }
   }
 
-};
+}
 
 /**
  * The following methods are provided through the jQuery class

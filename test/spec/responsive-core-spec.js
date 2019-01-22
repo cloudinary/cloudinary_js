@@ -138,7 +138,7 @@ describe('client side responsive' + navigator.userAgent, function() {
       };
       testWindow.addEventListener('resize', handler);
       testWindow.resizeBy(200, 0);
-      return triggerResize(window);
+      triggerResize(window);
     });
     return describe("responsive_class", function() {
       return it("should set the class used for responsive functionality", function() {

@@ -115,7 +115,7 @@ export var width = function(element) {
  * @returns {boolean} true if item is empty
  */
 export var isEmpty = function(item) {
-  return (item == null) || (jQuery.isArray(item) || Util.isString(item)) && item.length === 0 || (jQuery.isPlainObject(item) && jQuery.isEmptyObject(item));
+  return (item == null) || (jQuery.isArray(item) || isString(item)) && item.length === 0 || (jQuery.isPlainObject(item) && jQuery.isEmptyObject(item));
 };
 
 /**

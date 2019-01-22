@@ -1,11 +1,9 @@
-var Layer;
-
 import {
   snakeCase,
   compact
 } from '../util';
 
-Layer = class Layer {
+var Layer = class Layer {
   /**
    * Layer
    * @constructor Layer
