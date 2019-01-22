@@ -36,6 +36,10 @@ export {
 } from '../tags/imagetag';
 
 export {
+  default as PictureTag
+} from '../tags/picturetag';
+
+export {
   default as VideoTag
 } from '../tags/videotag';
 
@@ -66,5 +70,3 @@ export {
 export {
   default as CloudinaryJQuery
 } from '../jquery-file-upload';
-
-export default {utf8_encode, crc32, Util, Transformation, Condition, Configuration, HtmlTag, ImageTag, VideoTag, ClientHintsMetaTag, Layer, FetchLayer, TextLayer, SubtitlesLayer, Cloudinary, CloudinaryJQuery};

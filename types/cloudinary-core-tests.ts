@@ -4,7 +4,7 @@
 
 
 import {
-    Cloudinary, Util, Configuration, Transformation, ImageTag, VideoTag, Condition, Layer, TextLayer, HtmlTag,
+    Cloudinary, Util, Configuration, Transformation, ImageTag, PictureTag, VideoTag, Condition, Layer, TextLayer, HtmlTag,
     ClientHintsMetaTag, Param
 } from './cloudinary-core';
 

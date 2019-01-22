@@ -414,6 +414,18 @@ export class ImageTag extends HtmlTag {
 }
 
 /**
+ * Creates an HTML (DOM) Picture tag using Cloudinary as the source.
+ * @constructor PictureTag
+ * @extends HtmlTag
+ * @param {string} [publicId]
+ * @param {Object} [options]
+ */
+export class PictureTag extends HtmlTag {
+    static "new"(publicId: string, options?: Transformation.Options, widthList?: Array<[number, number, Transformation]>): PictureTag;
+    static "new"(name: string, publicId: string, options?: Transformation.Options): PictureTag;
+}
+
+/**
  * Creates an HTML (DOM) Video tag using Cloudinary as the source.
  * @constructor VideoTag
  * @extends HtmlTag

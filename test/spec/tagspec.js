@@ -1,6 +1,7 @@
 var cl, getTag, protocol, simpleAssign, simpleClone, test_cloudinary_url;
 
 cl = {};
+const UPLOAD_PATH = "http://res.cloudinary.com/test123/image/upload";
 
 getTag = function(tag) {
   var next;
@@ -366,5 +367,126 @@ describe("ClientHintsMetaTag", function() {
     return expect(tag).toBe('<meta content="DPR, Viewport-Width, Width" http-equiv="Accept-CH">');
   });
 });
+describe("SourceTag", function(){
+  const public_id = "sample";
+  const image_format = "jpg";
+  const FULL_PUBLIC_ID = `${public_id}.${image_format}`;
+  var commonTrans = null;
+  var commonTransformationStr = null;
+  var customAttributes = null;
+  var min_width = null;
+  var max_width = null;
+  var breakpoint_list = null;
+  var common_srcset = null;
+  var fill_transformation = null;
+  var fill_transformation_str = null;
+  var cl = null;
+  beforeEach(function () {
+    commonTrans = {
+      effect: 'sepia',
+      cloud_name: 'test123',
+      client_hints: false
+    };
+    commonTransformationStr = 'e_sepia';
+    customAttributes = {
+      custom_attr1: 'custom_value1',
+      custom_attr2: 'custom_value2'
+    };
+    min_width = 100;
+    max_width = 399;
+    breakpoint_list = [min_width, 200, 300, max_width];
+    common_srcset = {
+      "breakpoints": breakpoint_list
+    };
+    fill_transformation = {
+      "width": max_width,
+      "height": max_width,
+      "crop": "fill"
+    };
+    fill_transformation_str = `c_fill,h_${max_width},w_${max_width}`;
+    cl = new Cloudinary({
+      cloud_name: "test123",
+      api_secret: "1234"
+    });
+  });
+  it("should generate a source tag", function () {
+    expect(cl.sourceTag("sample.jpg").toHtml()).toBe(`<source srcset="${UPLOAD_PATH}/sample.jpg">`);
+  });
+  it("should generate source tag with media query", function () {
+    var expectedMedia, expectedTag, media, tag;
+    media = {min_width, max_width};
+    tag = cl.sourceTag(FULL_PUBLIC_ID, {
+      media: media
+    });
+    expectedMedia = `(min-width: ${min_width}px) and (max-width: ${max_width}px)`;
+    expectedTag = `<source media="${expectedMedia}" srcset="${UPLOAD_PATH}/sample.jpg">`;
+    expect(tag.toHtml()).toBe(expectedTag);
+  });
+  it("should generate source tag with responsive srcset", function () {
+    var tag = cl.sourceTag(FULL_PUBLIC_ID, {
+      srcset: common_srcset
+    });
+    expect(tag.toHtml()).toBe('<source srcset="' +
+      "http://res.cloudinary.com/test123/image/upload/c_scale,w_100/sample.jpg 100w, " +
+      "http://res.cloudinary.com/test123/image/upload/c_scale,w_200/sample.jpg 200w, " +
+      "http://res.cloudinary.com/test123/image/upload/c_scale,w_300/sample.jpg 300w, " +
+      "http://res.cloudinary.com/test123/image/upload/c_scale,w_399/sample.jpg 399w" + '">');
+  });
 
-//# sourceMappingURL=tagspec.js.map
+});
+describe("PictureTag", function(){
+  it("should generate picture tag", function () {
+    const min_width = 100;
+    const max_width = 399;
+    const fill_transformation = {
+      cloud_name: "test123",
+      width: max_width,
+      height: max_width,
+      crop: "fill"
+    };
+    const fill_transformation_str = `c_fill,h_${max_width},w_${max_width}`;
+    const public_id = "sample";
+    const image_format = "jpg";
+    const FULL_PUBLIC_ID = `${public_id}.${image_format}`;
+
+    var exp_tag, tag;
+    tag = new cloudinary.PictureTag(FULL_PUBLIC_ID, fill_transformation, [
+        {
+          "max_width": min_width,
+          "transformation": {
+            "crop": "scale",
+            "effect": "sepia",
+            "angle": 17,
+            "width": min_width
+          }
+        },
+        {
+          "min_width": min_width,
+          "max_width": max_width,
+          "transformation": {
+            "crop": "scale",
+            "effect": "colorize",
+            "angle": 18,
+            "width": max_width
+          }
+        },
+        {
+          "min_width": max_width,
+          "transformation": {
+            "crop": "scale",
+            "effect": "blur",
+            "angle": 19,
+            "width": max_width
+          }
+        }
+      ]
+    );
+    exp_tag = "<picture>" +
+      '<source media="(max-width: 100px)" srcset="http://res.cloudinary.com/test123/image/upload/c_fill,h_399,w_399/a_17,c_scale,e_sepia,w_100/sample.jpg">' +
+      '<source media="(min-width: 100px) and (max-width: 399px)" srcset="http://res.cloudinary.com/test123/image/upload/c_fill,h_399,w_399/a_18,c_scale,e_colorize,w_399/sample.jpg">' +
+      '<source media="(min-width: 399px)" srcset="http://res.cloudinary.com/test123/image/upload/c_fill,h_399,w_399/a_19,c_scale,e_blur,w_399/sample.jpg">' +
+      '<img height="399" src="http://res.cloudinary.com/test123/image/upload/c_fill,h_399,w_399/sample.jpg" width="399">' +
+      "</picture>";
+    expect(tag.toHtml()).toBe(exp_tag);
+  });
+})

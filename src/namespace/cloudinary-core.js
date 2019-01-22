@@ -36,6 +36,10 @@ export {
 } from '../tags/imagetag';
 
 export {
+  default as PictureTag
+} from '../tags/picturetag';
+
+export {
   default as VideoTag
 } from '../tags/videotag';
 

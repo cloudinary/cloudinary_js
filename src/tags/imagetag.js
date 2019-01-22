@@ -6,6 +6,8 @@
 import HtmlTag from './htmltag';
 
 import url from '../url';
+import {isEmpty, isString, merge} from "../util";
+import {generateImageResponsiveAttributes} from "../util/srcsetUtils";
 
 var ImageTag = class ImageTag extends HtmlTag {
   /**
@@ -27,8 +29,23 @@ var ImageTag = class ImageTag extends HtmlTag {
   /** @override */
   attributes() {
     var attr, options, srcAttribute;
-    attr = super.attributes() || [];
+    attr = super.attributes() || {};
     options = this.getOptions();
+    let srcsetParam = this.getOption('srcset');
+    let attributes = this.getOption('attributes') || {};
+
+    let responsiveAttributes = {};
+    if (isString(srcsetParam)) {
+      responsiveAttributes.srcset = srcsetParam
+    } else {
+      responsiveAttributes = generateImageResponsiveAttributes(this.publicId, {}, srcsetParam, options);
+    }
+    if(!isEmpty(responsiveAttributes)) {
+      delete localOptions.width;
+      delete localOptions.height;
+    }
+
+    merge(attr, responsiveAttributes);
     srcAttribute = options.responsive && !options.client_hints ? 'data-src' : 'src';
     if (attr[srcAttribute] == null) {
       attr[srcAttribute] = url(this.publicId, this.getOptions());

@@ -7,7 +7,8 @@ import {
   isPlainObject,
   isFunction,
   getData,
-  hasClass
+  hasClass,
+  merge
 } from '../util';
 
 var HtmlTag = class HtmlTag {
@@ -103,7 +104,19 @@ var HtmlTag = class HtmlTag {
    */
   attributes() {
     // The attributes are be computed from the options every time this method is invoked.
-    return this.transformation().toHtmlAttributes();
+    let htmlAttributes = this.transformation().toHtmlAttributes();
+    Object.keys(htmlAttributes ).forEach(key => {
+      if(isPlainObject(htmlAttributes[key])){
+        delete htmlAttributes[key];
+      }
+    });
+    if( htmlAttributes.attributes) {
+      // Currently HTML attributes are defined both at the top level and under 'attributes'
+      merge(htmlAttributes, htmlAttributes.attributes);
+      delete htmlAttributes.attributes;
+    }
+
+    return htmlAttributes;
   }
 
   /**
@@ -153,7 +166,12 @@ var HtmlTag = class HtmlTag {
    * @ignore
    */
   openTag() {
-    return `<${this.name} ${this.htmlAttrs(this.attributes())}>`;
+    let tag = "<" + this.name;
+    let htmlAttrs = this.htmlAttrs(this.attributes());
+    if(htmlAttrs && htmlAttrs.length > 0) {
+      tag += " " + htmlAttrs
+    }
+    return tag + ">";
   }
 
   /**

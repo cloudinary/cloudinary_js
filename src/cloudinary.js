@@ -10,6 +10,9 @@ import HtmlTag from './tags/htmltag';
 
 import ImageTag from './tags/imagetag';
 
+import PictureTag from './tags/picturetag';
+import SourceTag from './tags/sourcetag';
+
 import VideoTag from './tags/videotag';
 
 import {
@@ -238,6 +241,34 @@ Cloudinary = class Cloudinary {
   imageTag(publicId, options) {
     var tag;
     tag = new ImageTag(publicId, this.config());
+    tag.transformation().fromOptions(options);
+    return tag;
+  }
+
+  /**
+   * Creates a new PictureTag instance, configured using this own's configuration.
+   * @function Cloudinary#PictureTag
+   * @param {string} publicId - the public ID of the resource
+   * @param {Object} options - additional options to pass to the new ImageTag instance
+   * @return {PictureTag} An PictureTag that is attached (chained) to this Cloudinary instance
+   */
+  pictureTag(publicId, options) {
+    var tag;
+    tag = new PictureTag(publicId, this.config());
+    tag.transformation().fromOptions(options);
+    return tag;
+  }
+
+  /**
+   * Creates a new SourceTag instance, configured using this own's configuration.
+   * @function Cloudinary#SourceTag
+   * @param {string} publicId - the public ID of the resource
+   * @param {Object} options - additional options to pass to the new ImageTag instance
+   * @return {SourceTag} An PictureTag that is attached (chained) to this Cloudinary instance
+   */
+  sourceTag(publicId, options) {
+    var tag;
+    tag = new SourceTag(publicId, this.config());
     tag.transformation().fromOptions(options);
     return tag;
   }
