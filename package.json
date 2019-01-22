@@ -9,7 +9,7 @@
   "scripts": {
     "compile": "npx coffee  --bare --no-header --compile --map src && cd test/spec && npx coffee  --bare --no-header --compile --map .",
     "test": "npx karma start karma.cloudinary-core.js --single-run --browsers=ChromeHeadless",
-    "compile-ts": "grunt ts"
+    "compile-ts": "npx tsc"
   },
   "repository": {
     "type": "git",

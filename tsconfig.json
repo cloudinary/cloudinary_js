@@ -4,7 +4,7 @@
         "noImplicitAny": true
     },
     "include": [
-        "build/**/*",
+        "dist/**/*",
         "types/**/*"
     ],
     "exclude": [

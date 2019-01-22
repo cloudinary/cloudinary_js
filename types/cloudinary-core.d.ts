@@ -132,7 +132,7 @@ export class Transformation {
      * @return {string } Returns the transformation as a string
      */
     serialize(): string;
-    
+
     /**
      * Combines all propoerties from source transformation into this one
      * @param source transformation to copy
@@ -207,7 +207,8 @@ export class Transformation {
     streamingProfile(value: string): Transformation;
     transformation(value: string | Array<Transformation.Options>): Transformation; // Apply a pre-defined named transformation of the given name. When using Cloudinary's client integration libraries, the 'transformation' parameter accepts an array of transformation parameters to be chained together.
     underlay(value: string): Transformation; // public id of an uploaded image
-    variables(value: [[string]]): Transformation;
+    variable(name: string, value: any): Transformation;
+    variables(value: Array<[string, any]>): Transformation;
     videoCodec(value: string | Object): Transformation; // Select the video codec and control the video content of the profile used. Can be provided in the form <codec>[:<profile>:[<level>]] to specify specific values to apply for video codec, profile and level, e.g. "h264:baseline:3.1". Also accepts a hash of values such as { codec: 'h264', profile: 'basic', level: '3.1' }
     videoSampling(value: number | string): Transformation; // Integer - The total number of frames to sample from the original video. String - The number of seconds between each frame to sample from the original video. e.g. 2.3s takes one frame every 2.3 seconds.
     width(value: string | number): Transformation; // Number of pixels, width % or "auto" with rounding step
@@ -222,10 +223,11 @@ export class Transformation {
     duration(value :number | string): Transformation; // Float or string
     endOffset(value: number | string): Transformation; // Float or string
     fallbackContent(value: string): Transformation;
+    fps(value: string | Array<string|number>): Transformation;
     keyframeInterval(value: number): Transformation;
     offset(value: string): Transformation; // [float, float] or [string, string] or a range. Shortcut to set video cutting using a combination of start_offset and end_offset values
     poster(value: string | Object): Transformation;
-    sourceType(value: string): Transformation;
+    sourceTypes(value: string): Transformation;
 }
 
 export class Condition {
@@ -313,7 +315,8 @@ export namespace Transformation {
         size?: string;
         transformation?: string | Array<Transformation.Options>; // Apply a pre-defined named transformation of the given name. When using Cloudinary's client integration libraries, the 'transformation' parameter accepts an array of transformation parameters to be chained together.
         underlay?: string; // public id of an uploaded image
-        variables?: [[string, any]];
+        variable?: [string, any];
+        variables?: Array<[string, any]>;
         width?: string | number; // Number of pixels, width % or "auto" with rounding step
         x?: number | string; // pixels or percent
         y?: number | string; // pixels or percent
@@ -330,10 +333,11 @@ export namespace Transformation {
         endOffset?: number | string; // Float or string
         fallbackContent?: string;
         flags?: VideoFlags;
+        fps?: string | Array<string|number>;
         keyframeInterval?: number;
         offset?: string, // [float, float] or [string, string] or a range. Shortcut to set video cutting using a combination of start_offset and end_offset values
         poster?: string | Object,
-        sourceType?: string;
+        sourceTypes?: string;
         sourceTransformation?: string;
         startOffset?: number | string; // Float or string
         streamingProfile?: StreamingProfiles
