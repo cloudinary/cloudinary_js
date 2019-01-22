@@ -286,31 +286,31 @@ const LAYER_KEYWORD_PARAMS = [
   ["line_spacing", null]
 ];
 
-  class LayerParam extends Param {
-    // Parse layer options
-    // @return [string] layer transformation string
-    // @private
-    value() {
-      var layerOptions, result;
-      layerOptions = this.origValue;
-      if (isPlainObject(layerOptions)) {
-        layerOptions = withCamelCaseKeys(layerOptions);
-        if (layerOptions.resourceType === "text" || (layerOptions.text != null)) {
-          result = new TextLayer(layerOptions).toString();
-        } else if (layerOptions.resourceType === "subtitles") {
-          result = new SubtitlesLayer(layerOptions).toString();
-        } else if (layerOptions.resourceType === "fetch" || (layerOptions.url != null)) {
-          result = new FetchLayer(layerOptions).toString();
-        } else {
-          result = new Layer(layerOptions).toString();
-        }
-      } else if (/^fetch:.+/.test(layerOptions)) {
-        result = new FetchLayer(layerOptions.substr(6)).toString();
+class LayerParam extends Param {
+  // Parse layer options
+  // @return [string] layer transformation string
+  // @private
+  value() {
+    let result;
+    let layerOptions = this.origValue;
+    if (isPlainObject(layerOptions)) {
+      layerOptions = withCamelCaseKeys(layerOptions);
+      if (layerOptions.resourceType === "text" || (layerOptions.text != null)) {
+        result = new TextLayer(layerOptions).toString();
+      } else if (layerOptions.resourceType === "subtitles") {
+        result = new SubtitlesLayer(layerOptions).toString();
+      } else if (layerOptions.resourceType === "fetch" || (layerOptions.url != null)) {
+        result = new FetchLayer(layerOptions).toString();
       } else {
-        result = layerOptions;
+        result = new Layer(layerOptions).toString();
       }
-      return result;
+    } else if (isString(layerOptions) && /^fetch:.+/.test(layerOptions)) {
+      result = new FetchLayer(layerOptions.substr(6)).toString();
+    } else {
+      result = layerOptions;
     }
+    return result;
+  }
 
   textStyle(layer) {
     return (new TextLayer(layer)).textStyleIdentifier();
