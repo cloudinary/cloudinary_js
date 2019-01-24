@@ -10,10 +10,9 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
       'node_modules/jquery/dist/jquery.js',
-      'dist/cloudinary-jquery.js',
+      'dist/cloudinary-jquery.min.js',
       'test/spec/spec-helper.js',
       'test/spec/cloudinary-spec.js',
-      'test/spec/cloudinary-jquery-spec.js',
       'test/spec/transformation-spec.js',
       'test/spec/tagspec.js',
       'test/spec/videourlspec.js',

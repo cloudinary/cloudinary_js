@@ -11,7 +11,7 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
       'node_modules/lodash/lodash.js',
-      'dist/cloudinary-core.js',
+      'dist/cloudinary-core.min.js',
       'test/spec/spec-helper.js',
       'test/spec/cloudinary-spec.js',
       'test/spec/transformation-spec.js',

@@ -1,21 +1,16 @@
-const path = require('path');
-const lodashExternals = [
-  "lodash/assign",
-  "lodash/cloneDeep",
-  "lodash/compact",
-  "lodash/difference",
-  "lodash/functions",
-  "lodash/identity",
-  "lodash/includes",
-  "lodash/isArray",
-  "lodash/isElement",
-  "lodash/isEmpty",
-  "lodash/isFunction",
-  "lodash/isPlainObject",
-  "lodash/isString",
-  "lodash/merge",
-  "lodash/trim",
-].reduce((map, lib) => {
+var path = require('path');
+var TerserPlugin = require('terser-webpack-plugin');
+
+var fs = require('fs');
+
+// Create a list of Class names to preserve when minifying
+var namespace = fs.readFileSync('./src/namespace/cloudinary-jquery-file-upload.js').toString();
+var reserved = namespace.match(/(?<=as )(\w+)/g);
+
+// Create a list of lodash modules to exclude from the bundle
+var lodashUtil= fs.readFileSync('./src/util/lodash.js').toString();
+var lodashExternals = lodashUtil.match(/lodash\/\w+/g);
+lodashExternals = lodashExternals.reduce((map, lib) => {
     map[lib] = {
       commonjs: lib,
       commonjs2: lib,
@@ -27,9 +22,10 @@ const lodashExternals = [
 );
 
 module.exports = function (env, argv) {
-  const isProd = argv.mode === 'production' || env === 'prod' || env && env.prod;
-  const mode = isProd ? 'production' : 'development';
-  let baseConfig = (name, entry, util) => ({
+  var isProd = argv.mode === 'production' || env === 'prod' || env && env.prod;
+  var mode = isProd ? 'production' : 'development';
+  console.log(`Building for ${mode}`);
+  var baseConfig = (name, entry, util) => ({
     name,
     mode,
     entry: {
@@ -38,8 +34,20 @@ module.exports = function (env, argv) {
     output: {
       library: 'cloudinary',
       libraryTarget: 'umd',
+      globalObject: "this",
       filename: `./cloudinary-[name]${isProd ? '.min' : ''}.js`,
-      auxiliaryComment: 'Test Comment'
+    },
+    optimization: {
+      minimizer: [new TerserPlugin({
+        terserOptions :{
+          mangle:{
+          keep_classnames: true,
+            reserved: reserved,
+          ie8: true
+          },
+          concatenateModules: true
+        },
+      })]
     },
     resolve: {
       extensions: ['.js'],
@@ -54,9 +62,8 @@ module.exports = function (env, argv) {
         commonjs: 'lodash',
         amd: 'lodash',
         root: '_' // indicates global variable
-      },
-      ...lodashExternals,
-    },
+      }},
+      lodashExternals,
       function (context, request, callback) {
         if (/^lodash\//.test(request)) {
           callback(null, request.split('/'), 'amd')
@@ -93,12 +100,13 @@ module.exports = function (env, argv) {
     baseConfig("core", './src/namespace/cloudinary-core.js', "lodash"),
     baseConfig("jquery", './src/namespace/cloudinary-jquery.js', "jquery"),
     baseConfig("jquery-file-upload", './src/namespace/cloudinary-jquery-file-upload.js', "jquery"),
-    {
-      ...baseConfig("core-shrinkwrap", './src/namespace/cloudinary-core.js', "lodash"),
-      externals: {
-        jquery: 'jQuery'
+    Object.assign(
+      baseConfig("core-shrinkwrap", './src/namespace/cloudinary-core.js', "lodash"),
+      {
+        externals: {
+          jquery: 'jQuery'
+        }
       }
-
-    }
+    )
   ];
 };

@@ -7,9 +7,9 @@
     "test": "test"
   },
   "scripts": {
-    "compile": "npx coffee  --bare --no-header --compile --map src && cd test/spec && npx coffee  --bare --no-header --compile --map .",
-    "test": "npx karma start karma.cloudinary-core.js --single-run --browsers=ChromeHeadless",
-    "compile-ts": "npx tsc"
+    "dist": "node_modules/.bin/webpack && node_modules/.bin/webpack --mode production",
+    "test": "node_modules/.bin/karma start karma.cloudinary-core.js --single-run --browsers=ChromeHeadless",
+    "compile-ts": "node_modules/.bin/tsc"
   },
   "repository": {
     "type": "git",
@@ -22,9 +22,12 @@
   },
   "homepage": "https://github.com/cloudinary/cloudinary_js",
   "devDependencies": {
+    "@babel/cli": "^7.2.3",
     "@babel/core": "^7.2.2",
+    "@babel/plugin-proposal-object-rest-spread": "^7.3.1",
     "@babel/preset-env": "^7.3.1",
     "babel-loader": "^8.0.5",
+    "babel-minify": "^0.5.0",
     "blueimp-file-upload": "^9.28.0",
     "bootstrap": "^4.2.1",
     "clean-webpack-plugin": "^1.0.1",
@@ -43,6 +46,7 @@
     "lodash": "^4.17.11",
     "lodash-cli": "^4.15.0",
     "requirejs": "^2.3.6",
+    "terser-webpack-plugin": "^1.2.1",
     "typescript": "^2.5.2",
     "webpack": "^4.29.0",
     "webpack-bundle-analyzer": "^3.0.3",
