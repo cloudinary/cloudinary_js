@@ -41,7 +41,7 @@
     "url": "git://github.com/cloudinary/cloudinary_js.git"
   },
   "main": [
-    "js/jquery.cloudinary.js"
+    "dist/cloudinary-jquery-file-upload.js"
   ],
   "dependencies": {
     "jquery": ">=1.11",
