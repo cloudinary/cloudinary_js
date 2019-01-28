@@ -6,6 +6,9 @@
   "directories": {
     "test": "test"
   },
+  "files": [
+    "src/**/*"
+  ],
   "scripts": {
     "dist": "node_modules/.bin/webpack && node_modules/.bin/webpack --mode production",
     "test": "node_modules/.bin/karma start karma.cloudinary-core.js --single-run --browsers=ChromeHeadless",
