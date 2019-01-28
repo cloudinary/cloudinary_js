@@ -1,4 +1,51 @@
 
+2.6.0 / 2019-01-28
+==================
+
+Note
+----
+
+Sources are now divided into JavaScript modules. However we can't change the public 
+API of the package or its structure, including the "main" property of the package.json file, 
+without a major release.
+
+You can import cloudinary from the sources:
+
+```
+npm install cloudinary_js
+```
+
+```js
+import cloudinary from 'cloudinary_js/src';
+const cl = cloudinary.Cloudinary.new({cloud_name: 'demo'});
+```
+
+
+The npm packages: 
+* `cloudinary-core` 
+* `cloudinary-jquery` 
+* `cloudinary-jquery-file-upload`
+
+Are still used to distribute the bundled library.
+
+New functionality and features
+------------------------------
+
+  * Add picture tag and source tag
+  * Add support to `fps` transformation parameter (#139)
+  * Replaced CoffeeScript with JavaScript
+  * Refactor code as modules
+
+Other Changes
+-------------
+
+  * Fix Fetch layer
+  * Remove grunt
+  * Update TypeScript configuration
+  * Remove PhantomJS and bower references
+  * Fix HTML tag test
+  * Fix fps test
+
 2.5.0 / 2018-02-13
 ==================
 
