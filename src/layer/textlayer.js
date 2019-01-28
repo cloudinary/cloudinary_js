@@ -20,7 +20,7 @@ var TextLayer = class TextLayer extends Layer {
     if (options != null) {
       keys.forEach((key) => {
         var ref;
-        return this.options[key] = (ref = options[key]) != null ? ref : options[Util.snakeCase(key)];
+        return this.options[key] = (ref = options[key]) != null ? ref : options[snakeCase(key)];
       });
     }
     this.options.resourceType = "text";
@@ -100,25 +100,25 @@ var TextLayer = class TextLayer extends Layer {
       publicId = this.getFullPublicId();
     }
     if (this.options.text != null) {
-      hasPublicId = !Util.isEmpty(publicId);
-      hasStyle = !Util.isEmpty(style);
+      hasPublicId = !isEmpty(publicId);
+      hasStyle = !isEmpty(style);
       if (hasPublicId && hasStyle || !hasPublicId && !hasStyle) {
         throw "Must supply either style parameters or a public_id when providing text parameter in a text overlay/underlay, but not both!";
       }
       re = /\$\([a-zA-Z]\w*\)/g;
       start = 0;
       //        textSource = text.replace(new RegExp("[,/]", 'g'), (c)-> "%#{c.charCodeAt(0).toString(16).toUpperCase()}")
-      textSource = Util.smartEscape(this.options.text, /[,\/]/g);
+      textSource = smartEscape(this.options.text, /[,\/]/g);
       text = "";
       while (res = re.exec(textSource)) {
-        text += Util.smartEscape(textSource.slice(start, res.index));
+        text += smartEscape(textSource.slice(start, res.index));
         text += res[0];
         start = res.index + res[0].length;
       }
-      text += Util.smartEscape(textSource.slice(start));
+      text += smartEscape(textSource.slice(start));
     }
     components = [this.options.resourceType, style, publicId, text];
-    return Util.compact(components).join(":");
+    return compact(components).join(":");
   }
 
   textStyleIdentifier() {
@@ -137,22 +137,22 @@ var TextLayer = class TextLayer extends Layer {
     if (this.options.stroke !== "none") {
       components.push(this.options.stroke);
     }
-    if (!(Util.isEmpty(this.options.letterSpacing) && !Util.isNumberLike(this.options.letterSpacing))) {
+    if (!(isEmpty(this.options.letterSpacing) && !isNumberLike(this.options.letterSpacing))) {
       components.push("letter_spacing_" + this.options.letterSpacing);
     }
-    if (!(Util.isEmpty(this.options.lineSpacing) && !Util.isNumberLike(this.options.lineSpacing))) {
+    if (!(isEmpty(this.options.lineSpacing) && !isNumberLike(this.options.lineSpacing))) {
       components.push("line_spacing_" + this.options.lineSpacing);
     }
-    if (!Util.isEmpty(Util.compact(components))) {
-      if (Util.isEmpty(this.options.fontFamily)) {
+    if (!isEmpty(compact(components))) {
+      if (isEmpty(this.options.fontFamily)) {
         throw `Must supply fontFamily. ${components}`;
       }
-      if (Util.isEmpty(this.options.fontSize) && !Util.isNumberLike(this.options.fontSize)) {
+      if (isEmpty(this.options.fontSize) && !isNumberLike(this.options.fontSize)) {
         throw "Must supply fontSize.";
       }
     }
     components.unshift(this.options.fontFamily, this.options.fontSize);
-    components = Util.compact(components).join("_");
+    components = compact(components).join("_");
     return components;
   }
 

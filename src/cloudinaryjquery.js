@@ -5,16 +5,8 @@
 var webp;
 
 import Cloudinary from './cloudinary';
-
-function firstNotNull(...args) {
-  while(args && args.length > 0) {
-    let next = args.shift();
-    if( next != null){
-      return next;
-    }
-  }
-  return null;
-}
+import Transformation from './transformation'
+import firstNotNull from './util/firstNotNull'
 
 const CloudinaryJQuery = class CloudinaryJQuery extends Cloudinary {
   /**
@@ -85,7 +77,7 @@ const CloudinaryJQuery = class CloudinaryJQuery extends Cloudinary {
     }
   }
 
-}
+};
 
 /**
  * The following methods are provided through the jQuery class

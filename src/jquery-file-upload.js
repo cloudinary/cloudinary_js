@@ -3,6 +3,7 @@
  * Depends on 'jquery', 'util', 'cloudinaryjquery', 'jquery.ui.widget', 'jquery.iframe-transport','jquery.fileupload'
  */
 import CloudinaryJQuery from './cloudinaryjquery';
+import * as Util from './util';
 
 /**
  * Delete a resource using the upload token

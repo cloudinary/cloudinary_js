@@ -89,28 +89,25 @@ const VideoTag = class VideoTag extends HtmlTag {
   }
 
   content() {
-    var cld, fallback, innerTags, mimeType, sourceTransformation, sourceTypes, src, srcType, transformation, videoType;
+    var fallback, innerTags, type, sourceTransformation, sourceTypes, src, srcType, transformation, videoType;
     sourceTypes = this.transformation().getValue('source_types');
     sourceTransformation = this.transformation().getValue('source_transformation');
     fallback = this.transformation().getValue('fallback_content');
     if (isArray(sourceTypes)) {
-      cld = new Cloudinary(this.getOptions());
+      let options = this.getOptions();
       innerTags = (function () {
         var i, len, results;
         results = [];
         for (i = 0, len = sourceTypes.length; i < len; i++) {
           srcType = sourceTypes[i];
           transformation = sourceTransformation[srcType] || {};
-          src = cld.url(`${this.publicId}`, defaults({}, transformation, {
+          src = url(`${this.publicId}`, defaults({}, transformation, {
             resource_type: 'video',
             format: srcType
-          }));
+          }, options));
           videoType = srcType === 'ogv' ? 'ogg' : srcType;
-          mimeType = 'video/' + videoType;
-          results.push(`<source ${this.htmlAttrs({
-            src: src,
-            type: mimeType
-          })}>`);
+          type = 'video/' + videoType;
+          results.push(`<source ${this.htmlAttrs({src, type})}>`);
         }
         return results;
       }).call(this);

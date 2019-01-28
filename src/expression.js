@@ -270,7 +270,7 @@ const Expression = class Expression {
     return new this("pageY");
   }
 
-}
+};
 
 /**
  * @internal

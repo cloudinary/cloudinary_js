@@ -3,6 +3,7 @@ import Transformation from "./transformation";
 
 import {
   allStrings,
+  identity,
   isArray,
   isEmpty,
   isFunction,
@@ -33,7 +34,7 @@ var Param = class Param {
    * @param {function} [process=Util.identity ] - Manipulate origValue when value is called
    * @ignore
    */
-  constructor(name, shortName, process = Util.identity) {
+  constructor(name, shortName, process = identity) {
     /**
      * The name of the parameter in snake_case
      * @member {string} Param#name
@@ -266,7 +267,7 @@ var RangeParam = class RangeParam extends Param {
 };
 
 var RawParam = class RawParam extends Param {
-  constructor(name, shortName, process = Util.identity) {
+  constructor(name, shortName, process = identity) {
     super(name, shortName, process);
   }
 

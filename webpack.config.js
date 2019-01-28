@@ -2,7 +2,7 @@ var path = require('path');
 var TerserPlugin = require('terser-webpack-plugin');
 var webpack = require('webpack');
 var fs = require('fs');
-var package = require('./package.json');
+var pkg = require('./package.json');
 // Create a list of Class names to preserve when minifying
 var namespace = fs.readFileSync('./src/namespace/cloudinary-jquery-file-upload.js').toString();
 var reserved = namespace.match(/(?<=as )(\w+)/g);
@@ -96,7 +96,7 @@ module.exports = function (env, argv) {
       new webpack.BannerPlugin({
         banner: `/**
  * cloudinary-[name].js
- * Cloudinary's JavaScript library - Version ${package.version}
+ * Cloudinary's JavaScript library - Version ${pkg.version}
  * Copyright Cloudinary
  * see https://github.com/cloudinary/cloudinary_js
  *

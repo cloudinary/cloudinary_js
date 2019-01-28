@@ -1,25 +1,21 @@
-import {
-  assign,
-  camelCase,
-  contains,
-  functions,
-  snakeCase
-} from './util';
-
 import Expression from './expression';
-
+import Condition from './condition';
 import Configuration from './configuration';
 
 import {
+  assign,
+  camelCase,
+  cloneDeep,
+  compact,
+  contains,
+  difference,
   identity,
   isArray,
   isEmpty,
   isFunction,
   isPlainObject,
   isString,
-  cloneDeep,
-  compact,
-  difference
+  snakeCase
 } from './util';
 
 import {
@@ -222,7 +218,7 @@ var TransformationBase = class TransformationBase {
      * @return {Object} the transformation options as plain object
      */
     this.toPlainObject = function () {
-      var hash, key, list, tr;
+      var hash, key, list;
       hash = {};
       for (key in trans) {
         hash[key] = trans[key].value();
@@ -348,7 +344,7 @@ var TransformationBase = class TransformationBase {
    * @return {string} Returns the transformation as a string
    */
   serialize() {
-    var ifParam, j, len, paramList, ref, ref1, ref2, ref3, ref4, resultArray, t, tr, transformationList,
+    var ifParam, j, len, paramList, ref, ref1, ref2, ref3, ref4, resultArray, t, transformationList,
       transformationString, transformations, value, variables, vars;
     resultArray = this.chained.map(tr => tr.serialize());
     paramList = this.keys();
@@ -413,7 +409,7 @@ var TransformationBase = class TransformationBase {
    * @return PlainObject
    */
   toHtmlAttributes() {
-    var attrName, height, j, key, len, options, ref, ref1, ref2, ref3, value, width;
+    var attrName, height, key, options, ref2, ref3, value, width;
     options = {};
     for (key in this.otherOptions) {
       value = this.otherOptions[key];

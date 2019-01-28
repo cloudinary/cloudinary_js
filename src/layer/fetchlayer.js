@@ -1,6 +1,7 @@
 import Layer from './layer';
 
 import {
+  base64EncodeURL,
   isString
 } from '../util';
 
@@ -30,7 +31,7 @@ const FetchLayer = class FetchLayer extends Layer {
    * @return {String}
    */
   toString() {
-    return `fetch:${cloudinary.Util.base64EncodeURL(this.options.url)}`;
+    return `fetch:${base64EncodeURL(this.options.url)}`;
   }
 
 };

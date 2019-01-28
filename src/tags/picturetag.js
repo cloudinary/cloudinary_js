@@ -1,6 +1,6 @@
 import HtmlTag from './htmltag';
+import ImageTag from './imagetag';
 import Transformation from '../transformation';
-import url from '../url';
 import SourceTag from './sourcetag';
 import {extractUrlParams} from "../util";
 
@@ -22,7 +22,6 @@ const PictureTag = class PictureTag extends HtmlTag {
       options.media = {min_width, max_width};
       options.transformation = sourceTransformation;
       return new SourceTag(this.publicId, options).toHtml();
-      // return `<source media="${minWidthPart}${andExpPart}${maxWidthPart}" srcset="${url(this.publicId, options)}">`;
     }).join('') +
       new ImageTag(this.publicId, this.getOptions()).toHtml();
   }

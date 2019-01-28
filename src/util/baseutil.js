@@ -3,6 +3,7 @@
  */
 import {isString} from "../util";
 import {isEmpty} from "../util";
+import {identity} from "../util";
 
 /**
  * Return true if all items in list are strings
@@ -10,14 +11,7 @@ import {isEmpty} from "../util";
  * @param {Array} list - an array of items
  */
 export var allStrings = function(list) {
-  var item, j, len;
-  for (j = 0, len = list.length; j < len; j++) {
-    item = list[j];
-    if (!isString(item)) {
-      return false;
-    }
-  }
-  return true;
+  return list.length && list.every(isString);
 };
 
 /**
@@ -28,16 +22,7 @@ export var allStrings = function(list) {
 * @return {Array} a new array made of the original array's items except for `item`
  */
 export var without = function(array, item) {
-  var i, length, newArray;
-  newArray = [];
-  i = -1;
-  length = array.length;
-  while (++i < length) {
-    if (array[i] !== item) {
-      newArray.push(array[i]);
-    }
-  }
-  return newArray;
+  return array.filter(v=>v!==item);
 };
 
 /**
@@ -80,7 +65,7 @@ export var smartEscape = function(string, unsafe = /([^a-zA-Z0-9_.\-\/:]+)/g) {
  */
 export var defaults = function(destination, ...sources) {
   return sources.reduce(function(dest, source) {
-    var key, value;
+    let key, value;
     for (key in source) {
       value = source[key];
       if (dest[key] === void 0) {
@@ -160,51 +145,30 @@ export var reWords = (function() {
 /**
 * Convert string to camelCase
 * @function Util.camelCase
-* @param {string} string - the string to convert
+* @param {string} source - the string to convert
 * @return {string} in camelCase format
  */
 export var camelCase = function(source) {
-  var i, word, words;
-  words = source.match(reWords);
-  words = (function() {
-    var j, len, results;
-    results = [];
-    for (i = j = 0, len = words.length; j < len; i = ++j) {
-      word = words[i];
-      word = word.toLocaleLowerCase();
-      if (i) {
-        results.push(word.charAt(0).toLocaleUpperCase() + word.slice(1));
-      } else {
-        results.push(word);
-      }
-    }
-    return results;
-  })();
+  var words = source.match(reWords);
+  words = words.map(word=> word.charAt(0).toLocaleUpperCase() + word.slice(1).toLocaleLowerCase());
+  words[0] = words[0].toLocaleLowerCase();
+
   return words.join('');
 };
 
 /**
  * Convert string to snake_case
  * @function Util.snakeCase
- * @param {string} string - the string to convert
+ * @param {string} source - the string to convert
  * @return {string} in snake_case format
  */
 export var snakeCase = function(source) {
-  var i, word, words;
-  words = source.match(reWords);
-  words = (function() {
-    var j, len, results;
-    results = [];
-    for (i = j = 0, len = words.length; j < len; i = ++j) {
-      word = words[i];
-      results.push(word.toLocaleLowerCase());
-    }
-    return results;
-  })();
+  var words = source.match(reWords);
+  words = words.map(word=> word.toLocaleLowerCase());
   return words.join('_');
 };
 
-export var convertKeys = function(source, converter = Util.identity) {
+export var convertKeys = function(source, converter = identity) {
   var key, result, value;
   result = {};
   for (key in source) {
@@ -224,7 +188,7 @@ export var convertKeys = function(source, converter = Util.identity) {
  * @return {Object} a new object
  */
 export var withCamelCaseKeys = function(source) {
-  return convertKeys(source, Util.camelCase);
+  return convertKeys(source, camelCase);
 };
 
 /**
@@ -234,7 +198,7 @@ export var withCamelCaseKeys = function(source) {
  * @return {Object} a new object
  */
 export var withSnakeCaseKeys = function(source) {
-  return convertKeys(source, Util.snakeCase);
+  return convertKeys(source, snakeCase);
 };
 
 // Browser
@@ -255,15 +219,13 @@ export var base64Encode = typeof btoa !== 'undefined' && isFunction(btoa) ? btoa
 * @param {string} url - the url to encode. the value is URIdecoded and then re-encoded before converting to base64 representation
 * @return {string} the base64 representation of the URL
  */
-export var base64EncodeURL = function(input) {
-  var ignore;
+export var base64EncodeURL = function(url) {
   try {
-    input = decodeURI(input);
-  } catch (error) {
-    ignore = error;
+    url = decodeURI(url);
+  } finally {
+    url = encodeURI(url);
   }
-  input = encodeURI(input);
-  return base64Encode(input);
+  return base64Encode(url);
 };
 
 /**

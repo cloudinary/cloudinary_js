@@ -11,6 +11,8 @@ import {
   merge
 } from '../util';
 
+import Transformation from '../transformation';
+
 var HtmlTag = class HtmlTag {
   /**
    * Represents an HTML (DOM) tag

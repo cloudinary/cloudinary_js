@@ -1,18 +1,12 @@
-var Cloudinary, applyBreakpoints, closestAbove, defaultBreakpoints, findContainerWidth, maxWidth, updateDpr;
-
-import url from './url';
+var applyBreakpoints, closestAbove, defaultBreakpoints, findContainerWidth, maxWidth, updateDpr;
 
 import Configuration from './configuration';
-
-import Transformation from './transformation';
-
 import HtmlTag from './tags/htmltag';
-
 import ImageTag from './tags/imagetag';
-
 import PictureTag from './tags/picturetag';
 import SourceTag from './tags/sourcetag';
-
+import Transformation from './transformation';
+import url from './url';
 import VideoTag from './tags/videotag';
 
 import {
@@ -23,7 +17,6 @@ import {
   isArray,
   isEmpty,
   isFunction,
-  isPlainObject,
   isString,
   merge,
   removeAttribute,
@@ -33,16 +26,7 @@ import {
 } from './util';
 
 import {
-  VERSION,
-  CF_SHARED_CDN,
-  OLD_AKAMAI_SHARED_CDN,
-  AKAMAI_SHARED_CDN,
-  SHARED_CDN,
-  DEFAULT_POSTER_OPTIONS,
-  DEFAULT_VIDEO_SOURCE_TYPES,
-  SEO_TYPES,
-  DEFAULT_IMAGE_PARAMS,
-  DEFAULT_VIDEO_PARAMS
+  DEFAULT_POSTER_OPTIONS
 } from './constants';
 
 defaultBreakpoints = function(width, steps = 100) {
@@ -94,7 +78,7 @@ maxWidth = function(requiredWidth, tag) {
   return imageWidth;
 };
 
-Cloudinary = class Cloudinary {
+var Cloudinary = class Cloudinary {
   /**
    * Main Cloudinary class
    * @class Cloudinary
@@ -439,24 +423,12 @@ Cloudinary = class Cloudinary {
    * @ignore
    */
   calc_breakpoint(element, width, steps) {
-    var breakpoints, point;
-    breakpoints = getData(element, 'breakpoints') || getData(element, 'stoppoints') || this.config('breakpoints') || this.config('stoppoints') || defaultBreakpoints;
+    let breakpoints = getData(element, 'breakpoints') || getData(element, 'stoppoints') || this.config('breakpoints') || this.config('stoppoints') || defaultBreakpoints;
     if (isFunction(breakpoints)) {
       return breakpoints(width, steps);
     } else {
       if (isString(breakpoints)) {
-        breakpoints = ((function() {
-          var j, len, ref, results;
-          ref = breakpoints.split(',');
-          results = [];
-          for (j = 0, len = ref.length; j < len; j++) {
-            point = ref[j];
-            results.push(parseInt(point));
-          }
-          return results;
-        })()).sort(function(a, b) {
-          return a - b;
-        });
+        breakpoints = breakpoints.split(',').map(point=>parseInt(point)).sort((a, b) => a - b);
       }
       return closestAbove(breakpoints, width);
     }

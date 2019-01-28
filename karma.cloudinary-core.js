@@ -1,5 +1,8 @@
 // Karma configuration
 // Generated on Tue Jul 28 2015 09:31:57 GMT+0300 (IDT)
+let isProd = mode === 'production';
+let mode = isProd ? 'production' : 'development';
+console.log(`mode is ${mode}`);
 module.exports = function(config) {
   return config.set({
     // base path that will be used to resolve all patterns (eg. files, exclude)
@@ -11,7 +14,7 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
       'node_modules/lodash/lodash.js',
-      'dist/cloudinary-core.min.js',
+      'dist/cloudinary-core' + (isProd ? '.min': '') + '.js',
       'test/spec/spec-helper.js',
       'test/spec/cloudinary-spec.js',
       'test/spec/transformation-spec.js',

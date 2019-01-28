@@ -81,7 +81,6 @@ export * from './baseutil';
  * @function Util.getData
  */
 export var getData = function (element, name) {
-  var ref;
   switch (false) {
     case !(element == null):
       return void 0;
@@ -107,7 +106,6 @@ export var getData = function (element, name) {
  *
  */
 export var setData = function (element, name, value) {
-  var ref;
   switch (false) {
     case !(element == null):
       return void 0;

@@ -1,5 +1,8 @@
 // Karma configuration
 // Generated on Tue Jul 28 2015 09:31:57 GMT+0300 (IDT)
+let isProd = mode === 'production';
+let mode = isProd ? 'production' : 'development';
+console.log(`mode is ${mode}`);
 module.exports = function(config) {
   return config.set({
     // base path that will be used to resolve all patterns (eg. files, exclude)
@@ -15,7 +18,7 @@ module.exports = function(config) {
       'node_modules/blueimp-file-upload/js/jquery.fileupload-process.js',
       'node_modules/blueimp-file-upload/js/jquery.iframe-transport.js',
       'node_modules/blueimp-file-upload/js/jquery.fileupload-image.js',
-      'dist/cloudinary-jquery-file-upload.min.js',
+      'dist/cloudinary-jquery-file-upload' + (isProd ? '.min': '') + '.js',
       'test/spec/spec-helper.js',
       'test/spec/cloudinary-spec.js',
       'test/spec/cloudinary-jquery-upload-spec.js',

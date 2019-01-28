@@ -38,11 +38,11 @@ var ImageTag = class ImageTag extends HtmlTag {
     if (isString(srcsetParam)) {
       responsiveAttributes.srcset = srcsetParam
     } else {
-      responsiveAttributes = generateImageResponsiveAttributes(this.publicId, {}, srcsetParam, options);
+      responsiveAttributes = generateImageResponsiveAttributes(this.publicId, attributes, srcsetParam, options);
     }
     if(!isEmpty(responsiveAttributes)) {
-      delete localOptions.width;
-      delete localOptions.height;
+      delete options.width;
+      delete options.height;
     }
 
     merge(attr, responsiveAttributes);

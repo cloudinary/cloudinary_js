@@ -1,4 +1,3 @@
-import ensurePresenceOf from './ensurePresenceOf';
 import * as utils from '../util';
 const isEmpty = utils.isEmpty;
 import generateBreakpoints from './generateBreakpoints';
