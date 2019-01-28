@@ -1,8 +1,8 @@
 // Karma configuration
 // Generated on Tue Jul 28 2015 09:31:57 GMT+0300 (IDT)
-let isProd = mode === 'production';
+let isProd = process.env.mode === 'production';
 let mode = isProd ? 'production' : 'development';
-console.log(`mode is ${mode}`);
+console.log(`Mode is ${mode}`);
 module.exports = function(config) {
   return config.set({
     // base path that will be used to resolve all patterns (eg. files, exclude)
