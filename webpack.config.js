@@ -5,7 +5,7 @@ var fs = require('fs');
 var pkg = require('./package.json');
 // Create a list of Class names to preserve when minifying
 var namespace = fs.readFileSync('./src/namespace/cloudinary-jquery-file-upload.js').toString();
-var reserved = namespace.match(/(?<=as )(\w+)/g);
+var reserved = namespace.match(/(\w+)(?= from)/g);
 
 // Create a list of lodash modules to exclude from the bundle
 var lodashUtil= fs.readFileSync('./src/util/lodash.js').toString();

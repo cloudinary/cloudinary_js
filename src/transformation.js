@@ -122,7 +122,6 @@ var TransformationBase = class TransformationBase {
       return this;
     };
     /** @protected */
-    this.rawParam && console.log("rawParam: **********************************************");
     this.rawParam = function (value, name, abbr, defaultValue, process = identity) {
       process = lastArgCallback(arguments);
       trans[name] = new RawParam(name, abbr, process).set(value);
