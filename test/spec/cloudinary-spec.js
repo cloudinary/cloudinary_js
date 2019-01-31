@@ -29,6 +29,9 @@ describe('Cloudinary', function() {
   afterEach(function() {
     return fixtureContainer.remove();
   });
+  it('should have constants', function(){
+    expect(cloudinary.Cloudinary.DEFAULT_VIDEO_PARAMS).not.toBe(undefined);
+  });
   it('should use cloud_name from config', function() {
     return test_cloudinary_url('test', {}, protocol + '//res.cloudinary.com/test123/image/upload/test', {});
   });

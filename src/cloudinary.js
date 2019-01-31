@@ -8,6 +8,7 @@ import SourceTag from './tags/sourcetag';
 import Transformation from './transformation';
 import url from './url';
 import VideoTag from './tags/videotag';
+import * as constants from './constants';
 
 import {
   addClass,
@@ -24,10 +25,6 @@ import {
   setData,
   width
 } from './util';
-
-import {
-  DEFAULT_POSTER_OPTIONS
-} from './constants';
 
 defaultBreakpoints = function(width, steps = 100) {
   return steps * Math.ceil(width / steps);
@@ -176,7 +173,7 @@ var Cloudinary = class Cloudinary {
    * @return {string} The video thumbnail URL
    */
   video_thumbnail_url(publicId, options) {
-    options = assign({}, DEFAULT_POSTER_OPTIONS, options);
+    options = assign({}, constants.DEFAULT_POSTER_OPTIONS, options);
     return this.url(publicId, options);
   }
 
@@ -265,7 +262,7 @@ var Cloudinary = class Cloudinary {
    * @return {HTMLImageElement} An image tag element
    */
   video_thumbnail(publicId, options) {
-    return this.image(publicId, merge({}, DEFAULT_POSTER_OPTIONS, options));
+    return this.image(publicId, merge({}, constants.DEFAULT_POSTER_OPTIONS, options));
   }
 
   /**
@@ -594,5 +591,5 @@ var Cloudinary = class Cloudinary {
   }
 
 };
-
+Object.assign(Cloudinary, constants);
 export default Cloudinary;
