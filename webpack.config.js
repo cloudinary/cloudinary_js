@@ -78,7 +78,7 @@ module.exports = function (env, argv) {
       process: false
     },
     devtool: "source-map",
-    module: isProd ? {
+    module: {
       rules: [
         {
           test: /\.m?js$/,
@@ -91,7 +91,7 @@ module.exports = function (env, argv) {
           }
         }
       ]
-    } : {},
+    },
     plugins: [
       new webpack.BannerPlugin({
         banner: `/**
