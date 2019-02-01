@@ -1,4 +1,11 @@
 
+2.6.2 / 2019-02-01
+==================
+
+  * Use hardcoded list of method names. Fixes #153
+  * Use babel for development mode too
+  * Add test:all script
+
 2.6.1 / 2019-01-29
 ==================
 
