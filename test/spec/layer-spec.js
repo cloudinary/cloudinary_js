@@ -5,7 +5,7 @@ TextLayer = cloudinary.TextLayer;
 FetchLayer = cloudinary.FetchLayer;
 
 describe("TextLayer", function() {
-  return it("should serialize a text layer object", function() {
+  it("should serialize a text layer object", function() {
     var layer, options, transformation;
     options = {
       text: "Cloudinary for the win!",
@@ -17,6 +17,34 @@ describe("TextLayer", function() {
     expect(layer.toString()).toEqual("text:Arial_18:Cloudinary%20for%20the%20win%21");
     transformation = new Transformation().overlay(options).toString();
     return expect(transformation.toString()).toEqual("l_text:Arial_18:Cloudinary%20for%20the%20win%21");
+  });
+  it("should serialize a text layer object with antialiasing", function() {
+    var layer, options, transformation;
+    options = {
+      text: "Cloudinary for the win!",
+      fontFamily: "Arial",
+      fontSize: 18,
+      fontAntialiasing: "fast"
+    };
+    layer = new TextLayer(options);
+    expect(layer.textStyleIdentifier()).toEqual("Arial_18_antialias_fast");
+    expect(layer.toString()).toEqual("text:Arial_18_antialias_fast:Cloudinary%20for%20the%20win%21");
+    transformation = new Transformation().overlay(options).toString();
+    return expect(transformation.toString()).toEqual("l_text:Arial_18_antialias_fast:Cloudinary%20for%20the%20win%21");
+  });
+  it("should serialize a text layer object with hinting", function() {
+    var layer, options, transformation;
+    options = {
+      text: "Cloudinary for the win!",
+      fontFamily: "Arial",
+      fontSize: 18,
+      fontHinting: "full"
+    };
+    layer = new TextLayer(options);
+    expect(layer.textStyleIdentifier()).toEqual("Arial_18_hinting_full");
+    expect(layer.toString()).toEqual("text:Arial_18_hinting_full:Cloudinary%20for%20the%20win%21");
+    transformation = new Transformation().overlay(options).toString();
+    return expect(transformation.toString()).toEqual("l_text:Arial_18_hinting_full:Cloudinary%20for%20the%20win%21");
   });
 });
 

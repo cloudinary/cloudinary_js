@@ -16,7 +16,7 @@ var TextLayer = class TextLayer extends Layer {
   constructor(options) {
     var keys;
     super(options);
-    keys = ["resourceType", "resourceType", "fontFamily", "fontSize", "fontWeight", "fontStyle", "textDecoration", "textAlign", "stroke", "letterSpacing", "lineSpacing", "text"];
+    keys = ["resourceType", "resourceType", "fontFamily", "fontSize", "fontWeight", "fontStyle", "textDecoration", "textAlign", "stroke", "letterSpacing", "lineSpacing", "fontHinting", "fontAntialiasing", "text"];
     if (options != null) {
       keys.forEach((key) => {
         var ref;
@@ -83,6 +83,16 @@ var TextLayer = class TextLayer extends Layer {
     return this;
   }
 
+  fontHinting (fontHinting){
+    this.options.fontHinting = fontHinting;
+    return this;
+  }
+
+  fontAntialiasing (fontAntialiasing){
+    this.options.fontAntialiasing = fontAntialiasing;
+    return this;
+  }
+
   text(text) {
     this.options.text = text;
     return this;
@@ -142,6 +152,12 @@ var TextLayer = class TextLayer extends Layer {
     }
     if (!(isEmpty(this.options.lineSpacing) && !isNumberLike(this.options.lineSpacing))) {
       components.push("line_spacing_" + this.options.lineSpacing);
+    }
+    if (!(isEmpty(this.options.fontAntialiasing))) {
+      components.push("antialias_"+this.options.fontAntialiasing);
+    }
+    if (!(isEmpty(this.options.fontHinting))) {
+      components.push("hinting_"+this.options.fontHinting );
     }
     if (!isEmpty(compact(components))) {
       if (isEmpty(this.options.fontFamily)) {

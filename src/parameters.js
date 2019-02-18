@@ -286,7 +286,9 @@ const LAYER_KEYWORD_PARAMS = [
   ["text_align", null],
   ["stroke", "none"],
   ["letter_spacing", null],
-  ["line_spacing", null]
+  ["line_spacing", null],
+  ["font_antialias", null],
+  ["font_hinting", null]
 ];
 
 class LayerParam extends Param {
