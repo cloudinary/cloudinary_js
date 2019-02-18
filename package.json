@@ -11,6 +11,7 @@
   ],
   "scripts": {
     "dist": "node_modules/.bin/webpack && node_modules/.bin/webpack --mode production",
+    "build": "node_modules/.bin/webpack && node_modules/.bin/webpack --mode production",
     "test": "node_modules/.bin/karma start karma.cloudinary-core.js --single-run --browsers=ChromeHeadless",
     "test:all": "for config in karma.cloudinary-*.js; do node_modules/.bin/karma start $config --single-run}; done",
     "compile-ts": "node_modules/.bin/tsc"
