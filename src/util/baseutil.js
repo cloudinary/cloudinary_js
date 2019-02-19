@@ -1,9 +1,6 @@
 /*
  * Includes common utility methods and shims
  */
-import {isString} from "../util";
-import {isEmpty} from "../util";
-import {identity} from "../util";
 
 /**
  * Return true if all items in list are strings
@@ -11,7 +8,7 @@ import {identity} from "../util";
  * @param {Array} list - an array of items
  */
 export var allStrings = function(list) {
-  return list.length && list.every(isString);
+  return list.length && list.every(value => typeof value === 'string');
 };
 
 /**
@@ -168,12 +165,20 @@ export var snakeCase = function(source) {
   return words.join('_');
 };
 
-export var convertKeys = function(source, converter = identity) {
-  var key, result, value;
+/**
+ * Creates a new object from source, with the keys transformed using the converter.
+ * @param {object} source
+ * @param {function|null} converter
+ * @returns {object}
+ */
+export var convertKeys = function(source, converter) {
+  var result, value;
   result = {};
-  for (key in source) {
+  for (let key in source) {
     value = source[key];
-    key = converter(key);
+    if(converter) {
+      key = converter(key);
+    }
     if (!isEmpty(key)) {
       result[key] = value;
     }
@@ -273,7 +278,10 @@ export function extractUrlParams(options) {
  * @private
  * @param options url and transformation options. This argument may be changed by the function!
  */
-export function patchFetchFormat(options={}) {
+export function patchFetchFormat(options) {
+  if(options == null) {
+    options = {};
+  }
   if (options.type === "fetch") {
     if (options.fetch_format == null) {
       options.fetch_format = optionConsume(options, "format");
@@ -296,4 +304,36 @@ export function optionConsume(options, option_name, default_value) {
   } else {
     return default_value;
   }
+}
+
+/**
+ * Returns true if value is empty:
+ * <ul>
+ *   <li>value is null or undefined</li>
+ *   <li>value is an array or string of length 0</li>
+ *   <li>value is an object with no keys</li>
+ * </ul>
+ * @function Util.isEmpty
+ * @param value
+ * @returns {boolean} true if value is empty
+ */
+export function isEmpty(value) {
+  if(value == null) {
+    return true;
+  }
+  if( typeof value.length == "number") {
+    return value.length === 0;
+  }
+  if( typeof value.size == "number") {
+    return value.size === 0;
+  }
+  if(typeof value == "object") {
+    for(let key in value) {
+      if(value.hasOwnProperty(key)) {
+        return false;
+      }
+    }
+    return true;
+  }
+  return true;
 }

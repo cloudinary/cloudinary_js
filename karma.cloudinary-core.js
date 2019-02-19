@@ -16,6 +16,7 @@ module.exports = function(config) {
       'node_modules/lodash/lodash.js',
       'dist/cloudinary-core' + (isProd ? '.min': '') + '.js',
       'test/spec/spec-helper.js',
+      'test/spec/util-spec.js',
       'test/spec/cloudinary-spec.js',
       'test/spec/transformation-spec.js',
       'test/spec/tagspec.js',

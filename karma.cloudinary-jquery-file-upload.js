@@ -20,6 +20,7 @@ module.exports = function(config) {
       'node_modules/blueimp-file-upload/js/jquery.fileupload-image.js',
       'dist/cloudinary-jquery-file-upload' + (isProd ? '.min': '') + '.js',
       'test/spec/spec-helper.js',
+      'test/spec/util-spec.js',
       'test/spec/cloudinary-spec.js',
       'test/spec/cloudinary-jquery-upload-spec.js',
       'test/spec/transformation-spec.js',

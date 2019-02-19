@@ -123,7 +123,7 @@ jQuery.fn.cloudinary = function(options) {
  *            Note that jQuery.cloudinary.responsive() should be called once on the page.
  * - responsive_preserve_height: if set to true, original css height is perserved. Should only be used if the transformation supports different aspect ratios.
  */
-jQuery.fn.cloudinary_update = function(options = {}) {
+jQuery.fn.cloudinary_update = function(options) {
   jQuery.cloudinary.cloudinary_update(this.filter('img').toArray(), options);
   return this;
 };

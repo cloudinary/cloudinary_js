@@ -195,10 +195,10 @@ var Cloudinary = class Cloudinary {
    * @return {HTMLImageElement} an image tag element
    */
   image(publicId, options = {}) {
-    var client_hints, img, ref, ref1;
+    var client_hints, img, ref;
     img = this.imageTag(publicId, options);
-    client_hints = (ref = (ref1 = options.client_hints) != null ? ref1 : this.config('client_hints')) != null ? ref : false;
-    if (!((options.src != null) || client_hints)) {
+    client_hints = (ref = options.client_hints != null ? options.client_hints : this.config('client_hints')) != null ? ref : false;
+    if (options.src == null && !client_hints) {
       // src must be removed before creating the DOM element to avoid loading the image
       img.setAttr("src", '');
     }
@@ -445,16 +445,16 @@ var Cloudinary = class Cloudinary {
    * @function Cloudinary#device_pixel_ratio
    * @private
    */
-  device_pixel_ratio(roundDpr = true) {
-    var dpr, dprString;
-    dpr = (typeof window !== "undefined" && window !== null ? window.devicePixelRatio : void 0) || 1;
+  device_pixel_ratio(roundDpr) {
+    roundDpr = roundDpr == null ? true : roundDpr;
+    let dpr = (typeof window !== "undefined" && window !== null ? window.devicePixelRatio : void 0) || 1;
     if (roundDpr) {
       dpr = Math.ceil(dpr);
     }
     if (dpr <= 0 || dpr === (0/0)) {
       dpr = 1;
     }
-    dprString = dpr.toString();
+    let dprString = dpr.toString();
     if (dprString.match(/^\d+$/)) {
       dprString += '.0';
     }
@@ -467,38 +467,29 @@ var Cloudinary = class Cloudinary {
   * @param {Object} [options={}] options and transformations params
   * @function Cloudinary#processImageTags
    */
-  processImageTags(nodes, options = {}) {
-    var images, imgOptions, node, publicId;
+  processImageTags(nodes, options) {
     if (isEmpty(nodes)) {
       // similar to `$.fn.cloudinary`
       return this;
     }
-    options = defaults({}, options, this.config());
-    images = (function() {
-      var j, len, ref, results;
-      results = [];
-      for (j = 0, len = nodes.length; j < len; j++) {
-        node = nodes[j];
-        if (!(((ref = node.tagName) != null ? ref.toUpperCase() : void 0) === 'IMG')) {
-          continue;
-        }
-        imgOptions = assign({
-          width: node.getAttribute('width'),
-          height: node.getAttribute('height'),
-          src: node.getAttribute('src')
-        }, options);
-        publicId = imgOptions['source'] || imgOptions['src'];
-        delete imgOptions['source'];
-        delete imgOptions['src'];
-        url = this.url(publicId, imgOptions);
-        imgOptions = new Transformation(imgOptions).toHtmlAttributes();
-        setData(node, 'src-cache', url);
-        node.setAttribute('width', imgOptions.width);
-        node.setAttribute('height', imgOptions.height);
-        results.push(node);
-      }
-      return results;
-    }).call(this);
+    options = defaults({}, options || {}, this.config());
+    let images = nodes
+      .filter(node=>/^img$/i.test(node.tagName))
+      .map(function(node){
+          let imgOptions = assign({
+            width: node.getAttribute('width'),
+            height: node.getAttribute('height'),
+            src: node.getAttribute('src')
+          }, options);
+          let publicId = imgOptions['source'] || imgOptions['src'];
+          delete imgOptions['source'];
+          delete imgOptions['src'];
+          let attr = new Transformation(imgOptions).toHtmlAttributes();
+          setData(node, 'src-cache', url(publicId, imgOptions));
+          node.setAttribute('width', attr.width);
+          node.setAttribute('height', attr.height);
+          return node;
+      });
     this.cloudinary_update(images, options);
     return this;
   }
@@ -517,12 +508,15 @@ var Cloudinary = class Cloudinary {
   * @param {boolean} [options.responsive_preserve_height] - if set to true, original css height is preserved.
   *   Should only be used if the transformation supports different aspect ratios.
    */
-  cloudinary_update(elements, options = {}) {
-    var containerWidth, dataSrc, j, len, match, ref, ref1, ref2, ref3, ref4, ref5, requiredWidth, responsive, responsiveClass, roundDpr, setUrl, tag;
+  cloudinary_update(elements, options) {
+    var containerWidth, dataSrc, match, ref4, requiredWidth;
     if (elements === null) {
       return this;
     }
-    responsive = (ref = (ref1 = options.responsive) != null ? ref1 : this.config('responsive')) != null ? ref : false;
+    if(options == null) {
+      options = {};
+    }
+    const responsive = options.responsive != null ? options.responsive : this.config('responsive');
     elements = (function() {
       switch (false) {
         case !isArray(elements):
@@ -535,48 +529,54 @@ var Cloudinary = class Cloudinary {
           return [elements];
       }
     })();
-    responsiveClass = (ref2 = (ref3 = this.responsiveConfig['responsive_class']) != null ? ref3 : options['responsive_class']) != null ? ref2 : this.config('responsive_class');
-    roundDpr = (ref4 = options['round_dpr']) != null ? ref4 : this.config('round_dpr');
-    for (j = 0, len = elements.length; j < len; j++) {
-      tag = elements[j];
-      if (!((ref5 = tag.tagName) != null ? ref5.match(/img/i) : void 0)) {
-        continue;
-      }
-      setUrl = true;
-      if (responsive) {
-        addClass(tag, responsiveClass);
-      }
-      dataSrc = getData(tag, 'src-cache') || getData(tag, 'src');
-      if (!isEmpty(dataSrc)) {
-        // Update dpr according to the device's devicePixelRatio
-        dataSrc = updateDpr.call(this, dataSrc, roundDpr);
-        if (HtmlTag.isResponsive(tag, responsiveClass)) {
-          containerWidth = findContainerWidth(tag);
-          if (containerWidth !== 0) {
-            switch (false) {
-              case !/w_auto:breakpoints/.test(dataSrc):
-                requiredWidth = maxWidth(containerWidth, tag);
-                dataSrc = dataSrc.replace(/w_auto:breakpoints([_0-9]*)(:[0-9]+)?/, `w_auto:breakpoints$1:${requiredWidth}`);
-                break;
-              case !(match = /w_auto(:(\d+))?/.exec(dataSrc)):
-                requiredWidth = applyBreakpoints.call(this, tag, containerWidth, match[2], options);
-                requiredWidth = maxWidth(requiredWidth, tag);
-                dataSrc = dataSrc.replace(/w_auto[^,\/]*/g, `w_${requiredWidth}`);
+    let responsiveClass;
+    if (this.responsiveConfig && this.responsiveConfig.responsive_class != null) {
+      responsiveClass = this.responsiveConfig.responsive_class;
+    } else if (options.responsive_class != null) {
+      responsiveClass = options.responsive_class;
+    } else {
+      responsiveClass = this.config('responsive_class');
+    }
+
+    let roundDpr = options.round_dpr != null ? options.round_dpr : this.config('round_dpr');
+    elements.forEach(tag => {
+      if (/img/i.test(tag.tagName)) {
+        let setUrl = true;
+        if (responsive) {
+          addClass(tag, responsiveClass);
+        }
+        dataSrc = getData(tag, 'src-cache') || getData(tag, 'src');
+        if (!isEmpty(dataSrc)) {
+          // Update dpr according to the device's devicePixelRatio
+          dataSrc = updateDpr.call(this, dataSrc, roundDpr);
+          if (HtmlTag.isResponsive(tag, responsiveClass)) {
+            containerWidth = findContainerWidth(tag);
+            if (containerWidth !== 0) {
+              switch (false) {
+                case !/w_auto:breakpoints/.test(dataSrc):
+                  requiredWidth = maxWidth(containerWidth, tag);
+                  dataSrc = dataSrc.replace(/w_auto:breakpoints([_0-9]*)(:[0-9]+)?/, `w_auto:breakpoints$1:${requiredWidth}`);
+                  break;
+                case !(match = /w_auto(:(\d+))?/.exec(dataSrc)):
+                  requiredWidth = applyBreakpoints.call(this, tag, containerWidth, match[2], options);
+                  requiredWidth = maxWidth(requiredWidth, tag);
+                  dataSrc = dataSrc.replace(/w_auto[^,\/]*/g, `w_${requiredWidth}`);
+              }
+              removeAttribute(tag, 'width');
+              if (!options.responsive_preserve_height) {
+                removeAttribute(tag, 'height');
+              }
+            } else {
+              // Container doesn't know the size yet - usually because the image is hidden or outside the DOM.
+              setUrl = false;
             }
-            removeAttribute(tag, 'width');
-            if (!options.responsive_preserve_height) {
-              removeAttribute(tag, 'height');
-            }
-          } else {
-            // Container doesn't know the size yet - usually because the image is hidden or outside the DOM.
-            setUrl = false;
+          }
+          if (setUrl) {
+            setAttribute(tag, 'src', dataSrc);
           }
         }
-        if (setUrl) {
-          setAttribute(tag, 'src', dataSrc);
-        }
       }
-    }
+    });
     return this;
   }
 

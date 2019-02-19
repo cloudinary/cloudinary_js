@@ -57,7 +57,7 @@ var TransformationBase = class TransformationBase {
    * Members of this class are documented as belonging to the {@link Transformation} class for convenience.
    * @class TransformationBase
    */
-  constructor(options = {}) {
+  constructor(options) {
     /** @private */
     /** @private */
     var parent, trans;
@@ -68,8 +68,11 @@ var TransformationBase = class TransformationBase {
      * @function Transformation#toOptions
      * @return {Object} Returns a plain object representing this transformation
      */
-    this.toOptions = function (withChain = true) {
+    this.toOptions = function (withChain) {
       let opt = {};
+      if(withChain == null) {
+        withChain = true;
+      }
       Object.keys(trans).forEach(key => opt[key] = trans[key].origValue);
       assignNotNull(opt, this.otherOptions);
       if (withChain && !isEmpty(this.chained)) {
@@ -260,10 +263,7 @@ var TransformationBase = class TransformationBase {
     };
     this.otherOptions = {};
     this.chained = [];
-    if (!isEmpty(options)) {
-      // Finished constructing the instance, now process the options
-      this.fromOptions(options);
-    }
+    this.fromOptions(options);
   }
 
   /**
@@ -272,34 +272,35 @@ var TransformationBase = class TransformationBase {
    * @returns {Transformation} Returns this instance for chaining
    */
   fromOptions(options) {
-    var key, opt;
-    if (options instanceof TransformationBase) {
-      this.fromTransformation(options);
-    } else {
-      options || (options = {});
-      if (isString(options) || isArray(options)) {
-        options = {
-          transformation: options
-        };
-      }
-      options = cloneDeep(options, function (value) {
-        if (value instanceof TransformationBase) {
-          return new value.constructor(value.toOptions());
+    if (!isEmpty(options)) {
+      if (options instanceof TransformationBase) {
+        this.fromTransformation(options);
+      } else {
+        options || (options = {});
+        if (isString(options) || isArray(options)) {
+          options = {
+            transformation: options
+          };
         }
-      });
-      // Handling of "if" statements precedes other options as it creates a chained transformation
-      if (options["if"]) {
-        this.set("if", options["if"]);
-        delete options["if"];
-      }
-      for (key in options) {
-        opt = options[key];
-        if (key.match(VAR_NAME_RE)) {
-          if (key !== '$attr') {
-            this.set('variable', key, opt);
+        options = cloneDeep(options, function (value) {
+          if (value instanceof TransformationBase) {
+            return new value.constructor(value.toOptions());
           }
-        } else {
-          this.set(key, opt);
+        });
+        // Handling of "if" statements precedes other options as it creates a chained transformation
+        if (options["if"]) {
+          this.set("if", options["if"]);
+          delete options["if"];
+        }
+        for (let key in options) {
+          let opt = options[key];
+          if (key.match(VAR_NAME_RE)) {
+            if (key !== '$attr') {
+              this.set('variable', key, opt);
+            }
+          } else {
+            this.set(key, opt);
+          }
         }
       }
     }
@@ -529,7 +530,7 @@ var Transformation = class Transformation extends TransformationBase {
    *
    * t = new cloudinary.Transformation( {angle: 20, crop: "scale", width: "auto"});
    */
-  constructor(options = {}) {
+  constructor(options) {
     super(options);
   }
 

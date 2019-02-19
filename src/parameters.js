@@ -91,8 +91,10 @@ var Param = class Param {
     return value != null ? value.replace(/^#/, 'rgb:') : void 0;
   }
 
-  build_array(arg = []) {
-    if (isArray(arg)) {
+  build_array(arg) {
+    if(arg == null) {
+      return [];
+    } else if (isArray(arg)) {
       return arg;
     } else {
       return [arg];

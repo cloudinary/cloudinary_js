@@ -33,10 +33,6 @@ export {
 } from 'lodash/isArray';
 
 export {
-  default as isEmpty
-} from 'lodash/isEmpty';
-
-export {
   default as isPlainObject
 } from 'lodash/isPlainObject';
 
@@ -53,21 +49,14 @@ export {
 } from 'lodash/includes';
 
 import * as isElement from 'lodash/isElement';
-
 import * as isFunction from 'lodash/isFunction';
-
 import * as trim from 'lodash/trim';
 
-export {
-  trim
-};
-
-export {
-  isElement
-};
-
 export * from './baseutil';
-
+export {
+  isElement,
+  isFunction,
+  trim}
 /*
  * Includes utility methods and lodash / jQuery shims
  */

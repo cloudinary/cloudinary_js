@@ -20,8 +20,8 @@ var Configuration = class Configuration {
    * @constructor Configuration
    * @param {Object} options - configuration parameters
    */
-  constructor(options = {}) {
-    this.configuration = cloneDeep(options);
+  constructor(options) {
+    this.configuration = options == null ? {} : cloneDeep(options);
     defaults(this.configuration, DEFAULT_CONFIGURATION_PARAMS);
   }
 
@@ -62,7 +62,7 @@ var Configuration = class Configuration {
     return this.configuration[name];
   }
 
-  merge(config = {}) {
+  merge(config) {
     assign(this.configuration, cloneDeep(config));
     return this;
   }

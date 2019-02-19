@@ -15,6 +15,7 @@ module.exports = function(config) {
       'node_modules/jquery/dist/jquery.js',
       'dist/cloudinary-jquery' + (isProd ? '.min': '') + '.js',
       'test/spec/spec-helper.js',
+      'test/spec/util-spec.js',
       'test/spec/cloudinary-spec.js',
       'test/spec/transformation-spec.js',
       'test/spec/tagspec.js',
