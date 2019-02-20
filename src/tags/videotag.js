@@ -20,7 +20,7 @@ import {
 import HtmlTag from './htmltag';
 
 
-const VIDEO_TAG_PARAMS = ['source_types', 'source_transformation', 'fallback_content', 'poster'];
+const VIDEO_TAG_PARAMS = ['source_types', 'source_transformation', 'fallback_content', 'poster', 'sources'];
 
 const DEFAULT_VIDEO_SOURCE_TYPES = ['webm', 'mp4', 'ogv'];
 
@@ -65,6 +65,21 @@ const VideoTag = class VideoTag extends HtmlTag {
   }
 
   /**
+   * Set the sources to include in the video tag
+   * Each item in the sources array will be a new <source> tag inside the <video> tag
+   * @function VideoTag#setSources
+   * @param {Array<{Object}>} an array of sources. Each Object has 3 params:
+   *  1. "type": used for mime type in "type" attribute(video/<type>) and also file format(concat file name and extension)
+   *  2. "codecs": passed as is at the end of the "type" attribute
+   *  3. "transformations": similar to what existing implementation has right now (merged with all options and used as transformation)
+   * @returns {VideoTag} Returns this instance for chaining purposes.
+   */
+  setSources(value) {
+    this.transformation().videoSources(value);
+    return this;
+  }
+
+  /**
    * Set the poster to be used in the video tag
    * @function VideoTag#setPoster
    * @param {string|Object} value
@@ -89,50 +104,69 @@ const VideoTag = class VideoTag extends HtmlTag {
   }
 
   content() {
-    var fallback, innerTags, type, sourceTransformation, sourceTypes, src, srcType, transformation, videoType;
-    sourceTypes = this.transformation().getValue('source_types');
-    sourceTransformation = this.transformation().getValue('source_transformation');
+    var fallback, sourceTypes, sources;
+    sources = this.transformation().getValue('sources');
     fallback = this.transformation().getValue('fallback_content');
-    if (isArray(sourceTypes)) {
-      let options = this.getOptions();
-      innerTags = (function () {
-        var i, len, results;
-        results = [];
-        for (i = 0, len = sourceTypes.length; i < len; i++) {
-          srcType = sourceTypes[i];
-          transformation = sourceTransformation[srcType] || {};
-          src = url(`${this.publicId}`, defaults({}, transformation, {
-            resource_type: 'video',
-            format: srcType
-          }, options));
-          videoType = srcType === 'ogv' ? 'ogg' : srcType;
-          type = 'video/' + videoType;
-          results.push(`<source ${this.htmlAttrs({src, type})}>`);
-        }
-        return results;
-      }).call(this);
-    } else {
-      innerTags = [];
-    }
+    sourceTypes = this.transformation().getValue('source_types');
+    var innerTags = sources ?
+        this.handleSources(sources) :
+        this.handleSourceTypes(sourceTypes);
     return innerTags.join('') + fallback;
   }
 
+  handleSourceTypes(sourceTypes){
+    if(!isArray(sourceTypes)) return [];
+    const sourceTransformation = this.transformation().getValue('source_transformation');
+    let options = this.getOptions();
+    let results = [];
+    sourceTypes.forEach(srcType => {
+      let transformation = sourceTransformation[srcType] || {};
+      let src = url(`${this.publicId}`, defaults({}, transformation, {
+        resource_type: 'video',
+        format: srcType
+      }, options));
+      let type = 'video/' + (srcType === 'ogv' ? 'ogg' : srcType);
+      results.push(`<source ${this.htmlAttrs({src, type})}>`);
+    });
+    return results;
+  }
+
+  handleSources(sources){
+    var res = [];
+    let options = this.getOptions();
+    sources.forEach(currSrc =>{
+      let codecs = currSrc.codecs;
+      let type = 'video/'+currSrc.type;
+      if(codecs){
+        type +=  "; codecs="+codecs;
+      }
+      let src = url(`${this.publicId}`, defaults({}, currSrc.transformations, {
+        format: currSrc.type,
+        resource_type: 'video'
+      }, options));
+      res.push(`<source ${this.htmlAttrs({src, type})}>`);
+    });
+    return res;
+  }
+
   attributes() {
-    var a, attr, defaultOptions, i, len, poster, ref, ref1, sourceTypes;
-    sourceTypes = this.getOption('source_types');
-    poster = (ref = this.getOption('poster')) != null ? ref : {};
+    let defaultOptions, ref, ref1, i, len, a;
+    const sourceTypes = this.getOption('source_types');
+    let poster = (ref = this.getOption('poster')) != null ? ref : {};
+    const sources = this.getOption('sources');
     if (isPlainObject(poster)) {
       defaultOptions = poster.public_id != null ? DEFAULT_IMAGE_PARAMS : DEFAULT_POSTER_OPTIONS;
       poster = url((ref1 = poster.public_id) != null ? ref1 : this.publicId, defaults({}, poster, defaultOptions, this.getOptions()));
     }
-    attr = super.attributes() || [];
+    let attr = super.attributes() || [];
     for (i = 0, len = attr.length; i < len; i++) {
       a = attr[i];
       if (!contains(VIDEO_TAG_PARAMS)) {
         attr = a;
       }
     }
-    if (!isArray(sourceTypes)) {
+
+    if (!isArray(sourceTypes) && !sources) {
       attr["src"] = url(this.publicId, this.getOptions(), {
         resource_type: 'video',
         format: sourceTypes
@@ -143,7 +177,6 @@ const VideoTag = class VideoTag extends HtmlTag {
     }
     return attr;
   }
-
 };
 
 export default VideoTag;

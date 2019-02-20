@@ -781,6 +781,10 @@ var Transformation = class Transformation extends TransformationBase {
     return this.param(value, "source_types");
   }
 
+  videoSources(value) {
+    return this.param(value, "sources");
+  }
+
   sourceTransformation(value) {
     return this.param(value, "source_transformation");
   }

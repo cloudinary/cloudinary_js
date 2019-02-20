@@ -383,6 +383,37 @@ describe("video", function() {
       source_types: ['webm', 'mp4']
     })).toEqual(`<video poster="${expected_url}.jpg" width="100">` + `<source src="${expected_url}.webm" type="video/webm">` + `<source src="${expected_mp4_url}.mp4" type="video/mp4">` + "</video>");
   });
+  it("should generate video tag with sources", function() {
+    let expected_url, fallback;
+    expected_url = VIDEO_UPLOAD_PATH;
+    let tag = cl.video("movie", {
+      width: 100,
+      crop: "scale",
+      sources: [
+        {
+          "type": "mp4",
+          "codecs": "hev1",
+          "transformations": {"video_codec": "h265"}
+        },
+        {
+          "type": "webm",
+          "codecs": "vp9",
+          "transformations": {"video_codec": "vp9"}
+        },
+        {
+          "type": "mp4",
+          "transformations": {"video_codec": "auto"}
+        },
+        {
+          "type": "webm",
+          "transformations": {"video_codec": "auto", effect:"sepia"}
+        }]
+    });
+    expect(tag).toContain(`<source src="${expected_url}c_scale,vc_h265,w_100/movie.mp4" type="video/mp4; codecs=hev1">`);
+    expect(tag).toContain(`<source src="${expected_url}c_scale,vc_vp9,w_100/movie.webm" type="video/webm; codecs=vp9">`);
+    expect(tag).toContain(`<source src="${expected_url}c_scale,vc_auto,w_100/movie.mp4" type="video/mp4">`);
+    return expect(tag).toContain(`<source src="${expected_url}c_scale,e_sepia,vc_auto,w_100/movie.webm" type="video/webm">`);
+  });
   return describe("poster", function() {
     var expected_url;
     expected_url = VIDEO_UPLOAD_PATH + "movie";
