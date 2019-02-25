@@ -29,6 +29,24 @@ describe("Transformation", function() {
       return document.body.appendChild(fixtureContainer);
     }
   });
+  it('should support custom function remote', function() {
+    return expect(cl.url('test', {
+      transformation: [
+        {
+          custom_function: {function_type: 'remote', source: 'https://df34ra4a.execute-api.us-west-2.amazonaws.com/default/cloudinaryFunction'}
+        }
+      ]
+    })).toBe(protocol + '//res.cloudinary.com/test123/image/upload/fn_remote:aHR0cHM6Ly9kZjM0cmE0YS5leGVjdXRlLWFwaS51cy13ZXN0LTIuYW1hem9uYXdzLmNvbS9kZWZhdWx0L2Nsb3VkaW5hcnlGdW5jdGlvbg==/test');
+  });
+  it('should support custom function wasm', function() {
+    return expect(cl.url('test', {
+      transformation: [
+        {
+          custom_function: {function_type: 'wasm', source: 'blur.wasm'}
+        }
+      ]
+    })).toBe(protocol + '//res.cloudinary.com/test123/image/upload/fn_wasm:blur.wasm/test');
+  });
   it('should ignore empty values', function() {
     expect(cl.url('test', {
       width: void 0, // regular
