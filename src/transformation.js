@@ -597,6 +597,7 @@ var Transformation = class Transformation extends TransformationBase {
     return this.param(value, "crop", "c");
   }
 
+  
   defaultImage(value) {
     return this.param(value, "default_image", "d");
   }
@@ -828,6 +829,16 @@ var Transformation = class Transformation extends TransformationBase {
     });
   }
 
+  customFunction(value) {
+    return this.param(value, "custom_function", "fn", () => {
+      if(value.function_type === "remote"){
+        return [value.function_type, btoa(value.source)].join(":")
+      }
+      else if (value.function_type === "wasm") 
+        return [value.function_type, value.source].join(":")
+    })
+  }
+
   x(value) {
     return this.param(value, "x", "x", Expression.normalize);
   }
@@ -858,6 +869,7 @@ Transformation.methods = [
   "color",
   "colorSpace",
   "crop",
+  "customFunction",
   "defaultImage",
   "delay",
   "density",
