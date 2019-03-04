@@ -761,7 +761,7 @@ var Transformation = class Transformation extends TransformationBase {
   }
 
   radius(value) {
-    return this.param(value, "radius", "r", Expression.normalize);
+    return this.arrayParam(value, "radius", "r", ":", Expression.normalize);
   }
 
   rawTransformation(value) {
