@@ -149,6 +149,36 @@ describe("Transformation", function() {
       prefix: 'a'
     }, protocol + '//res.cloudinary.com/test123/image/upload/g_center,p_a,q_0.4,r_3,x_1,y_2/test', {});
   });
+  describe("radius", function() {
+    it('should support radius', function() {
+      return test_cloudinary_url('test', {
+        radius: 10
+      }, protocol + '//res.cloudinary.com/test123/image/upload/r_10/test', {});
+    });
+    it('should support radius paramas', function() {
+      return test_cloudinary_url('test', {
+        radius: [10,20,30]
+      }, protocol + '//res.cloudinary.com/test123/image/upload/r_10:20:30/test', {});
+    });
+    it('should support radius variable string', function() {
+      return test_cloudinary_url('test', {
+        radius: "$v"
+      }, protocol + '//res.cloudinary.com/test123/image/upload/r_$v/test', {});
+    });
+    it('should support radius paramas', function() {
+      return test_cloudinary_url('test', {
+        radius: [10,20,30]
+      }, protocol + '//res.cloudinary.com/test123/image/upload/r_10:20:30/test', {});
+    });
+    it('should support radius paramas with variable', function() {
+      return test_cloudinary_url('test', {
+        radius: [10,20,"$v"]
+      }, protocol + '//res.cloudinary.com/test123/image/upload/r_10:20:$v/test', {});
+      return test_cloudinary_url('test', {
+        radius: [10,20,"$v", 40]
+      }, protocol + '//res.cloudinary.com/test123/image/upload/r_10:20:$v:40/test', {});
+    });
+  });
   describe("gravity", function() {
     it("should support auto", function() {
       test_cloudinary_url("test", {
