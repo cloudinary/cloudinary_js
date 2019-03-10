@@ -18,7 +18,6 @@ type AudioCodec = string | "none" | "aac" | "vorbis" | "mp3";
 type AudioFrequency = number | 8000 | 11025 | 16000 | 22050 | 32000 | 37800 | 44056 | 44100 | 47250 | 48000 | 88200 | 96000 | 176400 | 192000;
 type StreamingProfiles = string | "4k" | "full_hd" | "hd" | "sd" | "full_hd_wifi" | "full_hd_lean" | "hd_lean";
 
-
 export function crc32(str: string): any;
 export function utf8_encode(argString: string): any;
 
@@ -791,6 +790,24 @@ export class Cloudinary {
     transformation(options?: Transformation | Transformation.Options): Transformation;
 }
 
+declare let _default: {
+    Cloudinary: Cloudinary, 
+    Util: Util, 
+    Configuration: Configuration, 
+    Transformation: Transformation, 
+    ImageTag: ImageTag, 
+    PictureTag: PictureTag, 
+    VideoTag: VideoTag, 
+    Condition: Condition, 
+    Layer: Layer, 
+    TextLayer: TextLayer, 
+    HtmlTag: HtmlTag,
+    ClientHintsMetaTag: ClientHintsMetaTag, 
+    Param: Param
+}
+
+export default _default;
+
 export const VERSION: string;
 export namespace Configuration {
     export interface Options {
@@ -823,3 +840,4 @@ export namespace Configuration {
         [futureKey: string]: any;
     }
 }
+
