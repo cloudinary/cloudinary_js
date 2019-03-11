@@ -1,6 +1,16 @@
 /*
  * Includes common utility methods and shims
  */
+import {isString} from "../util";
+import {contains} from "../util";
+
+export function omit(obj, keys) {
+  obj = obj || {};
+  let srcKeys = Object.keys(obj).filter(key => !contains(keys, key));
+  let filtered = {};
+  srcKeys.forEach(key => filtered[key] = obj[key]);
+  return filtered;
+}
 
 /**
  * Return true if all items in list are strings
@@ -8,7 +18,7 @@
  * @param {Array} list - an array of items
  */
 export var allStrings = function(list) {
-  return list.length && list.every(value => typeof value === 'string');
+  return list.length && list.every(isString);
 };
 
 /**

@@ -202,6 +202,7 @@ export class Transformation {
     rawTransformation(value: any): Transformation;
     size(value: string): Transformation;
     sourceTypes(value: VideoFileExtension | Array<VideoFileExtension>): Transformation;
+    sources?: Array<object>;
     sourceTransformation(value: Object): Transformation; // Set the transformation to apply on each source by an object with pairs of source type and source transformations to apply
     startOffset(value: number | string): Transformation;
     streamingProfile(value: string): Transformation;
