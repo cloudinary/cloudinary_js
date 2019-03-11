@@ -196,6 +196,6 @@ export default function url(publicId, options = {}, config = {}) {
   }
   prefix = cloudinaryUrlPrefix(publicId, options);
   resourceTypeAndType = finalizeResourceType(options.resource_type, options.type, options.url_suffix, options.use_root_path, options.shorten);
-  version = options.version ? 'v' + options.version : '';
+  version = (options.version && !options.exclude_version) ? `v${options.version}` : '';
   return url || compact([prefix, resourceTypeAndType, transformationString, version, publicId]).join('/').replace(/([^:])\/+/g, '$1/');
 };

@@ -170,6 +170,10 @@ describe('Cloudinary', function() {
       shorten: true
     }, protocol + '//res.cloudinary.com/test123/iu/test', {});
   });
+  it('Should not set default version v1 to resources stored in folders and ignore the version parameter if exclude_version is set to true', function() {
+    test_cloudinary_url('folder/test', {exclude_version:true}, protocol + '//res.cloudinary.com/test123/image/upload/folder/test', {exclude_version:true});
+    return test_cloudinary_url('sample.jpg', {exclude_version:true, version:1234}, protocol + '//res.cloudinary.com/test123/image/upload/sample.jpg', {exclude_version:true});
+  });
   it("should support url_suffix in shared distribution", function() {
     test_cloudinary_url("test", {
       url_suffix: "hello"
