@@ -84,10 +84,10 @@ module.exports = function(config) {
     autoWatch: false,
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['Chrome', 'Firefox', 'Safari', "ChromeHeadless"],
+    browsers: ['Chrome', 'Firefox', 'ChromeHeadless'],
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
     singleRun: true,
-    plugins: ['karma-jasmine', 'karma-coverage', 'karma-story-reporter', 'karma-chrome-launcher', 'karma-firefox-launcher', 'karma-safari-launcher']
+    plugins: ['karma-jasmine', 'karma-coverage', 'karma-story-reporter', 'karma-chrome-launcher', 'karma-firefox-launcher']
   });
 };

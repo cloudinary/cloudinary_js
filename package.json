@@ -45,7 +45,6 @@
     "karma-coverage": "^1.1.1",
     "karma-firefox-launcher": "^1.0.0",
     "karma-jasmine": "^1.0.2",
-    "karma-safari-launcher": "^1.0.0",
     "karma-story-reporter": "~0.3",
     "lodash": "^4.17.11",
     "lodash-cli": "^4.15.0",
