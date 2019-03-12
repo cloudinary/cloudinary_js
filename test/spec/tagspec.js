@@ -86,6 +86,14 @@ describe("Cloudinary.ImageTag", function() {
     tag = new cloudinary.ImageTag('image_id', config).toHtml();
     return expect(tag).toBe(`<img src="${DEFAULT_UPLOAD_PATH}image_id">`);
   });
+  it("should create an image tag with encoded special chars", function() {
+    let imageId = `test's special < \"characters\" >`;
+    let encodedImageId = encodeURIComponent(imageId);
+    let tag = new cloudinary.ImageTag(imageId, cloudinary.Util.assign({
+      responsive: true
+    }, config)).toHtml(); 
+    return expect(tag).toBe(`<img data-src="${DEFAULT_UPLOAD_PATH}${encodedImageId}">`);
+  });
   it("should set data-src instead of src when using responsive", function() {
     var tag;
     tag = new cloudinary.ImageTag('image_id', cloudinary.Util.assign({
@@ -189,6 +197,30 @@ describe("Cloudinary.VideoTag", function() {
     expect(tag).toBe(`<source src="${expected_url}.mp4" type="video/mp4">`);
     [videoTag, tag] = getTag(videoTag);
     return expect(tag).toBe(`<source src="${expected_url}.ogv" type="video/ogg">`);
+  });
+  it("should generate video tag with encoded special chars", function() {
+    let movieId = `test's special < \"characters\" >`;
+    let encodedMovieId = encodeURIComponent(movieId);
+    var expected_url, tag, videoTag;
+    expected_url = VIDEO_UPLOAD_PATH + encodedMovieId;
+    videoTag = new cloudinary.VideoTag(movieId, options).toHtml();
+    [videoTag, tag] = getTag(videoTag);
+    expect(tag).toBe(`<video poster="${expected_url}.jpg">`);
+    [videoTag, tag] = getTag(videoTag);
+    expect(tag).toBe(`<source src="${expected_url}.webm" type="video/webm">`);
+    [videoTag, tag] = getTag(videoTag);
+    expect(tag).toBe(`<source src="${expected_url}.mp4" type="video/mp4">`);
+    [videoTag, tag] = getTag(videoTag);
+    return expect(tag).toBe(`<source src="${expected_url}.ogv" type="video/ogg">`);
+  });
+
+  it("should create an image tag with encoded special chars", function() {
+    let imageId = `test's special < \"characters\" >`;
+    let encodedImageId = encodeURIComponent(imageId);
+    let tag = new cloudinary.ImageTag(imageId, cloudinary.Util.assign({
+      responsive: true
+    }, config)).toHtml(); 
+    return expect(tag).toBe(`<img data-src="${DEFAULT_UPLOAD_PATH}${encodedImageId}">`);
   });
   it("should generate video tag with html5 attributes", function() {
     var expected_url, tag, videoTag;
