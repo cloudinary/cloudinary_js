@@ -93,6 +93,7 @@ module.exports = function (env, argv) {
       ]
     },
     plugins: [
+      new webpack.optimize.ModuleConcatenationPlugin(),
       new webpack.BannerPlugin({
         banner: `/**
  * cloudinary-[name].js
