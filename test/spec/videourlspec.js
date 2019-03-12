@@ -16,10 +16,8 @@ describe("Cloudinary::Utils", function() {
   beforeEach(function() {
     return cl = new cloudinary.Cloudinary({
       cloud_name: "test123",
-      secure_distribution: null,
       private_cdn: false,
       secure: false,
-      cname: null,
       cdn_subdomain: false,
       api_key: "1234",
       api_secret: "b"

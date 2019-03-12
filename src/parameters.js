@@ -296,25 +296,33 @@ class LayerParam extends Param {
   // @return [string] layer transformation string
   // @private
   value() {
-    let result;
-    let layerOptions = this.origValue;
-    if (isPlainObject(layerOptions)) {
-      layerOptions = withCamelCaseKeys(layerOptions);
-      if (layerOptions.resourceType === "text" || (layerOptions.text != null)) {
-        result = new TextLayer(layerOptions).toString();
-      } else if (layerOptions.resourceType === "subtitles") {
-        result = new SubtitlesLayer(layerOptions).toString();
-      } else if (layerOptions.resourceType === "fetch" || (layerOptions.url != null)) {
-        result = new FetchLayer(layerOptions).toString();
-      } else {
-        result = new Layer(layerOptions).toString();
-      }
-    } else if (isString(layerOptions) && /^fetch:.+/.test(layerOptions)) {
-      result = new FetchLayer(layerOptions.substr(6)).toString();
-    } else {
-      result = layerOptions;
+    if (this.origValue == null) {
+      return '';
     }
-    return result;
+    let result;
+    if (this.origValue instanceof Layer) {
+      result = this.origValue;
+    } else if (isPlainObject(this.origValue)) {
+      let layerOptions = withCamelCaseKeys(this.origValue);
+      if (layerOptions.resourceType === "text" || (layerOptions.text != null)) {
+        result = new TextLayer(layerOptions);
+      } else if (layerOptions.resourceType === "subtitles") {
+        result = new SubtitlesLayer(layerOptions);
+      } else if (layerOptions.resourceType === "fetch" || (layerOptions.url != null)) {
+        result = new FetchLayer(layerOptions);
+      } else {
+        result = new Layer(layerOptions);
+      }
+    } else if (isString(this.origValue)) {
+      if (/^fetch:.+/.test(this.origValue)) {
+        result = new FetchLayer(this.origValue.substr(6));
+      } else {
+        result = this.origValue;
+      }
+    } else {
+      result = '';
+    }
+    return result.toString();
   }
 
   textStyle(layer) {

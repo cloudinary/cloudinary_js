@@ -21,10 +21,8 @@ describe("Chaining", function() {
   DEFAULT_UPLOAD_PATH = `${protocol}//res.cloudinary.com/test123/image/upload/`;
   config = {
     cloud_name: "test123",
-    secure_distribution: null,
     private_cdn: false,
     secure: false,
-    cname: null,
     cdn_subdomain: false,
     api_key: "1234",
     api_secret: "b"

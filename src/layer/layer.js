@@ -82,6 +82,10 @@ class Layer {
     return compact(components).join(":");
   }
 
+  clone() {
+    return new this.constructor(this.options);
+  }
+
 }
 
 export default Layer;
