@@ -174,6 +174,11 @@ describe('Cloudinary', function() {
     test_cloudinary_url('folder/test', {exclude_version:true}, protocol + '//res.cloudinary.com/test123/image/upload/folder/test', {exclude_version:true});
     return test_cloudinary_url('sample.jpg', {exclude_version:true, version:1234}, protocol + '//res.cloudinary.com/test123/image/upload/sample.jpg', {exclude_version:true});
   });
+  it('Should add version if options.exclude_version is falsy', function() {
+    test_cloudinary_url('folder/test', {exclude_version:null}, protocol + '//res.cloudinary.com/test123/image/upload/v1/folder/test', {exclude_version:null});
+    test_cloudinary_url('sample.jpg', {exclude_version:null, version:1234}, protocol + '//res.cloudinary.com/test123/image/upload/v1234/sample.jpg', {exclude_version:null});
+    return test_cloudinary_url('v1234/test', {exclude_version:null}, protocol + '//res.cloudinary.com/test123/image/upload/v1234/test', {exclude_version:null});
+  });
   it("should support url_suffix in shared distribution", function() {
     test_cloudinary_url("test", {
       url_suffix: "hello"
