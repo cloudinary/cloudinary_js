@@ -240,13 +240,11 @@ function toAttribute(key, value) {
   }
 }
 
-function escapeQuotes(obj){
-  Object.keys(obj).forEach(key=>{
-    if (typeof  obj[key] === "string") {
-      obj[key] = (obj[key].replace('"', '&#34;').replace("'", '&#39;'));
-    }
-  });
-  return obj;
+function escapeQuotes(obj) {
+    return Object.keys(obj).map(key => utils.isString(obj[key]) ?
+        obj[key].replace('"', '&#34;').replace("'", '&#39;')
+        : obj[key]
+    );
 }
 
 export default HtmlTag;
