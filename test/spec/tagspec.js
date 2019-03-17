@@ -86,6 +86,14 @@ describe("Cloudinary.ImageTag", function() {
     tag = new cloudinary.ImageTag('image_id', config).toHtml();
     return expect(tag).toBe(`<img src="${DEFAULT_UPLOAD_PATH}image_id">`);
   });
+  it("should escape quotes in html attributes", function() {
+    var tag;
+    tag = new cloudinary.ImageTag('image_id', {
+      'cloud_name': 'test123',
+      alt: "asdfg\"'asdf"
+    }).toHtml();
+    return expect(tag).toBe(`<img alt="asdfg&#34;&#39;asdf" src="${DEFAULT_UPLOAD_PATH}image_id">`);
+  });
   it("should set data-src instead of src when using responsive", function() {
     var tag;
     tag = new cloudinary.ImageTag('image_id', cloudinary.Util.assign({

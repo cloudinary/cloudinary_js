@@ -118,7 +118,7 @@ var HtmlTag = class HtmlTag {
       delete htmlAttributes.attributes;
     }
 
-    return htmlAttributes;
+    return escapeQuotes(htmlAttributes);
   }
 
   /**
@@ -238,6 +238,15 @@ function toAttribute(key, value) {
   } else {
     return `${key}="${value}"`;
   }
+}
+
+function escapeQuotes(obj){
+  Object.keys(obj).forEach(key=>{
+    if (typeof  obj[key] === "string") {
+      obj[key] = (obj[key].replace('"', '&#34;').replace("'", '&#39;'));
+    }
+  });
+  return obj;
 }
 
 export default HtmlTag;
