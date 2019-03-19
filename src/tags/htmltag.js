@@ -8,7 +8,8 @@ import {
   isFunction,
   getData,
   hasClass,
-  merge
+  merge,
+  isString
 } from '../util';
 
 import Transformation from '../transformation';
@@ -240,11 +241,19 @@ function toAttribute(key, value) {
   }
 }
 
+/**
+ * Replaces quotes with character entities (&#34;, &#39;)
+ * Mutates given object and returns it
+ * @param obj - key-value object
+ * @returns {*} key-value object with replaced values
+ */
 function escapeQuotes(obj) {
-    return Object.keys(obj).map(key => utils.isString(obj[key]) ?
-        obj[key].replace('"', '&#34;').replace("'", '&#39;')
-        : obj[key]
-    );
+  Object.keys(obj).forEach(key => {
+    if (isString(obj[key])) {
+      obj[key] = obj[key].replace('"', '&#34;').replace("'", '&#39;');
+    }
+  });
+  return obj;
 }
 
 export default HtmlTag;
