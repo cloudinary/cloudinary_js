@@ -13,7 +13,9 @@
     "dist": "node_modules/.bin/webpack && node_modules/.bin/webpack --mode production",
     "test": "node_modules/.bin/karma start karma.cloudinary-core.js --single-run --browsers=ChromeHeadless",
     "test:all": "for config in core jquery jquery-file-upload; do node_modules/.bin/karma start karma.cloudinary-${config}.js --single-run}; done",
-    "compile-ts": "node_modules/.bin/tsc"
+    "compile-ts": "node_modules/.bin/tsc",
+    "dist-test": "npm run dist",
+    "postdist-test": "npm run test"
   },
   "repository": {
     "type": "git",
