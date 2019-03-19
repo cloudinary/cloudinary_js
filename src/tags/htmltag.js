@@ -70,7 +70,7 @@ var HtmlTag = class HtmlTag {
       var results;
       results = [];
       for (key in attrs) {
-        value = attrs[key];
+        value = escapeQuotes(attrs[key]);
         if (value) {
           results.push(toAttribute(key, value));
         }
@@ -119,7 +119,7 @@ var HtmlTag = class HtmlTag {
       delete htmlAttributes.attributes;
     }
 
-    return escapeQuotes(htmlAttributes);
+    return htmlAttributes;
   }
 
   /**
@@ -242,18 +242,12 @@ function toAttribute(key, value) {
 }
 
 /**
- * Replaces quotes with character entities (&#34;, &#39;)
- * Mutates given object and returns it
- * @param obj - key-value object
- * @returns {*} key-value object with replaced values
+ * If given value is a string, replaces quotes with character entities (&#34;, &#39;)
+ * @param value - value to change
+ * @returns {*} changed value
  */
-function escapeQuotes(obj) {
-  Object.keys(obj).forEach(key => {
-    if (isString(obj[key])) {
-      obj[key] = obj[key].replace('"', '&#34;').replace("'", '&#39;');
-    }
-  });
-  return obj;
+function escapeQuotes(value) {
+  return isString(value) ? value.replace('"', '&#34;').replace("'", '&#39;') : value;
 }
 
 export default HtmlTag;
