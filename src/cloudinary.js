@@ -591,5 +591,5 @@ var Cloudinary = class Cloudinary {
   }
 
 };
-Object.assign(Cloudinary, constants);
+assign(Cloudinary, constants);
 export default Cloudinary;
