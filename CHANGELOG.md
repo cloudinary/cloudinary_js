@@ -1,4 +1,24 @@
 
+2.6.3 / 2019-04-02
+==================
+
+
+New functionality and features
+------------------------------
+
+  * Add support for composite radius params
+ 
+Other Changes
+-------------
+
+  * Replace `object.assign` with `util.assign` (#169)
+  * Escape quotes in html attributes (#166)
+  * Remove Safari from automated tests
+  * Fix test:all script
+  * Implement isEmpty, isString and fix default function values
+  * Update `.jshintrc to support ES6
+  * Add "join the Community"
+
 2.6.2 / 2019-02-01
 ==================
 
@@ -46,7 +66,7 @@ New functionality and features
   * Add picture tag and source tag
   * Add support to `fps` transformation parameter (#139)
   * Replaced CoffeeScript with JavaScript
-  * Refactor code as modules
+  * Refactor code as modules 
 
 Other Changes
 -------------
