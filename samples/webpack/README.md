@@ -1,6 +1,6 @@
 # Webpack sample
 
-This example demostrate the use of the Cloudinary JavaScript library in webpack.
+This example demonstrate the use of the Cloudinary JavaScript library in webpack.
 
 ## Instructions
 1. Install webpack
