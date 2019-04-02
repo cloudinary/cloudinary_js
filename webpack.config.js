@@ -1,76 +1,83 @@
-var path = require('path');
-var TerserPlugin = require('terser-webpack-plugin');
-var webpack = require('webpack');
-var fs = require('fs');
-var pkg = require('./package.json');
+const path = require('path');
+const TerserPlugin = require('terser-webpack-plugin');
+const webpack = require('webpack');
+const fs = require('fs');
+const version = require('./package.json').version;
+const Visualizer = require('webpack-visualizer-plugin');
+
 // Create a list of Class names to preserve when minifying
-var namespace = fs.readFileSync('./src/namespace/cloudinary-jquery-file-upload.js').toString();
-var reserved = namespace.match(/(\w+)(?= from)/g);
+const namespace = fs.readFileSync('./src/namespace/cloudinary-jquery-file-upload.js').toString();
+const reserved = namespace.match(/(\w+)(?= from)/g);
 
-// Create a list of lodash modules to exclude from the bundle
-var lodashUtil= fs.readFileSync('./src/util/lodash.js').toString();
-var lodashExternals = lodashUtil.match(/lodash\/\w+/g);
-lodashExternals = lodashExternals.reduce((map, lib) => {
-    map[lib] = {
-      commonjs: lib,
-      commonjs2: lib,
-      amd: lib,
-      root: ['_', lib.split('/')[1]]
-    };
-    return map;
-  }, {}
-);
+/**
+ * Determine the build mode.
+ * @param {object} env - webpack environment
+ * @param {boolean} [env.production] - when true, set mode to production
+ * @param {boolean} [env.development] - when true, set mode to development
+ * @param {object} argv - webpack options
+ * @param {string} [argv.mode] - the build mode
+ */
+function getMode(env, argv) {
+  // When running from parallel-webpack, grab the cli parameters
+  argv = Object.keys(argv).length ? argv : require('minimist')(process.argv.slice(2));
+  var isProd = (argv.mode || env.mode) === 'production' || env === 'prod' || env.prod;
+  return isProd ? 'production' : 'development';
+}
 
-module.exports = function (env, argv) {
-  var isProd = argv.mode === 'production' || env === 'prod' || env && env.prod;
-  var mode = isProd ? 'production' : 'development';
-  console.log(`Building for ${mode}`);
-  var baseConfig = (name, entry, util) => ({
-    name,
+/**
+ * This function is used by webpack to resolve individual lodash modules
+ * @param context
+ * @param request
+ * @param callback
+ */
+function resolveLodash(context, request, callback) {
+  if (/^lodash\//.test(request)) {
+    callback(null, {
+      commonjs: request,
+      commonjs2: request,
+      amd: request,
+      root: ['_', request.split('/')[1]]
+    });
+  } else {
+    callback();
+  }
+}
+
+
+/**
+ * Generate a webpack configuration
+ * @param {string} name the name of the package
+ * @param {string} mode either development or production
+ * @return {object} webpack configuration
+ */
+function baseConfig(name, mode) {
+  const config = {
+    name: `${name}-${mode}`,
     mode,
-    entry: {
-      [name]: entry
-    },
     output: {
       library: 'cloudinary',
       libraryTarget: 'umd',
       globalObject: "this",
-      filename: `./cloudinary-[name]${isProd ? '.min' : ''}.js`,
       pathinfo: false
     },
     optimization: {
       minimizer: [new TerserPlugin({
-        terserOptions :{
-          mangle:{
-          keep_classnames: true,
+        terserOptions: {
+          mangle: {
+            keep_classnames: true,
             reserved: reserved,
-          ie8: true
+            ie8: true
           },
           concatenateModules: true
         },
       })]
     },
     resolve: {
-      extensions: ['.js'],
-      alias: {
-        "../util$": path.resolve(__dirname, `src/util/${util}`),
-        "./util$": path.resolve(__dirname, `src/util/${util}`)
-      }
+      extensions: ['.js']
     },
-    externals: [{
-      jquery: 'jQuery',
-      lodash: {
-        commonjs: 'lodash',
-        amd: 'lodash',
-        root: '_' // indicates global variable
-      }},
-      lodashExternals,
-      function (context, request, callback) {
-        if (/^lodash\//.test(request)) {
-          callback(null, request.split('/'), 'amd')
-        } else {
-          callback()
-        }
+    externals: [
+      {
+        jquery: 'jQuery'
       }
     ],
     node: {
@@ -95,30 +102,55 @@ module.exports = function (env, argv) {
     plugins: [
       new webpack.BannerPlugin({
         banner: `/**
- * cloudinary-[name].js
- * Cloudinary's JavaScript library - Version ${pkg.version}
- * Copyright Cloudinary
- * see https://github.com/cloudinary/cloudinary_js
- *
- */`, // the banner as string or function, it will be wrapped in a comment
+   * cloudinary-[name].js
+   * Cloudinary's JavaScript library - Version ${version}
+   * Copyright Cloudinary
+   * see https://github.com/cloudinary/cloudinary_js
+   *
+   */`, // the banner as string or function, it will be wrapped in a comment
         raw: true, // if true, banner will not be wrapped in a comment
         entryOnly: true, // if true, the banner will only be added to the entry chunks
       })
     ]
-  });
+  };
 
+  let filename = `cloudinary-${name}`;
+  if(mode === 'production') { filename += '.min';}
 
-  return [
-    baseConfig("core", './src/namespace/cloudinary-core.js', "lodash"),
-    baseConfig("jquery", './src/namespace/cloudinary-jquery.js', "jquery"),
-    baseConfig("jquery-file-upload", './src/namespace/cloudinary-jquery-file-upload.js', "jquery"),
-    Object.assign(
-      baseConfig("core-shrinkwrap", './src/namespace/cloudinary-core.js', "lodash"),
-      {
-        externals: {
-          jquery: 'jQuery'
-        }
-      }
-    )
-  ];
-};
+  const util = name.startsWith('jquery') ? 'jquery' : 'lodash';
+  const utilPath = path.resolve(__dirname, `src/util/${util}`);
+
+  config.output.filename = `./${filename}.js`;
+  config.entry = `./src/namespace/cloudinary-${name}.js`;
+  config.resolve.alias = {
+    "../util$": utilPath,
+    "./util$": utilPath
+  };
+  // Add reference to each lodash function as a separate module.
+  if (name === 'core') {
+    config.externals.push(resolveLodash);
+  }
+  config.plugins.push(
+    new Visualizer({
+      filename: `./${filename}-visualizer.html`
+    })
+  );
+  return config;
+}
+
+const names = [
+  "core",
+  "jquery",
+  "jquery-file-upload",
+  "core-shrinkwrap"
+];
+const modes = [
+  'production',
+  'development'
+];
+
+module.exports = names.reduce(
+  (configs, name)=> configs.concat(
+    modes.map(mode=> baseConfig(name, mode))
+  ), []
+);

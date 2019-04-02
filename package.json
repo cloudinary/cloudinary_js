@@ -10,11 +10,15 @@
     "src/**/*"
   ],
   "scripts": {
-    "dist": "node_modules/.bin/webpack && node_modules/.bin/webpack --mode production",
-    "build": "node_modules/.bin/webpack && node_modules/.bin/webpack --mode production",
-    "test": "node_modules/.bin/karma start karma.cloudinary-core.js --single-run --browsers=ChromeHeadless",
-    "test:all": "for config in core jquery jquery-file-upload; do node_modules/.bin/karma start karma.cloudinary-${config}.js --single-run}; done",
-    "compile-ts": "node_modules/.bin/tsc"
+    "build": "npx parallel-webpack",
+    "test": "npx karma start --single-run --browsers=ChromeHeadless",
+    "test:all": "for pkg in core jquery jquery-file-upload; do node_modules/.bin/karma start --single-run --cloudinary.pkg=${pkg}; done",
+    "test:all:prod": "for pkg in core jquery jquery-file-upload; do node_modules/.bin/karma start --single-run --cloudinary.minified --cloudinary.pkg=${pkg}; done",
+    "test:build": "npm run test",
+    "test:types": "node_modules/.bin/tsc",
+    "pretest:all": "npm run build",
+    "pretest:all:prod": "npm run build",
+    "pretest:build": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -27,10 +31,10 @@
   },
   "homepage": "https://github.com/cloudinary/cloudinary_js",
   "devDependencies": {
-    "@babel/cli": "^7.2.3",
-    "@babel/core": "^7.2.2",
-    "@babel/plugin-proposal-object-rest-spread": "^7.3.1",
-    "@babel/preset-env": "^7.3.1",
+    "@babel/cli": "^7.4.3",
+    "@babel/core": "^7.4.3",
+    "@babel/plugin-proposal-object-rest-spread": "^7.4.3",
+    "@babel/preset-env": "^7.4.3",
     "babel-loader": "^8.0.5",
     "babel-minify": "^0.5.0",
     "blueimp-file-upload": "^9.28.0",
@@ -38,7 +42,7 @@
     "clean-webpack-plugin": "^1.0.1",
     "jasmine": "^2.5.3",
     "jasmine-core": "~2.5",
-    "jquery": "^3.2.1",
+    "jquery": "^3.4.0",
     "jsdom": "^9.12.0",
     "karma": "^1.7.1",
     "karma-babel-preprocessor": "^8.0.0-beta.0",
@@ -49,12 +53,14 @@
     "karma-story-reporter": "~0.3",
     "lodash": "^4.17.11",
     "lodash-cli": "^4.15.0",
+    "parallel-webpack": "^2.3.0",
     "requirejs": "^2.3.6",
     "terser-webpack-plugin": "^1.2.1",
     "typescript": "^2.5.2",
-    "webpack": "^4.29.0",
-    "webpack-bundle-analyzer": "^3.0.3",
-    "webpack-cli": "^3.2.1"
+    "webpack": "^4.30.0",
+    "webpack-bundle-analyzer": "^3.3.2",
+    "webpack-cli": "^3.3.0",
+    "webpack-visualizer-plugin": "^0.1.11"
   },
   "dependencies": {}
 }
