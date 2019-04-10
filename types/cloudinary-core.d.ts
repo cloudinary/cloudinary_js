@@ -540,6 +540,8 @@ export class TextLayer extends Layer {
     fontSize(value: number): TextLayer;
     fontWeight(value: string): TextLayer;
     fontStyle(value: string): TextLayer;
+    fontHinting(value: string): TextLayer;
+    fontAntiAliasing(value: string): TextLayer;
     textDecoration(value: string): TextLayer;
     textAlign(value: string): TextLayer;
     stroke(value: string): TextLayer;
@@ -558,6 +560,8 @@ export namespace TextLayer {
         fontSize?: number;
         fontWeight?: string;
         fontStyle?: string;
+        fontHinting?: string;
+        fontAntialiasing?: string;
         textDecoration?: string;
         textAlign?: string;
         stroke?: string;
