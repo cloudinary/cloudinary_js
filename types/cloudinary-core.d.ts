@@ -513,6 +513,21 @@ export namespace Layer {
         format?: string;
     }
 }
+
+export class FetchLayer extends Layer {
+    constructor(options?: FetchLayer.Options);
+
+    /** setters */
+    url(url: string): FetchLayer;
+    toString(): string;
+}
+
+export namespace FetchLayer {
+    export interface Options {
+        url?: string
+    }
+}
+
 /**
  * @constructor TextLayer
  * @param {Object} options - layer parameters
@@ -791,19 +806,21 @@ export class Cloudinary {
 }
 
 declare let _default: {
-    Cloudinary: Cloudinary, 
-    Util: Util, 
-    Configuration: Configuration, 
-    Transformation: Transformation, 
-    ImageTag: ImageTag, 
-    PictureTag: PictureTag, 
-    VideoTag: VideoTag, 
-    Condition: Condition, 
-    Layer: Layer, 
-    TextLayer: TextLayer, 
+    ClientHintsMetaTag: ClientHintsMetaTag,
+    Cloudinary: Cloudinary,
+    Condition: Condition,
+    Configuration: Configuration,
+    FetchLayer: FetchLayer,
     HtmlTag: HtmlTag,
-    ClientHintsMetaTag: ClientHintsMetaTag, 
-    Param: Param
+    ImageTag: ImageTag,
+    Layer: Layer,
+    Param: Param,
+    PictureTag: PictureTag,
+    SubtitlesLayer: SubtitlesLayer,
+    TextLayer: TextLayer,
+    Transformation: Transformation,
+    Util: Util,
+    VideoTag: VideoTag
 }
 
 export default _default;
