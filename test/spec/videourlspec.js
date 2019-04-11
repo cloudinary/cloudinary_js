@@ -28,22 +28,20 @@ describe("Cloudinary::Utils", function() {
   root_path = `${protocol}//res.cloudinary.com/test123`;
   upload_path = `${root_path}/video/upload`;
   describe("cloudinary_url", function() {
-    var i, len, long, ref, short;
     describe(":fps", function() {
-      var i, len, name, params, range, results, subject, test, url_param;
-      subject = function(options) {
+      let subject = function(options) {
         return cl.url("fps", options);
       };
-      params = [['string range', 'fps_24-29.97', '24-29.97'], ['integer', 'fps_24', 24], ['array', 'fps_24-29.97', [24, 29.97]], ['range', 'fps_-24', -24], ['float', 'fps_24.5', 24.5]];
-      results = [];
-      for (i = 0, len = params.length; i < len; i++) {
-        test = params[i];
+      let params = [['string range', 'fps_24-29.97', '24-29.97'], ['integer', 'fps_24', 24], ['array', 'fps_24-29.97', [24, 29.97]], ['range', 'fps_-24', -24], ['float', 'fps_24.5', 24.5]];
+      let results = [];
+      for (let i = 0; i < params.length; i++) {
+        let test = params[i];
         var name, url_param, range;
         [name, url_param, range] = test;
         results.push((function(name, url_param, range) {
           return describe(`when provided with ${name} ${range}`, function() {
             return it(`should produce a range transformation in the format of ${url_param}`, function() {
-              var options;
+              let options;
               options = {
                 resource_type: 'video',
                 fps: range
@@ -123,40 +121,41 @@ describe("Cloudinary::Utils", function() {
         }, `${upload_path}/vs_2.3s/video_id`, {});
       });
     });
-    ref = {
+    describe(":start_offset", function() {
+      it('should support auto as a valid start_offset', function() {
+        test_cloudinary_url("video_id", {
+          resource_type: 'video',
+          start_offset: 'auto'
+        }, `${upload_path}/so_auto/video_id`, {});
+      });
+    });
+
+    const TIME_PARAMS = {
       so: 'start_offset',
       eo: 'end_offset',
       du: 'duration'
     };
-    for (long = i = 0, len = ref.length; i < len; long = ++i) {
-      short = ref[long];
+
+    Object.keys(TIME_PARAMS).forEach(function(short){
+      let long = TIME_PARAMS[short];
       describe(`:${long}`, function() {
         it("should support decimal seconds ", function() {
-          var op;
-          op = {
-            resource_type: 'video'
-          };
+          let op = { resource_type: 'video'};
           op[long] = 2.63;
-          return test_cloudinary_url("video_id", op, `${upload_path}/${short}_2.63/video_id`, {});
+          test_cloudinary_url("video_id", op, `${upload_path}/${short}_2.63/video_id`, {});
         });
         it('should support percents of the video length as "<number>p"', function() {
-          var op;
-          op = {
-            resource_type: 'video'
-          };
-          return op[long] = '35p';
+          let op = { resource_type: 'video'};
+          op[long] = '35p';
+          test_cloudinary_url("video_id", op, `${upload_path}/${short}_35p/video_id`, {});
         });
-        test_cloudinary_url("video_id", op, `${upload_path}/${short}_35p/video_id`, {});
         it('should support percents of the video length as "<number>%"', function() {
-          var op;
-          op = {
-            resource_type: 'video'
-          };
-          return op[long] = '35%';
+          let op = { resource_type: 'video'};
+          op[long] = '35%';
+          test_cloudinary_url("video_id", op, `${upload_path}/${short}_35p/video_id`, {});
         });
-        return test_cloudinary_url("video_id", op, `${upload_path}/${short}_35p/video_id`, {});
       });
-    }
+    });
     describe(":offset", function() {
       var j, len1, name, params, range, results, subject, test, url_param;
       subject = function(options) {

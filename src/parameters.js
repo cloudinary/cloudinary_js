@@ -240,7 +240,11 @@ var TransformationParam = class TransformationParam extends Param {
 
 };
 
+const number_pattern = "([0-9]*)\\.([0-9]+)|([0-9]+)";
+const offset_any_pattern = "(" + number_pattern + ")([%pP])?";
+
 var RangeParam = class RangeParam extends Param {
+
   /**
    * A parameter that represents a range
    * @param {string} name - The name of the parameter in snake_case
@@ -251,16 +255,14 @@ var RangeParam = class RangeParam extends Param {
    * @extends Param
    * @ignore
    */
-  constructor(name, shortName, process) {
+  constructor(name, shortName, process = RangeParam.norm_range_value) {
     super(name, shortName, process);
-    this.process || (this.process = this.norm_range_value);
   }
-
   static norm_range_value(value) {
-    var modifier, offset;
-    offset = String(value).match(new RegExp('^' + offset_any_pattern + '$'));
+
+    let offset = String(value).match(new RegExp('^' + offset_any_pattern + '$'));
     if (offset) {
-      modifier = offset[5] != null ? 'p' : '';
+      let modifier = offset[5] != null ? 'p' : '';
       value = (offset[1] || offset[4]) + modifier;
     }
     return value;

@@ -113,7 +113,7 @@ var TransformationBase = class TransformationBase {
     // a private member of `TransformationBase`
 
     /** @protected */
-    this.param = function (value, name, abbr, defaultValue, process) {
+    this.param = function (value, name, abbr, defaultValue = undefined, process = undefined) {
       if (process == null) {
         if (isFunction(defaultValue)) {
           process = defaultValue;
@@ -125,25 +125,25 @@ var TransformationBase = class TransformationBase {
       return this;
     };
     /** @protected */
-    this.rawParam = function (value, name, abbr, defaultValue, process = identity) {
+    this.rawParam = function (value, name, abbr, defaultValue = undefined, process = undefined) {
       process = lastArgCallback(arguments);
       trans[name] = new RawParam(name, abbr, process).set(value);
       return this;
     };
     /** @protected */
-    this.rangeParam = function (value, name, abbr, defaultValue, process = identity) {
+    this.rangeParam = function (value, name, abbr, defaultValue = undefined, process = undefined) {
       process = lastArgCallback(arguments);
       trans[name] = new RangeParam(name, abbr, process).set(value);
       return this;
     };
     /** @protected */
-    this.arrayParam = function (value, name, abbr, sep = ":", defaultValue = [], process = identity) {
+    this.arrayParam = function (value, name, abbr, sep = ":", defaultValue = [], process = undefined) {
       process = lastArgCallback(arguments);
       trans[name] = new ArrayParam(name, abbr, sep, process).set(value);
       return this;
     };
     /** @protected */
-    this.transformationParam = function (value, name, abbr, sep = ".", defaultValue, process = identity) {
+    this.transformationParam = function (value, name, abbr, sep = ".", defaultValue = undefined, process = undefined) {
       process = lastArgCallback(arguments);
       trans[name] = new TransformationParam(name, abbr, sep, process).set(value);
       return this;
