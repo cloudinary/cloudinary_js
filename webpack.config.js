@@ -61,14 +61,16 @@ function baseConfig(name, mode) {
       pathinfo: false
     },
     optimization: {
+      concatenateModules: true,
+      moduleIds: 'named',
+      usedExports: true,
       minimizer: [new TerserPlugin({
         terserOptions: {
           mangle: {
             keep_classnames: true,
             reserved: reserved,
             ie8: true
-          },
-          concatenateModules: true
+          }
         },
       })]
     },
@@ -90,12 +92,7 @@ function baseConfig(name, mode) {
         {
           test: /\.m?js$/,
           exclude: /(node_modules|bower_components)/,
-          use: {
-            loader: 'babel-loader',
-            options: {
-              presets: ['@babel/preset-env']
-            }
-          }
+          use: {loader: 'babel-loader'}
         }
       ]
     },
