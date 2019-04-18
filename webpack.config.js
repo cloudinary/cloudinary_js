@@ -3,7 +3,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 const webpack = require('webpack');
 const fs = require('fs');
 const version = require('./package.json').version;
-const Visualizer = require('webpack-visualizer-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 // Create a list of Class names to preserve when minifying
 const namespace = fs.readFileSync('./src/namespace/cloudinary-jquery-file-upload.js').toString();
@@ -131,8 +131,10 @@ function baseConfig(name, mode) {
     config.externals.push(resolveLodash);
   }
   config.plugins.push(
-    new Visualizer({
-      filename: `./${filename}-visualizer.html`
+    new BundleAnalyzerPlugin({
+      analyzerMode: 'static',
+      reportFilename: `./${filename}-visualizer.html`,
+      openAnalyzer: false
     })
   );
   return config;

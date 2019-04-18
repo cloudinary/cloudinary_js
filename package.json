@@ -14,11 +14,10 @@
     "test": "npx karma start --single-run --browsers=ChromeHeadless",
     "test:all": "for pkg in core jquery jquery-file-upload; do node_modules/.bin/karma start --single-run --cloudinary.pkg=${pkg}; done",
     "test:all:prod": "for pkg in core jquery jquery-file-upload; do node_modules/.bin/karma start --single-run --cloudinary.minified --cloudinary.pkg=${pkg}; done",
-    "test:build": "npm run test",
     "test:types": "node_modules/.bin/tsc",
+    "pretest": "npm run build",
     "pretest:all": "npm run build",
-    "pretest:all:prod": "npm run build",
-    "pretest:build": "npm run build"
+    "pretest:all:prod": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -59,8 +58,7 @@
     "typescript": "^2.5.2",
     "webpack": "^4.30.0",
     "webpack-bundle-analyzer": "^3.3.2",
-    "webpack-cli": "^3.3.0",
-    "webpack-visualizer-plugin": "^0.1.11"
+    "webpack-cli": "^3.3.0"
   },
   "dependencies": {}
 }
