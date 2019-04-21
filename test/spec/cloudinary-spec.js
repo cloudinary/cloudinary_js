@@ -158,6 +158,14 @@ describe('Cloudinary', function() {
   });
   it('should add version if public_id contains /', function() {
     test_cloudinary_url('folder/test', {}, protocol + '//res.cloudinary.com/test123/image/upload/v1/folder/test', {});
+    test_cloudinary_url('folder/test', {
+      version: 123,
+      force_version:false
+    }, protocol + '//res.cloudinary.com/test123/image/upload/v123/folder/test', {force_version:false});
+    test_cloudinary_url('folder/test', {
+      version: 123,
+      force_version:true
+    }, protocol + '//res.cloudinary.com/test123/image/upload/v123/folder/test', {force_version:true});
     return test_cloudinary_url('folder/test', {
       version: 123
     }, protocol + '//res.cloudinary.com/test123/image/upload/v123/folder/test', {});
@@ -169,6 +177,10 @@ describe('Cloudinary', function() {
     return test_cloudinary_url('test', {
       shorten: true
     }, protocol + '//res.cloudinary.com/test123/iu/test', {});
+  });
+  it('Should not set default version if force_version is set to false', function() {
+    test_cloudinary_url('folder/test', {force_version:false}, protocol + '//res.cloudinary.com/test123/image/upload/folder/test', {force_version:false});
+    return test_cloudinary_url('sample.jpg', {force_version:false}, protocol + '//res.cloudinary.com/test123/image/upload/sample.jpg', {force_version:false});
   });
   it("should support url_suffix in shared distribution", function() {
     test_cloudinary_url("test", {
