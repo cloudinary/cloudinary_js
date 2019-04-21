@@ -159,7 +159,7 @@ export default function url(publicId, options = {}, config = {}) {
     throw 'Unknown cloud_name';
   }
   // if publicId has a '/' and doesn't begin with v<number> and doesn't start with http[s]:/ and version is empty and force_version is truthy or undefined
-  if (publicId.search('/') >= 0 && !publicId.match(/^v[0-9]+/) && !publicId.match(/^https?:\//) && !((ref = options.version) != null ? ref.toString() : void 0) && (options.force_version || typeof options.force_version === 'undefined')) {
+  if ((options.force_version || typeof options.force_version === 'undefined') && publicId.search('/') >= 0 && !publicId.match(/^v[0-9]+/) && !publicId.match(/^https?:\//) && !((ref = options.version) != null ? ref.toString() : void 0)) {
       options.version = 1;
   }
   if (publicId.match(/^https?:/)) {
