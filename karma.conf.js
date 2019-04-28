@@ -69,10 +69,12 @@ module.exports = function(config) {
       ...testFiles(pkg),
       {
         pattern: [
-          `{dist/*.map`,
+          '{', // keep this first
+          `dist/*.map`,
           responsiveHtmlFile,
           `node_modules/bootstrap/dist/+(css|js)/*`,
-          `test/docRoot/css/logo-nav.css}`
+          `test/docRoot/css/logo-nav.css`,
+          '}' // keep this last
         ].join(','),
         watched: false,
         included: false,
