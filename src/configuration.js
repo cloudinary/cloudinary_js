@@ -1,5 +1,5 @@
 /**
- * Cloudinary configuration class
+ * Class for defining account configuration options.
  * Depends on 'utils'
  */
 
@@ -12,13 +12,15 @@ import {
 } from './util';
 
 /**
- * Defaults configuration.
+ * Default configuration.
  */
 var Configuration = class Configuration {
   /**
-   * Cloudinary configuration class
+   * Class for defining account configuration options.
    * @constructor Configuration
-   * @param {Object} options - configuration parameters
+   * @param {Object} options - The account configuration parameters to set. 
+   * @see <a href="https://cloudinary.com/documentation/solution_overview#configuration_parameters" 
+   *  target="_new">Available configuration options</a>
    */
   constructor(options) {
     this.configuration = options == null ? {} : cloneDeep(options);
@@ -26,10 +28,13 @@ var Configuration = class Configuration {
   }
 
   /**
-   * Initialize the configuration.
-   * The function first tries to retrieve the configuration form the environment and then from the document.
+   * Initializes the configuration. This method is a convenience method that invokes both 
+   *  {@link Configuration#fromEnvironment|fromEnvironment()} (Node.js environment only) 
+   *  and {@link Configuration#fromDocument|fromDocument()}. 
+   *  It first tries to retrieve the configuration from the environment variable. 
+   *  If not available, it tries from the document meta tags. 
    * @function Configuration#init
-   * @return {Configuration} returns this for chaining
+   * @return {Configuration} returns `this` for chaining
    * @see fromDocument
    * @see fromEnvironment
    */

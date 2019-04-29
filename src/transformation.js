@@ -404,7 +404,7 @@ var TransformationBase = class TransformationBase {
   }
 
   /**
-   * Returns attributes for an HTML tag.
+   * Returns the attributes for an HTML tag.
    * @function Cloudinary.toHtmlAttributes
    * @return PlainObject
    */
@@ -520,15 +520,19 @@ function processVar(varArray) {
  */
 var Transformation = class Transformation extends TransformationBase {
   /**
-   *  Represents a single transformation.
-   *  @class Transformation
-   *  @example
-   *  t = new cloudinary.Transformation();
+   * Represents a single transformation.
+   * @class Transformation
+   * @example
+   * t = new cloudinary.Transformation();
    * t.angle(20).crop("scale").width("auto");
    *
    * // or
    *
    * t = new cloudinary.Transformation( {angle: 20, crop: "scale", width: "auto"});
+   * @see <a href="https://cloudinary.com/documentation/image_transformation_reference" 
+   *  target="_blank">Available image transformations</a>
+   * @see <a href="https://cloudinary.com/documentation/video_transformation_reference" 
+   *  target="_blank">Available video transformations</a>
    */
   constructor(options) {
     super(options);

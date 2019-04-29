@@ -35,11 +35,16 @@ function cdnSubdomainNumber(publicId) {
   return crc32(publicId) % 5 + 1;
 }
 
-//  * cdn_subdomain - Boolean (default: false). Whether to automatically build URLs with multiple CDN sub-domains. See this blog post for more details.
-//  * private_cdn - Boolean (default: false). Should be set to true for Advanced plan's users that have a private CDN distribution.
-//  * secure_distribution - The domain name of the CDN distribution to use for building HTTPS URLs. Relevant only for Advanced plan's users that have a private CDN distribution.
-//  * cname - Custom domain name to use for building HTTP URLs. Relevant only for Advanced plan's users that have a private CDN distribution and a custom CNAME.
-//  * secure - Boolean (default: false). Force HTTPS URLs of images even if embedded in non-secure HTTP pages.
+/**
+* cdn_subdomain - Boolean (default: false). Whether to automatically build URLs with multiple CDN sub-domains.</br>
+* private_cdn - Boolean (default: false). Should be set to true for Advanced plan's users
+*  that have a private CDN distribution.</br>
+* secure_distribution - The domain name of the CDN distribution to use for building HTTPS URLs.
+*  Relevant only for Advanced plan's users that have a private CDN distribution.</br>
+* cname - Custom domain name to use for building HTTP URLs. Relevant only for Advanced plan's users
+*  that have a private CDN distribution and a custom CNAME.</br>
+* secure - Boolean (default: false). Force HTTPS URLs of images even if embedded in non-secure HTTP pages.</br>
+*/
 function cloudinaryUrlPrefix(publicId, options) {
   var cdnPart, host, path, protocol, ref, subdomain;
   if (((ref = options.cloud_name) != null ? ref.indexOf("/") : void 0) === 0) {
@@ -130,15 +135,30 @@ function finalizeResourceType(resourceType = "image", type = "upload", urlSuffix
 }
 
 /**
- * Generate an resource URL.
+ * Generates a URL for any asset in your Media library.
  * @function Cloudinary#url
- * @param {string} publicId - the public ID of the resource
- * @param {Object} [options] - options for the tag and transformations, possible values include all {@link Transformation} parameters
- *                          and {@link Configuration} parameters
- * @param {string} [options.type='upload'] - the classification of the resource
- * @param {Object} [options.resource_type='image'] - the type of the resource
- * @param {Object} [config] URL configuration
- * @return {string} The resource URL
+ * @param {string} publicId - The public ID of the media asset.
+ * @param {Object} [options] - The {@link Transformation} parameters to include in the URL.
+ * @param {string} [options.type='upload'] - The asset's storage type. <p>Possible values:<br/>
+ *  - `upload`<br/>
+ *  - `private`<br/>
+ *  - `authenticated`<br/>
+ *  - `sprite`<br/>
+ *  - `fetch`<br/>
+ *  - A social media fetch type (Ex: `facebook`, `twitter`) <br/>
+ *  - A video thumbnail fetch type (Ex: `youtube`, `vimeo`).<br/>  
+ *  For details on all fetch types, see 
+ * <a href="https://cloudinary.com/documentation/image_transformations#fetching_images_from_remote_locations"
+ *  target="_blank">Fetch types</a>. 
+ * @param {Object} [options.resource_type='image'] - The type of asset. <p>Possible values:<br/> 
+ *  - `image`<br/>
+ *  - `video`<br/>
+ *  - `raw` 
+ * @return {string} The media asset URL.
+ * @see <a href="https://cloudinary.com/documentation/image_transformation_reference" target="_blank">
+ *  Available image transformations</a>
+ * @see <a href="https://cloudinary.com/documentation/video_transformation_reference" target="_blank">
+ *  Available video transformations</a>   
  */
 export default function url(publicId, options = {}, config = {}) {
   var error, prefix, ref, resourceTypeAndType, transformation, transformationString, url, version;
