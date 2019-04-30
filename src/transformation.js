@@ -504,6 +504,14 @@ function processVar(varArray) {
   }
 }
 
+function processCustomFunction(value) {
+  if (value.function_type === "remote") {
+    return [value.function_type, btoa(value.source)].join(":")
+  } else if (value.function_type === "wasm") {
+    return [value.function_type, value.source].join(":")
+  }
+}
+
 /**
  * Transformation Class methods.
  * This is a list of the parameters defined in Transformation.
@@ -605,6 +613,21 @@ class Transformation extends TransformationBase {
     return this.param(value, "crop", "c");
   }
 
+  customFunction(value) {
+    return this.param(value, "custom_function", "fn", () => {
+      return processCustomFunction(value);
+    });
+  }
+
+  customPreFunction(value) {
+    if (this.get('custom_function')) {
+      return;
+    }
+    return this.rawParam(value, "custom_function", "", () => {
+      value = processCustomFunction(value);
+      return value ? `fn_pre:${value}` : value;
+    });
+  }
   
   defaultImage(value) {
     return this.param(value, "default_image", "d");
@@ -837,16 +860,6 @@ class Transformation extends TransformationBase {
     });
   }
 
-  customFunction(value) {
-    return this.param(value, "custom_function", "fn", () => {
-      if(value.function_type === "remote"){
-        return [value.function_type, btoa(value.source)].join(":")
-      }
-      else if (value.function_type === "wasm") 
-        return [value.function_type, value.source].join(":")
-    })
-  }
-
   x(value) {
     return this.param(value, "x", "x", Expression.normalize);
   }
@@ -878,6 +891,7 @@ Transformation.methods = [
   "colorSpace",
   "crop",
   "customFunction",
+  "customPreFunction",
   "defaultImage",
   "delay",
   "density",
