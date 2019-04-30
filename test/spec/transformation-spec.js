@@ -47,6 +47,25 @@ describe("Transformation", function() {
       ]
     })).toBe(protocol + '//res.cloudinary.com/test123/image/upload/fn_wasm:blur.wasm/test');
   });
+  it('should use custom pre function if no custom_function defined', function() {
+    return expect(cl.url('test', {
+      transformation: [
+        {
+          custom_pre_function: {function_type: 'remote', source: 'https://df34ra4a.execute-api.us-west-2.amazonaws.com/default/cloudinaryFunction'}
+        }
+      ]
+    })).toBe(protocol + '//res.cloudinary.com/test123/image/upload/fn_pre:remote:aHR0cHM6Ly9kZjM0cmE0YS5leGVjdXRlLWFwaS51cy13ZXN0LTIuYW1hem9uYXdzLmNvbS9kZWZhdWx0L2Nsb3VkaW5hcnlGdW5jdGlvbg==/test');
+  });
+  it('should ignore custom pre function if custom function exists', function() {
+    return expect(cl.url('test', {
+      transformation: [
+        {
+          custom_function: { function_type: 'wasm', source: 'blur.wasm'},
+          custom_pre_function: {function_type: 'remote', source: 'https://df34ra4a.execute-api.us-west-2.amazonaws.com/default/cloudinaryFunction'}
+        }
+      ]
+    })).toBe(protocol + '//res.cloudinary.com/test123/image/upload/fn_wasm:blur.wasm/test');
+  });
   it('should ignore empty values', function() {
     expect(cl.url('test', {
       width: void 0, // regular
