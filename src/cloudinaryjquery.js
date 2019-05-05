@@ -115,7 +115,7 @@ jQuery.fn.cloudinary = function(options) {
   *  the current container size and the device pixel ratio.<br/>
   *  <b>Note</b>:`w_auto` is updated only for images marked with the `cld-responsive`
   *  (or other defined {@link Cloudinary#responsive|responsive}) class.
-  * @function Cloudinary#cloudinary_update
+  * @function jQuery#cloudinary_update
   * @param {(Array|string|NodeList)} elements - The HTML image elements to modify.
   * @param {Object} options
   * @param {boolean|string} [options.responsive_use_breakpoints=true]

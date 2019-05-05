@@ -73,3 +73,28 @@ export const DEFAULT_VIDEO_SOURCES = [
     transformations: {video_codec: "auto"}
   }
 ];
+
+/**
+ * The resource storage type
+ * @typedef type
+ * @enum {string}
+ * @property  {string} 'upload' A resource uploaded directly to Cloudinary
+ * @property  {string} 'fetch' A resource fetched by Cloudinary from a 3rd party storage
+ * @property  {string} 'private'
+ * @property  {string} 'authenticated'
+ * @property  {string} 'sprite'
+ * @property  {string} 'facebook'
+ * @property  {string} 'twitter'
+ * @property  {string} 'youtube'
+ * @property  {string} 'vimeo'
+ *
+ */
+
+/**
+ * The resource type
+ * @typedef resourceType
+ * @enum {string}
+ * @property {string} 'image' An image file
+ * @property {string} 'video' A video file
+ * @property {string} 'raw'   A raw file
+ */

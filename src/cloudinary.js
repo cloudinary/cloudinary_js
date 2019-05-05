@@ -143,18 +143,11 @@ var Cloudinary = class Cloudinary {
    * @function Cloudinary#url
    * @param {string} publicId - The public ID of the media asset.
    * @param {Object} [options] - The {@link Transformation} parameters to include in the URL.
-   * @param {string} [options.type='upload'] - The asset's storage type. Possible values:<br/>
-   *  - `upload`<br/>
-   *  - `private`<br/>
-   *  - `authenticated`<br/>
-   *  - `sprite`<br/>
-   *  - `fetch`<br/>
-   *  - A social media fetch type (Ex: `facebook`, `twitter`) <br/>
-   *  - A video thumbnail fetch type (Ex: `youtube`, `vimeo`).<br/>  
-   *  For details on all fetch types, see 
+   * @param {type} [options.type='upload'] - The asset's storage type.
+   *  For details on all fetch types, see
    * <a href="https://cloudinary.com/documentation/image_transformations#fetching_images_from_remote_locations"
-   *  target="_blank">Fetch types</a>. 
-   * @param {Object} [options.resource_type='image'] - The type of asset. Possible values:<br/> 
+   *  target="_blank">Fetch types</a>.
+   * @param {resourceType} [options.resource_type='image'] - The type of asset. Possible values:<br/>
    *  - `image`<br/>
    *  - `video`<br/>
    *  - `raw` 
@@ -173,12 +166,8 @@ var Cloudinary = class Cloudinary {
    * @function Cloudinary#video_url
    * @param {string} publicId - The public ID of the video.
    * @param {Object} [options] - The {@link Transformation} parameters to include in the URL.
-   * @param {string} [options.type='upload'] - The asset's storage type. Possible values:<br/>
-   *  - `upload`<br/>
-   *  - `private`<br/>
-   *  - `authenticated` <br/>
-   *  - `fetch`
-   *  For details on all fetch types, see 
+   * @param {type} [options.type='upload'] - The asset's storage type.
+   *  For details on all fetch types, see
    *  <a href="https://cloudinary.com/documentation/image_transformations#fetching_images_from_remote_locations" 
    *  target="_blank">Fetch types</a>. 
    * @return {string} The video URL.
@@ -204,11 +193,7 @@ var Cloudinary = class Cloudinary {
    * For details, see 
    * <a href="https://cloudinary.com/documentation/video_manipulation_and_delivery#generating_video_thumbnails" 
    * target="_blank">Generating video thumbnails</a> in the Cloudinary documentation.
-   * @param {string} [options.type='upload'] - The asset's storage type. <p>Possible values:<br/>
-   *  - `upload`<br/>
-   *  - `private`<br/>
-   *  - `authenticated`<br/> 
-   *  - `fetch`<br/>
+   * @param {type} [options.type='upload'] - The asset's storage type.
    * @return {string} The URL of the video thumbnail image.
    * @see <a href="https://cloudinary.com/documentation/image_transformation_reference" target="_blank">
    *  Available image transformations</a>
@@ -581,7 +566,7 @@ var Cloudinary = class Cloudinary {
   }
 
   /**
-  * Applies responsiveness to all &lt;img&gt; tags under each relevant node
+  * Applies responsiveness to all <code>&lt;img&gt;</code> tags under each relevant node
   *  (regardless of whether the tag contains the {@link Cloudinary#responsive|responsive} class).
   * @param {Element[]} nodes The parent nodes where you want to search for &lt;img&gt; tags.
   * @param {Object} [options] The {@link Cloudinary#cloudinary_update|cloudinary_update} options to apply.
@@ -708,10 +693,11 @@ var Cloudinary = class Cloudinary {
   }
 
   /**
-   * Returns a Transformation object, initialized with the specified options, for chaining purposes.
+   * Returns a {@link Transformation} object, initialized with the specified options, for chaining purposes.
    * @function Cloudinary#transformation
    * @param {Object} options The {@link Transformation} options to apply.
    * @return {Transformation}
+   * @see Transformation
    * @see <a href="https://cloudinary.com/documentation/image_transformation_reference" target="_blank">
    *  Available image transformations</a>
    * @see <a href="https://cloudinary.com/documentation/video_transformation_reference" target="_blank">

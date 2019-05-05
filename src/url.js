@@ -36,26 +36,38 @@ function cdnSubdomainNumber(publicId) {
 }
 
 /**
-* cdn_subdomain - Boolean (default: false). Whether to automatically build URLs with multiple CDN sub-domains.</br>
-* private_cdn - Boolean (default: false). Should be set to true for Advanced plan's users
-*  that have a private CDN distribution.</br>
-* secure_distribution - The domain name of the CDN distribution to use for building HTTPS URLs.
-*  Relevant only for Advanced plan's users that have a private CDN distribution.</br>
-* cname - Custom domain name to use for building HTTP URLs. Relevant only for Advanced plan's users
-*  that have a private CDN distribution and a custom CNAME.</br>
-* secure - Boolean (default: false). Force HTTPS URLs of images even if embedded in non-secure HTTP pages.</br>
+ * Create the URL prefix for Cloudinary resources.
+ * @param {string} publicId the resource public ID
+ * @param {object} options additional options
+ * @param {string} options.cloud_name - the cloud name.
+ * @param {boolean} [options.cdn_subdomain=false] - Whether to automatically build URLs with
+ *  multiple CDN sub-domains.
+ * @param {string} [options.private_cdn] - Boolean (default: false). Should be set to true for Advanced plan's users
+ *  that have a private CDN distribution.
+ * @param {string} [options.protocol="http://"] - the URI protocol to use. If options.secure is true,
+ *  the value is overridden to "https://"
+ * @param {string} [options.secure_distribution] - The domain name of the CDN distribution to use for building HTTPS URLs.
+ *  Relevant only for Advanced plan's users that have a private CDN distribution.
+ * @param {string} [options.cname] - Custom domain name to use for building HTTP URLs.
+ *  Relevant only for Advanced plan's users that have a private CDN distribution and a custom CNAME.
+ * @param {boolean} [options.secure_cdn_subdomain=true] - When options.secure is true and this parameter is false,
+ *  the subdomain is set to "res".
+ * @param {boolean} [options.secure=false] - Force HTTPS URLs of images even if embedded in non-secure HTTP pages.
+ *  When this value is true, options.secure_distribution will be used as host if provided, and options.protocol is set
+ *  to "https://".
+ * @returns {string} the URL prefix for the resource.
+ * @private
 */
 function cloudinaryUrlPrefix(publicId, options) {
-  var cdnPart, host, path, protocol, ref, subdomain;
-  if (((ref = options.cloud_name) != null ? ref.indexOf("/") : void 0) === 0) {
+  if (options.cloud_name && options.cloud_name[0] === '/') {
     return '/res' + options.cloud_name;
   }
   // defaults
-  protocol = "http://";
-  cdnPart = "";
-  subdomain = "res";
-  host = ".cloudinary.com";
-  path = "/" + options.cloud_name;
+  let protocol = "http://";
+  let cdnPart = "";
+  let subdomain = "res";
+  let host = ".cloudinary.com";
+  let path = "/" + options.cloud_name;
   // modifications
   if (options.protocol) {
     protocol = options.protocol + '//';
@@ -136,18 +148,12 @@ function finalizeResourceType(resourceType = "image", type = "upload", urlSuffix
 
 /**
  * Generates a URL for any asset in your Media library.
- * @function Cloudinary#url
+ * @function url
+ * @ignore
  * @param {string} publicId - The public ID of the media asset.
  * @param {Object} [options] - The {@link Transformation} parameters to include in the URL.
- * @param {string} [options.type='upload'] - The asset's storage type. <p>Possible values:<br/>
- *  - `upload`<br/>
- *  - `private`<br/>
- *  - `authenticated`<br/>
- *  - `sprite`<br/>
- *  - `fetch`<br/>
- *  - A social media fetch type (Ex: `facebook`, `twitter`) <br/>
- *  - A video thumbnail fetch type (Ex: `youtube`, `vimeo`).<br/>  
- *  For details on all fetch types, see 
+ * @param {type} [options.type='upload'] - The asset's storage type.
+ *  For details on all fetch types, see
  * <a href="https://cloudinary.com/documentation/image_transformations#fetching_images_from_remote_locations"
  *  target="_blank">Fetch types</a>. 
  * @param {Object} [options.resource_type='image'] - The type of asset. <p>Possible values:<br/> 

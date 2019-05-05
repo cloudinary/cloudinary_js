@@ -12,14 +12,15 @@ import {
 var ClientHintsMetaTag = class ClientHintsMetaTag extends HtmlTag {
   /**
    * Creates an HTML (DOM) Meta tag that enables Client-Hints for the HTML page. <br/>
-   *  See 
+   *  See
    *  <a href="https://cloudinary.com/documentation/responsive_images#automating_responsive_images_with_client_hints"
    *  target="_new">Automating responsive images with Client Hints</a> for more details.
    * @constructor ClientHintsMetaTag
-   * @extends HtmlTag  
-   * @example 
+   * @extends HtmlTag
+   * @example
    * tag = new ClientHintsMetaTag()
    * //returns: <meta http-equiv="Accept-CH" content="DPR, Viewport-Width, Width">
+   * @param options
    */
   constructor(options) {
     super('meta', void 0, assign({
