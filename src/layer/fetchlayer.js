@@ -5,9 +5,10 @@ import {
   isString
 } from '../util';
 
-const FetchLayer = class FetchLayer extends Layer {
+class FetchLayer extends Layer {
   /**
-   * @constructor FetchLayer
+   * @class FetchLayer
+   * @classdesc Creates an image layer using a remote URL
    * @param {Object|string} options - layer parameters or a url
    * @param {string} options.url the url of the image to fetch
    */
@@ -34,6 +35,6 @@ const FetchLayer = class FetchLayer extends Layer {
     return `fetch:${base64EncodeURL(this.options.url)}`;
   }
 
-};
+}
 
 export default FetchLayer;

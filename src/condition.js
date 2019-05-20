@@ -1,29 +1,29 @@
 import Expression from './expression';
 
-var Condition = class Condition extends Expression {
-  /**
-   * Represents a transformation condition
-   * @param {string} conditionStr - a condition in string format
-   * @class Condition
-   * @example
-   * // normally this class is not instantiated directly
-   * var tr = cloudinary.Transformation.new()
-   *    .if().width( ">", 1000).and().aspectRatio("<", "3:4").then()
-   *      .width(1000)
-   *      .crop("scale")
-   *    .else()
-   *      .width(500)
-   *      .crop("scale")
-   *
-   * var tr = cloudinary.Transformation.new()
-   *    .if("w > 1000 and aspectRatio < 3:4")
-   *      .width(1000)
-   *      .crop("scale")
-   *    .else()
-   *      .width(500)
-   *      .crop("scale")
-   *
-   */
+/**
+ * Represents a transformation condition
+ * @param {string} conditionStr - a condition in string format
+ * @class Condition
+ * @example
+ * // normally this class is not instantiated directly
+ * var tr = cloudinary.Transformation.new()
+ *    .if().width( ">", 1000).and().aspectRatio("<", "3:4").then()
+ *      .width(1000)
+ *      .crop("scale")
+ *    .else()
+ *      .width(500)
+ *      .crop("scale")
+ *
+ * var tr = cloudinary.Transformation.new()
+ *    .if("w > 1000 and aspectRatio < 3:4")
+ *      .width(1000)
+ *      .crop("scale")
+ *    .else()
+ *      .width(500)
+ *      .crop("scale")
+ *
+ */
+class Condition extends Expression {
   constructor(conditionStr) {
     super(conditionStr);
   }
@@ -78,6 +78,6 @@ var Condition = class Condition extends Expression {
     return this.predicate("fc", operator, value);
   }
 
-};
+}
 
 export default Condition;

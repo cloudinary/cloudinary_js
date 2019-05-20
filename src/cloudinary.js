@@ -75,17 +75,18 @@ maxWidth = function(requiredWidth, tag) {
   return imageWidth;
 };
 
-var Cloudinary = class Cloudinary {
+class Cloudinary {
   /**
-  * Main class for accessing Cloudinary functionality.
-  * @class Cloudinary
-  * @param {Object} options - A {@link Configuration} object for globally configuring Cloudinary account settings.
-  * @example<br/>
-  *  var cl = new cloudinary.Cloudinary( { cloud_name: "mycloud"});<br/>
-  *  var imgTag = cl.image("myPicID");
-  * @see <a href="https://cloudinary.com/documentation/solution_overview#configuration_parameters" target="_blank">
-  *  Available configuration options</a>  
-  */
+   * Create a new Cloudinary instance
+   * @class Cloudinary
+   * @classdesc Main class for accessing Cloudinary functionality.
+   * @param {Object} options - A {@link Configuration} object for globally configuring Cloudinary account settings.
+   * @example<br/>
+   *  var cl = new cloudinary.Cloudinary( { cloud_name: "mycloud"});<br/>
+   *  var imgTag = cl.image("myPicID");
+   * @see <a href="https://cloudinary.com/documentation/solution_overview#configuration_parameters" target="_blank">
+   *  Available configuration options</a>
+   */
   constructor(options) {
     var configuration;
     this.devicePixelRatioCache = {};
@@ -117,7 +118,7 @@ var Cloudinary = class Cloudinary {
      *  This is a convenience method that invokes both {@link Configuration#fromEnvironment|fromEnvironment()}
      *  (Node.js environment only) and {@link Configuration#fromDocument|fromDocument()}.
      *  It first tries to retrieve the configuration from the environment variable.
-     *  If not available, it tries from the document meta tags. 
+     *  If not available, it tries from the document meta tags.
      * @function Cloudinary#init
      * @see Configuration#init
      * @return This {Cloudinary} instance for chaining.
@@ -150,12 +151,12 @@ var Cloudinary = class Cloudinary {
    * @param {resourceType} [options.resource_type='image'] - The type of asset. Possible values:<br/>
    *  - `image`<br/>
    *  - `video`<br/>
-   *  - `raw` 
+   *  - `raw`
    * @return {string} The media asset URL.
    * @see <a href="https://cloudinary.com/documentation/image_transformation_reference" target="_blank">
    *  Available image transformations</a>
    * @see <a href="https://cloudinary.com/documentation/video_transformation_reference" target="_blank">
-   *  Available video transformations</a>   
+   *  Available video transformations</a>
    */
   url(publicId, options = {}) {
     return url(publicId, options, this.config());
@@ -168,11 +169,11 @@ var Cloudinary = class Cloudinary {
    * @param {Object} [options] - The {@link Transformation} parameters to include in the URL.
    * @param {type} [options.type='upload'] - The asset's storage type.
    *  For details on all fetch types, see
-   *  <a href="https://cloudinary.com/documentation/image_transformations#fetching_images_from_remote_locations" 
-   *  target="_blank">Fetch types</a>. 
+   *  <a href="https://cloudinary.com/documentation/image_transformations#fetching_images_from_remote_locations"
+   *  target="_blank">Fetch types</a>.
    * @return {string} The video URL.
-   * @see <a href="https://cloudinary.com/documentation/video_transformation_reference" 
-   *  target="_blank">Available video transformations</a>  
+   * @see <a href="https://cloudinary.com/documentation/video_transformation_reference"
+   *  target="_blank">Available video transformations</a>
    */
   video_url(publicId, options) {
     options = assign({
@@ -184,14 +185,14 @@ var Cloudinary = class Cloudinary {
   /**
    * Generates a URL for an image intended to be used as a thumbnail for the specified video.
    *  Identical to {@link Cloudinary#url|url}, except that the `resource_type` is `video`
-   *  and the default `format` is `jpg`. 
+   *  and the default `format` is `jpg`.
    * @function Cloudinary#video_thumbnail_url
    * @param {string} publicId -  The unique identifier of the video from which you want to generate a thumbnail image.
-   * @param {Object} [options] - The image {@link Transformation} parameters to apply to the thumbnail. 
-   * In addition to standard image transformations, you can also use the `start_offset` transformation parameter 
-   * to instruct Cloudinary to generate the thumbnail from a frame other than the middle frame of the video. 
-   * For details, see 
-   * <a href="https://cloudinary.com/documentation/video_manipulation_and_delivery#generating_video_thumbnails" 
+   * @param {Object} [options] - The image {@link Transformation} parameters to apply to the thumbnail.
+   * In addition to standard image transformations, you can also use the `start_offset` transformation parameter
+   * to instruct Cloudinary to generate the thumbnail from a frame other than the middle frame of the video.
+   * For details, see
+   * <a href="https://cloudinary.com/documentation/video_manipulation_and_delivery#generating_video_thumbnails"
    * target="_blank">Generating video thumbnails</a> in the Cloudinary documentation.
    * @param {type} [options.type='upload'] - The asset's storage type.
    * @return {string} The URL of the video thumbnail image.
@@ -226,7 +227,7 @@ var Cloudinary = class Cloudinary {
    * @return {HTMLImageElement} An image tag DOM element.
    * @see <a href="https://cloudinary.com/documentation/image_transformation_reference" target="_blank">
    *  Available image transformations</a>
-   * @see <a href="https://cloudinary.com/documentation/solution_overview#configuration_parameters" 
+   * @see <a href="https://cloudinary.com/documentation/solution_overview#configuration_parameters"
    *  target="_blank">Available configuration options</a>
    */
   image(publicId, options = {}) {
@@ -256,7 +257,7 @@ var Cloudinary = class Cloudinary {
    * @return {ImageTag} An ImageTag instance that is attached (chained) to this Cloudinary instance.
    * @see <a href="https://cloudinary.com/documentation/image_transformation_reference" target="_blank">
    *  Available image transformations</a>
-   * @see <a href="https://cloudinary.com/documentation/solution_overview#configuration_parameters" 
+   * @see <a href="https://cloudinary.com/documentation/solution_overview#configuration_parameters"
    *  target="_blank">Available configuration options</a>
    */
   imageTag(publicId, options) {
@@ -305,7 +306,7 @@ var Cloudinary = class Cloudinary {
    * @return {HTMLImageElement} An HTML image tag element
    * @see <a href="https://cloudinary.com/documentation/video_transformation_reference" target="_blank">
    *  Available video transformations</a>
-   * @see <a href="https://cloudinary.com/documentation/solution_overview#configuration_parameters" 
+   * @see <a href="https://cloudinary.com/documentation/solution_overview#configuration_parameters"
    *  target="_blank">Available configuration options</a>
    */
   video_thumbnail(publicId, options) {
@@ -468,7 +469,7 @@ var Cloudinary = class Cloudinary {
    *  <b>Note</b>: Calls {@link Cloudinary#cloudinary_update|cloudinary_update} to modify image tags.
    * @function Cloudinary#responsive
    * @param {Object} options
-   * @param {String} [options.responsive_class='cld-responsive'] - An alternative class 
+   * @param {String} [options.responsive_class='cld-responsive'] - An alternative class
    *  to locate the relevant &lt;img&gt; tags.
    * @param {number} [options.responsive_debounce=100] - The debounce interval in milliseconds.
    * @param {boolean} [bootstrap=true] If true, processes the &lt;img&gt; tags by calling
@@ -707,6 +708,7 @@ var Cloudinary = class Cloudinary {
     return Transformation.new(this.config()).fromOptions(options).setParent(this);
   }
 
-};
+}
+
 assign(Cloudinary, constants);
 export default Cloudinary;

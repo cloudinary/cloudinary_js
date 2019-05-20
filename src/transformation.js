@@ -51,7 +51,7 @@ function assignNotNull(target, ...sources) {
  * @internal
  */
 
-var TransformationBase = class TransformationBase {
+class TransformationBase {
   /**
    * The base class for transformations.
    * Members of this class are documented as belonging to the {@link Transformation} class for convenience.
@@ -518,7 +518,7 @@ function processVar(varArray) {
  * @ignore
  * @see toHtmlAttributes
  */
-var Transformation = class Transformation extends TransformationBase {
+class Transformation extends TransformationBase {
   /**
    * Represents a single transformation.
    * @class Transformation
@@ -855,7 +855,7 @@ var Transformation = class Transformation extends TransformationBase {
     return this.param(value, "zoom", "z", Expression.normalize);
   }
 
-};
+}
 
 /**
  * Transformation Class methods.

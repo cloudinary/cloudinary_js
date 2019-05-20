@@ -151,7 +151,8 @@ function finalizeResourceType(resourceType = "image", type = "upload", urlSuffix
  * @function url
  * @ignore
  * @param {string} publicId - The public ID of the media asset.
- * @param {Object} [options] - The {@link Transformation} parameters to include in the URL.
+ * @param {Object} [options={}] - The {@link Transformation} parameters to include in the URL.
+ * @param {object} [config={}] - URL configuration parameters
  * @param {type} [options.type='upload'] - The asset's storage type.
  *  For details on all fetch types, see
  * <a href="https://cloudinary.com/documentation/image_transformations#fetching_images_from_remote_locations"

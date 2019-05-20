@@ -12,16 +12,13 @@ import {
 } from './util';
 
 /**
- * Default configuration.
+ * Class for defining account configuration options.
+ * @constructor Configuration
+ * @param {Object} options - The account configuration parameters to set.
+ * @see <a href="https://cloudinary.com/documentation/solution_overview#configuration_parameters"
+ *  target="_new">Available configuration options</a>
  */
-var Configuration = class Configuration {
-  /**
-   * Class for defining account configuration options.
-   * @constructor Configuration
-   * @param {Object} options - The account configuration parameters to set. 
-   * @see <a href="https://cloudinary.com/documentation/solution_overview#configuration_parameters" 
-   *  target="_new">Available configuration options</a>
-   */
+class Configuration {
   constructor(options) {
     this.configuration = options == null ? {} : cloneDeep(options);
     defaults(this.configuration, DEFAULT_CONFIGURATION_PARAMS);
@@ -174,7 +171,7 @@ var Configuration = class Configuration {
     return cloneDeep(this.configuration);
   }
 
-};
+}
 
 const DEFAULT_CONFIGURATION_PARAMS = {
   responsive_class: 'cld-responsive',

@@ -24,7 +24,7 @@ import FetchLayer from './layer/fetchlayer';
  * Transformation parameters
  * Depends on 'util', 'transformation'
  */
-var Param = class Param {
+class Param {
   /**
    * Represents a single parameter
    * @class Param
@@ -135,9 +135,9 @@ var Param = class Param {
     }
   }
 
-};
+}
 
-var ArrayParam = class ArrayParam extends Param {
+class ArrayParam extends Param {
   /**
    * A parameter that represents an array
    * @param {string} name - The name of the parameter in snake_case
@@ -186,7 +186,7 @@ var ArrayParam = class ArrayParam extends Param {
     }
   }
 
-};
+}
 
 var TransformationParam = class TransformationParam extends Param {
   /**
@@ -240,7 +240,7 @@ var TransformationParam = class TransformationParam extends Param {
 
 };
 
-var RangeParam = class RangeParam extends Param {
+class RangeParam extends Param {
   /**
    * A parameter that represents a range
    * @param {string} name - The name of the parameter in snake_case
@@ -266,7 +266,7 @@ var RangeParam = class RangeParam extends Param {
     return value;
   }
 
-};
+}
 
 var RawParam = class RawParam extends Param {
   constructor(name, shortName, process = identity) {
@@ -323,12 +323,12 @@ class LayerParam extends Param {
 
 }
 
-var ExpressionParam = class ExpressionParam extends Param {
+class ExpressionParam extends Param {
   serialize() {
     return Expression.normalize(super.serialize());
   }
 
-};
+}
 
 export {
   Param,

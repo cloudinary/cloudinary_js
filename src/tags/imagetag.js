@@ -9,14 +9,14 @@ import url from '../url';
 import {isEmpty, isString, merge} from "../util";
 import {generateImageResponsiveAttributes} from "../util/srcsetUtils";
 
-var ImageTag = class ImageTag extends HtmlTag {
-  /**
-   * Creates an HTML (DOM) Image tag using Cloudinary as the source.
-   * @constructor ImageTag
-   * @extends HtmlTag
-   * @param {string} [publicId]
-   * @param {Object} [options]
-   */
+/**
+ * Creates an HTML (DOM) Image tag using Cloudinary as the source.
+ * @constructor ImageTag
+ * @extends HtmlTag
+ * @param {string} [publicId]
+ * @param {Object} [options]
+ */
+class ImageTag extends HtmlTag {
   constructor(publicId, options = {}) {
     super("img", publicId, options);
   }

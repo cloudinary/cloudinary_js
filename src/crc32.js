@@ -1,13 +1,15 @@
 
-/**
- * CRC32 calculator
- * Depends on 'utf8_encode'
- */
-var crc32;
 
 import utf8_encode from './utf8_encode';
 
-crc32 = function(str) {
+/**
+ * CRC32 calculator
+ * Depends on 'utf8_encode'
+ * @private
+ * @param {string} str - The string to calculate the CRC32 for.
+ * @return {number}
+ */
+function crc32(str) {
   var crc, i, iTop, table, x, y;
   // http://kevin.vanzonneveld.net
   // +   original by: Webtoolkit.info (http://www.webtoolkit.info/)
@@ -36,6 +38,6 @@ crc32 = function(str) {
     crc += 4294967296;
   }
   return crc;
-};
+}
 
 export default crc32;

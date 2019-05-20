@@ -8,12 +8,12 @@ import Cloudinary from './cloudinary';
 import Transformation from './transformation'
 import firstNotNull from './util/firstNotNull'
 
-const CloudinaryJQuery = class CloudinaryJQuery extends Cloudinary {
-  /**
-   * Cloudinary class with jQuery support
-   * @constructor CloudinaryJQuery
-   * @extends Cloudinary
-   */
+/**
+ * Cloudinary class with jQuery support
+ * @class CloudinaryJQuery
+ * @extends Cloudinary
+ */
+class CloudinaryJQuery extends Cloudinary {
   constructor(options) {
     super(options);
   }
@@ -77,7 +77,7 @@ const CloudinaryJQuery = class CloudinaryJQuery extends Cloudinary {
     }
   }
 
-};
+}
 
 /**
  * The following methods are provided through the jQuery class
