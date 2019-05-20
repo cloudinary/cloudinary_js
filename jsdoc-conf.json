@@ -21,5 +21,14 @@
     "protocol": "html://",
     "logoFile": "http://res-1.cloudinary.com/cloudinary/image/upload/c_scale,fl_attachment,h_30/v1/logo/for_blue_bg/cloudinary_icon_for_blue_bg.png"
 
+  },
+  "opts": {
+    "destination": "./docs/",
+    "template": "template",
+    "readme": "./README.md",
+    "recurse": true
+  },
+  "source": {
+    "include": ["src"]
   }
 }
