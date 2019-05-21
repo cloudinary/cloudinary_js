@@ -1,3 +1,4 @@
+/* eslint-env jquery */
 /**
  * This module extends CloudinaryJquery to support jQuery File Upload
  * Depends on 'jquery', 'util', 'cloudinaryjquery', 'jquery.ui.widget', 'jquery.iframe-transport','jquery.fileupload'
@@ -13,7 +14,7 @@ import * as Util from './util';
  * @param {string} [options.url] - an alternative URL to use for the API
  * @param {string} [options.cloud_name] - an alternative cloud_name to use. This parameter is ignored if `options.url` is provided.
  */
-CloudinaryJQuery.prototype.delete_by_token = function(delete_token, options) {
+CloudinaryJQuery.prototype.delete_by_token = function (delete_token, options) {
   var cloud_name, dataType, url;
   options = options || {};
   url = options.url;
@@ -38,9 +39,12 @@ CloudinaryJQuery.prototype.delete_by_token = function(delete_token, options) {
 /**
  * Creates an `input` tag and sets it up to upload files to cloudinary
  * @function CloudinaryJQuery#unsigned_upload_tag
- * @param {string}
+ * @param upload_preset
+ * @param upload_params
+ * @param options
+ * @return {jQuery}
  */
-CloudinaryJQuery.prototype.unsigned_upload_tag = function(upload_preset, upload_params, options) {
+CloudinaryJQuery.prototype.unsigned_upload_tag = function (upload_preset, upload_params, options) {
   return jQuery('<input/>').attr({
     type: 'file',
     name: 'file'
@@ -53,7 +57,7 @@ CloudinaryJQuery.prototype.unsigned_upload_tag = function(upload_preset, upload_
  * @param {Object} options
  * @returns {jQuery}
  */
-jQuery.fn.cloudinary_fileupload = function(options) {
+jQuery.fn.cloudinary_fileupload = function (options) {
   var cloud_name, initializing, resource_type, type, upload_url;
   if (!Util.isFunction(jQuery.fn.fileupload)) {
     return this;
@@ -70,7 +74,7 @@ jQuery.fn.cloudinary_fileupload = function(options) {
   }
   this.fileupload(options);
   if (initializing) {
-    this.bind('fileuploaddone', function(e, data) {
+    this.bind('fileuploaddone', function (e, data) {
       var add_field, field, multiple, upload_info;
       if (data.result.error) {
         return;
@@ -79,7 +83,7 @@ jQuery.fn.cloudinary_fileupload = function(options) {
       if (data.cloudinaryField && data.form.length > 0) {
         upload_info = [data.result.resource_type, data.result.type, data.result.path].join('/') + '#' + data.result.signature;
         multiple = jQuery(e.target).prop('multiple');
-        add_field = function() {
+        add_field = function () {
           return jQuery('<input/>').attr({
             type: 'hidden',
             name: data.cloudinaryField
@@ -98,29 +102,29 @@ jQuery.fn.cloudinary_fileupload = function(options) {
       }
       return jQuery(e.target).trigger('cloudinarydone', data);
     });
-    this.bind('fileuploadsend', function(e, data) {
+    this.bind('fileuploadsend', function (e, data) {
       // add a common unique ID to all chunks of the same uploaded file
       data.headers = jQuery.extend({}, data.headers, {
         'X-Unique-Upload-Id': (Math.random() * 10000000000).toString(16)
       });
       return true;
     });
-    this.bind('fileuploadstart', function(e) {
+    this.bind('fileuploadstart', function (e) {
       return jQuery(e.target).trigger('cloudinarystart');
     });
-    this.bind('fileuploadstop', function(e) {
+    this.bind('fileuploadstop', function (e) {
       return jQuery(e.target).trigger('cloudinarystop');
     });
-    this.bind('fileuploadprogress', function(e, data) {
+    this.bind('fileuploadprogress', function (e, data) {
       return jQuery(e.target).trigger('cloudinaryprogress', data);
     });
-    this.bind('fileuploadprogressall', function(e, data) {
+    this.bind('fileuploadprogressall', function (e, data) {
       return jQuery(e.target).trigger('cloudinaryprogressall', data);
     });
-    this.bind('fileuploadfail', function(e, data) {
+    this.bind('fileuploadfail', function (e, data) {
       return jQuery(e.target).trigger('cloudinaryfail', data);
     });
-    this.bind('fileuploadalways', function(e, data) {
+    this.bind('fileuploadalways', function (e, data) {
       return jQuery(e.target).trigger('cloudinaryalways', data);
     });
     if (!this.fileupload('option').url) {
@@ -140,7 +144,7 @@ jQuery.fn.cloudinary_fileupload = function(options) {
  * @param {string} remote_url - the url to add
  * @returns {jQuery}
  */
-jQuery.fn.cloudinary_upload_url = function(remote_url) {
+jQuery.fn.cloudinary_upload_url = function (remote_url) {
   if (!Util.isFunction(jQuery.fn.fileupload)) {
     return this;
   }
@@ -160,7 +164,7 @@ jQuery.fn.cloudinary_upload_url = function(remote_url) {
  * @param {Object} [options]
  * @returns {jQuery}
  */
-jQuery.fn.unsigned_cloudinary_upload = function(upload_preset, upload_params = {}, options = {}) {
+jQuery.fn.unsigned_cloudinary_upload = function (upload_preset, upload_params = {}, options = {}) {
   var attr, attrs_to_move, html_options, i, key, value;
   upload_params = Util.cloneDeep(upload_params);
   options = Util.cloneDeep(options);
@@ -174,11 +178,11 @@ jQuery.fn.unsigned_cloudinary_upload = function(upload_preset, upload_params = {
     }
     i++;
   }
-// Serialize upload_params
+  // Serialize upload_params
   for (key in upload_params) {
     value = upload_params[key];
     if (Util.isPlainObject(value)) {
-      upload_params[key] = jQuery.map(value, function(v, k) {
+      upload_params[key] = jQuery.map(value, function (v, k) {
         if (Util.isString(v)) {
           v = v.replace(/[\|=]/g, "\\$&");
         }
@@ -186,7 +190,7 @@ jQuery.fn.unsigned_cloudinary_upload = function(upload_preset, upload_params = {
       }).join('|');
     } else if (Util.isArray(value)) {
       if (value.length > 0 && jQuery.isArray(value[0])) {
-        upload_params[key] = jQuery.map(value, function(array_value) {
+        upload_params[key] = jQuery.map(value, function (array_value) {
           return array_value.join(',');
         }).join('|');
       } else {

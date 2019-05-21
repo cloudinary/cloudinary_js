@@ -106,14 +106,12 @@ class HtmlTag {
    * @returns {Object} attributes
    */
   attributes() {
-    // The attributes are be computed from the options every time this method is invoked.
+    // The attributes are computed from the options every time this method is invoked.
     let htmlAttributes = this.transformation().toHtmlAttributes();
-    Object.keys(htmlAttributes ).forEach(key => {
-      if(isPlainObject(htmlAttributes[key])){
-        delete htmlAttributes[key];
-      }
-    });
-    if( htmlAttributes.attributes) {
+    Object.keys(htmlAttributes)
+      .filter(key => isPlainObject(htmlAttributes[key]))
+      .forEach(key => delete htmlAttributes[key]);
+    if (htmlAttributes.attributes) {
       // Currently HTML attributes are defined both at the top level and under 'attributes'
       merge(htmlAttributes, htmlAttributes.attributes);
       delete htmlAttributes.attributes;
@@ -171,8 +169,8 @@ class HtmlTag {
   openTag() {
     let tag = "<" + this.name;
     let htmlAttrs = this.htmlAttrs(this.attributes());
-    if(htmlAttrs && htmlAttrs.length > 0) {
-      tag += " " + htmlAttrs
+    if (htmlAttrs && htmlAttrs.length > 0) {
+      tag += " " + htmlAttrs;
     }
     return tag + ">";
   }
@@ -219,8 +217,7 @@ class HtmlTag {
     dataSrc = getData(tag, 'src-cache') || getData(tag, 'src');
     return hasClass(tag, responsiveClass) && /\bw_auto\b/.exec(dataSrc);
   }
-
-};
+}
 
 /**
  * Represent the given key and value as an HTML attribute.

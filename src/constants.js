@@ -1,21 +1,21 @@
-export var VERSION = "2.5.0";
+export const VERSION = "2.5.0";
 
-export var CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
+export const CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
 
-export var OLD_AKAMAI_SHARED_CDN = "cloudinary-a.akamaihd.net";
+export const OLD_AKAMAI_SHARED_CDN = "cloudinary-a.akamaihd.net";
 
-export var AKAMAI_SHARED_CDN = "res.cloudinary.com";
+export const AKAMAI_SHARED_CDN = "res.cloudinary.com";
 
-export var SHARED_CDN = AKAMAI_SHARED_CDN;
+export const SHARED_CDN = AKAMAI_SHARED_CDN;
 
-export var DEFAULT_POSTER_OPTIONS = {
+export const DEFAULT_POSTER_OPTIONS = {
   format: 'jpg',
   resource_type: 'video'
 };
 
-export var DEFAULT_VIDEO_SOURCE_TYPES = ['webm', 'mp4', 'ogv'];
+export const DEFAULT_VIDEO_SOURCE_TYPES = ['webm', 'mp4', 'ogv'];
 
-export var SEO_TYPES = {
+export const SEO_TYPES = {
   "image/upload": "images",
   "image/private": "private_images",
   "image/authenticated": "authenticated_images",
@@ -29,7 +29,7 @@ export var SEO_TYPES = {
 *
 * (Previously defined using option_consume() )
  */
-export var DEFAULT_IMAGE_PARAMS = {
+export const DEFAULT_IMAGE_PARAMS = {
   resource_type: "image",
   transformation: [],
   type: 'upload'
@@ -40,7 +40,7 @@ export var DEFAULT_IMAGE_PARAMS = {
 * @const {Object} Cloudinary.DEFAULT_VIDEO_PARAMS
 * (Previously defined using option_consume() )
  */
-export var DEFAULT_VIDEO_PARAMS = {
+export const DEFAULT_VIDEO_PARAMS = {
   fallback_content: '',
   resource_type: "video",
   source_transformation: {},
@@ -57,20 +57,20 @@ export const DEFAULT_VIDEO_SOURCES = [
   {
     type: "mp4",
     codecs: "hev1",
-    transformations: {video_codec: "h265"}
+    transformations: { video_codec: "h265" }
   },
   {
     type: "webm",
     codecs: "vp9",
-    transformations: {video_codec: "vp9"}
+    transformations: { video_codec: "vp9" }
   },
   {
     type: "mp4",
-    transformations: {video_codec: "auto"}
+    transformations: { video_codec: "auto" }
   },
   {
     type: "webm",
-    transformations: {video_codec: "auto"}
+    transformations: { video_codec: "auto" }
   }
 ];
 

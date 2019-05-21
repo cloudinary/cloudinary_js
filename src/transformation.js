@@ -1,8 +1,9 @@
+/* eslint-disable prefer-rest-params */
 import Expression from './expression';
 import Condition from './condition';
 import Configuration from './configuration';
-
 import {
+  allStrings,
   assign,
   camelCase,
   cloneDeep,
@@ -34,12 +35,12 @@ import TransformationParam from "./parameters/transformationparam";
  * @returns {object} the target after the assignment
  */
 function assignNotNull(target, ...sources) {
-  sources.forEach(source => {
-    Object.keys(source).forEach(key => {
+  sources.forEach((source) => {
+    Object.keys(source).forEach((key) => {
       if (source[key] != null) {
         target[key] = source[key];
       }
-    })
+    });
   });
   return target;
 }
@@ -69,7 +70,7 @@ class TransformationBase {
      */
     this.toOptions = function (withChain) {
       let opt = {};
-      if(withChain == null) {
+      if (withChain == null) {
         withChain = true;
       }
       Object.keys(trans).forEach(key => opt[key] = trans[key].origValue);
@@ -275,7 +276,7 @@ class TransformationBase {
       if (options instanceof TransformationBase) {
         this.fromTransformation(options);
       } else {
-        options || (options = {});
+        options = options || {};
         if (isString(options) || isArray(options)) {
           options = {
             transformation: options
@@ -308,9 +309,7 @@ class TransformationBase {
 
   fromTransformation(other) {
     if (other instanceof TransformationBase) {
-      other.keys().forEach(key =>
-        this.set(key, other.get(key).origValue)
-      );
+      other.keys().forEach(key => this.set(key, other.get(key).origValue));
     }
     return this;
   }
@@ -361,12 +360,10 @@ class TransformationBase {
         transformationList.push((ref4 = this.get(t)) != null ? ref4.serialize() : void 0);
       }
     }
-    switch (false) {
-      case !isString(transformations):
-        transformationList.push(transformations);
-        break;
-      case !isArray(transformations):
-        resultArray = resultArray.concat(transformations);
+    if (isString(transformations)) {
+      transformationList.push(transformations);
+    } else if (isArray(transformations)) {
+      resultArray = resultArray.concat(transformations);
     }
     transformationList = (function () {
       var k, len1, results;
@@ -412,14 +409,13 @@ class TransformationBase {
     options = {};
     for (key in this.otherOptions) {
       value = this.otherOptions[key];
-      if (contains(Transformation.PARAM_NAMES, snakeCase(key))) {
-        continue;
+      if (!contains(Transformation.PARAM_NAMES, snakeCase(key))) {
+        attrName = /^html_/.test(key) ? key.slice(5) : key;
+        options[attrName] = value;
       }
-      attrName = /^html_/.test(key) ? key.slice(5) : key;
-      options[attrName] = value;
     }
     // convert all "html_key" to "key" with the same value
-    this.keys().forEach(key => {
+    this.keys().forEach((key) => {
       if (/^html_/.test(key)) {
         options[camelCase(key.slice(5))] = this.getValue(key);
       }
@@ -459,14 +455,14 @@ class TransformationBase {
    */
   toHtml() {
     var ref;
-    return (ref = this.getParent()) != null ? typeof ref.toHtml === "function" ? ref.toHtml() : void 0 : void 0;
+    const parent = this.getParent();
+    return parent && typeof parent.toHtml === "function" ? parent.toHtml() : void 0;
   }
 
   toString() {
     return this.serialize();
   }
-
-};
+}
 
 const VAR_NAME_RE = /^\$[a-zA-Z0-9]+$/;
 
@@ -528,9 +524,9 @@ class Transformation extends TransformationBase {
    * // or
    *
    * t = new cloudinary.Transformation( {angle: 20, crop: "scale", width: "auto"});
-   * @see <a href="https://cloudinary.com/documentation/image_transformation_reference" 
+   * @see <a href="https://cloudinary.com/documentation/image_transformation_reference"
    *  target="_blank">Available image transformations</a>
-   * @see <a href="https://cloudinary.com/documentation/video_transformation_reference" 
+   *  @see <a href="https://cloudinary.com/documentation/video_transformation_reference"
    *  target="_blank">Available video transformations</a>
    */
   constructor(options) {
@@ -600,7 +596,6 @@ class Transformation extends TransformationBase {
     return this.param(value, "crop", "c");
   }
 
-  
   defaultImage(value) {
     return this.param(value, "default_image", "d");
   }
@@ -731,8 +726,12 @@ class Transformation extends TransformationBase {
   }
 
   offset(value) {
-    var end_o, start_o;
-    [start_o, end_o] = (isFunction(value != null ? value.split : void 0)) ? value.split('..') : isArray(value) ? value : [null, null];
+    var end_o, start_o = [null, null];
+    if (isFunction(value && value.split)) {
+      [start_o, end_o] = value.split('..');
+    } else if (isArray(value)) {
+      [start_o, end_o] = value;
+    }
     if (start_o != null) {
       this.startOffset(start_o);
     }
@@ -834,12 +833,12 @@ class Transformation extends TransformationBase {
 
   customFunction(value) {
     return this.param(value, "custom_function", "fn", () => {
-      if(value.function_type === "remote"){
-        return [value.function_type, btoa(value.source)].join(":")
+      if (value.function_type === "remote") {
+        return [value.function_type, btoa(value.source)].join(":");
+      } else if (value.function_type === "wasm") {
+        return [value.function_type, value.source].join(":");
       }
-      else if (value.function_type === "wasm") 
-        return [value.function_type, value.source].join(":")
-    })
+    });
   }
 
   x(value) {
@@ -853,7 +852,6 @@ class Transformation extends TransformationBase {
   zoom(value) {
     return this.param(value, "zoom", "z", Expression.normalize);
   }
-
 }
 
 /**

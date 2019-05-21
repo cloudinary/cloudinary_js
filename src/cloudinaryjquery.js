@@ -1,12 +1,10 @@
-/**
- * Cloudinary jQuery plugin
- * Depends on 'jquery', 'util', 'transformation', 'cloudinary'
- */
-var webp;
+/* eslint-env jquery */
 
 import Cloudinary from './cloudinary';
-import Transformation from './transformation'
-import firstNotNull from './util/firstNotNull'
+import Transformation from './transformation';
+import firstNotNull from './util/firstNotNull';
+
+var webp;
 
 /**
  * Creates a new Cloudinary instance with jQuery support.
@@ -52,18 +50,18 @@ class CloudinaryJQuery extends Cloudinary {
       timeout = null;
       return jQuery(window).on('resize', () => {
         const debounce = firstNotNull(responsiveConfig.responsive_debounce, this.config('responsive_debounce'), 100);
-        let reset = function() {
+        let reset = function () {
           if (timeout) {
             clearTimeout(timeout);
             return timeout = null;
           }
         };
-        let run = function() {
+        let run = function () {
           return jQuery(`img.${responsiveClass}`).cloudinary_update(responsiveConfig);
         };
-        let wait = function() {
+        let wait = function () {
           reset();
-          return setTimeout((function() {
+          return setTimeout((function () {
             reset();
             return run();
           }), debounce);
@@ -76,7 +74,6 @@ class CloudinaryJQuery extends Cloudinary {
       });
     }
   }
-
 }
 
 /**
@@ -89,8 +86,8 @@ class CloudinaryJQuery extends Cloudinary {
  * @param {Object} [options] - options for the tag and transformations
  * @returns {jQuery}
  */
-jQuery.fn.cloudinary = function(options) {
-  this.filter('img').each(function() {
+jQuery.fn.cloudinary = function (options) {
+  this.filter('img').each(function () {
     var img_options, public_id, url;
     img_options = jQuery.extend({
       width: jQuery(this).attr('width'),
@@ -129,7 +126,7 @@ jQuery.fn.cloudinary = function(options) {
   * @param {boolean} [options.responsive_preserve_height] - If `true`, original css height is preserved.
   *  Should be used only if the transformation supports different aspect ratios.
  */
-jQuery.fn.cloudinary_update = function(options) {
+jQuery.fn.cloudinary_update = function (options) {
   jQuery.cloudinary.cloudinary_update(this.filter('img').toArray(), options);
   return this;
 };
@@ -139,30 +136,30 @@ webp = null;
 /**
  * @function jQuery#webpify
  */
-jQuery.fn.webpify = function(options = {}, webp_options) {
+jQuery.fn.webpify = function (options = {}, webp_options) {
   var that, webp_canary;
   that = this;
   webp_options = webp_options != null ? webp_options : options;
   if (!webp) {
     webp = jQuery.Deferred();
-    webp_canary = new Image;
+    webp_canary = new Image();
     webp_canary.onerror = webp.reject;
     webp_canary.onload = webp.resolve;
     webp_canary.src = 'data:image/webp;base64,UklGRi4AAABXRUJQVlA4TCEAAAAvAUAAEB8wAiMwAgSSNtse/cXjxyCCmrYNWPwmHRH9jwMA';
   }
-  jQuery(function() {
-    return webp.done(function() {
+  jQuery(function () {
+    return webp.done(function () {
       return jQuery(that).cloudinary(jQuery.extend({}, webp_options, {
         format: 'webp'
       }));
-    }).fail(function() {
+    }).fail(function () {
       return jQuery(that).cloudinary(options);
     });
   });
   return this;
 };
 
-jQuery.fn.fetchify = function(options) {
+jQuery.fn.fetchify = function (options) {
   return this.cloudinary(jQuery.extend(options, {
     'type': 'fetch'
   }));

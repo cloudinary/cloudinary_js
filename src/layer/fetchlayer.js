@@ -34,7 +34,6 @@ class FetchLayer extends Layer {
   toString() {
     return `fetch:${base64EncodeURL(this.options.url)}`;
   }
-
 }
 
 export default FetchLayer;

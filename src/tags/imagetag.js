@@ -6,8 +6,8 @@
 import HtmlTag from './htmltag';
 
 import url from '../url';
-import {isEmpty, isString, merge} from "../util";
-import {generateImageResponsiveAttributes} from "../util/srcsetUtils";
+import { isEmpty, isString, merge } from "../util";
+import { generateImageResponsiveAttributes } from "../util/srcsetUtils";
 
 /**
  * Creates an HTML (DOM) Image tag using Cloudinary as the source.
@@ -36,11 +36,11 @@ class ImageTag extends HtmlTag {
 
     let responsiveAttributes = {};
     if (isString(srcsetParam)) {
-      responsiveAttributes.srcset = srcsetParam
+      responsiveAttributes.srcset = srcsetParam;
     } else {
       responsiveAttributes = generateImageResponsiveAttributes(this.publicId, attributes, srcsetParam, options);
     }
-    if(!isEmpty(responsiveAttributes)) {
+    if (!isEmpty(responsiveAttributes)) {
       delete options.width;
       delete options.height;
     }
@@ -52,7 +52,6 @@ class ImageTag extends HtmlTag {
     }
     return attr;
   }
-
-};
+}
 
 export default ImageTag;

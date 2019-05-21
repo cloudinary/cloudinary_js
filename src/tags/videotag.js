@@ -96,26 +96,26 @@ class VideoTag extends HtmlTag {
     let sources = this.getOption('sources');
     let innerTags = [];
     if (isArray(sources) && !isEmpty(sources)) {
-      innerTags = sources.map(source => {
+      innerTags = sources.map((source) => {
         let src = url(this.publicId, defaults(
-            {},
-            source.transformations || {},
-            {resource_type: 'video', format: source.type}
-            ), this.getOptions());
-        return  this.createSourceTag(src, source.type, source.codecs);
+          {},
+          source.transformations || {},
+          { resource_type: 'video', format: source.type }
+        ), this.getOptions());
+        return this.createSourceTag(src, source.type, source.codecs);
       });
     } else {
       if (isEmpty(sourceTypes)) {
         sourceTypes = DEFAULT_VIDEO_SOURCE_TYPES;
       }
       if (isArray(sourceTypes)) {
-        innerTags = sourceTypes.map(srcType => {
+        innerTags = sourceTypes.map((srcType) => {
           let src = url(this.publicId, defaults(
-              {},
-              sourceTransformation[srcType] || {},
-              {resource_type: 'video', format: srcType}
+            {},
+            sourceTransformation[srcType] || {},
+            { resource_type: 'video', format: srcType }
           ), this.getOptions());
-          return  this.createSourceTag(src, srcType);
+          return this.createSourceTag(src, srcType);
         });
       }
     }
@@ -164,8 +164,6 @@ class VideoTag extends HtmlTag {
       type: mimeType
     })) + ">";
   }
-
-
 }
 
 export default VideoTag;

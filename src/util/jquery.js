@@ -1,3 +1,5 @@
+/* eslint-env jquery */
+
 /**
   * Includes utility methods and lodash / jQuery shims
  */
@@ -12,9 +14,9 @@ export * from './baseutil';
   * @returns the value associated with the `name`
   * @function Util.getData
  */
-export var getData = function(element, name) {
+export function getData(element, name) {
   return jQuery(element).data(name);
-};
+}
 
 /**
 * Set data in the DOM element.
@@ -26,9 +28,9 @@ export var getData = function(element, name) {
 * @param {*} value - the value to be set
 *
  */
-export var setData = function(element, name, value) {
+export function setData(element, name, value) {
   return jQuery(element).data(name, value);
-};
+}
 
 /**
 * Get attribute from the DOM element.
@@ -40,9 +42,9 @@ export var setData = function(element, name, value) {
 * @returns {*} the value of the attribute
 *
  */
-export var getAttribute = function(element, name) {
+export function getAttribute(element, name) {
   return jQuery(element).attr(name);
-};
+}
 
 /**
 * Set attribute in the DOM element.
@@ -53,9 +55,9 @@ export var getAttribute = function(element, name) {
 * @param {string} name - the name of the attribute
 * @param {*} value - the value to be set
  */
-export var setAttribute = function(element, name, value) {
+export function setAttribute(element, name, value) {
   return jQuery(element).attr(name, value);
-};
+}
 
 /**
  * Remove an attribute in the DOM element.
@@ -64,9 +66,9 @@ export var setAttribute = function(element, name, value) {
  * @param {Element} element - the element to set the attribute for
  * @param {string} name - the name of the attribute
  */
-export var removeAttribute = function(element, name) {
+export function removeAttribute(element, name) {
   return jQuery(element).removeAttr(name);
-};
+}
 
 /**
 * Set a group of attributes to the element
@@ -74,9 +76,9 @@ export var removeAttribute = function(element, name) {
 * @param {Element} element - the element to set the attributes for
 * @param {Object} attributes - a hash of attribute names and values
  */
-export var setAttributes = function(element, attributes) {
+export function setAttributes(element, attributes) {
   return jQuery(element).attr(attributes);
-};
+}
 
 /**
 * Checks if element has a css class
@@ -85,9 +87,9 @@ export var setAttributes = function(element, attributes) {
 * @param {string} name - the class name
 @returns {boolean} true if the element has the class
  */
-export var hasClass = function(element, name) {
+export function hasClass(element, name) {
   return jQuery(element).hasClass(name);
-};
+}
 
 /**
 * Add class to the element
@@ -95,22 +97,22 @@ export var hasClass = function(element, name) {
 * @param {Element} element - the element
 * @param {string} name - the class name to add
  */
-export var addClass = function(element, name) {
+export function addClass(element, name) {
   return jQuery(element).addClass(name);
-};
+}
 
-export var width = function(element) {
+export function width(element) {
   return jQuery(element).width();
-};
+}
 
 /**
  * Returns true if item is a string
  * @param item
  * @returns {boolean} true if item is a string
  */
-export var isString = function(item) {
+export function isString(item) {
   return typeof item === 'string' || (item != null ? item.toString() : void 0) === '[object String]';
-};
+}
 
 /**
  * Recursively assign source properties to destination
@@ -118,20 +120,9 @@ export var isString = function(item) {
  * @param {Object} destination - the object to assign to
  * @param {...Object} [sources] The source objects.
  */
-export var merge = function() {
-  var args, i;
-  args = (function() {
-    var j, len, results;
-    results = [];
-    for (j = 0, len = arguments.length; j < len; j++) {
-      i = arguments[j];
-      results.push(i);
-    }
-    return results;
-  }).apply(this, arguments);
-  args.unshift(true); // deep extend
-  return jQuery.extend.apply(this, args);
-};
+export function merge(destination, ...sources) {
+  return jQuery.extend(true, destination, ...sources);
+}
 
 /**
  * Creates a new array from the parameter with "falsey" values removed
@@ -139,7 +130,7 @@ export var merge = function() {
  * @param {Array} array - the array to remove values from
  * @return {Array} a new array without falsey values
  */
-export var compact = function(arr) {
+export function compact(arr) {
   var item, j, len, results;
   results = [];
   for (j = 0, len = arr.length; j < len; j++) {
@@ -149,7 +140,7 @@ export var compact = function(arr) {
     }
   }
   return results;
-};
+}
 
 /**
  * Create a new copy of the given object, including all internal objects.
@@ -157,13 +148,9 @@ export var compact = function(arr) {
  * @param {Object} value - the object to clone
  * @return {Object} a new deep copy of the object
  */
-export var cloneDeep = function() {
-  var args;
-  args = jQuery.makeArray(arguments);
-  args.unshift({}); // add "fresh" destination
-  args.unshift(true); // deep
-  return jQuery.extend.apply(this, args);
-};
+export function cloneDeep(value) {
+  return jQuery.extend(true, {}, value);
+}
 
 /**
  * Check if a given item is included in the given array
@@ -172,7 +159,7 @@ export var cloneDeep = function() {
  * @param {*} item - the item to search for
  * @return {boolean} true if the item is included in the array
  */
-export var contains = function(arr, item) {
+export function contains(arr, item) {
   var i, j, len;
   for (j = 0, len = arr.length; j < len; j++) {
     i = arr[j];
@@ -181,7 +168,7 @@ export var contains = function(arr, item) {
     }
   }
   return false;
-};
+}
 
 /**
  * Returns values in the given array that are not included in the other array
@@ -190,7 +177,7 @@ export var contains = function(arr, item) {
  * @param {Array} values - values to filter from arr
  * @return {Array} the filtered values
  */
-export var difference = function(arr, values) {
+export function difference(arr, values) {
   var item, j, len, results;
   results = [];
   for (j = 0, len = arr.length; j < len; j++) {
@@ -200,7 +187,7 @@ export var difference = function(arr, values) {
     }
   }
   return results;
-};
+}
 
 /**
  * Returns a list of all the function names in obj
@@ -208,7 +195,7 @@ export var difference = function(arr, values) {
  * @param {Object} object - the object to inspect
  * @return {Array} a list of functions of object
  */
-export var functions = function(object) {
+export function functions(object) {
   var i, results;
   results = [];
   for (i in object) {
@@ -217,7 +204,7 @@ export var functions = function(object) {
     }
   }
   return results;
-};
+}
 
 /**
  * Returns the provided value. This functions is used as a default predicate function.
@@ -225,18 +212,18 @@ export var functions = function(object) {
  * @param {*} value
  * @return {*} the provided value
  */
-export var identity = function(value) {
+export function identity(value) {
   return value;
-};
+}
 
 /**
  * @class Util
  */
-export var isArray = jQuery.isArray;
+export const isArray = jQuery.isArray;
 
-export var assign = jQuery.extend;
+export const assign = jQuery.extend;
 
-export var isPlainObject = jQuery.isPlainObject;
+export const isPlainObject = jQuery.isPlainObject;
 
 /**
  * Remove leading or trailing spaces from text
@@ -244,4 +231,13 @@ export var isPlainObject = jQuery.isPlainObject;
  * @param {string} text
  * @return {string} the `text` without leading or trailing spaces
  */
-export var trim = jQuery.trim;
+export const trim = jQuery.trim;
+
+/**
+ * Return true if all items in list are strings
+ * @function Util.allString
+ * @param {Array} list - an array of items
+ */
+export function allStrings(list) {
+  return list.length && list.every(isString);
+}

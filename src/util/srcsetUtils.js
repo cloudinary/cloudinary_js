@@ -1,9 +1,10 @@
-import * as utils from '../util';
+import * as utils from ".";
 
-const isEmpty = utils.isEmpty;
 import generateBreakpoints from './generateBreakpoints';
 import Transformation from '../transformation';
 import url from '../url';
+
+const isEmpty = utils.isEmpty;
 
 /**
  * Options used to generate the srcset attribute.

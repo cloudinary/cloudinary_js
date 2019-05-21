@@ -81,7 +81,6 @@ class Layer {
     components.push(this.getFullPublicId());
     return compact(components).join(":");
   }
-
 }
 
 export default Layer;

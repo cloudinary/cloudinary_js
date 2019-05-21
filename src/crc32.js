@@ -33,7 +33,7 @@ function crc32(str) {
     i++;
   }
   crc = crc ^ -1;
-  //convert to unsigned 32-bit int if needed
+  // convert to unsigned 32-bit int if needed
   if (crc < 0) {
     crc += 4294967296;
   }

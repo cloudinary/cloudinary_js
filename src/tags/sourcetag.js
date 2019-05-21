@@ -2,8 +2,8 @@
  * Image Tag
  * Depends on 'tags/htmltag', 'cloudinary'
  */
-import {generateImageResponsiveAttributes, generateMediaAttr} from "../util/srcsetUtils";
-import {merge} from '../util';
+import { generateImageResponsiveAttributes, generateMediaAttr } from "../util/srcsetUtils";
+import { merge } from '../util';
 import url from '../url';
 import HtmlTag from './htmltag';
 
@@ -30,16 +30,15 @@ class SourceTag extends HtmlTag {
     let attr = super.attributes() || {};
     let options = this.getOptions();
     merge(attr, generateImageResponsiveAttributes(this.publicId, attr, srcsetParam, options));
-    if(!attr.srcset){
+    if (!attr.srcset) {
       attr.srcset = url(this.publicId, options);
     }
-    if(!attr.media && options.media){
+    if (!attr.media && options.media) {
       attr.media = generateMediaAttr(options.media);
     }
 
     return attr;
   }
-
-};
+}
 
 export default SourceTag;

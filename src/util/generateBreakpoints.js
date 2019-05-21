@@ -15,13 +15,14 @@ export default function generateBreakpoints(srcset) {
     return breakpoints;
   }
   let [min_width, max_width, max_images] = [srcset.min_width, srcset.max_width, srcset.max_images].map(Number);
-  if ([min_width, max_width, max_images].some(isNaN)) {
-    throw 'Either (min_width, max_width, max_images) ' +
-    'or breakpoints must be provided to the image srcset attribute';
+  // eslint-disable-next-line no-restricted-globals
+  if ([min_width, max_width, max_images].some(Number.isNaN || isNaN)) {
+    throw 'Either (min_width, max_width, max_images) '
+    + 'or breakpoints must be provided to the image srcset attribute';
   }
 
   if (min_width > max_width) {
-    throw 'min_width must be less than max_width'
+    throw 'min_width must be less than max_width';
   }
 
   if (max_images <= 0) {

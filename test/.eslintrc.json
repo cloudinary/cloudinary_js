@@ -1,0 +1,13 @@
+{
+  "env": {
+    "jasmine": true,
+    "jquery": true
+  },
+  "globals": {
+    "cloudinary": true,
+    "sharedContext": true,
+    "sharedExamples": true,
+    "itBehavesLike": true,
+    "includeContext": true
+  }
+}
