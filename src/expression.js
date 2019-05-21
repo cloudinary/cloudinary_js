@@ -269,7 +269,6 @@ class Expression {
   static pageY() {
     return new this("pageY");
   }
-
 }
 
 /**

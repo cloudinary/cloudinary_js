@@ -1,4 +1,4 @@
-describe('client side responsive', function() {
+describe('client side responsive', function () {
   var cl, defaultConfig;
   if (/phantom|HeadlessChrome/i.test(navigator.userAgent)) {
     console.warn("Skipping responsive tests in PhantomJS or HeadlessChrome");
@@ -8,13 +8,13 @@ describe('client side responsive', function() {
     cloud_name: 'sdk-test'
   };
   cl = null;
-  return describe("responsive", function() {
+  return describe("responsive", function () {
     var container, fixtureContainer, testDocument, testWindow, triggerResize;
     fixtureContainer = void 0;
     testDocument = null;
     container = void 0;
     testWindow = null;
-    beforeAll(function(done) {
+    beforeAll(function (done) {
       var testURL;
       // Open a new window with test HTML. A dynamic title is required in order to open a *new* window each time even if
       // previous window was not closed.
@@ -31,25 +31,25 @@ describe('client side responsive', function() {
         return done();
       }, false);
     });
-    afterAll(function() {
+    afterAll(function () {
       return testWindow.close();
     });
-    beforeEach(function() {
+    beforeEach(function () {
       cl = new cloudinary.Cloudinary(defaultConfig);
       fixtureContainer = document.createElement('div');
       fixtureContainer.id = "fixture";
       return document.body.appendChild(fixtureContainer);
     });
-    afterEach(function() {
+    afterEach(function () {
       return fixtureContainer.remove();
     });
-    triggerResize = function(window) {
+    triggerResize = function (window) {
       var evt;
       evt = window.document.createEvent('UIEvents');
       evt.initUIEvent('resize', true, false, window, 0);
       return window.dispatchEvent(evt);
     };
-    it('should traverse up the DOM to find a parent that has clientWidth', function() {
+    it('should traverse up the DOM to find a parent that has clientWidth', function () {
       var aContainer, divContainer, img;
       aContainer = void 0;
       divContainer = void 0;
@@ -69,7 +69,7 @@ describe('client side responsive', function() {
       cl.responsive();
       return expect(img.getAttribute('src')).not.toEqual(void 0);
     });
-    it('should compute breakpoints correctly', function() {
+    it('should compute breakpoints correctly', function () {
       var el;
       el = document.createElement('img');
       fixtureContainer.appendChild(el);
@@ -80,7 +80,7 @@ describe('client side responsive', function() {
       expect(cl.calc_breakpoint(el, 1)).toEqual(50);
       expect(cl.calc_breakpoint(el, 100)).toEqual(150);
       expect(cl.calc_breakpoint(el, 180)).toEqual(150);
-      cl.config('breakpoints', function(width) {
+      cl.config('breakpoints', function (width) {
         return width / 2;
       });
       expect(cl.calc_breakpoint(el, 100)).toEqual(50);
@@ -88,7 +88,7 @@ describe('client side responsive', function() {
       expect(cl.calc_breakpoint(el, 1)).toEqual(70);
       return expect(cl.calc_breakpoint(el, 100)).toEqual(140);
     });
-    it('should correctly resize responsive images', function(done) {
+    it('should correctly resize responsive images', function (done) {
       var dpr, img;
       container = void 0;
       img = void 0;
@@ -110,25 +110,25 @@ describe('client side responsive', function() {
       container.style.width = "211px";
       expect(img.getAttribute('src')).toEqual(window.location.protocol + '//res.cloudinary.com/sdk-test/image/upload/c_scale,dpr_' + dpr + ',w_200/sample.jpg');
       triggerResize(window);
-      return window.setTimeout(function() {
+      return window.setTimeout(function () {
         // wait(200)
         expect(img.getAttribute('src')).toEqual(window.location.protocol + '//res.cloudinary.com/sdk-test/image/upload/c_scale,dpr_' + dpr + ',w_300/sample.jpg');
         container.style.width = "101px";
-        return window.setTimeout(function() {
+        return window.setTimeout(function () {
           // wait(200)
           expect(img.getAttribute('src')).toEqual(window.location.protocol + '//res.cloudinary.com/sdk-test/image/upload/c_scale,dpr_' + dpr + ',w_300/sample.jpg');
           return done();
         }, 200);
       }, 200);
     });
-    it("should not resize images with fixed width containers", function(done) {
+    it("should not resize images with fixed width containers", function (done) {
       var currentWidth, handler, image1, src;
       image1 = testDocument.getElementById('image1');
       src = image1.getAttribute('src');
       expect(src).toBeDefined();
       expect(src).not.toBe('');
       currentWidth = src.match(/w_(auto:)?(breakpoints[_\d]*:)?(\d+)/)[3];
-      handler = function() {
+      handler = function () {
         var newWidth;
         src = image1.getAttribute('src');
         expect(src).toBeDefined();
@@ -139,8 +139,8 @@ describe('client side responsive', function() {
       testWindow.addEventListener('resize', handler);
       return testWindow.resizeBy(200, 0);
     });
-    return describe("responsive_class", function() {
-      return it("should set the class used for responsive functionality", function() {
+    return describe("responsive_class", function () {
+      return it("should set the class used for responsive functionality", function () {
         var img;
         img = cl.image("sample", {
           responsive: true,
@@ -151,5 +151,3 @@ describe('client side responsive', function() {
     });
   });
 });
-
-//# sourceMappingURL=responsive-shrinkwrap-spec.js.map

@@ -2,9 +2,8 @@
  * UTF8 encoder
  * @private
  */
-var utf8_encode;
 
-export default utf8_encode = function(argString) {
+export default function utf8_encode(argString) {
   var c1, enc, end, n, start, string, stringl, utftext;
   // http://kevin.vanzonneveld.net
   // +   original by: Webtoolkit.info (http://www.webtoolkit.info/)
@@ -54,4 +53,4 @@ export default utf8_encode = function(argString) {
     utftext += string.slice(start, stringl);
   }
   return utftext;
-};
+}

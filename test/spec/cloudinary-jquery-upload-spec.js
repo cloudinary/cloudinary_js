@@ -58,5 +58,3 @@ describe('cloudinary', function () {
     });
   });
 });
-
-//# sourceMappingURL=cloudinary-jquery-upload-spec.js.map

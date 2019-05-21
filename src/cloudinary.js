@@ -1,5 +1,3 @@
-var applyBreakpoints, closestAbove, defaultBreakpoints, findContainerWidth, maxWidth, updateDpr;
-
 import Configuration from './configuration';
 import HtmlTag from './tags/htmltag';
 import ImageTag from './tags/imagetag';
@@ -25,31 +23,37 @@ import {
   setData,
   width
 } from './util';
+import firstNotNull from "./util/firstNotNull";
 
-defaultBreakpoints = function(width, steps = 100) {
+function defaultBreakpoints(width, steps = 100) {
   return steps * Math.ceil(width / steps);
-};
+}
 
-closestAbove = function(list, value) {
+
+function closestAbove(list, value) {
   var i;
   i = list.length - 2;
   while (i >= 0 && list[i] >= value) {
     i--;
   }
   return list[i + 1];
-};
+}
 
-applyBreakpoints = function(tag, width, steps, options) {
-  var ref, ref1, ref2, responsive_use_breakpoints;
-  responsive_use_breakpoints = (ref = (ref1 = (ref2 = options['responsive_use_breakpoints']) != null ? ref2 : options['responsive_use_stoppoints']) != null ? ref1 : this.config('responsive_use_breakpoints')) != null ? ref : this.config('responsive_use_stoppoints');
+
+function applyBreakpoints(tag, width, steps, options) {
+  const responsive_use_breakpoints = firstNotNull(options.responsive_use_breakpoints, options.responsive_use_stoppoints, function () {
+    return this.config('responsive_use_breakpoints');
+  }, function () {
+    return this.config('responsive_use_stoppoints');
+  });
   if ((!responsive_use_breakpoints) || (responsive_use_breakpoints === 'resize' && !options.resizing)) {
     return width;
   } else {
     return this.calc_breakpoint(tag, width, steps);
   }
-};
+}
 
-findContainerWidth = function(element) {
+function findContainerWidth(element) {
   var containerWidth, style;
   containerWidth = 0;
   while (((element = element != null ? element.parentNode : void 0) instanceof Element) && !containerWidth) {
@@ -59,13 +63,13 @@ findContainerWidth = function(element) {
     }
   }
   return containerWidth;
-};
+}
 
-updateDpr = function(dataSrc, roundDpr) {
+function updateDpr(dataSrc, roundDpr) {
   return dataSrc.replace(/\bdpr_(1\.0|auto)\b/g, 'dpr_' + this.device_pixel_ratio(roundDpr));
-};
+}
 
-maxWidth = function(requiredWidth, tag) {
+function maxWidth(requiredWidth, tag) {
   var imageWidth;
   imageWidth = getData(tag, 'width') || 0;
   if (requiredWidth > imageWidth) {
@@ -73,7 +77,7 @@ maxWidth = function(requiredWidth, tag) {
     setData(tag, 'width', requiredWidth);
   }
   return imageWidth;
-};
+}
 
 class Cloudinary {
   /**
@@ -94,14 +98,14 @@ class Cloudinary {
     this.responsiveResizeInitialized = false;
     configuration = new Configuration(options);
     // Provided for backward compatibility
-    this.config = function(newConfig, newValue) {
+    this.config = function (newConfig, newValue) {
       return configuration.config(newConfig, newValue);
     };
     /**
      * Use \<meta\> tags in the document to configure this `cloudinary` instance.
      * @return This {Cloudinary} instance for chaining.
      */
-    this.fromDocument = function() {
+    this.fromDocument = function () {
       configuration.fromDocument();
       return this;
     };
@@ -109,7 +113,7 @@ class Cloudinary {
      * Use environment variables to configure this `cloudinary` instance.
      * @return This {Cloudinary} instance for chaining.
      */
-    this.fromEnvironment = function() {
+    this.fromEnvironment = function () {
       configuration.fromEnvironment();
       return this;
     };
@@ -123,7 +127,7 @@ class Cloudinary {
      * @see Configuration#init
      * @return This {Cloudinary} instance for chaining.
      */
-    this.init = function() {
+    this.init = function () {
       configuration.init();
       return this;
     };
@@ -493,20 +497,18 @@ class Cloudinary {
       return window.addEventListener('resize', () => {
         var debounce, ref3, ref4, reset, run, wait, waitFunc;
         debounce = (ref3 = (ref4 = this.responsiveConfig['responsive_debounce']) != null ? ref4 : this.config('responsive_debounce')) != null ? ref3 : 100;
-        reset = function() {
+        reset = function () {
           if (timeout) {
             clearTimeout(timeout);
             return timeout = null;
           }
         };
-        run = () => {
-          return this.cloudinary_update(`img.${responsiveClass}`, this.responsiveConfig);
-        };
-        waitFunc = function() {
+        run = () => this.cloudinary_update(`img.${responsiveClass}`, this.responsiveConfig);
+        waitFunc = function () {
           reset();
           return run();
         };
-        wait = function() {
+        wait = function () {
           reset();
           return timeout = setTimeout(waitFunc, debounce);
         };
@@ -530,7 +532,7 @@ class Cloudinary {
       return breakpoints(width, steps);
     } else {
       if (isString(breakpoints)) {
-        breakpoints = breakpoints.split(',').map(point=>parseInt(point)).sort((a, b) => a - b);
+        breakpoints = breakpoints.split(',').map(point => parseInt(point)).sort((a, b) => a - b);
       }
       return closestAbove(breakpoints, width);
     }
@@ -556,7 +558,7 @@ class Cloudinary {
     if (roundDpr) {
       dpr = Math.ceil(dpr);
     }
-    if (dpr <= 0 || dpr === (0/0)) {
+    if (dpr <= 0 || dpr === (0 / 0)) {
       dpr = 1;
     }
     let dprString = dpr.toString();
@@ -582,21 +584,21 @@ class Cloudinary {
     }
     options = defaults({}, options || {}, this.config());
     let images = nodes
-      .filter(node=>/^img$/i.test(node.tagName))
-      .map(function(node){
-          let imgOptions = assign({
-            width: node.getAttribute('width'),
-            height: node.getAttribute('height'),
-            src: node.getAttribute('src')
-          }, options);
-          let publicId = imgOptions['source'] || imgOptions['src'];
-          delete imgOptions['source'];
-          delete imgOptions['src'];
-          let attr = new Transformation(imgOptions).toHtmlAttributes();
-          setData(node, 'src-cache', url(publicId, imgOptions));
-          node.setAttribute('width', attr.width);
-          node.setAttribute('height', attr.height);
-          return node;
+      .filter(node => /^img$/i.test(node.tagName))
+      .map(function (node) {
+        let imgOptions = assign({
+          width: node.getAttribute('width'),
+          height: node.getAttribute('height'),
+          src: node.getAttribute('src')
+        }, options);
+        let publicId = imgOptions['source'] || imgOptions['src'];
+        delete imgOptions['source'];
+        delete imgOptions['src'];
+        let attr = new Transformation(imgOptions).toHtmlAttributes();
+        setData(node, 'src-cache', url(publicId, imgOptions));
+        node.setAttribute('width', attr.width);
+        node.setAttribute('height', attr.height);
+        return node;
       });
     this.cloudinary_update(images, options);
     return this;
@@ -626,11 +628,11 @@ class Cloudinary {
     if (elements === null) {
       return this;
     }
-    if(options == null) {
+    if (options == null) {
       options = {};
     }
     const responsive = options.responsive != null ? options.responsive : this.config('responsive');
-    elements = (function() {
+    elements = (function () {
       switch (false) {
         case !isArray(elements):
           return elements;
@@ -652,7 +654,7 @@ class Cloudinary {
     }
 
     let roundDpr = options.round_dpr != null ? options.round_dpr : this.config('round_dpr');
-    elements.forEach(tag => {
+    elements.forEach((tag) => {
       if (/img/i.test(tag.tagName)) {
         let setUrl = true;
         if (responsive) {
@@ -665,15 +667,16 @@ class Cloudinary {
           if (HtmlTag.isResponsive(tag, responsiveClass)) {
             containerWidth = findContainerWidth(tag);
             if (containerWidth !== 0) {
-              switch (false) {
-                case !/w_auto:breakpoints/.test(dataSrc):
-                  requiredWidth = maxWidth(containerWidth, tag);
-                  dataSrc = dataSrc.replace(/w_auto:breakpoints([_0-9]*)(:[0-9]+)?/, `w_auto:breakpoints$1:${requiredWidth}`);
-                  break;
-                case !(match = /w_auto(:(\d+))?/.exec(dataSrc)):
+              if (/w_auto:breakpoints/.test(dataSrc)) {
+                requiredWidth = maxWidth(containerWidth, tag);
+                dataSrc = dataSrc.replace(/w_auto:breakpoints([_0-9]*)(:[0-9]+)?/, `w_auto:breakpoints$1:${requiredWidth}`);
+              } else {
+                match = /w_auto(:(\d+))?/.exec(dataSrc);
+                if (match) {
                   requiredWidth = applyBreakpoints.call(this, tag, containerWidth, match[2], options);
                   requiredWidth = maxWidth(requiredWidth, tag);
                   dataSrc = dataSrc.replace(/w_auto[^,\/]*/g, `w_${requiredWidth}`);
+                }
               }
               removeAttribute(tag, 'width');
               if (!options.responsive_preserve_height) {
@@ -707,7 +710,6 @@ class Cloudinary {
   transformation(options) {
     return Transformation.new(this.config()).fromOptions(options).setParent(this);
   }
-
 }
 
 assign(Cloudinary, constants);

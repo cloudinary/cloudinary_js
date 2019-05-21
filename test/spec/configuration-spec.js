@@ -1,14 +1,14 @@
 var refresh;
 
-refresh = function(name) {
+refresh = function (name) {
   delete require.cache[require.resolve(name)];
   return require(name);
 };
 
-describe('Configuration', function() {
-  return describe("CLOUDINARY_URL environment variable", function() {
-    beforeAll(function() {});
-    it("should support api_key, api_secret, cloud_name", function() {
+describe('Configuration', function () {
+  return describe("CLOUDINARY_URL environment variable", function () {
+    beforeAll(function () {});
+    it("should support api_key, api_secret, cloud_name", function () {
       var config;
       if (typeof process !== "undefined" && process !== null) {
         process.env['CLOUDINARY_URL'] = 'cloudinary://key:secret@cloudname';
@@ -29,7 +29,7 @@ describe('Configuration', function() {
       expect(config.get("api_key")).toEqual("key");
       return expect(config.get("api_secret")).toEqual(void 0);
     });
-    it("should support additional parameters", function() {
+    it("should support additional parameters", function () {
       var config;
       if (typeof process !== "undefined" && process !== null) {
         process.env.CLOUDINARY_URL = 'cloudinary://key:secret@cloudname?foo=bar&one=two';
@@ -43,7 +43,7 @@ describe('Configuration', function() {
       expect(config.get("foo")).toEqual("bar");
       return expect(config.get("one")).toEqual("two");
     });
-    return it("should support secure_distribution", function() {
+    return it("should support secure_distribution", function () {
       var config;
       if (typeof process !== "undefined" && process !== null) {
         process.env.CLOUDINARY_URL = 'cloudinary://key:secret@cloudname/private_cdn?foo=bar&one=two';
@@ -74,5 +74,3 @@ describe('Configuration', function() {
     });
   });
 });
-
-//# sourceMappingURL=configuration-spec.js.map

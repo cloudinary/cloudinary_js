@@ -156,16 +156,16 @@ function finalizeResourceType(resourceType = "image", type = "upload", urlSuffix
  * @param {type} [options.type='upload'] - The asset's storage type.
  *  For details on all fetch types, see
  * <a href="https://cloudinary.com/documentation/image_transformations#fetching_images_from_remote_locations"
- *  target="_blank">Fetch types</a>. 
- * @param {Object} [options.resource_type='image'] - The type of asset. <p>Possible values:<br/> 
+ *  target="_blank">Fetch types</a>.
+ * @param {Object} [options.resource_type='image'] - The type of asset. <p>Possible values:<br/>
  *  - `image`<br/>
  *  - `video`<br/>
- *  - `raw` 
+ *  - `raw`
  * @return {string} The media asset URL.
  * @see <a href="https://cloudinary.com/documentation/image_transformation_reference" target="_blank">
  *  Available image transformations</a>
  * @see <a href="https://cloudinary.com/documentation/video_transformation_reference" target="_blank">
- *  Available video transformations</a>   
+ *  Available video transformations</a>
  */
 export default function url(publicId, options = {}, config = {}) {
   var error, prefix, ref, resourceTypeAndType, transformation, transformationString, url, version;
@@ -220,4 +220,4 @@ export default function url(publicId, options = {}, config = {}) {
   resourceTypeAndType = finalizeResourceType(options.resource_type, options.type, options.url_suffix, options.use_root_path, options.shorten);
   version = options.version ? 'v' + options.version : '';
   return url || compact([prefix, resourceTypeAndType, transformationString, version, publicId]).join('/').replace(/([^:])\/+/g, '$1/');
-};
+}

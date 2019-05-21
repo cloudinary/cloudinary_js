@@ -83,12 +83,12 @@ class TextLayer extends Layer {
     return this;
   }
 
-  fontHinting (fontHinting){
+  fontHinting(fontHinting) {
     this.options.fontHinting = fontHinting;
     return this;
   }
 
-  fontAntialiasing (fontAntialiasing){
+  fontAntialiasing(fontAntialiasing) {
     this.options.fontAntialiasing = fontAntialiasing;
     return this;
   }
@@ -120,7 +120,7 @@ class TextLayer extends Layer {
       //        textSource = text.replace(new RegExp("[,/]", 'g'), (c)-> "%#{c.charCodeAt(0).toString(16).toUpperCase()}")
       textSource = smartEscape(this.options.text, /[,\/]/g);
       text = "";
-      while (res = re.exec(textSource)) {
+      for (res = re.exec(textSource); res; res = re.exec(textSource)) {
         text += smartEscape(textSource.slice(start, res.index));
         text += res[0];
         start = res.index + res[0].length;
@@ -154,10 +154,10 @@ class TextLayer extends Layer {
       components.push("line_spacing_" + this.options.lineSpacing);
     }
     if (!(isEmpty(this.options.fontAntialiasing))) {
-      components.push("antialias_"+this.options.fontAntialiasing);
+      components.push("antialias_" + this.options.fontAntialiasing);
     }
     if (!(isEmpty(this.options.fontHinting))) {
-      components.push("hinting_"+this.options.fontHinting );
+      components.push("hinting_" + this.options.fontHinting);
     }
     if (!isEmpty(compact(components))) {
       if (isEmpty(this.options.fontFamily)) {
@@ -171,7 +171,6 @@ class TextLayer extends Layer {
     components = compact(components).join("_");
     return components;
   }
-
-};
+}
 
 export default TextLayer;

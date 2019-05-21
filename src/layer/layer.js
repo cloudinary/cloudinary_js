@@ -85,7 +85,6 @@ class Layer {
   clone() {
     return new this.constructor(this.options);
   }
-
 }
 
 export default Layer;

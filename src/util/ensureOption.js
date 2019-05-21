@@ -28,4 +28,3 @@ export function defaults(defaults) {
  */
 const empty = defaults({});
 export default empty;
-

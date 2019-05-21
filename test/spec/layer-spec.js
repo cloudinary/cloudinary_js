@@ -1,7 +1,8 @@
-const {TextLayer, FetchLayer} = cloudinary;
+/* eslint-disable no-undef */
+const { TextLayer, FetchLayer } = cloudinary;
 
-describe("TextLayer", function() {
-  it("should clone", function() {
+describe("TextLayer", function () {
+  it("should clone", function () {
     const options = {
       text: "Cloudinary for the win!",
       fontFamily: "Arial",
@@ -13,7 +14,7 @@ describe("TextLayer", function() {
     expect(first).toEqual(second);
     expect(first.toString()).toEqual(second.toString());
   });
-  it("should serialize a text layer object", function() {
+  it("should serialize a text layer object", function () {
     var layer, options, transformation;
     options = {
       text: "Cloudinary for the win!",
@@ -26,7 +27,7 @@ describe("TextLayer", function() {
     transformation = new Transformation().overlay(options).toString();
     return expect(transformation.toString()).toEqual("l_text:Arial_18:Cloudinary%20for%20the%20win%21");
   });
-  it("should serialize a text layer object with antialiasing", function() {
+  it("should serialize a text layer object with antialiasing", function () {
     var layer, options, transformation;
     options = {
       text: "Cloudinary for the win!",
@@ -40,7 +41,7 @@ describe("TextLayer", function() {
     transformation = new Transformation().overlay(options).toString();
     return expect(transformation.toString()).toEqual("l_text:Arial_18_antialias_fast:Cloudinary%20for%20the%20win%21");
   });
-  it("should serialize a text layer object with hinting", function() {
+  it("should serialize a text layer object with hinting", function () {
     var layer, options, transformation;
     options = {
       text: "Cloudinary for the win!",
@@ -56,20 +57,20 @@ describe("TextLayer", function() {
   });
 });
 
-describe("FetchLayer", function() {
-  it("should serialize a fetch url layer", function() {
+describe("FetchLayer", function () {
+  it("should serialize a fetch url layer", function () {
     var layer;
     layer = new FetchLayer({
       url: 'http://res.cloudinary.com/demo/sample.jpg'
     }).toString();
     return expect(layer).toEqual('fetch:aHR0cDovL3Jlcy5jbG91ZGluYXJ5LmNvbS9kZW1vL3NhbXBsZS5qcGc=');
   });
-  it("should accept a url in the constructor", function() {
+  it("should accept a url in the constructor", function () {
     var layer;
     layer = new FetchLayer('http://res.cloudinary.com/demo/sample.jpg').toString();
     return expect(layer).toEqual('fetch:aHR0cDovL3Jlcy5jbG91ZGluYXJ5LmNvbS9kZW1vL3NhbXBsZS5qcGc=');
   });
-  return it("should support unicode URLs", function() {
+  return it("should support unicode URLs", function () {
     var layer, transformation;
     layer = new FetchLayer("https://upload.wikimedia.org/wikipedia/commons/2/2b/고창갯벌.jpg").toString();
     expect(layer).toEqual("fetch:aHR0cHM6Ly91cGxvYWQud2lraW1lZGlhLm9yZy93aWtpcGVkaWEvY29tbW9ucy8yLzJiLyVFQSVCMyVBMCVFQyVCMCVCRCVFQSVCMCVBRiVFQiVCMiU4Qy5qcGc=");
@@ -80,5 +81,3 @@ describe("FetchLayer", function() {
     return expect(transformation.toString()).toEqual("l_fetch:aHR0cHM6Ly91cGxvYWQud2lraW1lZGlhLm9yZy93aWtpcGVkaWEvY29tbW9ucy8yLzJiLyVFQSVCMyVBMCVFQyVCMCVCRCVFQSVCMCVBRiVFQiVCMiU4Qy5qcGc=");
   });
 });
-
-//# sourceMappingURL=layer-spec.js.map

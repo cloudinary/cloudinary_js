@@ -10,6 +10,6 @@ class SubtitlesLayer extends TextLayer {
     super(options);
     this.options.resourceType = "subtitles";
   }
-
 }
+
 export default SubtitlesLayer;

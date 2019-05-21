@@ -1,0 +1,9 @@
+lib-es5/*
+*.min.js
+docs
+dist
+doc
+js
+node_modules
+pkg
+coverage

@@ -1,3 +1,22 @@
+/* eslint import/no-extraneous-dependencies: "off" */
+/* eslint-env jquery */
+
+/**
+ * @class Util
+ */
+
+/**
+ * Returns true if item is a string
+ * @function Util.isString
+ * @param item
+ * @returns {boolean} true if item is a string
+ */
+import isString from 'lodash/isString';
+
+import * as isElement from 'lodash/isElement';
+import * as isFunction from 'lodash/isFunction';
+import * as trim from 'lodash/trim';
+
 var nodeContains;
 
 export {
@@ -37,10 +56,6 @@ export {
 } from 'lodash/isPlainObject';
 
 export {
-  default as isString
-} from 'lodash/isString';
-
-export {
   default as merge
 } from 'lodash/merge';
 
@@ -48,15 +63,14 @@ export {
   default as contains
 } from 'lodash/includes';
 
-import * as isElement from 'lodash/isElement';
-import * as isFunction from 'lodash/isFunction';
-import * as trim from 'lodash/trim';
-
 export * from './baseutil';
+
 export {
   isElement,
-  isFunction,
-  trim}
+  trim,
+  isString
+};
+
 /*
  * Includes utility methods and lodash / jQuery shims
  */
@@ -69,20 +83,22 @@ export {
  * @returns the value associated with the `name`
  * @function Util.getData
  */
-export var getData = function (element, name) {
-  switch (false) {
-    case !(element == null):
+export function getData(element, name) {
+  switch (true) {
+    case (element == null):
       return void 0;
-    case !isFunction(element.getAttribute):
+    case isFunction(element.getAttribute):
       return element.getAttribute(`data-${name}`);
-    case !isFunction(element.getAttr):
+    case isFunction(element.getAttr):
       return element.getAttr(`data-${name}`);
-    case !isFunction(element.data):
+    case isFunction(element.data):
       return element.data(name);
-    case !(isFunction(typeof jQuery !== "undefined" && jQuery.fn && jQuery.fn.data) && isElement(element)):
+    case (isFunction(typeof jQuery !== "undefined" && jQuery.fn && jQuery.fn.data) && isElement(element)):
       return jQuery(element).data(name);
+    default:
+      return void 0;
   }
-};
+}
 
 /**
  * Set data in the DOM element.
@@ -94,20 +110,22 @@ export var getData = function (element, name) {
  * @param {*} value - the value to be set
  *
  */
-export var setData = function (element, name, value) {
-  switch (false) {
-    case !(element == null):
+export function setData(element, name, value) {
+  switch (true) {
+    case (element == null):
       return void 0;
-    case !isFunction(element.setAttribute):
+    case isFunction(element.setAttribute):
       return element.setAttribute(`data-${name}`, value);
-    case !isFunction(element.setAttr):
+    case isFunction(element.setAttr):
       return element.setAttr(`data-${name}`, value);
-    case !isFunction(element.data):
+    case isFunction(element.data):
       return element.data(name, value);
-    case !(isFunction(typeof jQuery !== "undefined" && jQuery.fn && jQuery.fn.data) && isElement(element)):
+    case (isFunction(typeof jQuery !== "undefined" && jQuery.fn && jQuery.fn.data) && isElement(element)):
       return jQuery(element).data(name, value);
+    default:
+      return void 0;
   }
-};
+}
 
 /**
  * Get attribute from the DOM element.
@@ -118,18 +136,20 @@ export var setData = function (element, name, value) {
  * @returns {*} the value of the attribute
  *
  */
-export var getAttribute = function (element, name) {
-  switch (false) {
-    case !(element == null):
+export function getAttribute(element, name) {
+  switch (true) {
+    case element == null:
       return void 0;
-    case !isFunction(element.getAttribute):
+    case isFunction(element.getAttribute):
       return element.getAttribute(name);
-    case !isFunction(element.attr):
+    case isFunction(element.attr):
       return element.attr(name);
-    case !isFunction(element.getAttr):
+    case isFunction(element.getAttr):
       return element.getAttr(name);
+    default:
+      return void 0;
   }
-};
+}
 
 /**
  * Set attribute in the DOM element.
@@ -139,18 +159,20 @@ export var getAttribute = function (element, name) {
  * @param {string} name - the name of the attribute
  * @param {*} value - the value to be set
  */
-export var setAttribute = function (element, name, value) {
-  switch (false) {
-    case !(element == null):
+export function setAttribute(element, name, value) {
+  switch (true) {
+    case (element == null):
       return void 0;
-    case !isFunction(element.setAttribute):
+    case isFunction(element.setAttribute):
       return element.setAttribute(name, value);
-    case !isFunction(element.attr):
+    case isFunction(element.attr):
       return element.attr(name, value);
-    case !isFunction(element.setAttr):
+    case isFunction(element.setAttr):
       return element.setAttr(name, value);
+    default:
+      return void 0;
   }
-};
+}
 
 /**
  * Remove an attribute in the DOM element.
@@ -159,7 +181,7 @@ export var setAttribute = function (element, name, value) {
  * @param {Element} element - the element to set the attribute for
  * @param {string} name - the name of the attribute
  */
-export var removeAttribute = function (element, name) {
+export function removeAttribute(element, name) {
   switch (false) {
     case !(element == null):
       return void 0;
@@ -168,7 +190,7 @@ export var removeAttribute = function (element, name) {
     default:
       return setAttribute(element, void 0);
   }
-};
+}
 
 /**
  * Set a group of attributes to the element
@@ -176,7 +198,7 @@ export var removeAttribute = function (element, name) {
  * @param {Element} element - the element to set the attributes for
  * @param {Object} attributes - a hash of attribute names and values
  */
-export var setAttributes = function (element, attributes) {
+export function setAttributes(element, attributes) {
   var name, results, value;
   results = [];
   for (name in attributes) {
@@ -188,7 +210,7 @@ export var setAttributes = function (element, attributes) {
     }
   }
   return results;
-};
+}
 
 /**
  * Checks if element has a css class
@@ -197,11 +219,11 @@ export var setAttributes = function (element, attributes) {
  * @param {string} name - the class name
  @returns {boolean} true if the element has the class
  */
-export var hasClass = function (element, name) {
+export function hasClass(element, name) {
   if (isElement(element)) {
     return element.className.match(new RegExp(`\\b${name}\\b`));
   }
-};
+}
 
 /**
  * Add class to the element
@@ -209,14 +231,14 @@ export var hasClass = function (element, name) {
  * @param {Element} element - the element
  * @param {string} name - the class name to add
  */
-export var addClass = function (element, name) {
+export function addClass(element, name) {
   if (!element.className.match(new RegExp(`\\b${name}\\b`))) {
     return element.className = trim(`${element.className} ${name}`);
   }
-};
+}
 
 // The following code is taken from jQuery
-export var getStyles = function (elem) {
+export function getStyles(elem) {
   // Support: IE<=11+, Firefox<=30+ (#15098, #14150)
   // IE throws on elements created in popups
   // FF meanwhile throws on frame elements through "defaultView.getComputedStyle"
@@ -224,9 +246,9 @@ export var getStyles = function (elem) {
     return elem.ownerDocument.defaultView.getComputedStyle(elem, null);
   }
   return window.getComputedStyle(elem, null);
-};
+}
 
-export var cssExpand = ["Top", "Right", "Bottom", "Left"];
+export const cssExpand = ["Top", "Right", "Bottom", "Left"];
 
 nodeContains = function (a, b) {
   var adown, bup;
@@ -236,13 +258,13 @@ nodeContains = function (a, b) {
 };
 
 // Truncated version of jQuery.style(elem, name)
-export var domStyle = function (elem, name) {
+export function domStyle(elem, name) {
   if (!(!elem || elem.nodeType === 3 || elem.nodeType === 8 || !elem.style)) {
     return elem.style[name];
   }
-};
+}
 
-export var curCSS = function (elem, name, computed) {
+export function curCSS(elem, name, computed) {
   var maxWidth, minWidth, ret, rmargin, style, width;
   rmargin = /^margin/;
   width = void 0;
@@ -285,9 +307,9 @@ export var curCSS = function (elem, name, computed) {
   } else {
     return ret;
   }
-};
+}
 
-export var cssValue = function (elem, name, convert, styles) {
+export function cssValue(elem, name, convert, styles) {
   var val;
   val = curCSS(elem, name, styles);
   if (convert) {
@@ -295,9 +317,9 @@ export var cssValue = function (elem, name, convert, styles) {
   } else {
     return val;
   }
-};
+}
 
-export var augmentWidthOrHeight = function (elem, name, extra, isBorderBox, styles) {
+export function augmentWidthOrHeight(elem, name, extra, isBorderBox, styles) {
   var i, len, side, sides, val;
   // If we already have the right measurement, avoid augmentation
   // Otherwise initialize for horizontal or vertical properties
@@ -332,13 +354,13 @@ export var augmentWidthOrHeight = function (elem, name, extra, isBorderBox, styl
     }
     return val;
   }
-};
+}
 
 var pnum = /[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/.source;
 
 var rnumnonpx = new RegExp("^(" + pnum + ")(?!px)[a-z%]+$", "i");
 
-export var getWidthOrHeight = function (elem, name, extra) {
+export function getWidthOrHeight(elem, name, extra) {
   var isBorderBox, styles, val, valueIsBorderBox;
   // Start with offset property, which is equivalent to the border-box value
   valueIsBorderBox = true;
@@ -367,22 +389,22 @@ export var getWidthOrHeight = function (elem, name, extra) {
   }
   // Use the active box-sizing model to add/subtract irrelevant styles
   return val + augmentWidthOrHeight(elem, name, extra || (isBorderBox ? "border" : "content"), valueIsBorderBox, styles);
-};
+}
 
-export var width = function (element) {
+export function width(element) {
   return getWidthOrHeight(element, "width", "content");
-};
-
+}
 
 /**
- * @class Util
+ * Return true if all items in list are strings
+ * @function Util.allString
+ * @param {Array} list - an array of items
  */
-/**
- * Returns true if item is a string
- * @function Util.isString
- * @param item
- * @returns {boolean} true if item is a string
- */
+export function allStrings(list) {
+  return list.length && list.every(isString);
+}
+
+
 /**
  * Returns true if item is empty:
  * <ul>

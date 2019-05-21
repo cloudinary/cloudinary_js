@@ -1,6 +1,6 @@
-  /**
-   * Creates the namespace for Cloudinary
-   */
+/**
+ * Creates the namespace for Cloudinary
+ */
 import utf8_encode from '../utf8_encode';
 import crc32 from '../crc32';
 import * as Util from '../util';

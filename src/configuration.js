@@ -25,11 +25,11 @@ class Configuration {
   }
 
   /**
-   * Initializes the configuration. This method is a convenience method that invokes both 
-   *  {@link Configuration#fromEnvironment|fromEnvironment()} (Node.js environment only) 
-   *  and {@link Configuration#fromDocument|fromDocument()}. 
-   *  It first tries to retrieve the configuration from the environment variable. 
-   *  If not available, it tries from the document meta tags. 
+   * Initializes the configuration. This method is a convenience method that invokes both
+   *  {@link Configuration#fromEnvironment|fromEnvironment()} (Node.js environment only)
+   *  and {@link Configuration#fromDocument|fromDocument()}.
+   *  It first tries to retrieve the configuration from the environment variable.
+   *  If not available, it tries from the document meta tags.
    * @function Configuration#init
    * @return {Configuration} returns `this` for chaining
    * @see fromDocument
@@ -97,7 +97,7 @@ class Configuration {
    */
   fromEnvironment() {
     var cloudinary_url, query, uri, uriRegex;
-    if(typeof process !== "undefined" && process !== null && process.env && process.env.CLOUDINARY_URL ){
+    if (typeof process !== "undefined" && process !== null && process.env && process.env.CLOUDINARY_URL) {
       cloudinary_url = process.env.CLOUDINARY_URL;
       uriRegex = /cloudinary:\/\/(?:(\w+)(?:\:([\w-]+))?@)?([\w\.-]+)(?:\/([^?]*))?(?:\?(.+))?/;
       uri = uriRegex.exec(cloudinary_url);
@@ -119,7 +119,7 @@ class Configuration {
         }
         query = uri[5];
         if (query != null) {
-          query.split('&').forEach(value=>{
+          query.split('&').forEach((value) => {
             let [k, v] = value.split('=');
             if (v == null) {
               v = true;
@@ -170,14 +170,13 @@ class Configuration {
   toOptions() {
     return cloneDeep(this.configuration);
   }
-
 }
 
 const DEFAULT_CONFIGURATION_PARAMS = {
   responsive_class: 'cld-responsive',
   responsive_use_breakpoints: true,
   round_dpr: true,
-  secure: (typeof window !== "undefined" && window !== null ? window.location ? window.location.protocol : void 0 : void 0) === 'https:'
+  secure: (typeof window !== "undefined" && window && window.location && window.location.protocol) === 'https:'
 };
 
 Configuration.CONFIG_PARAMS = [

@@ -33,7 +33,6 @@ class ClientHintsMetaTag extends HtmlTag {
   closeTag() {
     return "";
   }
-
-};
+}
 
 export default ClientHintsMetaTag;

@@ -3,7 +3,7 @@ var cl, getTag, protocol, simpleAssign, simpleClone, test_cloudinary_url;
 cl = {};
 const UPLOAD_PATH = "http://res.cloudinary.com/test123/image/upload";
 
-getTag = function(tag) {
+getTag = function (tag) {
   var next;
   next = /<.*?>/.exec(tag);
   if (next) {
@@ -15,7 +15,7 @@ getTag = function(tag) {
 
 protocol = window.location.protocol === "file:" ? "http:" : window.location.protocol;
 
-simpleAssign = function(dest, source) {
+simpleAssign = function (dest, source) {
   var key, value;
   for (key in source) {
     value = source[key];
@@ -24,34 +24,34 @@ simpleAssign = function(dest, source) {
   return dest;
 };
 
-simpleClone = function(source) {
+simpleClone = function (source) {
   return simpleAssign({}, source);
 };
 
-test_cloudinary_url = function(public_id, options, expected_url, expected_options) {
+test_cloudinary_url = function (public_id, options, expected_url, expected_options) {
   var result;
   result = cl.url(public_id, options);
   expect(new cloudinary.Transformation(options).toHtmlAttributes()).toEqual(expected_options);
   return expect(result).toEqual(expected_url);
 };
 
-describe("Cloudinary.HtmlTag", function() {
-  return describe("constructor", function() {
-    it('should create a new tag with 3 parameters', function() {
-      return expect(function() {
+describe("Cloudinary.HtmlTag", function () {
+  return describe("constructor", function () {
+    it('should create a new tag with 3 parameters', function () {
+      return expect(function () {
         return new cloudinary.HtmlTag('div', "publicId", {});
       }).not.toThrow();
     });
-    return it('should create a new tag with 2 parameters', function() {
-      return expect(function() {
+    return it('should create a new tag with 2 parameters', function () {
+      return expect(function () {
         return new cloudinary.HtmlTag('div', {});
       }).not.toThrow();
     });
   });
 });
 
-sharedExamples("client_hints", function(options) {
-  it("should not use data-src or set responsive class", function() {
+sharedExamples("client_hints", function (options) {
+  it("should not use data-src or set responsive class", function () {
     var image, tag;
     image = cl.image('sample.jpg', options);
     tag = image.outerHTML;
@@ -60,7 +60,7 @@ sharedExamples("client_hints", function(options) {
     expect(cloudinary.Util.getData(image, "src")).toBeFalsy();
     return expect(tag).toMatch(/src=["']http:\/\/res.cloudinary.com\/sdk-test\/image\/upload\/c_scale,dpr_auto,w_auto\/sample.jpg["']/);
   });
-  return it("should override responsive", function() {
+  return it("should override responsive", function () {
     var image, tag;
     cl.config().responsive = true;
     image = cl.image('sample.jpg', options);
@@ -72,36 +72,36 @@ sharedExamples("client_hints", function(options) {
   });
 });
 
-describe("Cloudinary.ImageTag", function() {
+describe("Cloudinary.ImageTag", function () {
   var DEFAULT_UPLOAD_PATH, config;
   config = {
     'cloud_name': 'test123'
   };
-  beforeEach(function() {
+  beforeEach(function () {
     return cl = new cloudinary.Cloudinary(config);
   });
   DEFAULT_UPLOAD_PATH = `${protocol}//res.cloudinary.com/test123/image/upload/`;
-  it("should create an image tag", function() {
+  it("should create an image tag", function () {
     var tag;
     tag = new cloudinary.ImageTag('image_id', config).toHtml();
     return expect(tag).toBe(`<img src="${DEFAULT_UPLOAD_PATH}image_id">`);
   });
-  it("should escape quotes in html attributes", function() {
+  it("should escape quotes in html attributes", function () {
     var tag;
     tag = new cloudinary.ImageTag('image_id', Object.assign({}, config, {
       alt: "asdfg\"'asdf"
     })).toHtml();
     return expect(tag).toBe(`<img alt="asdfg&#34;&#39;asdf" src="${DEFAULT_UPLOAD_PATH}image_id">`);
   });
-  it("should set data-src instead of src when using responsive", function() {
+  it("should set data-src instead of src when using responsive", function () {
     var tag;
     tag = new cloudinary.ImageTag('image_id', cloudinary.Util.assign({
       responsive: true
     }, config)).toHtml();
     return expect(tag).toBe(`<img data-src="${DEFAULT_UPLOAD_PATH}image_id">`);
   });
-  return describe(":client_hints", function() {
-    describe("as option", function() {
+  return describe("client_hints", function () {
+    describe("as option", function () {
       return includeContext("client_hints", {
         dpr: "auto",
         cloud_name: "sdk-test",
@@ -110,8 +110,8 @@ describe("Cloudinary.ImageTag", function() {
         client_hints: true
       });
     });
-    describe("as global configuration", function() {
-      beforeEach(function() {
+    describe("as global configuration", function () {
+      beforeEach(function () {
         return cl.config().client_hints = true;
       });
       return includeContext("client_hints", {
@@ -121,8 +121,8 @@ describe("Cloudinary.ImageTag", function() {
         crop: "scale"
       });
     });
-    describe("false", function() {
-      return it("should use normal responsive behaviour", function() {
+    describe("false", function () {
+      return it("should use normal responsive behaviour", function () {
         var image, tag;
         cl.config().responsive = true;
         image = cl.image('sample.jpg', {
@@ -137,8 +137,8 @@ describe("Cloudinary.ImageTag", function() {
         return expect(cloudinary.Util.getData(image, "src-cache")).toMatch(/http:\/\/res.cloudinary.com\/sdk-test\/image\/upload\/c_scale,w_auto\/sample.jpg/);
       });
     });
-    return describe("width", function() {
-      return it("supports auto width", function() {
+    return describe("width", function () {
+      return it("supports auto width", function () {
         var tag;
         tag = cl.image('sample.jpg', {
           crop: "scale",
@@ -153,7 +153,7 @@ describe("Cloudinary.ImageTag", function() {
   });
 });
 
-describe("Cloudinary.VideoTag", function() {
+describe("Cloudinary.VideoTag", function () {
   var DEFAULT_UPLOAD_PATH, VIDEO_UPLOAD_PATH, config, options, root_path, upload_path;
   VIDEO_UPLOAD_PATH = `${protocol}//res.cloudinary.com/test123/video/upload/`;
   DEFAULT_UPLOAD_PATH = `${protocol}//res.cloudinary.com/test123/image/upload/`;
@@ -166,23 +166,23 @@ describe("Cloudinary.VideoTag", function() {
     api_secret: "b"
   };
   options = {};
-  beforeEach(function() {
+  beforeEach(function () {
     cl = new cloudinary.Cloudinary(config);
     return options = simpleClone(config);
   });
   root_path = `${protocol}//res.cloudinary.com/test123`;
   upload_path = `${root_path}/video/upload`;
-  describe("constructor", function() {
+  describe("constructor", function () {
     var v;
     v = new cloudinary.VideoTag("pubid");
-    return it('should create a new Cloudinary.VideoTag object', function() {
+    return it('should create a new Cloudinary.VideoTag object', function () {
       return expect(v.constructor.name).toBe("VideoTag");
     });
   });
   //    it 'should support a hash value', ->
   //      test_cloudinary_url("video_id", { resource_type: 'video', video_codec: { codec: 'h264', profile: 'basic', level: '3.1' } },
   //                          "#{upload_path}/vc_h264:basic:3.1/video_id", {})
-  it("should generate video tag", function() {
+  it("should generate video tag", function () {
     var expected_url, tag, videoTag;
     expected_url = VIDEO_UPLOAD_PATH + "movie";
     videoTag = new cloudinary.VideoTag("movie", options).toHtml();
@@ -195,7 +195,7 @@ describe("Cloudinary.VideoTag", function() {
     [videoTag, tag] = getTag(videoTag);
     return expect(tag).toBe(`<source src="${expected_url}.ogv" type="video/ogg">`);
   });
-  it("should generate video tag with html5 attributes", function() {
+  it("should generate video tag with html5 attributes", function () {
     var expected_url, tag, videoTag;
     expected_url = VIDEO_UPLOAD_PATH + "movie";
     videoTag = new cloudinary.VideoTag("movie", simpleAssign({
@@ -215,7 +215,7 @@ describe("Cloudinary.VideoTag", function() {
     [videoTag, tag] = getTag(videoTag);
     return expect(tag).toBe(`<source src="${expected_url}.ogv" type="video/ogg">`);
   });
-  it("should generate video tag with various attributes", function() {
+  it("should generate video tag with various attributes", function () {
     var expected_url, options2, tag;
     options2 = simpleAssign(options, {
       source_types: "mp4",
@@ -245,7 +245,7 @@ describe("Cloudinary.VideoTag", function() {
     options2['crop'] = 'fit';
     return expect(new cloudinary.VideoTag("movie", options2).toHtml()).toEqual(`<video poster="${expected_url}.jpg">` + `<source src="${expected_url}.webm" type="video/webm">` + `<source src="${expected_url}.mp4" type="video/mp4">` + `<source src="${expected_url}.ogv" type="video/ogg">` + "</video>");
   });
-  it("should generate video tag with fallback", function() {
+  it("should generate video tag with fallback", function () {
     var expected_url, fallback;
     expected_url = VIDEO_UPLOAD_PATH + "movie";
     fallback = "<span id=\"spanid\">Cannot display video</span>";
@@ -257,14 +257,14 @@ describe("Cloudinary.VideoTag", function() {
       source_types: "mp4"
     }, options)).toHtml()).toEqual(`<video poster="${expected_url}.jpg" src="${expected_url}.mp4">` + fallback + "</video>");
   });
-  it("should generate video tag with source types", function() {
+  it("should generate video tag with source types", function () {
     var expected_url;
     expected_url = VIDEO_UPLOAD_PATH + "movie";
     return expect(cl.video("movie", {
       source_types: ['ogv', 'mp4']
     })).toEqual(`<video poster="${expected_url}.jpg">` + `<source src="${expected_url}.ogv" type="video/ogg">` + `<source src="${expected_url}.mp4" type="video/mp4">` + "</video>");
   });
-  it("should generate video tag with source transformation", function() {
+  it("should generate video tag with source transformation", function () {
     var expected_mp4_url, expected_ogv_url, expected_url;
     expected_url = VIDEO_UPLOAD_PATH + "q_50/c_scale,w_100/movie";
     expected_ogv_url = VIDEO_UPLOAD_PATH + "q_50/c_scale,q_70,w_100/movie";
@@ -301,7 +301,7 @@ describe("Cloudinary.VideoTag", function() {
       source_types: ['webm', 'mp4']
     })).toEqual(`<video poster="${expected_url}.jpg" width="100">` + `<source src="${expected_url}.webm" type="video/webm">` + `<source src="${expected_mp4_url}.mp4" type="video/mp4">` + "</video>");
   });
-  it("should generate video tag with configurable poster", function() {
+  it("should generate video tag with configurable poster", function () {
     var expected_poster_url, expected_url;
     expected_url = VIDEO_UPLOAD_PATH + "movie";
     expected_poster_url = 'http://image/somewhere.jpg';
@@ -334,16 +334,16 @@ describe("Cloudinary.VideoTag", function() {
       source_types: "mp4"
     })).toEqual(`<video src="${expected_url}.mp4"></video>`);
   });
-  describe("attributes", function() {
+  describe("attributes", function () {
     var tag;
     tag = cloudinary.HtmlTag.new("div", {
       id: "foobar"
     });
-    return describe("removeAttr()", function() {
-      return it("should remove that attribute from the tag", function() {
+    return describe("removeAttr()", function () {
+      return it("should remove that attribute from the tag", function () {
         var key, keys;
         tag.removeAttr("id");
-        keys = (function() {
+        keys = (function () {
           var results;
           results = [];
           for (key in tag.attributes()) {
@@ -355,24 +355,24 @@ describe("Cloudinary.VideoTag", function() {
       });
     });
   });
-  return describe("toDOM", function() {
+  return describe("toDOM", function () {
     var element;
     element = cloudinary.HtmlTag.new("div").toDOM();
-    return it("should generate a DOM Element", function() {
+    return it("should generate a DOM Element", function () {
       expect(element != null ? element.nodeType : void 0).toBe(1); // element
       return expect(element.tagName).toMatch(/div/i);
     });
   });
 });
 
-describe("ClientHintsMetaTag", function() {
-  return it("should generate a meta tag defining client hints", function() {
+describe("ClientHintsMetaTag", function () {
+  return it("should generate a meta tag defining client hints", function () {
     var tag;
     tag = new cloudinary.ClientHintsMetaTag().toHtml();
     return expect(tag).toBe('<meta content="DPR, Viewport-Width, Width" http-equiv="Accept-CH">');
   });
 });
-describe("SourceTag", function(){
+describe("SourceTag", function () {
   const public_id = "sample";
   const image_format = "jpg";
   const FULL_PUBLIC_ID = `${public_id}.${image_format}`;
@@ -409,7 +409,7 @@ describe("SourceTag", function(){
       "crop": "fill"
     };
     fill_transformation_str = `c_fill,h_${max_width},w_${max_width}`;
-    cl = new Cloudinary({
+    cl = new cloudinary.Cloudinary({
       cloud_name: "test123",
       api_secret: "1234"
     });
@@ -419,7 +419,7 @@ describe("SourceTag", function(){
   });
   it("should generate source tag with media query", function () {
     var expectedMedia, expectedTag, media, tag;
-    media = {min_width, max_width};
+    media = { min_width, max_width };
     tag = cl.sourceTag(FULL_PUBLIC_ID, {
       media: media
     });
@@ -431,15 +431,14 @@ describe("SourceTag", function(){
     var tag = cl.sourceTag(FULL_PUBLIC_ID, {
       srcset: common_srcset
     });
-    expect(tag.toHtml()).toBe('<source srcset="' +
-      "http://res.cloudinary.com/test123/image/upload/c_scale,w_100/sample.jpg 100w, " +
-      "http://res.cloudinary.com/test123/image/upload/c_scale,w_200/sample.jpg 200w, " +
-      "http://res.cloudinary.com/test123/image/upload/c_scale,w_300/sample.jpg 300w, " +
-      "http://res.cloudinary.com/test123/image/upload/c_scale,w_399/sample.jpg 399w" + '">');
+    expect(tag.toHtml()).toBe('<source srcset="'
+      + "http://res.cloudinary.com/test123/image/upload/c_scale,w_100/sample.jpg 100w, "
+      + "http://res.cloudinary.com/test123/image/upload/c_scale,w_200/sample.jpg 200w, "
+      + "http://res.cloudinary.com/test123/image/upload/c_scale,w_300/sample.jpg 300w, "
+      + "http://res.cloudinary.com/test123/image/upload/c_scale,w_399/sample.jpg 399w" + '">');
   });
-
 });
-describe("PictureTag", function(){
+describe("PictureTag", function () {
   it("should generate picture tag", function () {
     const min_width = 100;
     const max_width = 399;
@@ -456,42 +455,41 @@ describe("PictureTag", function(){
 
     var exp_tag, tag;
     tag = new cloudinary.PictureTag(FULL_PUBLIC_ID, fill_transformation, [
-        {
-          "max_width": min_width,
-          "transformation": {
-            "crop": "scale",
-            "effect": "sepia",
-            "angle": 17,
-            "width": min_width
-          }
-        },
-        {
-          "min_width": min_width,
-          "max_width": max_width,
-          "transformation": {
-            "crop": "scale",
-            "effect": "colorize",
-            "angle": 18,
-            "width": max_width
-          }
-        },
-        {
-          "min_width": max_width,
-          "transformation": {
-            "crop": "scale",
-            "effect": "blur",
-            "angle": 19,
-            "width": max_width
-          }
+      {
+        "max_width": min_width,
+        "transformation": {
+          "crop": "scale",
+          "effect": "sepia",
+          "angle": 17,
+          "width": min_width
         }
-      ]
-    );
-    exp_tag = "<picture>" +
-      '<source media="(max-width: 100px)" srcset="http://res.cloudinary.com/test123/image/upload/c_fill,h_399,w_399/a_17,c_scale,e_sepia,w_100/sample.jpg">' +
-      '<source media="(min-width: 100px) and (max-width: 399px)" srcset="http://res.cloudinary.com/test123/image/upload/c_fill,h_399,w_399/a_18,c_scale,e_colorize,w_399/sample.jpg">' +
-      '<source media="(min-width: 399px)" srcset="http://res.cloudinary.com/test123/image/upload/c_fill,h_399,w_399/a_19,c_scale,e_blur,w_399/sample.jpg">' +
-      '<img height="399" src="http://res.cloudinary.com/test123/image/upload/c_fill,h_399,w_399/sample.jpg" width="399">' +
-      "</picture>";
+      },
+      {
+        "min_width": min_width,
+        "max_width": max_width,
+        "transformation": {
+          "crop": "scale",
+          "effect": "colorize",
+          "angle": 18,
+          "width": max_width
+        }
+      },
+      {
+        "min_width": max_width,
+        "transformation": {
+          "crop": "scale",
+          "effect": "blur",
+          "angle": 19,
+          "width": max_width
+        }
+      }
+    ]);
+    exp_tag = "<picture>"
+      + '<source media="(max-width: 100px)" srcset="http://res.cloudinary.com/test123/image/upload/c_fill,h_399,w_399/a_17,c_scale,e_sepia,w_100/sample.jpg">'
+      + '<source media="(min-width: 100px) and (max-width: 399px)" srcset="http://res.cloudinary.com/test123/image/upload/c_fill,h_399,w_399/a_18,c_scale,e_colorize,w_399/sample.jpg">'
+      + '<source media="(min-width: 399px)" srcset="http://res.cloudinary.com/test123/image/upload/c_fill,h_399,w_399/a_19,c_scale,e_blur,w_399/sample.jpg">'
+      + '<img height="399" src="http://res.cloudinary.com/test123/image/upload/c_fill,h_399,w_399/sample.jpg" width="399">'
+      + "</picture>";
     expect(tag.toHtml()).toBe(exp_tag);
   });
-})
+});

@@ -77,7 +77,6 @@ class Condition extends Expression {
   faceCount(operator, value) {
     return this.predicate("fc", operator, value);
   }
-
 }
 
 export default Condition;

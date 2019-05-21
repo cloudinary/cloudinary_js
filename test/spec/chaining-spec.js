@@ -1,21 +1,21 @@
-var protocol, simpleAssign, simpleClone;
+var protocol;
 
-simpleAssign = function(dest, source) {
+function simpleAssign(dest, source) {
   var key, value;
   for (key in source) {
     value = source[key];
     dest[key] = value;
   }
   return dest;
-};
+}
 
-simpleClone = function(source) {
+function simpleClone(source) {
   return simpleAssign({}, source);
-};
+}
 
 protocol = window.location.protocol === "file:" ? "http:" : window.location.protocol;
 
-describe("Chaining", function() {
+describe("Chaining", function () {
   var DEFAULT_UPLOAD_PATH, VIDEO_UPLOAD_PATH, config, options;
   VIDEO_UPLOAD_PATH = `${protocol}//res.cloudinary.com/test123/video/upload/`;
   DEFAULT_UPLOAD_PATH = `${protocol}//res.cloudinary.com/test123/image/upload/`;
@@ -28,22 +28,22 @@ describe("Chaining", function() {
     api_secret: "b"
   };
   options = {};
-  beforeEach(function() {
+  beforeEach(function () {
     return options = simpleClone(config);
   });
-  describe("Cloudinary.transformation", function() {
+  describe("Cloudinary.transformation", function () {
     var cl, t;
     cl = cloudinary.Cloudinary.new();
     t = cl.transformation();
-    it("should return a transformation object", function() {
+    it("should return a transformation object", function () {
       return expect(t.constructor.name).toBe("Transformation");
     });
-    return it("should return the calling object with getParent()", function() {
+    return it("should return the calling object with getParent()", function () {
       return expect(t.getParent()).toBe(cl);
     });
   });
-  return describe("Cloudinary.ImageTag", function() {
-    return it("should generate video tag with various attributes", function() {
+  return describe("Cloudinary.ImageTag", function () {
+    return it("should generate video tag with various attributes", function () {
       var expected_url, tag;
       expected_url = VIDEO_UPLOAD_PATH + "ac_acc,so_3,vc_h264/movie";
       tag = new cloudinary.Cloudinary(options).videoTag("movie").setSourceTypes('mp4').transformation().htmlHeight("100").htmlWidth("200").videoCodec({
@@ -53,5 +53,3 @@ describe("Chaining", function() {
     });
   });
 });
-
-//# sourceMappingURL=chaining-spec.js.map
