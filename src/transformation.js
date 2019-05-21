@@ -18,14 +18,13 @@ import {
   snakeCase
 } from './util';
 
-import {
-  Param,
-  ArrayParam,
-  LayerParam,
-  RangeParam,
-  RawParam,
-  TransformationParam
-} from "./parameters";
+import Param from "./parameters/param";
+import ArrayParam from "./parameters/arrayparam";
+import RangeParam from "./parameters/rangeparam";
+import RawParam from "./parameters/rawparam";
+import LayerParam from "./parameters/layerparam";
+// eslint-disable-next-line import/no-cycle
+import TransformationParam from "./parameters/transformationparam";
 
 /**
  * Assign key, value to target, when value is not null.<br>
