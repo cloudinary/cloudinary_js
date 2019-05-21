@@ -1,40 +1,32 @@
-var SharedExamples, includeContext, itBehavesLike, sharedContext, sharedExamples;
+var allExamples = {};
 
-SharedExamples = class SharedExamples {
-  constructor(name, examples) {
-    if (this.allExamples == null) {
-      this.allExamples = {};
-    }
-    if (cloudinary.Util.isFunction(examples)) {
-      this.allExamples[name] = examples;
-      examples;
+function sharedExamples(name, examples) {
+  if (this.allExamples == null) {
+    this.allExamples = {};
+  }
+  if (cloudinary.Util.isFunction(examples)) {
+    this.allExamples[name] = examples;
+    return examples;
+  } else {
+    if (this.allExamples[name] != null) {
+      return this.allExamples[name];
     } else {
-      if (this.allExamples[name] != null) {
-        return this.allExamples[name];
-      } else {
-        return function() {
-          return console.log(`Shared example ${name} was not found!`);
-        };
-      }
+      return function () {
+        return console.log(`Shared example ${name} was not found!`);
+      };
     }
   }
+}
 
-};
 
-sharedExamples = function(name, examples) {
-  return new SharedExamples(name, examples);
-};
+const sharedContext = sharedExamples;
 
-sharedContext = sharedExamples;
-
-itBehavesLike = function(name, ...args) {
-  return describe.call(this, `behaves like ${name}`, function() {
+function itBehavesLike(name, ...args) {
+  return describe.call(this, `behaves like ${name}`, function () {
     return sharedExamples(name).apply(this, args);
   });
-};
+}
 
-includeContext = function(name, ...args) {
+function includeContext(name, ...args) {
   return sharedExamples(name).apply(this, args);
-};
-
-//# sourceMappingURL=spec-helper.js.map
+}
