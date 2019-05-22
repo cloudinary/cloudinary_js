@@ -3,7 +3,6 @@
  * Helper function. Gets or populates srcset breakpoints using provided parameters
  * Either the breakpoints or min_width, max_width, max_images must be provided.
  *
- * @module utils
  * @private
  * @param {srcset} srcset Options with either `breakpoints` or `min_width`, `max_width`, and `max_images`
  *

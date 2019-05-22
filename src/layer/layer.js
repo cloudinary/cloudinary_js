@@ -3,7 +3,7 @@ import {
   compact
 } from '../util';
 
-var Layer = class Layer {
+class Layer {
   /**
    * Layer
    * @constructor Layer
@@ -82,6 +82,6 @@ var Layer = class Layer {
     return compact(components).join(":");
   }
 
-};
+}
 
 export default Layer;

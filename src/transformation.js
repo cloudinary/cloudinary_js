@@ -51,7 +51,7 @@ function assignNotNull(target, ...sources) {
  * @internal
  */
 
-var TransformationBase = class TransformationBase {
+class TransformationBase {
   /**
    * The base class for transformations.
    * Members of this class are documented as belonging to the {@link Transformation} class for convenience.
@@ -404,7 +404,7 @@ var TransformationBase = class TransformationBase {
   }
 
   /**
-   * Returns attributes for an HTML tag.
+   * Returns the attributes for an HTML tag.
    * @function Cloudinary.toHtmlAttributes
    * @return PlainObject
    */
@@ -518,17 +518,21 @@ function processVar(varArray) {
  * @ignore
  * @see toHtmlAttributes
  */
-var Transformation = class Transformation extends TransformationBase {
+class Transformation extends TransformationBase {
   /**
-   *  Represents a single transformation.
-   *  @class Transformation
-   *  @example
-   *  t = new cloudinary.Transformation();
+   * Represents a single transformation.
+   * @class Transformation
+   * @example
+   * t = new cloudinary.Transformation();
    * t.angle(20).crop("scale").width("auto");
    *
    * // or
    *
    * t = new cloudinary.Transformation( {angle: 20, crop: "scale", width: "auto"});
+   * @see <a href="https://cloudinary.com/documentation/image_transformation_reference" 
+   *  target="_blank">Available image transformations</a>
+   * @see <a href="https://cloudinary.com/documentation/video_transformation_reference" 
+   *  target="_blank">Available video transformations</a>
    */
   constructor(options) {
     super(options);
@@ -851,7 +855,7 @@ var Transformation = class Transformation extends TransformationBase {
     return this.param(value, "zoom", "z", Expression.normalize);
   }
 
-};
+}
 
 /**
  * Transformation Class methods.

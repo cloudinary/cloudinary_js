@@ -1,10 +1,10 @@
-const Expression = class Expression {
-  /**
-   * Represents a transformation expression
-   * @param {string} expressionStr - a expression in string format
-   * @class Expression
-   *
-   */
+/**
+ * Represents a transformation expression.
+ * @param {string} expressionStr - An expression in string format.
+ * @class Expression
+ *
+ */
+class Expression {
   constructor(expressionStr) {
     /**
      * @protected
@@ -270,7 +270,7 @@ const Expression = class Expression {
     return new this("pageY");
   }
 
-};
+}
 
 /**
  * @internal

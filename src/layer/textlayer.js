@@ -8,7 +8,7 @@ import {
   snakeCase
 } from '../util';
 
-var TextLayer = class TextLayer extends Layer {
+class TextLayer extends Layer {
   /**
    * @constructor TextLayer
    * @param {Object} options - layer parameters

@@ -10,8 +10,9 @@
     "src/**/*"
   ],
   "scripts": {
-    "build": "npx parallel-webpack",
-    "test": "npx karma start --single-run --browsers=ChromeHeadless",
+    "build": "node_modules/.bin/parallel-webpack",
+    "doc": "node_modules/.bin/jsdoc -c jsdoc-conf.json",
+    "test": "node_modules/.bin/karma start --single-run --browsers=ChromeHeadless",
     "test:all": "for pkg in core jquery jquery-file-upload; do node_modules/.bin/karma start --single-run --cloudinary.pkg=${pkg}; done",
     "test:all:prod": "for pkg in core jquery jquery-file-upload; do node_modules/.bin/karma start --single-run --cloudinary.minified --cloudinary.pkg=${pkg}; done",
     "test:types": "node_modules/.bin/tsc",
@@ -60,5 +61,7 @@
     "webpack-bundle-analyzer": "^3.3.2",
     "webpack-cli": "^3.3.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "jsdoc": "^3.6.0"
+  }
 }
