@@ -9,7 +9,7 @@ import Transformation from './transformation'
 import firstNotNull from './util/firstNotNull'
 
 /**
- * Cloudinary class with jQuery support
+ * Creates a new Cloudinary instance with jQuery support.
  * @class CloudinaryJQuery
  * @extends Cloudinary
  */

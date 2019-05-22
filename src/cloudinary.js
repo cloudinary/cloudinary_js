@@ -77,7 +77,7 @@ maxWidth = function(requiredWidth, tag) {
 
 class Cloudinary {
   /**
-   * Create a new Cloudinary instance
+   * Creates a new Cloudinary instance.
    * @class Cloudinary
    * @classdesc Main class for accessing Cloudinary functionality.
    * @param {Object} options - A {@link Configuration} object for globally configuring Cloudinary account settings.

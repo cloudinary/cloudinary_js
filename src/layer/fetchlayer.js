@@ -8,7 +8,7 @@ import {
 class FetchLayer extends Layer {
   /**
    * @class FetchLayer
-   * @classdesc Creates an image layer using a remote URL
+   * @classdesc Creates an image layer using a remote URL.
    * @param {Object|string} options - layer parameters or a url
    * @param {string} options.url the url of the image to fetch
    */

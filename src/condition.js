@@ -1,7 +1,7 @@
 import Expression from './expression';
 
 /**
- * Represents a transformation condition
+ * Represents a transformation condition.
  * @param {string} conditionStr - a condition in string format
  * @class Condition
  * @example

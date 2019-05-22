@@ -26,7 +26,7 @@ import FetchLayer from './layer/fetchlayer';
  */
 class Param {
   /**
-   * Represents a single parameter
+   * Represents a single parameter.
    * @class Param
    * @param {string} name - The name of the parameter in snake_case
    * @param {string} shortName - The name of the serialized form of the parameter.
@@ -139,8 +139,8 @@ class Param {
 
 class ArrayParam extends Param {
   /**
-   * A parameter that represents an array
-   * @param {string} name - The name of the parameter in snake_case
+   * A parameter that represents an array.
+   * @param {string} name - The name of the parameter in snake_case.
    * @param {string} shortName - The name of the serialized form of the parameter
    *                         If a value is not provided, the parameter will not be serialized.
    * @param {string} [sep='.'] - The separator to use when joining the array elements together
@@ -242,7 +242,7 @@ var TransformationParam = class TransformationParam extends Param {
 
 class RangeParam extends Param {
   /**
-   * A parameter that represents a range
+   * A parameter that represents a range.
    * @param {string} name - The name of the parameter in snake_case
    * @param {string} shortName - The name of the serialized form of the parameter
    *                         If a value is not provided, the parameter will not be serialized.

@@ -1,6 +1,6 @@
 /**
- * Represents a transformation expression
- * @param {string} expressionStr - a expression in string format
+ * Represents a transformation expression.
+ * @param {string} expressionStr - An expression in string format.
  * @class Expression
  *
  */
