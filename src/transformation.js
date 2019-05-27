@@ -343,47 +343,39 @@ class TransformationBase {
    * @return {string} Returns the transformation as a string
    */
   serialize() {
-    var ifParam, j, len, paramList, ref, ref1, ref2, ref3, ref4, resultArray, t, transformationList,
-      transformationString, transformations, value, variables, vars;
-    resultArray = this.chained.map(tr => tr.serialize());
-    paramList = this.keys();
-    transformations = (ref = this.get("transformation")) != null ? ref.serialize() : void 0;
-    ifParam = (ref1 = this.get("if")) != null ? ref1.serialize() : void 0;
-    variables = processVar((ref2 = this.get("variables")) != null ? ref2.value() : void 0);
-    paramList = difference(paramList, ["transformation", "if", "variables"]);
-    vars = [];
-    transformationList = [];
-    for (j = 0, len = paramList.length; j < len; j++) {
-      t = paramList[j];
-      if (t.match(VAR_NAME_RE)) {
-        vars.push(t + "_" + Expression.normalize((ref3 = this.get(t)) != null ? ref3.value() : void 0));
-      } else {
-        transformationList.push((ref4 = this.get(t)) != null ? ref4.serialize() : void 0);
+    let resultArray = this.chained.map(tr => tr.serialize());
+    let paramList = difference(this.keys(), ["transformation", "if", "variables"]);
+    let transformations = this.get("transformation") ? this.get("transformation").serialize() : void 0;
+    let ifParam = this.get("if") ? this.get("if").serialize() : void 0;
+    let variables = processVar(this.get("variables") ? this.get("variables").value() : void 0);
+    let vars = [];
+    let transformationList = [];
+    paramList.forEach((t) => {
+      let temp = this.get(t);
+      if (temp == null) {
+        return;
       }
-    }
+      if (t.match(VAR_NAME_RE)) {
+        vars.push(t + "_" + Expression.normalize(temp.value()));
+      } else {
+        transformationList.push(temp.serialize());
+      }
+    });
     if (isString(transformations)) {
       transformationList.push(transformations);
     } else if (isArray(transformations)) {
       resultArray = resultArray.concat(transformations);
     }
-    transformationList = (function () {
-      var k, len1, results;
-      results = [];
-      for (k = 0, len1 = transformationList.length; k < len1; k++) {
-        value = transformationList[k];
-        if (isArray(value) && !isEmpty(value) || !isArray(value) && value) {
-          results.push(value);
-        }
-      }
-      return results;
-    })();
+    transformationList = transformationList.filter(
+      value => isArray(value) && !isEmpty(value) || !isArray(value) && value
+    );
     transformationList = vars.sort().concat(variables).concat(transformationList.sort());
     if (ifParam === "if_end") {
       transformationList.push(ifParam);
     } else if (!isEmpty(ifParam)) {
       transformationList.unshift(ifParam);
     }
-    transformationString = compact(transformationList).join(this.param_separator);
+    let transformationString = compact(transformationList).join(this.param_separator);
     if (!isEmpty(transformationString)) {
       resultArray.push(transformationString);
     }
@@ -406,15 +398,14 @@ class TransformationBase {
    * @return PlainObject
    */
   toHtmlAttributes() {
-    var attrName, height, key, options, ref2, ref3, value, width;
-    options = {};
-    for (key in this.otherOptions) {
-      value = this.otherOptions[key];
+    let options = {};
+    Object.keys(this.otherOptions).forEach((key) => {
+      let value = this.otherOptions[key];
       if (!contains(Transformation.PARAM_NAMES, snakeCase(key))) {
-        attrName = /^html_/.test(key) ? key.slice(5) : key;
+        let attrName = /^html_/.test(key) ? key.slice(5) : key;
         options[attrName] = value;
       }
-    }
+    });
     // convert all "html_key" to "key" with the same value
     this.keys().forEach((key) => {
       if (/^html_/.test(key)) {
@@ -422,8 +413,8 @@ class TransformationBase {
       }
     });
     if (!(this.hasLayer() || this.getValue("angle") || contains(["fit", "limit", "lfill"], this.getValue("crop")))) {
-      width = (ref2 = this.get("width")) != null ? ref2.origValue : void 0;
-      height = (ref3 = this.get("height")) != null ? ref3.origValue : void 0;
+      let width = this.get("width") != null ? this.get("width").origValue : void 0;
+      let height = this.get("height") != null ? this.get("height").origValue : void 0;
       if (parseFloat(width) >= 1.0) {
         if (options['width'] == null) {
           options['width'] = width;
@@ -694,21 +685,20 @@ class Transformation extends TransformationBase {
   }
 
   if(value = "") {
-    var i, ifVal, j, ref, trIf, trRest;
     switch (value) {
       case "else":
         this.chain();
         return this.param(value, "if", "if");
       case "end":
         this.chain();
-        for (i = j = ref = this.chained.length - 1; j >= 0; i = j += -1) {
-          ifVal = this.chained[i].getValue("if");
+        for (let i = this.chained.length - 1; i >= 0; i--) {
+          let ifVal = this.chained[i].getValue("if");
           if (ifVal === "end") {
             break;
           } else if (ifVal != null) {
-            trIf = Transformation.new().if(ifVal);
+            let trIf = Transformation.new().if(ifVal);
             this.chained[i].remove("if");
-            trRest = this.chained[i];
+            let trRest = this.chained[i];
             this.chained[i] = Transformation.new().transformation([trIf, trRest]);
             if (ifVal !== "else") {
               break;
