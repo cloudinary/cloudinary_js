@@ -20,17 +20,18 @@ class TransformationParam extends Param {
   }
 
   serialize() {
-    if (isEmpty(this.value())) {
+    const processedValue = this.value();
+    if (isEmpty(processedValue)) {
       return '';
-    } else if (allStrings(this.value())) {
-      let joined = this.value().join(this.sep);
+    } else if (allStrings(processedValue)) {
+      let joined = processedValue.join(this.sep);
       if (!isEmpty(joined)) {
         return `${this.shortName}_${joined}`;
       } else {
         return '';
       }
     } else {
-      return this.value().map((t) => {
+      return processedValue.map((t) => {
         if (t == null) {
           return t;
         } else if (isString(t) && !isEmpty(t)) {
@@ -46,8 +47,8 @@ class TransformationParam extends Param {
     }
   }
 
-  set(origValue1) {
-    this.origValue = origValue1;
+  set(origValue) {
+    this.origValue = origValue;
     if (isArray(this.origValue)) {
       return super.set(this.origValue);
     } else {
