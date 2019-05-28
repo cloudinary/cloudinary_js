@@ -81,6 +81,10 @@ class Layer {
     components.push(this.getFullPublicId());
     return compact(components).join(":");
   }
+
+  clone() {
+    return new this.constructor(this.options);
+  }
 }
 
 export default Layer;

@@ -19,6 +19,7 @@ import {
   snakeCase
 } from './util';
 
+import Layer from "./layer/layer";
 import Param from "./parameters/param";
 import ArrayParam from "./parameters/arrayparam";
 import RangeParam from "./parameters/rangeparam";
@@ -272,28 +273,28 @@ class TransformationBase {
    * @returns {Transformation} Returns this instance for chaining
    */
   fromOptions(options) {
-    if (!isEmpty(options)) {
-      if (options instanceof TransformationBase) {
-        this.fromTransformation(options);
-      } else {
-        options = options || {};
-        if (isString(options) || isArray(options)) {
-          options = {
-            transformation: options
-          };
+    if (options instanceof TransformationBase) {
+      this.fromTransformation(options);
+    } else {
+      options = options || {};
+      if (isString(options) || isArray(options)) {
+        options = {
+          transformation: options
+        };
+      }
+      options = cloneDeep(options, function (value) {
+        if (value instanceof TransformationBase || value instanceof Layer) {
+          return new value.clone();
         }
-        options = cloneDeep(options, function (value) {
-          if (value instanceof TransformationBase) {
-            return new value.constructor(value.toOptions());
-          }
-        });
-        // Handling of "if" statements precedes other options as it creates a chained transformation
-        if (options["if"]) {
-          this.set("if", options["if"]);
-          delete options["if"];
-        }
-        for (let key in options) {
-          let opt = options[key];
+      });
+      // Handling of "if" statements precedes other options as it creates a chained transformation
+      if (options["if"]) {
+        this.set("if", options["if"]);
+        delete options["if"];
+      }
+      for (let key in options) {
+        let opt = options[key];
+        if (opt != null) {
           if (key.match(VAR_NAME_RE)) {
             if (key !== '$attr') {
               this.set('variable', key, opt);
@@ -451,6 +452,10 @@ class TransformationBase {
 
   toString() {
     return this.serialize();
+  }
+
+  clone() {
+    return new this.constructor(this.toOptions(true));
   }
 }
 
