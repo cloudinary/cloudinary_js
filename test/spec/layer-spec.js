@@ -1,10 +1,18 @@
-var FetchLayer, TextLayer;
-
-TextLayer = cloudinary.TextLayer;
-
-FetchLayer = cloudinary.FetchLayer;
+const {TextLayer, FetchLayer} = cloudinary;
 
 describe("TextLayer", function() {
+  it("should clone", function() {
+    const options = {
+      text: "Cloudinary for the win!",
+      fontFamily: "Arial",
+      fontSize: 18
+    };
+    const first = new TextLayer(options);
+    const second = first.clone();
+    expect(first).not.toBe(second);
+    expect(first).toEqual(second);
+    expect(first.toString()).toEqual(second.toString());
+  });
   it("should serialize a text layer object", function() {
     var layer, options, transformation;
     options = {
