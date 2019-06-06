@@ -84,7 +84,7 @@ class Cloudinary {
    * Creates a new Cloudinary instance.
    * @class Cloudinary
    * @classdesc Main class for accessing Cloudinary functionality.
-   * @param {Object} options - A {@link Configuration} object for globally configuring Cloudinary account settings.
+   * @param {Object} [options] - A {@link Configuration} object for globally configuring Cloudinary account settings.
    * @example<br/>
    *  var cl = new cloudinary.Cloudinary( { cloud_name: "mycloud"});<br/>
    *  var imgTag = cl.image("myPicID");

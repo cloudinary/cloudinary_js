@@ -16,7 +16,7 @@ import {
  *  target="_new">Automating responsive images with Client Hints</a> for more details.
  * @constructor ClientHintsMetaTag
  * @extends HtmlTag
- * @param {object} options
+ * @param {object} [options] - configuration parameters to initialize the tag
  * @example
  * tag = new ClientHintsMetaTag()
  * //returns: <meta http-equiv="Accept-CH" content="DPR, Viewport-Width, Width">

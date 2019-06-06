@@ -57,6 +57,7 @@ class TransformationBase {
    * The base class for transformations.
    * Members of this class are documented as belonging to the {@link Transformation} class for convenience.
    * @class TransformationBase
+   * @param {object|Transformation|[object]} [options] - transformation paramaters
    */
   constructor(options) {
     /** @private */
@@ -512,6 +513,7 @@ class Transformation extends TransformationBase {
   /**
    * Represents a single transformation.
    * @class Transformation
+   * @param {object} options asdf
    * @example
    * t = new cloudinary.Transformation();
    * t.angle(20).crop("scale").width("auto");
