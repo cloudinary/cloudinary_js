@@ -18,7 +18,9 @@
     "test:types": "node_modules/.bin/tsc",
     "pretest": "npm run build",
     "pretest:all": "npm run build",
-    "pretest:all:prod": "npm run build"
+    "pretest:all:prod": "npm run build",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -62,6 +64,8 @@
     "webpack-cli": "^3.3.0"
   },
   "dependencies": {
-    "jsdoc": "^3.6.0"
-  }
+    "jsdoc": "^3.6.0",
+    "snyk": "^1.189.0"
+  },
+  "snyk": true
 }
