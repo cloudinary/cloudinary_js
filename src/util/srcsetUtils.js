@@ -33,7 +33,7 @@ export function scaledUrl(public_id, width, transformation, options = {}) {
   transformation = transformation || options;
   configParams.raw_transformation = new Transformation([utils.merge({}, transformation), {
     crop: 'scale',
-    width: width
+    width: width,
   }]).toString();
 
   return url(public_id, configParams);

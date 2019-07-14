@@ -446,7 +446,7 @@ describe("PictureTag", function () {
       cloud_name: "test123",
       width: max_width,
       height: max_width,
-      crop: "fill"
+      crop: "fill",
     };
     const fill_transformation_str = `c_fill,h_${max_width},w_${max_width}`;
     const public_id = "sample";
@@ -461,8 +461,8 @@ describe("PictureTag", function () {
           "crop": "scale",
           "effect": "sepia",
           "angle": 17,
-          "width": min_width
-        }
+          "width": min_width,
+        },
       },
       {
         "min_width": min_width,

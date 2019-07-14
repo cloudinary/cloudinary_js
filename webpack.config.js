@@ -112,7 +112,7 @@ function baseConfig(name, mode) {
   };
 
   let filename = `cloudinary-${name}`;
-  if(mode === 'production') { filename += '.min';}
+  if (mode === 'production') { filename += '.min'; }
 
   const util = name.startsWith('jquery') ? 'jquery' : 'lodash';
   const utilPath = path.resolve(__dirname, `src/util/${util}`);
@@ -149,7 +149,7 @@ const modes = [
 ];
 
 module.exports = names.reduce(
-  (configs, name)=> configs.concat(
-    modes.map(mode=> baseConfig(name, mode))
+  (configs, name) => configs.concat(
+    modes.map(mode => baseConfig(name, mode))
   ), []
 );
