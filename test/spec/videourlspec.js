@@ -383,13 +383,15 @@ describe("video", function() {
   });
 
   describe("conditional duration", function () {
-    const durationValues = [{key: 'duration', value: 'du'}, {
-      key: 'initialDuration',
-      value: 'idu'
-    }, {key: 'initial_duration', value: 'idu'}];
-    durationValues.forEach((dv, i) => {
+    const durationValues = [
+      {key: 'duration', value: 'du'},
+      {key: 'initialDuration', value: 'idu'},
+      {key: 'initial_duration', value: 'idu'}
+    ];
+
+    durationValues.forEach((dv) => {
       const expected_url = `${VIDEO_UPLOAD_PATH}if_${dv.value}_gt_30/c_scale,w_200/if_end/movie`;
-      const result = it(`should generate video tag with ${dv.key} condition`, function () {
+      it(`should generate video tag with ${dv.key} condition`, function () {
         return expect(cl.video("movie", {
           transformation: [
             {
@@ -406,18 +408,15 @@ describe("video", function() {
           source_types: ['ogv', 'mp4']
         })).toEqual(`<video poster="${expected_url}.jpg">` + `<source src="${expected_url}.ogv" type="video/ogg">` + `<source src="${expected_url}.mp4" type="video/mp4">` + "</video>");
       });
-      if (i >= durationValues.length - 1) {
-        return result;
-      }
     });
   });
 
-  describe("sources", function() {
+  describe("sources", function () {
     const expected_url = VIDEO_UPLOAD_PATH + "movie";
     const expected_url_mp4 = VIDEO_UPLOAD_PATH + "vc_auto/movie.mp4";
     const expected_url_webm = VIDEO_UPLOAD_PATH + "vc_auto/movie.webm";
 
-    it("should generate video tag with default sources", function() {
+    it("should generate video tag with default sources", function () {
       const expected_url_h265_mp4 = VIDEO_UPLOAD_PATH + "vc_h265/movie.mp4";
       const expected_url_vp9_webm = VIDEO_UPLOAD_PATH + "vc_vp9/movie.webm";
       expect(cl.video("movie", {
