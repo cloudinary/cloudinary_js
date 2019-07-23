@@ -389,13 +389,13 @@ describe("video", function() {
       {key: 'initial_duration', value: 'idu'}
     ];
 
-    durationValues.forEach((dv) => {
-      const expected_url = `${VIDEO_UPLOAD_PATH}if_${dv.value}_gt_30/c_scale,w_200/if_end/movie`;
-      it(`should generate video tag with ${dv.key} condition`, function () {
+    durationValues.forEach(({key, value}) => {
+      const expected_url = `${VIDEO_UPLOAD_PATH}if_${value}_gt_30/c_scale,w_200/if_end/movie`;
+      it(`should generate video tag with ${key} condition`, function () {
         return expect(cl.video("movie", {
           transformation: [
             {
-              if: dv.key + " > 30"
+              if: key + " > 30"
             },
             {
               crop: "scale",
