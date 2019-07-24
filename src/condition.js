@@ -78,6 +78,25 @@ class Condition extends Expression {
     return this.predicate("fc", operator, value);
   }
 
+  /**
+   * @function Condition#duration
+   * @param {string} operator the comparison operator (e.g. "<", "lt")
+   * @param {string|number} value the right hand side value
+   * @return {Condition} this condition
+   */
+  duration(operator, value) {
+    return this.predicate("du", operator, value);
+  }
+
+  /**
+   * @function Condition#initialDuration
+   * @param {string} operator the comparison operator (e.g. "<", "lt")
+   * @param {string|number} value the right hand side value
+   * @return {Condition} this condition
+   */
+  initialDuration(operator, value) {
+    return this.predicate("idu", operator, value);
+  }
 }
 
 export default Condition;
