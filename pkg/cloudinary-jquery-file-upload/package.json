@@ -5,6 +5,7 @@
   "main": "cloudinary-jquery-file-upload.js",
   "types": "cloudinary-jquery-file-upload.d.ts",
   "files": [
+    "README.md",
     "cloudinary-jquery.js",
     "cloudinary-jquery.js.map",
     "cloudinary-jquery-file-upload.d.ts",

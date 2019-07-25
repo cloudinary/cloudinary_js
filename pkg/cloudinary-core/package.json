@@ -5,6 +5,7 @@
   "main": "cloudinary-core.js",
   "types": "cloudinary-core.d.ts",
   "files": [
+    "README.md",
     "cloudinary-core*.js",
     "cloudinary-core*.map",
     "cloudinary-core.d.ts",
