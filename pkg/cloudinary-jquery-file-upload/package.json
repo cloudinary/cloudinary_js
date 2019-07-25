@@ -1,0 +1,35 @@
+{
+  "name": "cloudinary-jquery-file-upload",
+  "version": "2.6.3",
+  "description": "Cloudinary Client Side JS library. Cloudinary streamlines your web application’s image manipulation needs. Cloudinary's cloud-based servers automate image uploading, resizing, cropping, optimizing, sprite generation and more. Cloudinary's jQuery File Upload plugin allows direct uploading from the browser to the cloud and dynamic cloud-based image transformations and effects.",
+  "main": "cloudinary-jquery-file-upload.js",
+  "types": "cloudinary-jquery-file-upload.d.ts",
+  "files": [
+    "cloudinary-jquery.js",
+    "cloudinary-jquery.js.map",
+    "cloudinary-jquery-file-upload.d.ts",
+    "src/**/*"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cloudinary/cloudinary_js.git"
+  },
+  "author": {
+    "name": "Cloudinary",
+    "email": "info@cloudinary.com",
+    "homepage": "http://cloudinary.com"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cloudinary/cloudinary_js/issues"
+  },
+  "homepage": "https://github.com/cloudinary/cloudinary_js",
+  "peerDependencies": {
+    "jquery": ">=2.2.4",
+    "blueimp-file-upload": "^9.11.2"
+  },
+  "scripts": {
+    "prepublishOnly": "../copy_deployment jquery-file-upload"
+  }
+
+}

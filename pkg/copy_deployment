@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Usage $0 package-name
+# For example, $0 core
+rm -rf src &&
+cp -r ../../src src &&
+cp ../../dist/cloudinary-${1}.*.js ../../dist/cloudinary-${1}.*.map .
+cp ../../types/cloudinary-core.d.ts cloudinary-${1}.d.ts
