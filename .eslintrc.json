@@ -70,6 +70,7 @@
     "quotes": "off",
     "radix": "off",
     "vars-on-top": "off",
-    "wrap-iife": "off"
+    "wrap-iife": "off",
+    "comma-dangle": ["error", "never"]
   }
 }

@@ -16,7 +16,7 @@ class PictureTag extends HtmlTag {
       let options = this.getOptions();
       let sourceTransformation = new Transformation(options);
       sourceTransformation.chain().fromOptions(typeof transformation === 'string' ? {
-        raw_transformation: transformation,
+        raw_transformation: transformation
       } : transformation);
       options = extractUrlParams(options);
       options.media = { min_width, max_width };
