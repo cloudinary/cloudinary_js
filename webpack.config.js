@@ -97,6 +97,7 @@ function baseConfig(name, mode) {
       ]
     },
     plugins: [
+      new webpack.optimize.ModuleConcatenationPlugin(),
       new webpack.BannerPlugin({
         banner: `/**
    * cloudinary-[name].js
