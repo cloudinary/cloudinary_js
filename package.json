@@ -51,7 +51,7 @@
     "karma-firefox-launcher": "^1.0.0",
     "karma-jasmine": "^2.0.1",
     "karma-story-reporter": "~0.3",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.13",
     "lodash-cli": "^4.15.0",
     "parallel-webpack": "^2.3.0",
     "requirejs": "^2.3.6",
