@@ -18,4 +18,7 @@ rm -rf ${pkg_root}/src &&
 cp -r ${js_root}/src ${pkg_root}/src &&
 cp ${js_root}/dist/cloudinary-${1}.*.js ${js_root}/dist/cloudinary-${1}.*.map ${pkg_root} &&
 cp ${js_root}/types/cloudinary-core.d.ts ${pkg_root}/cloudinary-${1}.d.ts &&
+if [ ${1} = "core" ]; then
+    cp ${js_root}/dist/cloudinary-${1}-shrinkwrap.*.js ${js_root}/dist/cloudinary-${1}-shrinkwrap.*.map ${pkg_root}
+fi
 echo "Copied ${1}"
