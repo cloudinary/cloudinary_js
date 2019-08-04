@@ -28,10 +28,7 @@ describe("Cloudinary::Utils", function() {
   describe("cloudinary_url", function() {
     var i, len, long, ref, short;
     describe(":fps", function() {
-      var i, len, name, params, range, results, subject, test, url_param;
-      subject = function(options) {
-        return cl.url("fps", options);
-      };
+      var i, len, params, results, test;
       params = [['string range', 'fps_24-29.97', '24-29.97'], ['integer', 'fps_24', 24], ['array', 'fps_24-29.97', [24, 29.97]], ['range', 'fps_-24', -24], ['float', 'fps_24.5', 24.5]];
       results = [];
       for (i = 0, len = params.length; i < len; i++) {
@@ -380,35 +377,6 @@ describe("video", function() {
       },
       source_types: ['webm', 'mp4']
     })).toEqual(`<video poster="${expected_url}.jpg" width="100">` + `<source src="${expected_url}.webm" type="video/webm">` + `<source src="${expected_mp4_url}.mp4" type="video/mp4">` + "</video>");
-  });
-
-  describe("conditional duration", function () {
-    const durationValues = [
-      {key: 'duration', value: 'du'},
-      {key: 'initialDuration', value: 'idu'},
-      {key: 'initial_duration', value: 'idu'}
-    ];
-
-    durationValues.forEach(({key, value}) => {
-      const expected_url = `${VIDEO_UPLOAD_PATH}if_${value}_gt_30/c_scale,w_200/if_end/movie`;
-      it(`should generate video tag with ${key} condition`, function () {
-        return expect(cl.video("movie", {
-          transformation: [
-            {
-              if: key + " > 30"
-            },
-            {
-              crop: "scale",
-              width: "200"
-            },
-            {
-              if: "end"
-            }
-          ],
-          source_types: ['ogv', 'mp4']
-        })).toEqual(`<video poster="${expected_url}.jpg">` + `<source src="${expected_url}.ogv" type="video/ogg">` + `<source src="${expected_url}.mp4" type="video/mp4">` + "</video>");
-      });
-    });
   });
 
   describe("sources", function () {
