@@ -18,7 +18,8 @@
     "test:types": "node_modules/.bin/tsc",
     "pretest": "npm run build",
     "pretest:all": "npm run build",
-    "pretest:all:prod": "npm run build"
+    "pretest:all:prod": "npm run build",
+    "copybuilds": "for pkg in core jquery jquery-file-upload; do pkg/copy_deployment ${pkg}; done"
   },
   "repository": {
     "type": "git",
