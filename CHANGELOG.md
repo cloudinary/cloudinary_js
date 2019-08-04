@@ -1,3 +1,37 @@
+2.7.0 / 2019-08-04
+==================
+
+New functionality and features
+------------------------------
+  * Feature/add video duration condition (#183)
+  * Support force_version parameter to include default version when generating delivery urls (#173)
+  * add support for antialiasing and hinting
+  * Add support for custom functions
+  * Add support of custom codecs in video tag (#161)
+
+  
+Other Changes
+-------------
+  * Feature/configuration (#172)
+    * Update webpack and karma configuration
+    * Update npm scripts
+  * Add deployment files under a single repository
+    * Add pkg folder
+    * Add copybuilds script
+  * Add test for support of art:incognito effect (#168)
+  * Update jsdoc version (#182)
+  * Add duration to conditions in video (#178)
+  * Fix layer cloning (#163)
+  * Update inline documentation (#174)
+  * Add `fontAntiAliasing` and `fontHinting` to TypeScript definition
+  * Add `FetchLayer` to types
+  * Fix TypeScript cloudinary import
+  * Add default export definition to TypeScript
+  * Bump lodash from 4.17.11 to 4.17.13 (#180)
+  * Bump js-yaml from 3.12.1 to 3.13.1 (#177)
+  * Fix/sample code (#170)
+      * Bump package versions in samples
+
 
 2.6.3 / 2019-04-02
 ==================
