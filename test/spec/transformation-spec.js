@@ -395,15 +395,27 @@ describe("Transformation", function() {
       format: 'jpg'
     }, protocol + '//res.cloudinary.com/test123/image/fetch/f_jpg/http://cloudinary.com/images/logo.png', {});
   });
-  it('should support effect', function() {
-    return test_cloudinary_url('test', {
-      effect: 'sepia'
-    }, protocol + '//res.cloudinary.com/test123/image/upload/e_sepia/test', {});
-  });
-  it('should support effect with param', function() {
-    return test_cloudinary_url('test', {
-      effect: ['sepia', -10]
-    }, protocol + '//res.cloudinary.com/test123/image/upload/e_sepia:-10/test', {});
+  describe('effect', function () {
+    it('should support effect', function() {
+      return test_cloudinary_url('test', {
+        effect: 'sepia'
+      }, protocol + '//res.cloudinary.com/test123/image/upload/e_sepia/test', {});
+    });
+    it('should support effect with param', function() {
+      return test_cloudinary_url('test', {
+        effect: ['sepia', -10]
+      }, protocol + '//res.cloudinary.com/test123/image/upload/e_sepia:-10/test', {});
+    });
+    it('should support art:incognito effect', function() {
+      test_cloudinary_url('test', {
+        effect: 'art:incognito'
+      }, protocol + '//res.cloudinary.com/test123/image/upload/e_art:incognito/test', {});
+    });
+    it('should support art:incognito effect passed as an array', function() {
+      test_cloudinary_url('test', {
+        effect: ['art', 'incognito']
+      }, protocol + '//res.cloudinary.com/test123/image/upload/e_art:incognito/test', {});
+    });
   });
   it('should support density', function() {
     return test_cloudinary_url('test', {
