@@ -1,7 +1,20 @@
 #!/usr/bin/env bash
 # Usage $0 package-name
 # For example, $0 core
-rm -rf src &&
-cp -r ../../src src &&
-cp ../../dist/cloudinary-${1}.*.js ../../dist/cloudinary-${1}.*.map .
-cp ../../types/cloudinary-core.d.ts cloudinary-${1}.d.ts
+js_root=$(git rev-parse --show-toplevel)
+pkg_root=${js_root}/pkg/cloudinary-${1}
+
+if [ ! -d ${js_root} ]; then
+    echo "Root folder ${pkg_root} does not exist!"
+    exit 1
+fi
+
+if [ ! -d ${pkg_root} ]; then
+    echo "Package folder ${pkg_root} does not exist!"
+    exit 1
+fi
+
+rm -rf ${pkg_root}/src &&
+cp -r ${js_root}/src ${pkg_root}/src &&
+cp ${js_root}/dist/cloudinary-${1}.*.js ${js_root}/dist/cloudinary-${1}.*.map ${pkg_root}
+cp ${js_root}/types/cloudinary-core.d.ts ${pkg_root}/cloudinary-${1}.d.ts
