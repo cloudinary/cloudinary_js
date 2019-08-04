@@ -924,7 +924,7 @@ describe("Transformation", function() {
         });
       });
     });
-    return describe("using options", function() {
+    describe("using options", function() {
       var layers, layers_options, text_encoded, text_layer;
       text_layer = "Hello World, /Nice to meet you?";
       text_encoded = "Hello%20World%252C%20%252FNice%20to%20meet%20you%3F";
@@ -1008,6 +1008,34 @@ describe("Transformation", function() {
             testOptions[param] = 'text:hello';
             return test_cloudinary_url('test', testOptions, `${protocol}//res.cloudinary.com/test123/image/upload/h_100,${short}_text:hello,w_100/test`, {});
           });
+        });
+      });
+    });
+    describe("conditional duration", function () {
+      const durationValues = [
+        {key: 'duration', value: 'du'},
+        {key: 'initialDuration', value: 'idu'},
+        {key: 'initial_duration', value: 'idu'}
+      ];
+
+      durationValues.forEach(({key, value}) => {
+        const expected = `if_${value}_gt_30/c_scale,w_200/if_end`;
+        it(`should generate transformation with ${key}`, function () {
+          let options = {
+            transformation: [
+              {
+                if: key + " > 30"
+              },
+              {
+                crop: "scale",
+                width: "200"
+              },
+              {
+                if: "end"
+              }
+            ]
+          };
+          expect(new Transformation(options).toString()).toEqual(expected);
         });
       });
     });
