@@ -19,7 +19,8 @@
     "pretest": "npm run build",
     "pretest:all": "npm run build",
     "pretest:all:prod": "npm run build",
-    "copybuilds": "for pkg in core jquery jquery-file-upload; do pkg/copy_deployment ${pkg}; done"
+    "copybuilds": "for pkg in core jquery jquery-file-upload; do pkg/copy_deployment ${pkg}; done",
+    "publishnpm": "npm publish && for pkg in core jquery jquery-file-upload; do publish_to_npm ${pkg}; done"
   },
   "repository": {
     "type": "git",
