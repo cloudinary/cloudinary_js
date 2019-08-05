@@ -1,3 +1,8 @@
+2.7.3 / 2019-08-05
+==================
+
+  * Fix cloudinary-core-shrinkwrap.js missing in release
+  
 2.7.2 / 2019-08-05
 ==================
 
