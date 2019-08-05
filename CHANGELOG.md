@@ -1,3 +1,9 @@
+2.7.2 / 2019-08-05
+==================
+
+  * Fix cloudinary-react needed file not included in release
+      * Update copy_deployment script
+    
 
 2.7.1 / 2019-08-04
 ==================
