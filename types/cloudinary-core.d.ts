@@ -849,7 +849,7 @@ export namespace Configuration {
         responsive?: boolean;
         responsive_width?: string;
         secure_cdn_subdomain?: boolean;
-        secure_distribution?: boolean;
+        secure_distribution?: string;
         shorten?: string;
         type?: string;
         url_suffix?: string;
