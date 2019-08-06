@@ -17,9 +17,9 @@
     "test:all:minified": "for pkg in core jquery jquery-file-upload; do node_modules/.bin/karma start --single-run --cloudinary.minified --cloudinary.pkg=${pkg}; done",
     "test:types": "node_modules/.bin/tsc",
     "test:pkg": "jasmine test/spec/pkg-spec.js",
-    "pretest": "npm run build && npm run test:pkg",
-    "pretest:all:unminified": "npm run build && npm run test:pkg",
-    "pretest:all:minified": "npm run build && npm run test:pkg",
+    "pretest": "npm run build",
+    "pretest:all:unminified": "npm run build",
+    "pretest:all:minified": "npm run build",
     "copybuilds": "for pkg in core jquery jquery-file-upload; do pkg/copy_deployment ${pkg}; done",
     "publishnpm": "npm publish && for pkg in core jquery jquery-file-upload; do publish_to_npm ${pkg}; done"
   },
