@@ -15,7 +15,7 @@ jasmine.getEnv().addReporter(new SpecReporter({
   },
 }));
 
-const commonPath = path.join(__dirname, '..', '..', 'pkg');
+const pkgPath = path.join(__dirname, '..', '..', 'pkg');
 const commonFiles = ['src', 'package.json', 'README.md'];
 
 const commonExtensions = {
@@ -39,16 +39,16 @@ const requiredPackages = [
  * @param pkg
  */
 function verifyPackageConsistency(pkg) {
-  const actualFiles = fs.readdirSync(`${commonPath}/${pkg.name}`);
+  const actualFiles = fs.readdirSync(`${pkgPath}/${pkg.name}`);
 
   describe(pkg.name, () => {
     it('Should contain required files:', () => {
-      getArrayDiff(pkg.files, actualFiles).forEach(file=>{
+      getArrayDiff(pkg.files, actualFiles).forEach(file => {
         fail(file);
       })
     });
     it('Should not contain redundant files:', () => {
-      getArrayDiff(actualFiles, pkg.files).forEach(file=>{
+      getArrayDiff(actualFiles, pkg.files).forEach(file => {
         fail(file);
       })
     });
@@ -91,8 +91,8 @@ function extendFileList(files, pkgName, extensions, delimiter) {
  * @param arr2
  * @returns {*}
  */
-function getArrayDiff(arr1, arr2){
-  return arr1.filter(item=>!arr2.includes(item));
+function getArrayDiff(arr1, arr2) {
+  return arr1.filter(item => !arr2.includes(item));
 }
 
 requiredPackages.forEach(pkg => {
