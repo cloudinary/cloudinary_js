@@ -86,16 +86,6 @@ function extendFileList(files, pkgName, extensions, delimiter) {
 }
 
 /**
- * return sorted arr1 + sorted items from arr2 that are missing in arr1
- * @param arr1
- * @param arr2
- * @returns {*}
- */
-function getArrayWithDiff(arr1, arr2){
-  return arr1.sort().concat(arr2.filter(item=>!arr1.includes(item)).sort());
-}
-
-/**
  * return items from arr1 that arr2 does not contain
  * @param arr1
  * @param arr2
