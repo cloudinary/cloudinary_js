@@ -15,9 +15,63 @@ jasmine.getEnv().addReporter(new SpecReporter({
   },
 }));
 
-const commonExtensions = ['d.ts', 'js', 'min.js', 'js.map'];
-const shrinkwrapExtensions = ['shrinkwrap.js', 'shrinkwrap.js.map', 'shrinkwrap.min.js'];
+const commonPath = path.join(__dirname, '..', '..', 'pkg');
 const commonFiles = ['src', 'package.json', 'README.md'];
+
+const commonExtensions = {
+  extensions: ['d.ts', 'js', 'min.js', 'js.map'],
+  delimiter: '.'
+};
+
+const shrinkwrapExtensions = {
+  extensions: ['shrinkwrap.js', 'shrinkwrap.js.map', 'shrinkwrap.min.js'],
+  delimiter: '-'
+};
+
+const requiredPackages = [
+  createPackage('cloudinary-core', commonExtensions, shrinkwrapExtensions),
+  createPackage('cloudinary-jquery', commonExtensions),
+  createPackage('cloudinary-jquery-file-upload', commonExtensions)
+];
+
+/**
+ * Verify that a package has only required files
+ * @param pkg
+ */
+function verifyPackageConsistency(pkg) {
+  const actualFiles = fs.readdirSync(`${commonPath}/${pkg.name}`);
+
+  describe(pkg.name, () => {
+    it('Should contain required files:', () => {
+      getArrayDiff(pkg.files, actualFiles).forEach(file=>{
+        fail(file);
+      })
+    });
+    it('Should not contain redundant files:', () => {
+      getArrayDiff(actualFiles, pkg.files).forEach(file=>{
+        fail(file);
+      })
+    });
+  });
+}
+
+/**
+ * Creates a package object with name and files
+ * @param pkgName
+ * @param withShrinkwrap
+ * @returns {{name: *, files: *}}
+ */
+function createPackage(pkgName, ...extensions) {
+  let files = [...commonFiles];
+  extensions.forEach(extensionsItem => {
+    files = extendFileList(files, pkgName, extensionsItem.extensions, extensionsItem.delimiter);
+  });
+
+  return {
+    name: pkgName,
+    files
+  };
+}
 
 /**
  * Adds file names to given files array
@@ -27,98 +81,29 @@ const commonFiles = ['src', 'package.json', 'README.md'];
  * @param delimiter
  * @returns {*}
  */
-const addToFiles = (files, pkgName, extensions, delimiter) => {
+function extendFileList(files, pkgName, extensions, delimiter) {
   return files.concat(extensions.map(extension => `${pkgName}${delimiter}${extension}`));
-};
+}
 
 /**
- * Creates a package object with name and files
- * @param pkgName
- * @param withShrinkwrap
- * @returns {{name: *, files: *}}
- */
-const createPackage = (pkgName, withShrinkwrap) => {
-  let files = addToFiles([...commonFiles], pkgName, commonExtensions, '.');
-
-  if (withShrinkwrap) {
-    files = addToFiles(files, pkgName, shrinkwrapExtensions, '-');
-  }
-
-  return {
-    name: pkgName,
-    files
-  };
-};
-
-/**
- * Get path of given fileName in given pkgName
- * @param pkgName
- * @param fileName
+ * return sorted arr1 + sorted items from arr2 that are missing in arr1
+ * @param arr1
+ * @param arr2
  * @returns {*}
  */
-const getPath = (pkgName, fileName = '') => {
-  return path.join(__dirname, '..', '..', 'pkg', pkgName, fileName);
-};
+function getArrayWithDiff(arr1, arr2){
+  return arr1.sort().concat(arr2.filter(item=>!arr1.includes(item)).sort());
+}
 
 /**
- * Return an array of files in given folder path
- * @param folderPath
- * @returns {Array}
+ * return items from arr1 that arr2 does not contain
+ * @param arr1
+ * @param arr2
+ * @returns {*}
  */
-const getFilesList = (folderPath) => {
-  let fileList = [];
-  fs.readdirSync(folderPath).forEach(file => {
-    fileList.push(file);
-  });
-  return fileList;
-};
-
-/**
- * Assert that a given path exists
- * @param filePath
- */
-assertPathExists = (filePath) => {
-  const result = fs.existsSync(filePath);
-  it(filePath, () => {
-    expect(result).toEqual(true);
-  })
-};
-
-/**
- * Verify that a package has only required files
- * @param pkg
- */
-verifyPackageConsistency = (pkg) => {
-  const currentFiles = getFilesList(getPath(pkg.name));
-  const unnecessaryFiles = currentFiles.filter(file => pkg.files.indexOf(file) < 0);
-
-  describe(`${pkg.name}:`, function () {
-
-    //test that necessary files exist
-    describe(`Required Files:`, function () {
-      pkg.files.forEach(fileName => {
-        it(fileName, () => {
-          expect(currentFiles.includes(fileName)).toBeTruthy();
-        });
-      });
-    });
-
-    //test that unnecessary files do not exist
-    describe(`Unnecessary Files:`, function () {
-      unnecessaryFiles.forEach(fileName => {
-        it(fileName, () => {
-          expect(fileName).toBeUndefined();
-        });
-      });
-    });
-  });
-};
-
-const requiredPackages = [
-  createPackage('cloudinary-core', true),
-  createPackage('cloudinary-jquery'),
-  createPackage('cloudinary-jquery-file-upload')
-];
+function getArrayDiff(arr1, arr2){
+  return arr1.filter(item=>!arr2.includes(item));
+}
 
 requiredPackages.forEach(pkg => {
   verifyPackageConsistency(pkg);

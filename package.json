@@ -19,7 +19,7 @@
     "test:pkgs:verify": "jasmine test/spec/pkg-spec.js",
     "pretest": "npm run build",
     "pretest:pkgs": "npm run build",
-    "prettest:pkgs:minified": "npm run build",
+    "pretest:pkgs:minified": "npm run build",
     "copybuilds": "for pkg in core jquery jquery-file-upload; do pkg/copy_deployment ${pkg}; done",
     "publishnpm": "npm publish && for pkg in core jquery jquery-file-upload; do publish_to_npm ${pkg}; done"
   },
