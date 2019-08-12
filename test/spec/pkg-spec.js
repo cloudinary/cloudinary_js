@@ -1,5 +1,5 @@
 /**
- * Test existance of all needed files in each package.
+ * Verify existance of all needed files in each package.
  * This test file should be run before each release.
  */
 
@@ -7,56 +7,48 @@ const fs = require('fs');
 const path = require('path');
 const SpecReporter = require('jasmine-spec-reporter').SpecReporter;
 
-// We use 'jasmine-spec-reporter' to get nice logs to console.
-jasmine.getEnv().clearReporters();               // remove default reporter logs
-jasmine.getEnv().addReporter(new SpecReporter({  // add jasmine-spec-reporter
+//Set jasmine reporter
+jasmine.getEnv().clearReporters();
+jasmine.getEnv().addReporter(new SpecReporter({
   spec: {
-    displayPending: true // display each pending spec
+    displayPending: true
   },
 }));
 
-//List of required packages and files
-const packages = [
-  {
-    name: 'cloudinary-core',
-    files: [
-      'src',
-      'cloudinary-core.d.ts',
-      'cloudinary-core.js',
-      'cloudinary-core.min.js',
-      'cloudinary-core.js.map',
-      'cloudinary-core-shrinkwrap.js',
-      'cloudinary-core-shrinkwrap.js.map',
-      'cloudinary-core-shrinkwrap.min.js',
-      'package.json',
-      'README.md'
-    ]
-  },
-  {
-    name: 'cloudinary-jquery',
-    files: [
-      'src',
-      'cloudinary-jquery.d.ts',
-      'cloudinary-jquery.js',
-      'cloudinary-jquery.js.map',
-      'cloudinary-jquery.min.js',
-      'package.json',
-      'README.md'
-    ]
-  },
-  {
-    name: 'cloudinary-jquery-file-upload',
-    files: [
-      'src',
-      'cloudinary-jquery-file-upload.d.ts',
-      'cloudinary-jquery-file-upload.js',
-      'cloudinary-jquery-file-upload.js.map',
-      'cloudinary-jquery-file-upload.min.js',
-      'package.json',
-      'README.md'
-    ]
+const commonExtensions = ['d.ts', 'js', 'min.js', 'js.map'];
+const shrinkwrapExtensions = ['shrinkwrap.js', 'shrinkwrap.js.map', 'shrinkwrap.min.js'];
+const commonFiles = ['src', 'package.json', 'README.md'];
+
+/**
+ * Adds file names to given files array
+ * @param files
+ * @param pkgName
+ * @param extensions
+ * @param delimiter
+ * @returns {*}
+ */
+const addToFiles = (files, pkgName, extensions, delimiter) => {
+  return files.concat(extensions.map(extension => `${pkgName}${delimiter}${extension}`));
+};
+
+/**
+ * Creates a package object with name and files
+ * @param pkgName
+ * @param withShrinkwrap
+ * @returns {{name: *, files: *}}
+ */
+const createPackage = (pkgName, withShrinkwrap) => {
+  let files = addToFiles([...commonFiles], pkgName, commonExtensions, '.');
+
+  if (withShrinkwrap) {
+    files = addToFiles(files, pkgName, shrinkwrapExtensions, '-');
   }
-];
+
+  return {
+    name: pkgName,
+    files
+  };
+};
 
 /**
  * Get path of given fileName in given pkgName
@@ -64,12 +56,8 @@ const packages = [
  * @param fileName
  * @returns {*}
  */
-const getPath = (pkgName, fileName) => {
-  if (fileName) {
-    return path.join(__dirname, '..', '..', 'pkg', pkgName, fileName);
-  }
-
-  return path.join(__dirname, '..', '..', 'pkg', pkgName);
+const getPath = (pkgName, fileName = '') => {
+  return path.join(__dirname, '..', '..', 'pkg', pkgName, fileName);
 };
 
 /**
@@ -116,17 +104,22 @@ verifyPackageConsistency = (pkg) => {
     });
 
     //test that unnecessary files do not exist
-      describe(`Unnecessary Files:`, function () {
-        unnecessaryFiles.forEach(fileName => {
-          it(fileName, () => {
-            expect(fileName).toBeUndefined();
-          });
+    describe(`Unnecessary Files:`, function () {
+      unnecessaryFiles.forEach(fileName => {
+        it(fileName, () => {
+          expect(fileName).toBeUndefined();
         });
       });
+    });
   });
 };
 
-//Verify each package from packages list
-packages.forEach(pkg => {
+const requiredPackages = [
+  createPackage('cloudinary-core', true),
+  createPackage('cloudinary-jquery'),
+  createPackage('cloudinary-jquery-file-upload')
+];
+
+requiredPackages.forEach(pkg => {
   verifyPackageConsistency(pkg);
 });
