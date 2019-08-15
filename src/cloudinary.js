@@ -637,7 +637,7 @@ class Cloudinary {
         case elements.constructor.name !== "NodeList":
           return elements;
         case !isString(elements):
-          return document.querySelectorAll(elements);
+          return Array.prototype.slice.call(document.querySelectorAll(elements), 0);
         default:
           return [elements];
       }
