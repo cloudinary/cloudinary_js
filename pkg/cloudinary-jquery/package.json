@@ -6,8 +6,8 @@
   "types": "cloudinary-jquery.d.ts",
   "files": [
     "README.md",
-    "cloudinary-jquery.js",
-    "cloudinary-jquery.js.map",
+    "cloudinary-jquery*.js",
+    "cloudinary-jquery*.js.map",
     "cloudinary-jquery.d.ts",
     "src/**/*"
   ],
