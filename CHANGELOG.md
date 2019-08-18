@@ -1,3 +1,15 @@
+2.7.4 / 2019-08-18
+==================
+
+New functionality and features
+------------------------------
+  * Add support for remote\local "pre" function invocation
+  
+Other Changes
+-------------
+  * Fix responsive images in ie11
+  * Add pre release test for packages (#185)
+  
 2.7.3 / 2019-08-05
 ==================
 
