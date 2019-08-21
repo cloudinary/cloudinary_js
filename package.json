@@ -66,6 +66,7 @@
     "webpack-cli": "^3.3.0"
   },
   "dependencies": {
-    "jsdoc": "^3.6.3"
+    "jsdoc": "^3.6.3",
+    "tar": "^4.4.10"
   }
 }
