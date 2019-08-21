@@ -59,6 +59,7 @@
     "lodash-cli": "^4.15.0",
     "parallel-webpack": "^2.3.0",
     "requirejs": "^2.3.6",
+    "tar": "^4.4.10",
     "terser-webpack-plugin": "^1.2.3",
     "typescript": "^2.9.2",
     "webpack": "^4.30.0",
@@ -66,7 +67,6 @@
     "webpack-cli": "^3.3.0"
   },
   "dependencies": {
-    "jsdoc": "^3.6.3",
-    "tar": "^4.4.10"
+    "jsdoc": "^3.6.3"
   }
 }
