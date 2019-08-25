@@ -44,6 +44,7 @@ function verifyPackageConsistency(pkg) {
   createPackageFile(pkg);
   const actualFiles = fs.readdirSync(`${pkgPath}/${pkg.name}`).filter(f => !f.endsWith('.tgz') && !f.startsWith('src/'));
   const packedFiles = getPackedFiles(pkg);
+  const pkgVersion = getVersion(pkg);
 
   describe(pkg.name, () => {
     it('Folder should contain required files', () => {
@@ -65,6 +66,9 @@ function verifyPackageConsistency(pkg) {
       getArrayDiff(packedFiles, pkg.files).forEach(file => {
         fail(file);
       })
+    });
+    it(`Package version should be same as cloudinary_js: ${version}`, () => {
+      expect(pkgVersion).toEqual(version);
     });
   });
 }
@@ -152,10 +156,16 @@ function getTarEntryPath(entry) {
 
 /**
  * Get version from package.json
+ * @param pkg
  * @returns {*}
  */
-function getVersion() {
-  return JSON.parse(fs.readFileSync(`${mainPath}/package.json`)).version;
+function getVersion(pkg = null) {
+  if (!pkg) {
+    // get cloudinary_js version
+    return JSON.parse(fs.readFileSync(`${mainPath}/package.json`)).version;
+  }
+  // get pkg version
+  return JSON.parse(fs.readFileSync(`${pkgPath}/${pkg.name}/package.json`)).version;
 }
 
 requiredPackages.forEach(pkg => {
