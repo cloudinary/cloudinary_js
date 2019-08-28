@@ -9,7 +9,6 @@ const {execSync} = require('child_process');
 const tar = require('tar');
 const SpecReporter = require('jasmine-spec-reporter').SpecReporter;
 
-
 //Set jasmine reporter
 jasmine.getEnv().clearReporters();
 jasmine.getEnv().addReporter(new SpecReporter({
@@ -18,9 +17,9 @@ jasmine.getEnv().addReporter(new SpecReporter({
   },
 }));
 
-const mainPath = path.join(__dirname, '..', '..');
-const pkgPath = path.join(__dirname, '..', '..', 'pkg');
-const buildPath = path.join(__dirname, '..', '..', 'dist');
+const mainPath = path.join(__dirname, '..');
+const pkgPath = path.join(__dirname, '..', 'pkg');
+const buildPath = path.join(__dirname, '..', 'dist');
 const version = getVersion();
 const commonFiles = ['src', 'package.json', 'README.md'];
 const commonExtensions = {
@@ -42,9 +41,8 @@ const requiredPackages = [
  * @param pkg
  */
 function verifyPackageConsistency(pkg) {
-  createPackageFile(pkg);
-  const actualFiles = fs.readdirSync(`${pkgPath}/${pkg.name}`).filter(f => !f.endsWith('.tgz') && !f.startsWith('src/'));
   const packedFiles = getPackedFiles(pkg);
+  const actualFiles = fs.readdirSync(`${pkgPath}/${pkg.name}`).filter(f => !f.endsWith('.tgz') && !f.startsWith('src/'));
   const pkgVersion = getVersion(pkg);
 
   describe(pkg.name, () => {
@@ -127,11 +125,21 @@ function createPackageFile(pkg) {
 }
 
 /**
+ * Deletes tar of given pkg
+ * @param pkg
+ */
+function deletePackageFile(pkg) {
+  const tarFile = `${pkgPath}/${pkg.name}/${pkg.name}-${version}.tgz`;
+  fs.unlinkSync(tarFile);
+}
+
+/**
  * Get array of files in given pkg tar file
  * @param pkg
  * @returns {any[]}
  */
 function getPackedFiles(pkg) {
+  createPackageFile(pkg);
   const tarFile = `${pkgPath}/${pkg.name}/${pkg.name}-${version}.tgz`;
   const files = new Set();
 
@@ -141,6 +149,8 @@ function getPackedFiles(pkg) {
     file: tarFile,
     onentry: entry => files.add(getTarEntryPath(entry))
   });
+
+  deletePackageFile(pkg);
 
   return [...files];
 }
