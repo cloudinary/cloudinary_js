@@ -347,3 +347,7 @@ export function isEmpty(value) {
   }
   return true;
 }
+
+export {
+  default as isEqual
+} from './isEqual';

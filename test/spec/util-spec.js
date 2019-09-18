@@ -42,5 +42,15 @@ describe("util", function () {
         console.warn("Set is not preset.")
       }
     })
-  })
+  });
+  describe("isEqual",function () {
+    it("should return false", function () {
+      const isEqual = cloudinary.Util.isEqual;
+      expect(isEqual({a:'a'},{a:'b'})).toBe(false);
+    });
+    it("should return true", function () {
+      const isEqual = cloudinary.Util.isEqual;
+      expect(isEqual({a:'a'},{a:'a'})).toBe(true);
+    });
+  });
 });
