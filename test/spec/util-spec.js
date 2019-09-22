@@ -43,14 +43,19 @@ describe("util", function () {
       }
     })
   });
-  describe("isEqual",function () {
+  describe("isEqual", function () {
+    const isEqual = cloudinary.Util.isEqual;
     it("should return false", function () {
-      const isEqual = cloudinary.Util.isEqual;
-      expect(isEqual({a:'a'},{a:'b'})).toBe(false);
+      expect(isEqual({a: 'a'}, {a: 'b'})).toBe(false);
+      expect(isEqual(1, 2)).toBe(false);
+      expect(isEqual('a', 'b')).toBe(false);
+      expect(isEqual(['a'], ['b'])).toBe(false);
     });
     it("should return true", function () {
-      const isEqual = cloudinary.Util.isEqual;
-      expect(isEqual({a:'a'},{a:'a'})).toBe(true);
+      expect(isEqual({a: 'a'}, {a: 'a'})).toBe(true);
+      expect(isEqual(1, 1)).toBe(true);
+      expect(isEqual('a', 'a')).toBe(true);
+      expect(isEqual(['a'], ['a'])).toBe(true);
     });
   });
 });
