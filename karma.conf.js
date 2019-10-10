@@ -1,3 +1,5 @@
+process.env.CHROME_BIN = require('puppeteer').executablePath();
+
 function testFiles(pkg) {
   let files = [
     'test/spec/spec-helper.js',
@@ -48,10 +50,9 @@ function dependency(pkg) {
  *     node_modules/.bin/karma start --single-run --cloudinary.pkg=core-shrinkwrap
  */
 module.exports = function(config) {
-  let {minified, pkg} = config.cloudinary || {};
-  pkg = pkg || 'core';
+  let {minified, pkg='core'} = config.cloudinary || {};
   console.log(`Testing ${minified ? 'minified' : 'un-minified'}`);
-  const subject = `dist/cloudinary-${pkg}${minified ? '.min' : ''}.js`;
+  const subject = `dist/cloudinary-${`${pkg}${minified ? '.min' : ''}`}.js`;
 
   const responsiveHtmlFile = `test/docRoot/responsive-${pkg}-test.html`;
 
@@ -62,6 +63,7 @@ module.exports = function(config) {
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
     frameworks: ['jasmine'],
+
     // list of files / patterns to load in the browser
     files: [
       ...dependency(pkg),
@@ -113,7 +115,7 @@ module.exports = function(config) {
     autoWatch: false,
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['Chrome', 'Firefox', 'ChromeHeadless'],
+    browsers: process.env.TEST_ONLY_HEADLESS_BROWSERS ? ['ChromeHeadless', 'FirefoxHeadless'] : ['Chrome', 'Firefox'],
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
     singleRun: true,
