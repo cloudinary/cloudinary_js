@@ -52,7 +52,7 @@ function dependency(pkg) {
 module.exports = function(config) {
   let {minified, pkg='core'} = config.cloudinary || {};
   console.log(`Testing ${minified ? 'minified' : 'un-minified'}`);
-  const subject = `dist/cloudinary-${`${pkg}${minified ? '.min' : ''}`}.js`;
+  const subject = `dist/cloudinary-${pkg}${minified ? '.min' : ''}.js`;
 
   const responsiveHtmlFile = `test/docRoot/responsive-${pkg}-test.html`;
 
