@@ -12,7 +12,7 @@
   "scripts": {
     "build": "node_modules/.bin/parallel-webpack",
     "doc": "node_modules/.bin/jsdoc -c jsdoc-conf.json",
-    "test": "node_modules/.bin/karma start --single-run",
+    "test": "node_modules/.bin/karma start --single-run --browsers=ChromeHeadless",
     "test:pkgs": "for pkg in core jquery jquery-file-upload; do node_modules/.bin/karma start --single-run --cloudinary.pkg=${pkg}; done",
     "test:pkgs:minified": "for pkg in core jquery jquery-file-upload; do node_modules/.bin/karma start --single-run --cloudinary.minified --cloudinary.pkg=${pkg}; done",
     "test:types": "node_modules/.bin/tsc",
