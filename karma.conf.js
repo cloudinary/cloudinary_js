@@ -48,8 +48,8 @@ function dependency(pkg) {
  *     node_modules/.bin/karma start --single-run --cloudinary.pkg=core-shrinkwrap
  */
 module.exports = function(config) {
-  let {minified, pkg} = config.cloudinary || {};
-  pkg = pkg || 'core';
+  let {minified, pkg='core'} = config.cloudinary || {};
+
   console.log(`Testing ${minified ? 'minified' : 'un-minified'}`);
   const subject = `dist/cloudinary-${pkg}${minified ? '.min' : ''}.js`;
 
