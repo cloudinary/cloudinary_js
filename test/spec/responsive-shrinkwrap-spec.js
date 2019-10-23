@@ -1,13 +1,16 @@
-describe('client side responsive', function() {
-  var cl, defaultConfig;
-  if (/phantom|HeadlessChrome/i.test(navigator.userAgent)) {
-    console.warn("Skipping responsive tests in PhantomJS or HeadlessChrome");
-    return;
-  }
-  defaultConfig = {
+let describeTest = describe;
+
+if (/phantom|HeadlessChrome|HeadlessFirefox/i.test(navigator.userAgent)) {
+  console.warn("Skipping responsive tests in PhantomJS or HeadlessChrome");
+  describeTest = xdescribe;
+}
+
+describeTest('client side responsive', function() {
+  let cl = null;
+  let defaultConfig = {
     cloud_name: 'sdk-test'
   };
-  cl = null;
+
   return describe("responsive", function() {
     var container, fixtureContainer, testDocument, testWindow, triggerResize;
     fixtureContainer = void 0;
@@ -51,9 +54,6 @@ describe('client side responsive', function() {
     };
     it('should traverse up the DOM to find a parent that has clientWidth', function() {
       var aContainer, divContainer, img;
-      aContainer = void 0;
-      divContainer = void 0;
-      img = void 0;
       divContainer = document.createElement('div');
       divContainer.style.width = 101;
       fixtureContainer.appendChild(divContainer);
