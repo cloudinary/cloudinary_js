@@ -36,6 +36,16 @@ function cdnSubdomainNumber(publicId) {
 }
 
 /**
+ * Makes sure signature is of this format: s--signature--
+ * @param signature
+ * @returns {string} the formatted signature
+ */
+function formatSignature(signature) {
+  const isFormatted = !signature || (signature.startsWith('s--') && signature.endsWith('--'));
+  return isFormatted ? signature : `s--${signature}--`;
+}
+
+/**
  * Create the URL prefix for Cloudinary resources.
  * @param {string} publicId the resource public ID
  * @param {object} options additional options
@@ -156,16 +166,16 @@ function finalizeResourceType(resourceType = "image", type = "upload", urlSuffix
  * @param {type} [options.type='upload'] - The asset's storage type.
  *  For details on all fetch types, see
  * <a href="https://cloudinary.com/documentation/image_transformations#fetching_images_from_remote_locations"
- *  target="_blank">Fetch types</a>. 
- * @param {Object} [options.resource_type='image'] - The type of asset. <p>Possible values:<br/> 
+ *  target="_blank">Fetch types</a>.
+ * @param {Object} [options.resource_type='image'] - The type of asset. <p>Possible values:<br/>
  *  - `image`<br/>
  *  - `video`<br/>
- *  - `raw` 
+ *  - `raw`
  * @return {string} The media asset URL.
  * @see <a href="https://cloudinary.com/documentation/image_transformation_reference" target="_blank">
  *  Available image transformations</a>
  * @see <a href="https://cloudinary.com/documentation/video_transformation_reference" target="_blank">
- *  Available video transformations</a>   
+ *  Available video transformations</a>
  */
 export default function url(publicId, options = {}, config = {}) {
   var error, prefix, ref, resourceTypeAndType, transformation, transformationString, url, version;
@@ -175,11 +185,17 @@ export default function url(publicId, options = {}, config = {}) {
   if (options instanceof Transformation) {
     options = options.toOptions();
   }
-  options = defaults({}, options, config, DEFAULT_IMAGE_PARAMS);
+
+  let {signature, ...transformationOptions} = options;
+  signature = formatSignature(signature);
+
+  options = defaults({}, transformationOptions, config, DEFAULT_IMAGE_PARAMS);
+
   if (options.type === 'fetch') {
     options.fetch_format = options.fetch_format || options.format;
     publicId = absolutize(publicId);
   }
+
   transformation = new Transformation(options);
   transformationString = transformation.serialize();
   if (!options.cloud_name) {
@@ -187,7 +203,7 @@ export default function url(publicId, options = {}, config = {}) {
   }
   // if publicId has a '/' and doesn't begin with v<number> and doesn't start with http[s]:/ and version is empty and force_version is truthy or undefined
   if ((options.force_version || typeof options.force_version === 'undefined') && publicId.search('/') >= 0 && !publicId.match(/^v[0-9]+/) && !publicId.match(/^https?:\//) && !((ref = options.version) != null ? ref.toString() : void 0)) {
-      options.version = 1;
+    options.version = 1;
   }
   if (publicId.match(/^https?:/)) {
     if (options.type === 'upload' || options.type === 'asset') {
@@ -216,8 +232,15 @@ export default function url(publicId, options = {}, config = {}) {
       publicId = publicId + '.' + options.format;
     }
   }
+
+  if (url) {
+    return url;
+  }
+
   prefix = cloudinaryUrlPrefix(publicId, options);
   resourceTypeAndType = finalizeResourceType(options.resource_type, options.type, options.url_suffix, options.use_root_path, options.shorten);
   version = options.version ? 'v' + options.version : '';
-  return url || compact([prefix, resourceTypeAndType, transformationString, version, publicId]).join('/').replace(/([^:])\/+/g, '$1/');
+  return compact([prefix, resourceTypeAndType, signature, transformationString, version, publicId])
+    .join('/')
+    .replace(/([^:])\/+/g, '$1/');
 };
