@@ -178,7 +178,7 @@ function finalizeResourceType(resourceType = "image", type = "upload", urlSuffix
  *  Available video transformations</a>
  */
 export default function url(publicId, options = {}, config = {}) {
-  var error, prefix, ref, resourceTypeAndType, transformation, transformationString, url, version;
+  var error, prefix, ref, resourceTypeAndType, transformation, transformationString, version;
   if (!publicId) {
     return publicId;
   }
