@@ -207,7 +207,7 @@ export default function url(publicId, options = {}, config = {}) {
   }
   if (publicId.match(/^https?:/)) {
     if (options.type === 'upload' || options.type === 'asset') {
-      url = publicId;
+      return publicId;
     } else {
       publicId = encodeURIComponent(publicId).replace(/%3A/g, ':').replace(/%2F/g, '/');
     }
@@ -231,10 +231,6 @@ export default function url(publicId, options = {}, config = {}) {
       }
       publicId = publicId + '.' + options.format;
     }
-  }
-
-  if (url) {
-    return url;
   }
 
   prefix = cloudinaryUrlPrefix(publicId, options);
