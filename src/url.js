@@ -35,8 +35,8 @@ function cdnSubdomainNumber(publicId) {
 }
 
 /**
- * Removes signature from options
- * Makes sure signature empty or of this format: s--signature--
+ * Removes signature from options and returns the signature
+ * Makes sure signature is empty or of this format: s--signature--
  * @param {object} options
  * @returns {string} the formatted signature
  */
