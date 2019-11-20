@@ -1,4 +1,3 @@
-
 import Transformation from './transformation';
 
 import {
@@ -36,12 +35,16 @@ function cdnSubdomainNumber(publicId) {
 }
 
 /**
- * Makes sure signature is of this format: s--signature--
- * @param signature
+ * Removes signature from options
+ * Makes sure signature empty or of this format: s--signature--
+ * @param {object} options
  * @returns {string} the formatted signature
  */
-function formatSignature(signature) {
+function extractSignature(options){
+  const {signature} = options;
   const isFormatted = !signature || (signature.startsWith('s--') && signature.endsWith('--'));
+  delete options.signature;
+
   return isFormatted ? signature : `s--${signature}--`;
 }
 
@@ -67,7 +70,7 @@ function formatSignature(signature) {
  *  to "https://".
  * @returns {string} the URL prefix for the resource.
  * @private
-*/
+ */
 function cloudinaryUrlPrefix(publicId, options) {
   if (options.cloud_name && options.cloud_name[0] === '/') {
     return '/res' + options.cloud_name;
@@ -156,6 +159,111 @@ function finalizeResourceType(resourceType = "image", type = "upload", urlSuffix
   return [resourceType, type].join("/");
 }
 
+function formatPublicId(publicId, options) {
+  if (publicId.match(/^https?:/)) {
+    publicId = encodeURIComponent(publicId).replace(/%3A/g, ':').replace(/%2F/g, '/');
+  } else {
+    try {
+      // Make sure publicId is URI encoded.
+      publicId = decodeURIComponent(publicId);
+    } catch (error) {
+    }
+    publicId = encodeURIComponent(publicId).replace(/%3A/g, ':').replace(/%2F/g, '/');
+    if (options.url_suffix) {
+      publicId = publicId + '/' + options.url_suffix;
+    }
+    if (options.format) {
+      if (!options.trust_public_id) {
+        publicId = publicId.replace(/\.(jpg|png|gif|webp)$/, '');
+      }
+      publicId = publicId + '.' + options.format;
+    }
+  }
+  return publicId;
+}
+
+/**
+ * Get any error with url options
+ * @param options
+ * @returns {string} if error, otherwise return undefined
+ */
+function urlError(options) {
+  const {cloud_name, url_suffix} = options;
+
+  if (!cloud_name) {
+    return 'Unknown cloud_name';
+  }
+
+  if (url_suffix && url_suffix.match(/[\.\/]/)) {
+    return 'url_suffix should not include . or /';
+  }
+}
+
+/**
+ * Check if the publicId is the actual url
+ * @param publicId
+ * @param type
+ * @returns {boolean}
+ */
+function isPublicIdUrl(publicId, type) {
+  return !!(publicId.match(/^https?:/) && (type === 'upload' || type === 'asset'));
+}
+
+/**
+ * Get version part of the url
+ * @param publicId
+ * @param options
+ * @returns {string}
+ */
+function urlVersion(publicId, options) {
+  const isForceVersion = (options.force_version || typeof options.force_version === 'undefined');
+  const isNoPublicIdVersion = publicId.search('/') >= 0 && !publicId.match(/^v[0-9]+/) && !publicId.match(/^https?:\//);
+  const isVersionSet = options.version && options.version.toString();
+
+  if (isForceVersion && isNoPublicIdVersion && !isVersionSet) {
+    options.version = 1;
+  }
+
+  return options.version ? `v${options.version}` : '';
+}
+
+/**
+ * Returns an array of non empty url parts that make the final url string
+ * @param publicId
+ * @param options
+ * @returns {Array<string>}
+ */
+function urlParts(publicId, options) {
+  const version = urlVersion(publicId, options);
+  const transformationString = (new Transformation(options)).serialize();
+  const prefix = cloudinaryUrlPrefix(publicId, options);
+  const signature = extractSignature(options);
+  const resourceTypeAndType = finalizeResourceType(
+    options.resource_type, options.type, options.url_suffix, options.use_root_path, options.shorten
+  );
+
+  publicId = formatPublicId(publicId, options);
+
+  return compact([prefix, resourceTypeAndType, signature, transformationString, version, publicId]);
+}
+
+/**
+ * Generate url string
+ * @param publicId
+ * @param options
+ * @returns {string} final url
+ */
+function urlString(publicId, options) {
+
+  if (isPublicIdUrl(publicId, options.type)) {
+    return publicId;
+  }
+
+  return urlParts(publicId, options)
+    .join('/')
+    .replace(/([^:])\/+/g, '$1/');
+}
+
 /**
  * Generates a URL for any asset in your Media library.
  * @function url
@@ -178,65 +286,26 @@ function finalizeResourceType(resourceType = "image", type = "upload", urlSuffix
  *  Available video transformations</a>
  */
 export default function url(publicId, options = {}, config = {}) {
-  var error, prefix, ref, resourceTypeAndType, transformation, transformationString, version;
   if (!publicId) {
     return publicId;
   }
+
   if (options instanceof Transformation) {
     options = options.toOptions();
   }
 
-  let {signature, ...transformationOptions} = options;
-  signature = formatSignature(signature);
-
-  options = defaults({}, transformationOptions, config, DEFAULT_IMAGE_PARAMS);
+  options = defaults({}, options, config, DEFAULT_IMAGE_PARAMS);
 
   if (options.type === 'fetch') {
     options.fetch_format = options.fetch_format || options.format;
     publicId = absolutize(publicId);
   }
 
-  transformation = new Transformation(options);
-  transformationString = transformation.serialize();
-  if (!options.cloud_name) {
-    throw 'Unknown cloud_name';
-  }
-  // if publicId has a '/' and doesn't begin with v<number> and doesn't start with http[s]:/ and version is empty and force_version is truthy or undefined
-  if ((options.force_version || typeof options.force_version === 'undefined') && publicId.search('/') >= 0 && !publicId.match(/^v[0-9]+/) && !publicId.match(/^https?:\//) && !((ref = options.version) != null ? ref.toString() : void 0)) {
-    options.version = 1;
-  }
-  if (publicId.match(/^https?:/)) {
-    if (options.type === 'upload' || options.type === 'asset') {
-      return publicId;
-    } else {
-      publicId = encodeURIComponent(publicId).replace(/%3A/g, ':').replace(/%2F/g, '/');
-    }
-  } else {
-    try {
-      // Make sure publicId is URI encoded.
-      publicId = decodeURIComponent(publicId);
-    } catch (error1) {
-      error = error1;
-    }
-    publicId = encodeURIComponent(publicId).replace(/%3A/g, ':').replace(/%2F/g, '/');
-    if (options.url_suffix) {
-      if (options.url_suffix.match(/[\.\/]/)) {
-        throw 'url_suffix should not include . or /';
-      }
-      publicId = publicId + '/' + options.url_suffix;
-    }
-    if (options.format) {
-      if (!options.trust_public_id) {
-        publicId = publicId.replace(/\.(jpg|png|gif|webp)$/, '');
-      }
-      publicId = publicId + '.' + options.format;
-    }
+  const error = urlError(options);
+
+  if (error) {
+    throw error;
   }
 
-  prefix = cloudinaryUrlPrefix(publicId, options);
-  resourceTypeAndType = finalizeResourceType(options.resource_type, options.type, options.url_suffix, options.use_root_path, options.shorten);
-  version = options.version ? 'v' + options.version : '';
-  return compact([prefix, resourceTypeAndType, signature, transformationString, version, publicId])
-    .join('/')
-    .replace(/([^:])\/+/g, '$1/');
+  return urlString(publicId, options);
 };
