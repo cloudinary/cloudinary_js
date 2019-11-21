@@ -159,6 +159,12 @@ function finalizeResourceType(resourceType = "image", type = "upload", urlSuffix
   return [resourceType, type].join("/");
 }
 
+/**
+ * Encode and format publicId
+ * @param publicId
+ * @param options
+ * @returns {string} publicId
+ */
 function formatPublicId(publicId, options) {
   if (publicId.match(/^https?:/)) {
     publicId = encodeURIComponent(publicId).replace(/%3A/g, ':').replace(/%2F/g, '/');
