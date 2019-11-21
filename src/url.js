@@ -40,7 +40,7 @@ function cdnSubdomainNumber(publicId) {
  * @param {object} options
  * @returns {string} the formatted signature
  */
-function extractSignature(options){
+function handleSignature(options) {
   const {signature} = options;
   const isFormatted = !signature || (signature.startsWith('s--') && signature.endsWith('--'));
   delete options.signature;
@@ -71,7 +71,7 @@ function extractSignature(options){
  * @returns {string} the URL prefix for the resource.
  * @private
  */
-function cloudinaryUrlPrefix(publicId, options) {
+function handlePrefix(publicId, options) {
   if (options.cloud_name && options.cloud_name[0] === '/') {
     return '/res' + options.cloud_name;
   }
@@ -122,7 +122,7 @@ function cloudinaryUrlPrefix(publicId, options) {
  * @returns {string} resource_type/type
  * @ignore
  */
-function finalizeResourceType(resourceType = "image", type = "upload", urlSuffix, useRootPath, shorten) {
+function handleResourceType(resourceType = "image", type = "upload", urlSuffix, useRootPath, shorten) {
   var options;
   resourceType = resourceType == null ? "image" : resourceType;
   type = type == null ? "upload" : type;
@@ -160,6 +160,15 @@ function finalizeResourceType(resourceType = "image", type = "upload", urlSuffix
 }
 
 /**
+ * Encode publicId
+ * @param publicId
+ * @returns {string} encoded publicId
+ */
+function encodePublicId(publicId) {
+  return encodeURIComponent(publicId).replace(/%3A/g, ':').replace(/%2F/g, '/');
+}
+
+/**
  * Encode and format publicId
  * @param publicId
  * @param options
@@ -167,14 +176,15 @@ function finalizeResourceType(resourceType = "image", type = "upload", urlSuffix
  */
 function formatPublicId(publicId, options) {
   if (publicId.match(/^https?:/)) {
-    publicId = encodeURIComponent(publicId).replace(/%3A/g, ':').replace(/%2F/g, '/');
+    publicId = encodePublicId(publicId);
   } else {
     try {
       // Make sure publicId is URI encoded.
       publicId = decodeURIComponent(publicId);
-    } catch (error) {
-    }
-    publicId = encodeURIComponent(publicId).replace(/%3A/g, ':').replace(/%2F/g, '/');
+    } catch (error) {}
+
+    publicId = encodePublicId(publicId);
+
     if (options.url_suffix) {
       publicId = publicId + '/' + options.url_suffix;
     }
@@ -193,7 +203,7 @@ function formatPublicId(publicId, options) {
  * @param options
  * @returns {string} if error, otherwise return undefined
  */
-function urlError(options) {
+function validate(options) {
   const {cloud_name, url_suffix} = options;
 
   if (!cloud_name) {
@@ -221,12 +231,12 @@ function isPublicIdUrl(publicId, type) {
  * @param options
  * @returns {string}
  */
-function urlVersion(publicId, options) {
+function handleVersion(publicId, options) {
   const isForceVersion = (options.force_version || typeof options.force_version === 'undefined');
-  const isNoPublicIdVersion = publicId.search('/') >= 0 && !publicId.match(/^v[0-9]+/) && !publicId.match(/^https?:\//);
+  const isPublicIdIncludesVersion = publicId.search('/') < 0 || publicId.match(/^v[0-9]+/) || publicId.match(/^https?:\//);
   const isVersionSet = options.version && options.version.toString();
 
-  if (isForceVersion && isNoPublicIdVersion && !isVersionSet) {
+  if (isForceVersion && !isPublicIdIncludesVersion && !isVersionSet) {
     options.version = 1;
   }
 
@@ -234,23 +244,12 @@ function urlVersion(publicId, options) {
 }
 
 /**
- * Returns an array of non empty url parts that make the final url string
- * @param publicId
+ * Get final transformation component for url string
  * @param options
- * @returns {Array<string>}
+ * @returns {string}
  */
-function urlParts(publicId, options) {
-  const version = urlVersion(publicId, options);
-  const transformationString = (new Transformation(options)).serialize();
-  const prefix = cloudinaryUrlPrefix(publicId, options);
-  const signature = extractSignature(options);
-  const resourceTypeAndType = finalizeResourceType(
-    options.resource_type, options.type, options.url_suffix, options.use_root_path, options.shorten
-  );
-
-  publicId = formatPublicId(publicId, options);
-
-  return compact([prefix, resourceTypeAndType, signature, transformationString, version, publicId]);
+function handleTransformation(options){
+  return (new Transformation(options)).serialize();
 }
 
 /**
@@ -265,7 +264,17 @@ function urlString(publicId, options) {
     return publicId;
   }
 
-  return urlParts(publicId, options)
+  const version = handleVersion(publicId, options);
+  const transformationString = handleTransformation(options);
+  const prefix = handlePrefix(publicId, options);
+  const signature = handleSignature(options);
+  const resourceType = handleResourceType(
+    options.resource_type, options.type, options.url_suffix, options.use_root_path, options.shorten
+  );
+
+  publicId = formatPublicId(publicId, options);
+
+  return compact([prefix, resourceType, signature, transformationString, version, publicId])
     .join('/')
     .replace(/([^:])\/+/g, '$1/');
 }
@@ -307,7 +316,7 @@ export default function url(publicId, options = {}, config = {}) {
     publicId = absolutize(publicId);
   }
 
-  const error = urlError(options);
+  const error = validate(options);
 
   if (error) {
     throw error;
