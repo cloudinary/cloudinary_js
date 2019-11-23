@@ -280,6 +280,14 @@ function urlString(publicId, options) {
     .replace(/([^:])\/+/g, '$1/');
 }
 
+/**
+ * Merge options and config with defaults
+ * update options and publicId according to 'fetch' param
+ * @param publicId
+ * @param options
+ * @param config
+ * @returns {[publicId, options]}
+ */
 function prepareOptions(publicId, options, config) {
   if (options instanceof Transformation) {
     options = options.toOptions();
