@@ -321,6 +321,10 @@ function prepareOptions(publicId, options, config) {
  *  - `image`<br/>
  *  - `video`<br/>
  *  - `raw`
+ * @param {signature} [options.signature='s--12345678--'] - The signature component of a
+ *  signed delivery URL of the format: /s--SIGNATURE--/.
+ *  For details on signatures, see
+ * <a href="https://cloudinary.com/documentation/signatures" target="_blank">Signatures</a>.
  * @return {string} The media asset URL.
  * @see <a href="https://cloudinary.com/documentation/image_transformation_reference" target="_blank">
  *  Available image transformations</a>
