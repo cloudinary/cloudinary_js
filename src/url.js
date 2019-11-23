@@ -15,18 +15,28 @@ import {
 
 import crc32 from './crc32';
 
-function absolutize(url) {
-  var prefix;
-  if (!url.match(/^https?:\//)) {
-    prefix = document.location.protocol + '//' + document.location.host;
-    if (url[0] === '?') {
+/**
+ * Adds protocol, host, pathname prefixes to given string
+ * @param str
+ * @returns {string}
+ */
+function makeUrl(str) {
+    let prefix = document.location.protocol + '//' + document.location.host;
+    if (str[0] === '?') {
       prefix += document.location.pathname;
-    } else if (url[0] !== '/') {
+    } else if (str[0] !== '/') {
       prefix += document.location.pathname.replace(/\/[^\/]*$/, '/');
     }
-    url = prefix + url;
-  }
-  return url;
+    return prefix + str;
+}
+
+/**
+ * Check is given string is a url
+ * @param str
+ * @returns {boolean}
+ */
+function isUrl(str){
+  return str ? !!str.match(/^https?:\//) : false;
 }
 
 // Produce a number between 1 and 5 to be used for cdn sub domains designation
@@ -175,7 +185,7 @@ function encodePublicId(publicId) {
  * @returns {string} publicId
  */
 function formatPublicId(publicId, options) {
-  if (publicId.match(/^https?:/)) {
+  if (isUrl(publicId)){
     publicId = encodePublicId(publicId);
   } else {
     try {
@@ -216,27 +226,19 @@ function validate(options) {
 }
 
 /**
- * Check if the publicId is the actual url
- * @param publicId
- * @param type
- * @returns {boolean}
- */
-function isPublicIdUrl(publicId, type) {
-  return !!(publicId.match(/^https?:/) && (type === 'upload' || type === 'asset'));
-}
-
-/**
  * Get version part of the url
  * @param publicId
  * @param options
  * @returns {string}
  */
 function handleVersion(publicId, options) {
+  // force_version param means to make sure there is a version in the url (Default is true)
   const isForceVersion = (options.force_version || typeof options.force_version === 'undefined');
-  const isPublicIdIncludesVersion = publicId.search('/') < 0 || publicId.match(/^v[0-9]+/) || publicId.match(/^https?:\//);
-  const isVersionSet = options.version && options.version.toString();
 
-  if (isForceVersion && !isPublicIdIncludesVersion && !isVersionSet) {
+  // Is version included in publicId or in options, or publicId is a url (doesn't need version)
+  const isVersionExist = (publicId.indexOf('/') < 0 || publicId.match(/^v[0-9]+/) || isUrl(publicId)) || options.version;
+
+  if (isForceVersion && !isVersionExist) {
     options.version = 1;
   }
 
@@ -259,8 +261,7 @@ function handleTransformation(options){
  * @returns {string} final url
  */
 function urlString(publicId, options) {
-
-  if (isPublicIdUrl(publicId, options.type)) {
+  if (isUrl(publicId) && (options.type === 'upload' || options.type === 'asset')){
     return publicId;
   }
 
@@ -277,6 +278,24 @@ function urlString(publicId, options) {
   return compact([prefix, resourceType, signature, transformationString, version, publicId])
     .join('/')
     .replace(/([^:])\/+/g, '$1/');
+}
+
+function prepareOptions(publicId, options, config) {
+  if (options instanceof Transformation) {
+    options = options.toOptions();
+  }
+
+  options = defaults({}, options, config, DEFAULT_IMAGE_PARAMS);
+
+  if (options.type === 'fetch') {
+    options.fetch_format = options.fetch_format || options.format;
+
+    if (!isUrl(publicId)) {
+      publicId = makeUrl(publicId);
+    }
+  }
+
+  return [publicId, options];
 }
 
 /**
@@ -305,16 +324,7 @@ export default function url(publicId, options = {}, config = {}) {
     return publicId;
   }
 
-  if (options instanceof Transformation) {
-    options = options.toOptions();
-  }
-
-  options = defaults({}, options, config, DEFAULT_IMAGE_PARAMS);
-
-  if (options.type === 'fetch') {
-    options.fetch_format = options.fetch_format || options.format;
-    publicId = absolutize(publicId);
-  }
+  [publicId, options] = prepareOptions(publicId, options, config);
 
   const error = validate(options);
 
