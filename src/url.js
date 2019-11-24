@@ -288,12 +288,11 @@ function urlString(publicId, options) {
 /**
  * Merge options and config with defaults
  * update options fetch_format according to 'type' param
- * @param publicId
  * @param options
  * @param config
- * @returns {[publicId, options]}
+ * @returns {*} updated options
  */
-function prepareOptions(publicId, options, config) {
+function prepareOptions(options, config) {
   if (options instanceof Transformation) {
     options = options.toOptions();
   }
@@ -337,7 +336,7 @@ export default function url(publicId, options = {}, config = {}) {
     return publicId;
   }
 
-  options = prepareOptions(publicId, options, config);
+  options = prepareOptions(options, config);
   publicId = preparePublicId(publicId, options);
 
   const error = validate(options);
