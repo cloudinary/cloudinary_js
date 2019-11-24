@@ -1,3 +1,17 @@
+2.8.0 / 2019-11-24
+==================
+
+New functionality and features
+------------------------------
+  * Add support for  option to  function (#198)
+
+Other Changes
+-------------
+  * Add npm package test (#187)
+  * Fix lodash imports
+  * Fix responsive and minified tests
+  * Fix files list for npm package in 
+
 2.7.4 / 2019-08-18
 ==================
 

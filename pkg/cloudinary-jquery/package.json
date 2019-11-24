@@ -1,6 +1,6 @@
 {
   "name": "cloudinary-jquery",
-  "version": "2.7.4",
+  "version": "2.8.0",
   "description": "Cloudinary Client Side JS library. Cloudinary streamlines your web application’s image manipulation needs. Cloudinary's cloud-based servers automate image uploading, resizing, cropping, optimizing, sprite generation and more.",
   "main": "cloudinary-jquery.js",
   "types": "cloudinary-jquery.d.ts",
@@ -11,7 +11,6 @@
     "cloudinary-jquery.d.ts",
     "src/**/*"
   ],
-
   "repository": {
     "type": "git",
     "url": "https://github.com/cloudinary/cloudinary_js.git"
@@ -32,5 +31,4 @@
   "scripts": {
     "prepublishOnly": "../copy_deployment jquery"
   }
-
 }
