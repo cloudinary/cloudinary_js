@@ -330,12 +330,27 @@ describe('Cloudinary', function() {
       'protocol': 'custom:'
     };
     result = cl.url('test', options);
-    //expect(new Cloudinary.Transformation(options).toHtmlAttributes()).toEqual({});
     return expect(result).toEqual('custom://res.cloudinary.com/test123/image/upload/test');
   });
   it('should not fail on falsy public_id', function() {
     expect(cl.url(null)).toEqual(null);
     return expect(cl.url(void 0)).toEqual(void 0);
+  });
+  it('url() should support signature option', function () {
+    const publicId = 'test';
+    const host = `${protocol}//res.cloudinary.com/test123/image/upload`;
+    const transformation = 'c_limit,h_100,w_100';
+    let options = {signature: "signature", width: 100, height: 100, crop: 'limit'};
+
+    const expected = `${host}/s--${options.signature}--/${transformation}/${publicId}`;
+
+    let result = cl.url(publicId, options);
+    expect(result).toEqual(expected);
+
+    options.signature = `s--${options.signature}--`;
+
+    result = cl.url(publicId, options);
+    expect(result).toEqual(expected);
   });
   return describe('window.devicePixelRatio', function() {
     var dpr, options;
