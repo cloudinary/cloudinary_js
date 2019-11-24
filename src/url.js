@@ -123,38 +123,35 @@ function handlePrefix(publicId, options) {
 
 /**
  * Return the resource type and action type based on the given configuration
- * @function Cloudinary#finalizeResourceType
- * @param {Object|string} resourceType
+ * @function Cloudinary#handleResourceType
+ * @param {Object|string} resource_type
  * @param {string} [type='upload']
- * @param {string} [urlSuffix]
- * @param {boolean} [useRootPath]
+ * @param {string} [url_suffix]
+ * @param {boolean} [use_root_path]
  * @param {boolean} [shorten]
  * @returns {string} resource_type/type
  * @ignore
  */
-function handleResourceType(resourceType = "image", type = "upload", urlSuffix, useRootPath, shorten) {
-  var options;
-  resourceType = resourceType == null ? "image" : resourceType;
-  type = type == null ? "upload" : type;
+function handleResourceType({resource_type = "image", type = "upload", url_suffix, use_root_path, shorten}) {
+  let options, resourceType = resource_type;
+
   if (isPlainObject(resourceType)) {
     options = resourceType;
     resourceType = options.resource_type;
     type = options.type;
-    urlSuffix = options.url_suffix;
-    useRootPath = options.use_root_path;
     shorten = options.shorten;
   }
   if (type == null) {
     type = 'upload';
   }
-  if (urlSuffix != null) {
+  if (url_suffix != null) {
     resourceType = SEO_TYPES[`${resourceType}/${type}`];
     type = null;
     if (resourceType == null) {
       throw new Error(`URL Suffix only supported for ${Object.keys(SEO_TYPES).join(', ')}`);
     }
   }
-  if (useRootPath) {
+  if (use_root_path) {
     if (resourceType === 'image' && type === 'upload' || resourceType === "images") {
       resourceType = null;
       type = null;
@@ -255,13 +252,23 @@ function handleTransformation(options){
 }
 
 /**
+ * If type is 'fetch', update publicId to be a url
+ * @param publicId
+ * @param type
+ * @returns {string}
+ */
+function preparePublicId(publicId, {type}){
+  return (!isUrl(publicId) && type === 'fetch') ? makeUrl(publicId) : publicId;
+}
+
+/**
  * Generate url string
  * @param publicId
  * @param options
  * @returns {string} final url
  */
 function urlString(publicId, options) {
-  if (isUrl(publicId) && (options.type === 'upload' || options.type === 'asset')){
+  if (isUrl(publicId) && (options.type === 'upload' || options.type === 'asset')) {
     return publicId;
   }
 
@@ -269,9 +276,7 @@ function urlString(publicId, options) {
   const transformationString = handleTransformation(options);
   const prefix = handlePrefix(publicId, options);
   const signature = handleSignature(options);
-  const resourceType = handleResourceType(
-    options.resource_type, options.type, options.url_suffix, options.use_root_path, options.shorten
-  );
+  const resourceType = handleResourceType(options);
 
   publicId = formatPublicId(publicId, options);
 
@@ -282,7 +287,7 @@ function urlString(publicId, options) {
 
 /**
  * Merge options and config with defaults
- * update options and publicId according to 'fetch' param
+ * update options fetch_format according to 'type' param
  * @param publicId
  * @param options
  * @param config
@@ -297,13 +302,9 @@ function prepareOptions(publicId, options, config) {
 
   if (options.type === 'fetch') {
     options.fetch_format = options.fetch_format || options.format;
-
-    if (!isUrl(publicId)) {
-      publicId = makeUrl(publicId);
-    }
   }
 
-  return [publicId, options];
+  return options;
 }
 
 /**
@@ -336,7 +337,8 @@ export default function url(publicId, options = {}, config = {}) {
     return publicId;
   }
 
-  [publicId, options] = prepareOptions(publicId, options, config);
+  options = prepareOptions(publicId, options, config);
+  publicId = preparePublicId(publicId, options);
 
   const error = validate(options);
 
