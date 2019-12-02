@@ -216,7 +216,7 @@ describe("Transformation", function() {
       }, protocol + '//res.cloudinary.com/test123/image/upload/r_10:20:30/test', {});
     });
     it('should support radius paramas with variable', function() {
-      return test_cloudinary_url('test', {
+      test_cloudinary_url('test', {
         radius: [10,20,"$v"]
       }, protocol + '//res.cloudinary.com/test123/image/upload/r_10:20:$v/test', {});
       return test_cloudinary_url('test', {
@@ -339,6 +339,11 @@ describe("Transformation", function() {
     return test_cloudinary_url('test', {
       transformation: ['blip', 'blop']
     }, protocol + '//res.cloudinary.com/test123/image/upload/t_blip.blop/test', {});
+  });
+  it('should support named transformations with spaces', function() {
+    return test_cloudinary_url('test', {
+      transformation: ['blip blop']
+    }, protocol + '//res.cloudinary.com/test123/image/upload/t_blip%20blop/test', {});
   });
   it('should support base tranformation', function() {
     return expect(cl.url('test', {
