@@ -212,8 +212,12 @@ var TransformationParam = class TransformationParam extends Param {
     let result = '';
     const val = this.value();
 
+    if (isEmpty(val)) {
+      return result;
+    }
+
     // val is an array of strings so join them
-    if (!isEmpty(val) && allStrings(val)) {
+    if (allStrings(val)) {
       const joined = val.join(this.sep);  // creates t1.t2.t3 in case multiple named transformations were configured
       if (!isEmpty(joined)) {
         // in case options.transformation was not set with an empty string (val != ['']);
@@ -221,15 +225,16 @@ var TransformationParam = class TransformationParam extends Param {
       }
     } else { // Convert val to an array of strings
       result = val.map(t => {
-        switch (true) {
-          case isString(t) && !isEmpty(t):
-            return `${this.shortName}_${t}`;
-          case isFunction(t.serialize):
-            return t.serialize();
-          case isPlainObject(t) && !isEmpty(t):
-            return new Transformation(t).serialize();
-          default: return undefined;
+        if (isString(t) && !isEmpty(t)) {
+          return `${this.shortName}_${t}`;
         }
+        if (isFunction(t.serialize)) {
+          return t.serialize();
+        }
+        if (isPlainObject(t) && !isEmpty(t)) {
+          return new Transformation(t).serialize();
+        }
+        return undefined;
       }).filter(t=>t);
     }
     result = isArray(result) ? result.map(t=>t.replace(' ','%20')) : result.replace(' ','%20');
