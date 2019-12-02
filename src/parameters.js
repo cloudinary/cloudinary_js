@@ -237,7 +237,6 @@ var TransformationParam = class TransformationParam extends Param {
         return undefined;
       }).filter(t=>t);
     }
-    result = isArray(result) ? result.map(t=>t.replace(' ','%20')) : result.replace(' ','%20');
     return result;
   }
 
