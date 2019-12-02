@@ -282,7 +282,7 @@ function urlString(publicId, options) {
 
   return compact([prefix, resourceType, signature, transformationString, version, publicId])
     .join('/')
-    .replace(/([^:])\/+/g, '$1/');
+    .replace(/([^:])\/+/g, '$1/');//.replace(' ','%20');
 }
 
 /**

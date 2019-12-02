@@ -210,7 +210,7 @@ var TransformationParam = class TransformationParam extends Param {
     } else if (allStrings(this.value())) {
       let joined = this.value().join(this.sep);
       if (!isEmpty(joined)) {
-        return `${this.shortName}_${joined}`;
+        return `${this.shortName}_${joined}`;//.replace(' ','%20');
       } else {
         return '';
       }

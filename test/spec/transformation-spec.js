@@ -340,7 +340,7 @@ describe("Transformation", function() {
       transformation: ['blip', 'blop']
     }, protocol + '//res.cloudinary.com/test123/image/upload/t_blip.blop/test', {});
   });
-  it('should support named tranformations with spaces', function() {
+  it('should support named transformations with spaces', function() {
     return test_cloudinary_url('test', {
       transformation: ['blip blop']
     }, protocol + '//res.cloudinary.com/test123/image/upload/t_blip%20blop/test', {});
