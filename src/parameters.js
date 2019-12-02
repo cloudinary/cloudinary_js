@@ -204,29 +204,36 @@ var TransformationParam = class TransformationParam extends Param {
     this.sep = sep;
   }
 
+  /**
+   * Generate string representations of the transformation.
+   * @returns {*} Returns either the transformation as a string, or an array of string representations.
+   */
   serialize() {
-    if (isEmpty(this.value())) {
-      return '';
-    } else if (allStrings(this.value())) {
-      let joined = this.value().join(this.sep);
+    let result = '';
+    const val = this.value();
+
+    // val is an array of strings so join them
+    if (!isEmpty(val) && allStrings(val)) {
+      const joined = val.join(this.sep);  // creates t1.t2.t3 in case multiple named transformations were configured
       if (!isEmpty(joined)) {
-        return `${this.shortName}_${joined}`;//.replace(' ','%20');
-      } else {
-        return '';
+        // in case options.transformation was not set with an empty string (val != ['']);
+        result = `${this.shortName}_${joined}`;
       }
-    } else {
-      return this.value().map(t=>{
-        if (isString(t) && !isEmpty(t)) {
-          return `${this.shortName}_${t}`;
-        } else if (isFunction(t.serialize)) {
-          return t.serialize();
-        } else if (isPlainObject(t) && !isEmpty(t)) {
-          return new Transformation(t).serialize();
-        } else {
-          return undefined;
+    } else { // Convert val to an array of strings
+      result = val.map(t => {
+        switch (true) {
+          case isString(t) && !isEmpty(t):
+            return `${this.shortName}_${t}`;
+          case isFunction(t.serialize):
+            return t.serialize();
+          case isPlainObject(t) && !isEmpty(t):
+            return new Transformation(t).serialize();
+          default: return undefined;
         }
       }).filter(t=>t);
     }
+    result = isArray(result) ? result.map(t=>t.replace(' ','%20')) : result.replace(' ','%20');
+    return result;
   }
 
   set(origValue1) {
