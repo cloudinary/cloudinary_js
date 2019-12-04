@@ -92,6 +92,23 @@ const imageTag: ImageTag = cld.imageTag('sample');
 imageTag.transformation().angle("auto_left").crop('scale').width('auto');
 imageTag.toHtml(); // <img src="http://res.cloudinary.com/demo/image/upload/a_auto_left,c_scale,w_auto/sample">
 
+/*
+    for example -
+    <picture>
+        <source media=“(max-width: 100px)” srcset=“http://res.cloudinary.com/test123/image/upload/c_fill,h_399,w_399/a_17,c_scale,e_sepia,w_100/sample.jpg”>
+        <source media=“(min-width: 100px) and (max-width: 399px)” srcset=“http://res.cloudinary.com/test123/image/upload/c_fill,h_399,w_399/a_18,c_scale,e_colorize,w_399/sample.jpg”>
+        <source media=“(min-width: 399px)” srcset=“http://res.cloudinary.com/test123/image/upload/c_fill,h_399,w_399/a_19,c_scale,e_blur,w_399/sample.jpg”>
+        <img height=“399” src=“http://res.cloudinary.com/test123/image/upload/c_fill,h_399,w_399/sample.jpg” width=“399”>
+    </picture>
+ */
+transformation = cld.transformation().angle("auto_left").crop('scale').width('auto');
+const pictureTag: PictureTag = cld.pictureTag('sample', transformation);
+pictureTag.toHtml();
+
+transformation = cld.transformation();
+const sourceTag: SourceTag = cld.sourceTag('sample');
+sourceTag.transformation().angle("auto_left").crop('scale').width('auto');
+sourceTag.toHtml(); // <source srcset="http://res.cloudinary.com/demo/image/upload/a_auto_left,c_scale,w_auto/sample">
 
 transformation = cld.transformation();
 transformation.angle(20).crop('scale').width('auto').chain().effect('sepia');
