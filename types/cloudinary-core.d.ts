@@ -725,7 +725,7 @@ export class Cloudinary {
      * @param {Object} options - additional options to pass to the new PictureTag instance
      * @return {PictureTag} An PictureTag that is attached (chained) to this Cloudinary instance
      */
-    pictureTag(publicId: string, options: Transformation | Transformation.Options): PictureTag;
+    pictureTag(publicId: string, options?: Transformation | Transformation.Options): PictureTag;
 
     /**
      * Creates a new SourceTag instance, configured using this `cloudinary` instance.
