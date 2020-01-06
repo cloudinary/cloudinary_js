@@ -439,7 +439,31 @@ describe("SourceTag", function(){
   });
 
 });
-describe("PictureTag", function(){
+describe("PictureTag", function() {
+  it("shouldn't crash when turning to HTML", function(){
+    let myCloud = cloudinary.Cloudinary.new( { cloud_name: "sample"});
+    let publicID = 'samples/ecommerce/leather-bag-gray';
+    let sources = [
+      {
+        "max_width": 100,
+        "transformation": {
+          "crop": "scale",
+          "effect": "sepia",
+          "angle": 17,
+          "width": 100
+        }
+      }
+    ];
+
+    let outputTag = myCloud.pictureTag(publicID, sources).toHtml();
+
+    let expTag = "<picture>" +
+        '<source media="(max-width: 100px)" srcset="http://res.cloudinary.com/sample/image/upload/a_17,c_scale,e_sepia,w_100/v1/samples/ecommerce/leather-bag-gray">' +
+        '<img src="http://res.cloudinary.com/sample/image/upload/v1/samples/ecommerce/leather-bag-gray">' +
+        "</picture>";
+    expect(outputTag).toBe(expTag);
+  });
+
   it("should generate picture tag", function () {
     const min_width = 100;
     const max_width = 399;

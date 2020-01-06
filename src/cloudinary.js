@@ -271,14 +271,11 @@ class Cloudinary {
    * Creates a new PictureTag instance, configured using this `cloudinary` instance.
    * @function Cloudinary#PictureTag
    * @param {string} publicId - the public ID of the resource
-   * @param {Object} options - additional options to pass to the new ImageTag instance
+   * @param {Array} sources - Array of soruces provided to PictureTag
    * @return {PictureTag} A PictureTag that is attached (chained) to this Cloudinary instance
    */
-  pictureTag(publicId, options) {
-    var tag;
-    tag = new PictureTag(publicId, this.config());
-    tag.transformation().fromOptions(options);
-    return tag;
+  pictureTag(publicId, sources) {
+    return new PictureTag(publicId, this.config(), sources);
   }
 
   /**
