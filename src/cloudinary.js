@@ -274,8 +274,8 @@ class Cloudinary {
    * @param {Array} sources - Array of soruces provided to PictureTag
    * @return {PictureTag} A PictureTag that is attached (chained) to this Cloudinary instance
    */
-  pictureTag(publicId, sources) {
-    return new PictureTag(publicId, this.config(), sources);
+  pictureTag(publicId, options = {}, sources = []) {
+    return new PictureTag(publicId, merge(this.config(), options), sources);
   }
 
   /**

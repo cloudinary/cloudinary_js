@@ -440,31 +440,8 @@ describe("SourceTag", function(){
 
 });
 describe("PictureTag", function() {
-  it("shouldn't crash when turning to HTML", function(){
-    let myCloud = cloudinary.Cloudinary.new( { cloud_name: "sample"});
-    let publicID = 'samples/ecommerce/leather-bag-gray';
-    let sources = [
-      {
-        "max_width": 100,
-        "transformation": {
-          "crop": "scale",
-          "effect": "sepia",
-          "angle": 17,
-          "width": 100
-        }
-      }
-    ];
-
-    let outputTag = myCloud.pictureTag(publicID, sources).toHtml();
-
-    let expTag = "<picture>" +
-        '<source media="(max-width: 100px)" srcset="http://res.cloudinary.com/sample/image/upload/a_17,c_scale,e_sepia,w_100/v1/samples/ecommerce/leather-bag-gray">' +
-        '<img src="http://res.cloudinary.com/sample/image/upload/v1/samples/ecommerce/leather-bag-gray">' +
-        "</picture>";
-    expect(outputTag).toBe(expTag);
-  });
-
   it("should generate picture tag", function () {
+    let myCloud = cloudinary.Cloudinary.new( { cloud_name: "sample"});
     const min_width = 100;
     const max_width = 399;
     const fill_transformation = {
@@ -479,43 +456,52 @@ describe("PictureTag", function() {
     const FULL_PUBLIC_ID = `${public_id}.${image_format}`;
 
     var exp_tag, tag;
-    tag = new cloudinary.PictureTag(FULL_PUBLIC_ID, fill_transformation, [
-        {
-          "max_width": min_width,
-          "transformation": {
-            "crop": "scale",
-            "effect": "sepia",
-            "angle": 17,
-            "width": min_width
-          }
-        },
-        {
-          "min_width": min_width,
-          "max_width": max_width,
-          "transformation": {
-            "crop": "scale",
-            "effect": "colorize",
-            "angle": 18,
-            "width": max_width
-          }
-        },
-        {
-          "min_width": max_width,
-          "transformation": {
-            "crop": "scale",
-            "effect": "blur",
-            "angle": 19,
-            "width": max_width
-          }
+
+    let sources = [
+      {
+        "max_width": min_width,
+        "transformation": {
+          "crop": "scale",
+          "effect": "sepia",
+          "angle": 17,
+          "width": min_width
         }
-      ]
-    );
+      },
+      {
+        "min_width": min_width,
+        "max_width": max_width,
+        "transformation": {
+          "crop": "scale",
+          "effect": "colorize",
+          "angle": 18,
+          "width": max_width
+        }
+      },
+      {
+        "min_width": max_width,
+        "transformation": {
+          "crop": "scale",
+          "effect": "blur",
+          "angle": 19,
+          "width": max_width
+        }
+      }
+    ];
+
+
+    tag = new cloudinary.PictureTag(FULL_PUBLIC_ID, fill_transformation, sources);
+
     exp_tag = "<picture>" +
       '<source media="(max-width: 100px)" srcset="http://res.cloudinary.com/test123/image/upload/c_fill,h_399,w_399/a_17,c_scale,e_sepia,w_100/sample.jpg">' +
       '<source media="(min-width: 100px) and (max-width: 399px)" srcset="http://res.cloudinary.com/test123/image/upload/c_fill,h_399,w_399/a_18,c_scale,e_colorize,w_399/sample.jpg">' +
       '<source media="(min-width: 399px)" srcset="http://res.cloudinary.com/test123/image/upload/c_fill,h_399,w_399/a_19,c_scale,e_blur,w_399/sample.jpg">' +
       '<img height="399" src="http://res.cloudinary.com/test123/image/upload/c_fill,h_399,w_399/sample.jpg" width="399">' +
       "</picture>";
+
     expect(tag.toHtml()).toBe(exp_tag);
+
+    // ensure that the helper for PictureTag also generates the same HTML
+    let outputTag = myCloud.pictureTag(FULL_PUBLIC_ID, fill_transformation, sources);
+    expect(tag.toHtml()).toBe(outputTag.toHtml());
   });
-})
+});
