@@ -111,14 +111,11 @@ module.exports = function(config) {
     // - config.LOG_INFO
     // - config.LOG_DEBUG
     logLevel: config.LOG_INFO,
-    // enable / disable watching file and executing tests whenever any file changes
-    autoWatch: false,
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
     browsers: process.env.TEST_HEADLESS ? ['ChromeHeadless'] : ['Chrome', 'Firefox'],
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
-    singleRun: true,
     plugins: ['karma-jasmine', 'karma-coverage', 'karma-story-reporter', 'karma-chrome-launcher', 'karma-firefox-launcher']
   });
 };

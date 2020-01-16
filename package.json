@@ -10,13 +10,14 @@
     "src/**/*"
   ],
   "scripts": {
-    "build": "node_modules/.bin/parallel-webpack",
-    "doc": "node_modules/.bin/jsdoc -c jsdoc-conf.json",
-    "test": "node_modules/.bin/karma start --single-run --browsers=ChromeHeadless",
-    "test:pkgs": "for pkg in core jquery jquery-file-upload; do node_modules/.bin/karma start --single-run --cloudinary.pkg=${pkg}; done",
-    "test:pkgs:minified": "for pkg in core jquery jquery-file-upload; do node_modules/.bin/karma start --single-run --cloudinary.minified --cloudinary.pkg=${pkg}; done",
-    "test:types": "node_modules/.bin/tsc",
-    "copybuilds": "for pkg in core jquery jquery-file-upload; do pkg/copy_deployment ${pkg}; done",
+    "build": "parallel-webpack",
+    "doc": "jsdoc -c jsdoc-conf.json",
+    "test": "karma start --single-run --browsers=ChromeHeadless",
+    "test:watch": "karma start --auto-watch --browsers=ChromeHeadless",
+    "test:pkgs": "tools/scripts/test.pkgs.sh",
+    "test:pkgs:minified": "tools/scripts/test.pkgs.minified.sh",
+    "test:types": "tsc",
+    "copybuilds": "tools/scripts/copybuilds.sh",
     "verify-pkgs": "jasmine pkg/verify-pkgs.js"
   },
   "repository": {
