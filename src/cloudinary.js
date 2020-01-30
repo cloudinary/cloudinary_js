@@ -694,6 +694,32 @@ class Cloudinary {
   }
 
   /**
+   * Sets src to null when not using native lazy load
+   * @param img
+   * @param options
+   */
+  handleLazyLoad(img, options){
+    if(options.loading && !this.isNativeLazyLoadSupported() && this.isLazyLoadSupported()) {
+      img.setAttribute('src', null);
+      img.setAttribute('width', img.getAttribute('data-width'));
+    }
+  }
+
+  /**
+   * @returns {boolean}
+   */
+  isLazyLoadSupported() {
+    return window && 'IntersectionObserver' in window;
+  }
+
+  /**
+   * @returns {boolean}
+   */
+  isNativeLazyLoadSupported() {
+    return 'loading' in HTMLImageElement.prototype;
+  }
+
+  /**
    * Returns a {@link Transformation} object, initialized with the specified options, for chaining purposes.
    * @function Cloudinary#transformation
    * @param {Object} options The {@link Transformation} options to apply.

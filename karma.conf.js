@@ -10,6 +10,7 @@ function testFiles(pkg) {
     'test/spec/videourlspec.js',
     'test/spec/chaining-spec.js',
     'test/spec/layer-spec.js',
+    'test/spec/lazy-load-spec.js',
     `test/spec/responsive-${pkg}-spec.js`,
   ];
   if (pkg === 'jquery-file-upload') {
