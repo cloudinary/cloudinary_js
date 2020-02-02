@@ -6,7 +6,7 @@ describe("Lazy Loaded Image", function() {
     img = cl.image("sample", {
       options
     });
-    cl.handleLazyLoad(img, options);
+    cl.setImgOnLazyLoad(img, options);
     if(navigator.userAgent.toLowerCase().indexOf('firefox') > -1) {
       expect(img.getAttribute('src')).toEqual('null');
       expect(img.getAttribute('width')).toEqual('null');

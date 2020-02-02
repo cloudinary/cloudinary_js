@@ -698,7 +698,7 @@ class Cloudinary {
    * @param img
    * @param options
    */
-  handleLazyLoad(img, options){
+  setImgOnLazyLoad(img, options){
     if(options.loading && !this.isNativeLazyLoadSupported() && this.isLazyLoadSupported()) {
       img.setAttribute('src', null);
       img.setAttribute('width', img.getAttribute('data-width'));
@@ -706,6 +706,7 @@ class Cloudinary {
   }
 
   /**
+   * Returns true if Intersection Observer API is supported
    * @returns {boolean}
    */
   isLazyLoadSupported() {
@@ -713,6 +714,7 @@ class Cloudinary {
   }
 
   /**
+   * Returns true if using Chrome
    * @returns {boolean}
    */
   isNativeLazyLoadSupported() {
