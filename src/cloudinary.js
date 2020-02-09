@@ -684,8 +684,11 @@ class Cloudinary {
               setUrl = false;
             }
           }
-          if (setUrl) {
+          if(options.loading === 'lazy' && !this.isNativeLazyLoadSupported() && this.isLazyLoadSupported() && !elements[0].getAttribute('src')) {
+            this.setImgOnLazyLoad(elements, options);
+          }else if (setUrl) {
             setAttribute(tag, 'src', dataSrc);
+            elements[0].setAttribute('width', elements[0].getAttribute('data-width'));
           }
         }
       }
@@ -694,15 +697,12 @@ class Cloudinary {
   }
 
   /**
-   * Sets src to null when not using native lazy load
+   * Sets width when not using native lazy load
    * @param img
    * @param options
    */
   setImgOnLazyLoad(img, options){
-    if(options.loading && !this.isNativeLazyLoadSupported() && this.isLazyLoadSupported()) {
-      img.setAttribute('src', null);
-      img.setAttribute('width', img.getAttribute('data-width'));
-    }
+    img[0].setAttribute('width', img[0].getAttribute('data-width'));
   }
 
   /**
