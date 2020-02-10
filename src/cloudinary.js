@@ -684,13 +684,41 @@ class Cloudinary {
               setUrl = false;
             }
           }
-          if (setUrl) {
+          if(options.loading === 'lazy' && !this.isNativeLazyLoadSupported() && this.isLazyLoadSupported() && !elements[0].getAttribute('src')) {
+            this.setImgOnLazyLoad(elements, options);
+          }else if (setUrl) {
             setAttribute(tag, 'src', dataSrc);
+            elements[0].setAttribute('width', elements[0].getAttribute('data-width'));
           }
         }
       }
     });
     return this;
+  }
+
+  /**
+   * Sets width when not using native lazy load
+   * @param img
+   * @param options
+   */
+  setImgOnLazyLoad(img, options){
+    img[0].setAttribute('width', img[0].getAttribute('data-width'));
+  }
+
+  /**
+   * Returns true if Intersection Observer API is supported
+   * @returns {boolean}
+   */
+  isLazyLoadSupported() {
+    return window && 'IntersectionObserver' in window;
+  }
+
+  /**
+   * Returns true if using Chrome
+   * @returns {boolean}
+   */
+  isNativeLazyLoadSupported() {
+    return 'loading' in HTMLImageElement.prototype;
   }
 
   /**
