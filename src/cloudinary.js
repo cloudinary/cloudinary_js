@@ -652,6 +652,8 @@ class Cloudinary {
     }
 
     let roundDpr = options.round_dpr != null ? options.round_dpr : this.config('round_dpr');
+    let lazyClass = options.lazy_class != null ? options.lazy_class : this.config('lazy_class');
+    let lazyImg = options.lazy_img != null ? options.lazy_img : this.config('lazy_img');
     elements.forEach(tag => {
       if (/img/i.test(tag.tagName)) {
         let setUrl = true;
@@ -685,7 +687,11 @@ class Cloudinary {
             }
           }
           if (setUrl) {
-            setAttribute(tag, 'src', dataSrc);
+            if(hasClass(tag, lazyClass) || !lazyImg) {
+              setAttribute(tag, 'src', dataSrc);
+            } else {
+              setAttribute(tag, 'data-cld', dataSrc);
+            }
           }
         }
       }

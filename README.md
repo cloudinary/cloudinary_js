@@ -272,6 +272,23 @@ $(document).ready(function() {
   });
 });
 ```
+## LazySizes Support
+
+[LazySizes](https://github.com/aFarkas/lazysizes) plugin can be used together with Cloudinary, to facilitate responsive lazy loading of images.
+
+```javascript
+// head
+window.lazySizesConfig = window.lazySizesConfig || {};
+lazySizesConfig.init = false;
+lazySizesConfig.srcAttr = 'data-cld';
+
+// body or onload event
+const cl = cloudinary.Cloudinary.new({cloud_name: "cloud_name", lazy_class: "lazyloaded", lazy_img: true});
+cl.responsive();
+lazySizes.init();
+```
+
+
 ## Angular Directives
 
 Joshua Chaitin-Pollak contributed AngularJS directives for Cloudinary:

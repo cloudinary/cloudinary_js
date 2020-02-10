@@ -2915,7 +2915,9 @@
 	            default:
 	              return [elements];
 	          }
-	        })();
+			})();
+			var lazyClass = options.lazy_class != null ? options.lazy_class : this.config('lazy_class');
+			var lazyImg = options.lazy_img != null ? options.lazy_img : this.config('lazy_img');
 	        for (j = 0, len = elements.length; j < len; j++) {
 	          tag = elements[j];
 	          if (!((ref = tag.tagName) != null ? ref.match(/img/i) : void 0)) {
@@ -2947,7 +2949,10 @@
 	              }
 	            }
 	            if (setUrl) {
-	              Util.setAttribute(tag, 'src', src);
+				  if(Util.hasClass(tag, lazyClass) || !lazyImg) {
+					Util.setAttribute(tag, 'src', dataSrc);
+				  } else {
+					Util.setAttribute(tag, 'data-cld', dataSrc);
 	            }
 	          }
 	        }

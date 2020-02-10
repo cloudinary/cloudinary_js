@@ -4254,7 +4254,7 @@ var slice = [].slice,
      */
 
     Cloudinary.prototype.cloudinary_update = function(elements, options) {
-      var containerWidth, dataSrc, j, len, match, ref, ref1, ref2, ref3, ref4, ref5, requiredWidth, responsive, responsiveClass, roundDpr, setUrl, tag;
+      var containerWidth, dataSrc, j, len, match, ref, ref1, ref2, ref3, ref4, ref5, requiredWidth, responsive, responsiveClass, roundDpr, setUrl, tag, lazyClass, lazyImg;
       if (options == null) {
         options = {};
       }
@@ -4276,6 +4276,9 @@ var slice = [].slice,
       })();
       responsiveClass = (ref2 = (ref3 = this.responsiveConfig['responsive_class']) != null ? ref3 : options['responsive_class']) != null ? ref2 : this.config('responsive_class');
       roundDpr = (ref4 = options['round_dpr']) != null ? ref4 : this.config('round_dpr');
+      lazyClass = options.lazy_class != null ? options.lazy_class : this.config('lazy_class');
+      lazyImg = options.lazy_img != null ? options.lazy_img : this.config('lazy_img');
+      
       for (j = 0, len = elements.length; j < len; j++) {
         tag = elements[j];
         if (!((ref5 = tag.tagName) != null ? ref5.match(/img/i) : void 0)) {
@@ -4293,13 +4296,20 @@ var slice = [].slice,
             if (containerWidth !== 0) {
               switch (false) {
                 case !/w_auto:breakpoints/.test(dataSrc):
-                  requiredWidth = maxWidth(containerWidth, tag);
-                  dataSrc = dataSrc.replace(/w_auto:breakpoints([_0-9]*)(:[0-9]+)?/, "w_auto:breakpoints$1:" + requiredWidth);
+                  if (requiredWidth = maxWidth(containerWidth, tag)) {
+                    dataSrc = dataSrc.replace(/w_auto:breakpoints([_0-9]*)(:[0-9]+)?/, "w_auto:breakpoints$1:" + requiredWidth);
+                  } else {
+                    setUrl = false;
+                  }
                   break;
                 case !(match = /w_auto(:(\d+))?/.exec(dataSrc)):
                   requiredWidth = applyBreakpoints.call(this, tag, containerWidth, match[2], options);
-                  requiredWidth = maxWidth(requiredWidth, tag);
-                  dataSrc = dataSrc.replace(/w_auto[^,\/]*/g, "w_" + requiredWidth);
+                  if (requiredWidth = maxWidth(requiredWidth, tag)) {
+                    dataSrc = dataSrc.replace(/w_auto[^,\/]*/g, "w_" + requiredWidth);
+                  } else {
+                    setUrl = false;
+                  }
+                  break;
               }
               Util.removeAttribute(tag, 'width');
               if (!options.responsive_preserve_height) {
@@ -4310,7 +4320,11 @@ var slice = [].slice,
             }
           }
           if (setUrl) {
-            Util.setAttribute(tag, 'src', dataSrc);
+            if(lodash_hasClass(tag, lazyClass) || !lazyImg) {
+              Util.setAttribute(tag, 'src', dataSrc);
+            } else {
+              Util.setAttribute(tag, 'data-cld', dataSrc);
+            }
           }
         }
       }
