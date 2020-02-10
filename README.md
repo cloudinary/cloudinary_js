@@ -196,6 +196,8 @@ which produces:
 <img src="http://res.cloudinary.com/some_other_cloud/image/upload/sample">
 ```
 
+#### Auto width consideration
+Auto width is based on the browser capability to calculate the image layout. Pop-up and modal layers that are not rendered (display:none or zero width elements) will not be able to get the images loaded before the user actually interact with the layer.
 
 #### Transformation
 

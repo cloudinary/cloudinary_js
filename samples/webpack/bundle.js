@@ -2936,12 +2936,16 @@
 	                if (requestedWidth > imageWidth) {
 	                  imageWidth = requestedWidth;
 	                }
-	                Util.setData(tag, 'width', requestedWidth);
-	                src = src.replace(/\bw_auto\b/g, 'w_' + imageWidth);
-	                Util.setAttribute(tag, 'width', null);
-	                if (!options.responsive_preserve_height) {
-	                  Util.setAttribute(tag, 'height', null);
-	                }
+	                if (imageWidth) {
+	  	  	          Util.setData(tag, 'width', requestedWidth);
+	  	  	          src = src.replace(/\bw_auto\b/g, 'w_' + imageWidth);
+	  	  	          Util.setAttribute(tag, 'width', null);
+	  	  	          if (!options.responsive_preserve_height) {
+	  	  	            Util.setAttribute(tag, 'height', null);
+	  	  	          } 
+	  	  	        } else {
+	  	  	          setUrl = false;
+	  	  	        }
 	              } else {
 	                setUrl = false;
 	              }
