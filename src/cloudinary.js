@@ -1,3 +1,5 @@
+import {normalizeToArray} from "./util/parse/normalizeToArray";
+
 var applyBreakpoints, closestAbove, defaultBreakpoints, findContainerWidth, maxWidth, updateDpr;
 
 import Configuration from './configuration';
@@ -580,6 +582,7 @@ class Cloudinary {
       // similar to `$.fn.cloudinary`
       return this;
     }
+
     options = defaults({}, options || {}, this.config());
     let images = nodes
       .filter(node=>/^img$/i.test(node.tagName))
@@ -630,18 +633,9 @@ class Cloudinary {
       options = {};
     }
     const responsive = options.responsive != null ? options.responsive : this.config('responsive');
-    elements = (function() {
-      switch (false) {
-        case !isArray(elements):
-          return elements;
-        case elements.constructor.name !== "NodeList":
-          return elements;
-        case !isString(elements):
-          return Array.prototype.slice.call(document.querySelectorAll(elements), 0);
-        default:
-          return [elements];
-      }
-    })();
+
+    elements = normalizeToArray(elements);
+
     let responsiveClass;
     if (this.responsiveConfig && this.responsiveConfig.responsive_class != null) {
       responsiveClass = this.responsiveConfig.responsive_class;
