@@ -55,7 +55,7 @@
     "lodash": "^4.17.13",
     "lodash-cli": "^4.15.0",
     "parallel-webpack": "^2.3.0",
-    "puppeteer": "^1.20.0",
+    "puppeteer": "^2.1.1",
     "requirejs": "^2.3.6",
     "tar": "^4.4.10",
     "terser-webpack-plugin": "^1.2.3",
