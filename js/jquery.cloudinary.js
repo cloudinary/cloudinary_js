@@ -4296,20 +4296,13 @@ var slice = [].slice,
             if (containerWidth !== 0) {
               switch (false) {
                 case !/w_auto:breakpoints/.test(dataSrc):
-                  if (requiredWidth = maxWidth(containerWidth, tag)) {
-                    dataSrc = dataSrc.replace(/w_auto:breakpoints([_0-9]*)(:[0-9]+)?/, "w_auto:breakpoints$1:" + requiredWidth);
-                  } else {
-                    setUrl = false;
-                  }
+                  requiredWidth = maxWidth(containerWidth, tag);
+                  dataSrc = dataSrc.replace(/w_auto:breakpoints([_0-9]*)(:[0-9]+)?/, "w_auto:breakpoints$1:" + requiredWidth);
                   break;
                 case !(match = /w_auto(:(\d+))?/.exec(dataSrc)):
                   requiredWidth = applyBreakpoints.call(this, tag, containerWidth, match[2], options);
-                  if (requiredWidth = maxWidth(requiredWidth, tag)) {
-                    dataSrc = dataSrc.replace(/w_auto[^,\/]*/g, "w_" + requiredWidth);
-                  } else {
-                    setUrl = false;
-                  }
-                  break;
+                  requiredWidth = maxWidth(requiredWidth, tag);
+                  dataSrc = dataSrc.replace(/w_auto[^,\/]*/g, "w_" + requiredWidth);
               }
               Util.removeAttribute(tag, 'width');
               if (!options.responsive_preserve_height) {
