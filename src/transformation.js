@@ -40,7 +40,7 @@ function assignNotNull(target, ...sources) {
       if (source[key] != null) {
         target[key] = source[key];
       }
-    })
+    });
   });
   return target;
 }
@@ -125,25 +125,25 @@ class TransformationBase {
       return this;
     };
     /** @protected */
-    this.rawParam = function (value, name, abbr, defaultValue, process = identity) {
+    this.rawParam = function (value, name, abbr, defaultValue, process) {
       process = lastArgCallback(arguments);
       trans[name] = new RawParam(name, abbr, process).set(value);
       return this;
     };
     /** @protected */
-    this.rangeParam = function (value, name, abbr, defaultValue, process = identity) {
+    this.rangeParam = function (value, name, abbr, defaultValue, process) {
       process = lastArgCallback(arguments);
       trans[name] = new RangeParam(name, abbr, process).set(value);
       return this;
     };
     /** @protected */
-    this.arrayParam = function (value, name, abbr, sep = ":", defaultValue = [], process = identity) {
+    this.arrayParam = function (value, name, abbr, sep = ":", defaultValue = [], process = undefined) {
       process = lastArgCallback(arguments);
       trans[name] = new ArrayParam(name, abbr, sep, process).set(value);
       return this;
     };
     /** @protected */
-    this.transformationParam = function (value, name, abbr, sep = ".", defaultValue, process = identity) {
+    this.transformationParam = function (value, name, abbr, sep = ".", defaultValue = undefined, process = undefined) {
       process = lastArgCallback(arguments);
       trans[name] = new TransformationParam(name, abbr, sep, process).set(value);
       return this;
@@ -271,11 +271,10 @@ class TransformationBase {
    * @param {Object} [options={}] key-value list of options
    * @returns {Transformation} Returns this instance for chaining
    */
-  fromOptions(options) {
+  fromOptions(options = {}) {
     if (options instanceof TransformationBase) {
       this.fromTransformation(options);
     } else {
-      options || (options = {});
       if (isString(options) || isArray(options)) {
         options = {
           transformation: options
@@ -399,7 +398,7 @@ class TransformationBase {
    * @private
    * @return {Array<string>} a array of all the valid option names
    */
-  listNames() {
+  static listNames() {
     return Transformation.methods;
   }
 
@@ -409,16 +408,15 @@ class TransformationBase {
    * @return PlainObject
    */
   toHtmlAttributes() {
-    var attrName, height, key, options, ref2, ref3, value, width;
+    var attrName, height, options, ref2, ref3, value, width;
     options = {};
-    for (key in this.otherOptions) {
+    Object.keys(this.otherOptions).forEach(key=>{
       value = this.otherOptions[key];
-      if (contains(Transformation.PARAM_NAMES, snakeCase(key))) {
-        continue;
+      if (!contains(Transformation.PARAM_NAMES, snakeCase(key))) {
+        attrName = /^html_/.test(key) ? key.slice(5) : key;
+        options[attrName] = value;
       }
-      attrName = /^html_/.test(key) ? key.slice(5) : key;
-      options[attrName] = value;
-    }
+    });
     // convert all "html_key" to "key" with the same value
     this.keys().forEach(key => {
       if (/^html_/.test(key)) {
@@ -429,20 +427,20 @@ class TransformationBase {
       width = (ref2 = this.get("width")) != null ? ref2.origValue : void 0;
       height = (ref3 = this.get("height")) != null ? ref3.origValue : void 0;
       if (parseFloat(width) >= 1.0) {
-        if (options['width'] == null) {
-          options['width'] = width;
+        if (options.width == null) {
+          options.width = width;
         }
       }
       if (parseFloat(height) >= 1.0) {
-        if (options['height'] == null) {
-          options['height'] = height;
+        if (options.height == null) {
+          options.height = height;
         }
       }
     }
     return options;
   }
 
-  isValidParamName(name) {
+  static isValidParamName(name) {
     return Transformation.methods.indexOf(camelCase(name)) >= 0;
   }
 
@@ -470,8 +468,7 @@ class TransformationBase {
   clone() {
     return new this.constructor(this.toOptions(true));
   }
-
-};
+}
 
 const VAR_NAME_RE = /^\$[a-zA-Z0-9]+$/;
 
@@ -504,11 +501,11 @@ function processVar(varArray) {
   }
 }
 
-function processCustomFunction(value) {
-  if (value.function_type === "remote") {
-    return [value.function_type, btoa(value.source)].join(":")
-  } else if (value.function_type === "wasm") {
-    return [value.function_type, value.source].join(":")
+function processCustomFunction({function_type, source}) {
+  if (function_type === 'remote') {
+    return [function_type, btoa(source)].join(":");
+  } else if (function_type === 'wasm') {
+    return [function_type, source].join(":");
   }
 }
 
@@ -541,9 +538,9 @@ class Transformation extends TransformationBase {
    * // or
    *
    * t = new cloudinary.Transformation( {angle: 20, crop: "scale", width: "auto"});
-   * @see <a href="https://cloudinary.com/documentation/image_transformation_reference" 
+   * @see <a href="https://cloudinary.com/documentation/image_transformation_reference"
    *  target="_blank">Available image transformations</a>
-   * @see <a href="https://cloudinary.com/documentation/video_transformation_reference" 
+   * @see <a href="https://cloudinary.com/documentation/video_transformation_reference"
    *  target="_blank">Available video transformations</a>
    */
   constructor(options) {
@@ -628,7 +625,7 @@ class Transformation extends TransformationBase {
       return value ? `fn_pre:${value}` : value;
     });
   }
-  
+
   defaultImage(value) {
     return this.param(value, "default_image", "d");
   }
