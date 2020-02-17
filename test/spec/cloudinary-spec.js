@@ -158,6 +158,14 @@ describe('Cloudinary', function() {
   });
   it('should add version if public_id contains /', function() {
     test_cloudinary_url('folder/test', {}, protocol + '//res.cloudinary.com/test123/image/upload/v1/folder/test', {});
+    test_cloudinary_url('folder/test', {
+      version: 123,
+      force_version:false
+    }, protocol + '//res.cloudinary.com/test123/image/upload/v123/folder/test', {force_version:false});
+    test_cloudinary_url('folder/test', {
+      version: 123,
+      force_version:true
+    }, protocol + '//res.cloudinary.com/test123/image/upload/v123/folder/test', {force_version:true});
     return test_cloudinary_url('folder/test', {
       version: 123
     }, protocol + '//res.cloudinary.com/test123/image/upload/v123/folder/test', {});
@@ -169,6 +177,10 @@ describe('Cloudinary', function() {
     return test_cloudinary_url('test', {
       shorten: true
     }, protocol + '//res.cloudinary.com/test123/iu/test', {});
+  });
+  it('Should not set default version if force_version is set to false', function() {
+    test_cloudinary_url('folder/test', {force_version:false}, protocol + '//res.cloudinary.com/test123/image/upload/folder/test', {force_version:false});
+    return test_cloudinary_url('sample.jpg', {force_version:false}, protocol + '//res.cloudinary.com/test123/image/upload/sample.jpg', {force_version:false});
   });
   it("should support url_suffix in shared distribution", function() {
     test_cloudinary_url("test", {
@@ -318,12 +330,27 @@ describe('Cloudinary', function() {
       'protocol': 'custom:'
     };
     result = cl.url('test', options);
-    //expect(new Cloudinary.Transformation(options).toHtmlAttributes()).toEqual({});
     return expect(result).toEqual('custom://res.cloudinary.com/test123/image/upload/test');
   });
   it('should not fail on falsy public_id', function() {
     expect(cl.url(null)).toEqual(null);
     return expect(cl.url(void 0)).toEqual(void 0);
+  });
+  it('url() should support signature option', function () {
+    const publicId = 'test';
+    const host = `${protocol}//res.cloudinary.com/test123/image/upload`;
+    const transformation = 'c_limit,h_100,w_100';
+    let options = {signature: "signature", width: 100, height: 100, crop: 'limit'};
+
+    const expected = `${host}/s--${options.signature}--/${transformation}/${publicId}`;
+
+    let result = cl.url(publicId, options);
+    expect(result).toEqual(expected);
+
+    options.signature = `s--${options.signature}--`;
+
+    result = cl.url(publicId, options);
+    expect(result).toEqual(expected);
   });
   return describe('window.devicePixelRatio', function() {
     var dpr, options;

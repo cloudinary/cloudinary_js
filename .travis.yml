@@ -5,4 +5,4 @@ node_js:
 install:
   - npm install
 before_script:
-  - npm run dist
+  - npm run build

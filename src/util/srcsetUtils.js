@@ -17,17 +17,6 @@ import url from '../url';
  */
 
 /**
- * Options used to generate the srcset attribute.
- * @typedef {object} srcset
- * @property {(number[]|string[])}   [breakpoints] An array of breakpoints.
- * @property {number}                [min_width]   Minimal width of the srcset images.
- * @property {number}                [max_width]   Maximal width of the srcset images.
- * @property {number}                [max_images]  Number of srcset images to generate.
- * @property {object|string}         [transformation] The transformation to use in the srcset urls.
- * @property {boolean}               [sizes] Whether to calculate and add the sizes attribute.
- */
-
-/**
  * Helper function. Generates a single srcset item url
  *
  * @private

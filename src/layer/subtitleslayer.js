@@ -1,6 +1,6 @@
 import TextLayer from './textlayer';
 
-const SubtitlesLayer = class SubtitlesLayer extends TextLayer {
+class SubtitlesLayer extends TextLayer {
   /**
    * Represent a subtitles layer
    * @constructor SubtitlesLayer
@@ -11,5 +11,5 @@ const SubtitlesLayer = class SubtitlesLayer extends TextLayer {
     this.options.resourceType = "subtitles";
   }
 
-};
+}
 export default SubtitlesLayer;

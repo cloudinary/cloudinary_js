@@ -2,6 +2,11 @@ export as namespace cloudinary;
 
 /****************************** Constants *************************************/
 type CropMode = string | "scale" | "fit" | "limit" | "mfit" | "fill" | "lfill" | "pad" | "lpad" | "mpad" | "crop" | "thumb" | "imagga_crop" | "imagga_scale";
+type CustomFunctionType = "wasm" | "remote";
+interface CustomFunction {
+    function_type: CustomFunctionType;
+    source: string;
+}
 type Gravity = string | "north_west" | "north" | "north_east" | "west" | "center" | "east" | "south_west" | "south" | "south_east" | "xy_center" |
     "face" | "face:center" | "face:auto" | "faces" | "faces:center" | "faces:auto" | "body" | "body:face" | "adv_face" | "adv_faces" | "adv_eyes" |
     "custom" | "custom:face" | "custom:faces" | "custom:adv_face" | "custom:adv_faces" |
@@ -180,6 +185,8 @@ export class Transformation {
     color(value: string): Transformation; // e.g. "red" or "rgb:20a020"
     colorSpace(value: ColorSpace): Transformation;
     crop(value: CropMode): Transformation;
+    customFunction(value: CustomFunction): Transformation;
+    customPreFunction(value: CustomFunction): Transformation;
     defaultImage(value: string): Transformation; // public id of an uploaded image
     delay(value: string): Transformation;
     density(value: number): Transformation; // Control the density to use while converting a PDF document to images. (range: 50-300, default: 150)
@@ -290,6 +297,8 @@ export namespace Transformation {
         color?: string; // e.g. "red" or "rgb:20a020"
         colorSpace?: ColorSpace;
         crop?: CropMode,
+        customFunction?: CustomFunction,
+        customPreFunction?: CustomFunction,
         defaultImage?: string; // public id of an uploaded image
         delay?: string;
         density?: number | string; // Control the density to use while converting a PDF document to images. (range: 50-300, default: 150)
@@ -849,7 +858,7 @@ export namespace Configuration {
         responsive?: boolean;
         responsive_width?: string;
         secure_cdn_subdomain?: boolean;
-        secure_distribution?: boolean;
+        secure_distribution?: string;
         shorten?: string;
         type?: string;
         url_suffix?: string;

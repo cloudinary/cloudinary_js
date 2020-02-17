@@ -30,14 +30,14 @@ const DEFAULT_POSTER_OPTIONS = {
   resource_type: 'video'
 };
 
-const VideoTag = class VideoTag extends HtmlTag {
-  /**
-   * Creates an HTML (DOM) Video tag using Cloudinary as the source.
-   * @constructor VideoTag
-   * @extends HtmlTag
-   * @param {string} [publicId]
-   * @param {Object} [options]
-   */
+/**
+ * Creates an HTML (DOM) Video tag using Cloudinary as the source.
+ * @constructor VideoTag
+ * @extends HtmlTag
+ * @param {string} [publicId]
+ * @param {Object} [options]
+ */
+class VideoTag extends HtmlTag {
   constructor(publicId, options = {}) {
     options = defaults({}, options, DEFAULT_VIDEO_PARAMS);
     super("video", publicId.replace(/\.(mp4|ogv|webm)$/, ''), options);
@@ -166,6 +166,6 @@ const VideoTag = class VideoTag extends HtmlTag {
   }
 
 
-};
+}
 
 export default VideoTag;

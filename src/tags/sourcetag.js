@@ -7,14 +7,14 @@ import {merge} from '../util';
 import url from '../url';
 import HtmlTag from './htmltag';
 
-const SourceTag = class SourceTag extends HtmlTag {
-  /**
-   * Creates an HTML (DOM) Image tag using Cloudinary as the source.
-   * @constructor SourceTag
-   * @extends HtmlTag
-   * @param {string} [publicId]
-   * @param {Object} [options]
-   */
+/**
+ * Creates an HTML (DOM) Image tag using Cloudinary as the source.
+ * @constructor SourceTag
+ * @extends HtmlTag
+ * @param {string} [publicId]
+ * @param {Object} [options]
+ */
+class SourceTag extends HtmlTag {
   constructor(publicId, options = {}) {
     super("source", publicId, options);
   }

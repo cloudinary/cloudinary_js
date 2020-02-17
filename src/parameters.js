@@ -13,20 +13,17 @@ import {
 } from './util';
 
 import Layer from './layer/layer';
-
 import TextLayer from './layer/textlayer';
-
 import SubtitlesLayer from './layer/subtitleslayer';
-
 import FetchLayer from './layer/fetchlayer';
 
 /**
  * Transformation parameters
  * Depends on 'util', 'transformation'
  */
-var Param = class Param {
+class Param {
   /**
-   * Represents a single parameter
+   * Represents a single parameter.
    * @class Param
    * @param {string} name - The name of the parameter in snake_case
    * @param {string} shortName - The name of the serialized form of the parameter.
@@ -134,13 +131,12 @@ var Param = class Param {
         return null;
     }
   }
+}
 
-};
-
-var ArrayParam = class ArrayParam extends Param {
+class ArrayParam extends Param {
   /**
-   * A parameter that represents an array
-   * @param {string} name - The name of the parameter in snake_case
+   * A parameter that represents an array.
+   * @param {string} name - The name of the parameter in snake_case.
    * @param {string} shortName - The name of the serialized form of the parameter
    *                         If a value is not provided, the parameter will not be serialized.
    * @param {string} [sep='.'] - The separator to use when joining the array elements together
@@ -185,10 +181,9 @@ var ArrayParam = class ArrayParam extends Param {
       return super.set([origValue]);
     }
   }
+}
 
-};
-
-var TransformationParam = class TransformationParam extends Param {
+class TransformationParam extends Param {
   /**
    * A parameter that represents a transformation
    * @param {string} name - The name of the parameter in snake_case
@@ -204,29 +199,40 @@ var TransformationParam = class TransformationParam extends Param {
     this.sep = sep;
   }
 
+  /**
+   * Generate string representations of the transformation.
+   * @returns {*} Returns either the transformation as a string, or an array of string representations.
+   */
   serialize() {
-    if (isEmpty(this.value())) {
-      return '';
-    } else if (allStrings(this.value())) {
-      let joined = this.value().join(this.sep);
+    let result = '';
+    const val = this.value();
+
+    if (isEmpty(val)) {
+      return result;
+    }
+
+    // val is an array of strings so join them
+    if (allStrings(val)) {
+      const joined = val.join(this.sep);  // creates t1.t2.t3 in case multiple named transformations were configured
       if (!isEmpty(joined)) {
-        return `${this.shortName}_${joined}`;
-      } else {
-        return '';
+        // in case options.transformation was not set with an empty string (val != ['']);
+        result = `${this.shortName}_${joined}`;
       }
-    } else {
-      return this.value().map(t=>{
+    } else { // Convert val to an array of strings
+      result = val.map(t => {
         if (isString(t) && !isEmpty(t)) {
           return `${this.shortName}_${t}`;
-        } else if (isFunction(t.serialize)) {
-          return t.serialize();
-        } else if (isPlainObject(t) && !isEmpty(t)) {
-          return new Transformation(t).serialize();
-        } else {
-          return undefined;
         }
+        if (isFunction(t.serialize)) {
+          return t.serialize();
+        }
+        if (isPlainObject(t) && !isEmpty(t)) {
+          return new Transformation(t).serialize();
+        }
+        return undefined;
       }).filter(t=>t);
     }
+    return result;
   }
 
   set(origValue1) {
@@ -237,13 +243,12 @@ var TransformationParam = class TransformationParam extends Param {
       return super.set([this.origValue]);
     }
   }
-
-};
+}
 
 const number_pattern = "([0-9]*)\\.([0-9]+)|([0-9]+)";
 const offset_any_pattern = "(" + number_pattern + ")([%pP])?";
 
-var RangeParam = class RangeParam extends Param {
+class RangeParam extends Param {
 
   /**
    * A parameter that represents a range
@@ -267,10 +272,9 @@ var RangeParam = class RangeParam extends Param {
     }
     return value;
   }
+}
 
-};
-
-var RawParam = class RawParam extends Param {
+class RawParam extends Param {
   constructor(name, shortName, process = identity) {
     super(name, shortName, process);
   }
@@ -279,7 +283,7 @@ var RawParam = class RawParam extends Param {
     return this.value();
   }
 
-};
+}
 
 const LAYER_KEYWORD_PARAMS = [
   ["font_weight", "normal"],
@@ -298,39 +302,45 @@ class LayerParam extends Param {
   // @return [string] layer transformation string
   // @private
   value() {
-    let result;
-    let layerOptions = this.origValue;
-    if (isPlainObject(layerOptions)) {
-      layerOptions = withCamelCaseKeys(layerOptions);
-      if (layerOptions.resourceType === "text" || (layerOptions.text != null)) {
-        result = new TextLayer(layerOptions).toString();
-      } else if (layerOptions.resourceType === "subtitles") {
-        result = new SubtitlesLayer(layerOptions).toString();
-      } else if (layerOptions.resourceType === "fetch" || (layerOptions.url != null)) {
-        result = new FetchLayer(layerOptions).toString();
-      } else {
-        result = new Layer(layerOptions).toString();
-      }
-    } else if (isString(layerOptions) && /^fetch:.+/.test(layerOptions)) {
-      result = new FetchLayer(layerOptions.substr(6)).toString();
-    } else {
-      result = layerOptions;
+    if (this.origValue == null) {
+      return '';
     }
-    return result;
+    let result;
+    if (this.origValue instanceof Layer) {
+      result = this.origValue;
+    } else if (isPlainObject(this.origValue)) {
+      let layerOptions = withCamelCaseKeys(this.origValue);
+      if (layerOptions.resourceType === "text" || (layerOptions.text != null)) {
+        result = new TextLayer(layerOptions);
+      } else if (layerOptions.resourceType === "subtitles") {
+        result = new SubtitlesLayer(layerOptions);
+      } else if (layerOptions.resourceType === "fetch" || (layerOptions.url != null)) {
+        result = new FetchLayer(layerOptions);
+      } else {
+        result = new Layer(layerOptions);
+      }
+    } else if (isString(this.origValue)) {
+      if (/^fetch:.+/.test(this.origValue)) {
+        result = new FetchLayer(this.origValue.substr(6));
+      } else {
+        result = this.origValue;
+      }
+    } else {
+      result = '';
+    }
+    return result.toString();
   }
 
-  textStyle(layer) {
+  static textStyle(layer) {
     return (new TextLayer(layer)).textStyleIdentifier();
   }
-
 }
 
-var ExpressionParam = class ExpressionParam extends Param {
+class ExpressionParam extends Param {
   serialize() {
     return Expression.normalize(super.serialize());
   }
-
-};
+}
 
 export {
   Param,

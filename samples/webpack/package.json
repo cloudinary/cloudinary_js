@@ -13,7 +13,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "cloudinary-core": "^2.0.5",
-    "lodash": "^4.3.0"
+    "cloudinary-core": "^2.6.3",
+    "lodash": "^4.17.13"
   }
 }

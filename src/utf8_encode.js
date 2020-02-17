@@ -1,6 +1,6 @@
 /**
  * UTF8 encoder
- *
+ * @private
  */
 var utf8_encode;
 

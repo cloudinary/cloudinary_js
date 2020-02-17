@@ -3,10 +3,8 @@ var cl, protocol, test_cloudinary_url;
 cl = {};
 
 test_cloudinary_url = function(public_id, options, expected_url, expected_options) {
-  var result;
-  result = cl.url(public_id, options);
   expect(new cloudinary.Transformation(options).toHtmlAttributes()).toEqual(expected_options);
-  return expect(result).toEqual(expected_url);
+  expect(cl.url(public_id, options)).toEqual(expected_url);
 };
 
 protocol = window.location.protocol === "file:" ? "http:" : window.location.protocol;
@@ -16,10 +14,8 @@ describe("Cloudinary::Utils", function() {
   beforeEach(function() {
     return cl = new cloudinary.Cloudinary({
       cloud_name: "test123",
-      secure_distribution: null,
       private_cdn: false,
       secure: false,
-      cname: null,
       cdn_subdomain: false,
       api_key: "1234",
       api_secret: "b"
@@ -29,20 +25,16 @@ describe("Cloudinary::Utils", function() {
   upload_path = `${root_path}/video/upload`;
   describe("cloudinary_url", function() {
     describe(":fps", function() {
-      let subject = function(options) {
-        return cl.url("fps", options);
-      };
       let params = [['string range', 'fps_24-29.97', '24-29.97'], ['integer', 'fps_24', 24], ['array', 'fps_24-29.97', [24, 29.97]], ['range', 'fps_-24', -24], ['float', 'fps_24.5', 24.5]];
       let results = [];
       for (let i = 0; i < params.length; i++) {
         let test = params[i];
-        var name, url_param, range;
+        let name, url_param, range;
         [name, url_param, range] = test;
         results.push((function(name, url_param, range) {
           return describe(`when provided with ${name} ${range}`, function() {
             return it(`should produce a range transformation in the format of ${url_param}`, function() {
-              let options;
-              options = {
+              let options = {
                 resource_type: 'video',
                 fps: range
               };
@@ -121,36 +113,36 @@ describe("Cloudinary::Utils", function() {
         }, `${upload_path}/vs_2.3s/video_id`, {});
       });
     });
-    describe(":start_offset", function() {
-      it('should support auto as a valid start_offset', function() {
-        test_cloudinary_url("video_id", {
-          resource_type: 'video',
-          start_offset: 'auto'
-        }, `${upload_path}/so_auto/video_id`, {});
-      });
-    });
 
-    const TIME_PARAMS = {
-      so: 'start_offset',
-      eo: 'end_offset',
-      du: 'duration'
-    };
+    const timeParams = [
+      {short: 'so', long: 'start_offset'},
+      {short: 'eo', long: 'end_offset'},
+      {short: 'du', long: 'duration'}
+    ];
 
-    Object.keys(TIME_PARAMS).forEach(function(short){
-      let long = TIME_PARAMS[short];
+    timeParams.forEach(({short, long})=>{
       describe(`:${long}`, function() {
         it("should support decimal seconds ", function() {
-          let op = { resource_type: 'video'};
+          var op;
+          op = {
+            resource_type: 'video'
+          };
           op[long] = 2.63;
           test_cloudinary_url("video_id", op, `${upload_path}/${short}_2.63/video_id`, {});
         });
         it('should support percents of the video length as "<number>p"', function() {
-          let op = { resource_type: 'video'};
+          var op;
+          op = {
+            resource_type: 'video'
+          };
           op[long] = '35p';
           test_cloudinary_url("video_id", op, `${upload_path}/${short}_35p/video_id`, {});
         });
         it('should support percents of the video length as "<number>%"', function() {
-          let op = { resource_type: 'video'};
+          var op;
+          op = {
+            resource_type: 'video'
+          };
           op[long] = '35%';
           test_cloudinary_url("video_id", op, `${upload_path}/${short}_35p/video_id`, {});
         });
@@ -383,12 +375,12 @@ describe("video", function() {
     })).toEqual(`<video poster="${expected_url}.jpg" width="100">` + `<source src="${expected_url}.webm" type="video/webm">` + `<source src="${expected_mp4_url}.mp4" type="video/mp4">` + "</video>");
   });
 
-  describe("sources", function() {
+  describe("sources", function () {
     const expected_url = VIDEO_UPLOAD_PATH + "movie";
     const expected_url_mp4 = VIDEO_UPLOAD_PATH + "vc_auto/movie.mp4";
     const expected_url_webm = VIDEO_UPLOAD_PATH + "vc_auto/movie.webm";
 
-    it("should generate video tag with default sources", function() {
+    it("should generate video tag with default sources", function () {
       const expected_url_h265_mp4 = VIDEO_UPLOAD_PATH + "vc_h265/movie.mp4";
       const expected_url_vp9_webm = VIDEO_UPLOAD_PATH + "vc_vp9/movie.webm";
       expect(cl.video("movie", {

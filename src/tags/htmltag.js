@@ -14,15 +14,15 @@ import {
 
 import Transformation from '../transformation';
 
-var HtmlTag = class HtmlTag {
-  /**
-   * Represents an HTML (DOM) tag
-   * @constructor HtmlTag
-   * @param {string} name - the name of the tag
-   * @param {string} [publicId]
-   * @param {Object} options
-   * @example tag = new HtmlTag( 'div', { 'width': 10})
-   */
+/**
+ * Represents an HTML (DOM) tag
+ * @constructor HtmlTag
+ * @param {string} name - the name of the tag
+ * @param {string} [publicId]
+ * @param {Object} options
+ * @example tag = new HtmlTag( 'div', { 'width': 10})
+ */
+class HtmlTag {
   constructor(name, publicId, options) {
     var transformation;
     this.name = name;

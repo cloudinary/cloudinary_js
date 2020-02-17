@@ -606,7 +606,7 @@
 	        return value != null ? value.replace(/^#/, 'rgb:') : void 0;
 	      };
 
-	      Param.prototype.build_array = function(arg) {
+	      Param.build_array = function(arg) {
 	        if (arg == null) {
 	          arg = [];
 	        }

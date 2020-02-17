@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Usage $0 package-name
+# For example, $0 core
+js_root=$(git rev-parse --show-toplevel)
+pkg_root=${js_root}/pkg/cloudinary-${1}
+
+if [ ! -d ${js_root} ]; then
+    echo "Root folder ${pkg_root} does not exist!"
+    exit 1
+fi
+
+if [ ! -d ${pkg_root} ]; then
+    echo "Package folder ${pkg_root} does not exist!"
+    exit 1
+fi
+
+rm -rf ${pkg_root}/src &&
+cp -r ${js_root}/src ${pkg_root}/src &&
+cp ${js_root}/dist/cloudinary-${1}.js ${js_root}/dist/cloudinary-${1}.*.js ${js_root}/dist/cloudinary-${1}.*.map ${pkg_root} &&
+cp ${js_root}/types/cloudinary-core.d.ts ${pkg_root}/cloudinary-${1}.d.ts &&
+if [ ${1} = "core" ]; then
+    cp ${js_root}/dist/cloudinary-${1}-shrinkwrap*.js ${js_root}/dist/cloudinary-${1}-shrinkwrap*.map ${pkg_root}
+fi
+echo "Copied ${1}"

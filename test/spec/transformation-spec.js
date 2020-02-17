@@ -29,6 +29,14 @@ describe("Transformation", function() {
       return document.body.appendChild(fixtureContainer);
     }
   });
+  it('should clone', function() {
+    const first = cloudinary.Transformation["new"]({
+      width: 100,
+      crop: 'scale'
+    }).chain().angle(10);
+    const second = first.clone();
+    return expect(first.toString()).toEqual(second.toString());
+  });
   it('should support custom function remote', function() {
     return expect(cl.url('test', {
       transformation: [
@@ -43,6 +51,25 @@ describe("Transformation", function() {
       transformation: [
         {
           custom_function: {function_type: 'wasm', source: 'blur.wasm'}
+        }
+      ]
+    })).toBe(protocol + '//res.cloudinary.com/test123/image/upload/fn_wasm:blur.wasm/test');
+  });
+  it('should use custom pre function if no custom_function defined', function() {
+    return expect(cl.url('test', {
+      transformation: [
+        {
+          custom_pre_function: {function_type: 'remote', source: 'https://df34ra4a.execute-api.us-west-2.amazonaws.com/default/cloudinaryFunction'}
+        }
+      ]
+    })).toBe(protocol + '//res.cloudinary.com/test123/image/upload/fn_pre:remote:aHR0cHM6Ly9kZjM0cmE0YS5leGVjdXRlLWFwaS51cy13ZXN0LTIuYW1hem9uYXdzLmNvbS9kZWZhdWx0L2Nsb3VkaW5hcnlGdW5jdGlvbg==/test');
+  });
+  it('should ignore custom pre function if custom function exists', function() {
+    return expect(cl.url('test', {
+      transformation: [
+        {
+          custom_function: { function_type: 'wasm', source: 'blur.wasm'},
+          custom_pre_function: {function_type: 'remote', source: 'https://df34ra4a.execute-api.us-west-2.amazonaws.com/default/cloudinaryFunction'}
         }
       ]
     })).toBe(protocol + '//res.cloudinary.com/test123/image/upload/fn_wasm:blur.wasm/test');
@@ -189,7 +216,7 @@ describe("Transformation", function() {
       }, protocol + '//res.cloudinary.com/test123/image/upload/r_10:20:30/test', {});
     });
     it('should support radius paramas with variable', function() {
-      return test_cloudinary_url('test', {
+      test_cloudinary_url('test', {
         radius: [10,20,"$v"]
       }, protocol + '//res.cloudinary.com/test123/image/upload/r_10:20:$v/test', {});
       return test_cloudinary_url('test', {
@@ -313,6 +340,11 @@ describe("Transformation", function() {
       transformation: ['blip', 'blop']
     }, protocol + '//res.cloudinary.com/test123/image/upload/t_blip.blop/test', {});
   });
+  it('should support named transformations with spaces', function() {
+    return test_cloudinary_url('test', {
+      transformation: ['blip blop']
+    }, protocol + '//res.cloudinary.com/test123/image/upload/t_blip%20blop/test', {});
+  });
   it('should support base tranformation', function() {
     return expect(cl.url('test', {
       transformation: {
@@ -387,15 +419,27 @@ describe("Transformation", function() {
       format: 'jpg'
     }, protocol + '//res.cloudinary.com/test123/image/fetch/f_jpg/http://cloudinary.com/images/logo.png', {});
   });
-  it('should support effect', function() {
-    return test_cloudinary_url('test', {
-      effect: 'sepia'
-    }, protocol + '//res.cloudinary.com/test123/image/upload/e_sepia/test', {});
-  });
-  it('should support effect with param', function() {
-    return test_cloudinary_url('test', {
-      effect: ['sepia', -10]
-    }, protocol + '//res.cloudinary.com/test123/image/upload/e_sepia:-10/test', {});
+  describe('effect', function () {
+    it('should support effect', function() {
+      return test_cloudinary_url('test', {
+        effect: 'sepia'
+      }, protocol + '//res.cloudinary.com/test123/image/upload/e_sepia/test', {});
+    });
+    it('should support effect with param', function() {
+      return test_cloudinary_url('test', {
+        effect: ['sepia', -10]
+      }, protocol + '//res.cloudinary.com/test123/image/upload/e_sepia:-10/test', {});
+    });
+    it('should support art:incognito effect', function() {
+      test_cloudinary_url('test', {
+        effect: 'art:incognito'
+      }, protocol + '//res.cloudinary.com/test123/image/upload/e_art:incognito/test', {});
+    });
+    it('should support art:incognito effect passed as an array', function() {
+      test_cloudinary_url('test', {
+        effect: ['art', 'incognito']
+      }, protocol + '//res.cloudinary.com/test123/image/upload/e_art:incognito/test', {});
+    });
   });
   it('should support density', function() {
     return test_cloudinary_url('test', {
@@ -866,13 +910,22 @@ describe("Transformation", function() {
       expect(transformation.toHtmlAttributes().height).toBeUndefined();
       return expect(transformation.toHtmlAttributes().width).toBeUndefined();
     });
-    it("should support fetch:URL", function() {
+    it("should support fetch:URL literal", function() {
       var result, transformation;
       transformation = new Transformation().overlay("fetch:http://cloudinary.com/images/old_logo.png");
       result = transformation.serialize();
       expect(result).toEqual("l_fetch:aHR0cDovL2Nsb3VkaW5hcnkuY29tL2ltYWdlcy9vbGRfbG9nby5wbmc=");
-      transformation = new Transformation().overlay("fetch:https://upload.wikimedia.org/wikipedia/commons/2/2b/고창갯벌.jpg");
-      result = transformation.serialize();
+    });
+    it("should support fetch:URL FetchLayer", function() {
+      const transformation = new Transformation({
+        overlay: new FetchLayer("http://cloudinary.com/images/old_logo.png")
+      });
+      const result = transformation.serialize();
+      return expect(result).toEqual("l_fetch:aHR0cDovL2Nsb3VkaW5hcnkuY29tL2ltYWdlcy9vbGRfbG9nby5wbmc=");
+    });
+    it("should support fetch:URL Unicode", function() {
+      const transformation = new Transformation().overlay("fetch:https://upload.wikimedia.org/wikipedia/commons/2/2b/고창갯벌.jpg");
+      const result = transformation.serialize();
       return expect(result).toEqual("l_fetch:aHR0cHM6Ly91cGxvYWQud2lraW1lZGlhLm9yZy93aWtpcGVkaWEvY29tbW9ucy8yLzJiLyVFQSVCMyVBMCVFQyVCMCVCRCVFQSVCMCVBRiVFQiVCMiU4Qy5qcGc=");
     });
     describe("chained functions", function() {
@@ -895,7 +948,7 @@ describe("Transformation", function() {
         });
       });
     });
-    return describe("using options", function() {
+    describe("using options", function() {
       var layers, layers_options, text_encoded, text_layer;
       text_layer = "Hello World, /Nice to meet you?";
       text_encoded = "Hello%20World%252C%20%252FNice%20to%20meet%20you%3F";
@@ -979,6 +1032,34 @@ describe("Transformation", function() {
             testOptions[param] = 'text:hello';
             return test_cloudinary_url('test', testOptions, `${protocol}//res.cloudinary.com/test123/image/upload/h_100,${short}_text:hello,w_100/test`, {});
           });
+        });
+      });
+    });
+    describe("conditional duration", function () {
+      const durationValues = [
+        {key: 'duration', value: 'du'},
+        {key: 'initialDuration', value: 'idu'},
+        {key: 'initial_duration', value: 'idu'}
+      ];
+
+      durationValues.forEach(({key, value}) => {
+        const expected = `if_${value}_gt_30/c_scale,w_200/if_end`;
+        it(`should generate transformation with ${key}`, function () {
+          let options = {
+            transformation: [
+              {
+                if: key + " > 30"
+              },
+              {
+                crop: "scale",
+                width: "200"
+              },
+              {
+                if: "end"
+              }
+            ]
+          };
+          expect(new Transformation(options).toString()).toEqual(expected);
         });
       });
     });

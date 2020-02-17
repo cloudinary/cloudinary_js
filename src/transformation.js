@@ -51,7 +51,7 @@ function assignNotNull(target, ...sources) {
  * @internal
  */
 
-var TransformationBase = class TransformationBase {
+class TransformationBase {
   /**
    * The base class for transformations.
    * Members of this class are documented as belonging to the {@link Transformation} class for convenience.
@@ -272,28 +272,28 @@ var TransformationBase = class TransformationBase {
    * @returns {Transformation} Returns this instance for chaining
    */
   fromOptions(options) {
-    if (!isEmpty(options)) {
-      if (options instanceof TransformationBase) {
-        this.fromTransformation(options);
-      } else {
-        options || (options = {});
-        if (isString(options) || isArray(options)) {
-          options = {
-            transformation: options
-          };
+    if (options instanceof TransformationBase) {
+      this.fromTransformation(options);
+    } else {
+      options || (options = {});
+      if (isString(options) || isArray(options)) {
+        options = {
+          transformation: options
+        };
+      }
+      options = cloneDeep(options, function (value) {
+        if (value instanceof TransformationBase || value instanceof Layer) {
+          return new value.clone();
         }
-        options = cloneDeep(options, function (value) {
-          if (value instanceof TransformationBase) {
-            return new value.constructor(value.toOptions());
-          }
-        });
-        // Handling of "if" statements precedes other options as it creates a chained transformation
-        if (options["if"]) {
-          this.set("if", options["if"]);
-          delete options["if"];
-        }
-        for (let key in options) {
-          let opt = options[key];
+      });
+      // Handling of "if" statements precedes other options as it creates a chained transformation
+      if (options["if"]) {
+        this.set("if", options["if"]);
+        delete options["if"];
+      }
+      for (let key in options) {
+        let opt = options[key];
+        if(opt != null) {
           if (key.match(VAR_NAME_RE)) {
             if (key !== '$attr') {
               this.set('variable', key, opt);
@@ -404,7 +404,7 @@ var TransformationBase = class TransformationBase {
   }
 
   /**
-   * Returns attributes for an HTML tag.
+   * Returns the attributes for an HTML tag.
    * @function Cloudinary.toHtmlAttributes
    * @return PlainObject
    */
@@ -467,6 +467,10 @@ var TransformationBase = class TransformationBase {
     return this.serialize();
   }
 
+  clone() {
+    return new this.constructor(this.toOptions(true));
+  }
+
 };
 
 const VAR_NAME_RE = /^\$[a-zA-Z0-9]+$/;
@@ -500,6 +504,14 @@ function processVar(varArray) {
   }
 }
 
+function processCustomFunction(value) {
+  if (value.function_type === "remote") {
+    return [value.function_type, btoa(value.source)].join(":")
+  } else if (value.function_type === "wasm") {
+    return [value.function_type, value.source].join(":")
+  }
+}
+
 /**
  * Transformation Class methods.
  * This is a list of the parameters defined in Transformation.
@@ -518,17 +530,21 @@ function processVar(varArray) {
  * @ignore
  * @see toHtmlAttributes
  */
-var Transformation = class Transformation extends TransformationBase {
+class Transformation extends TransformationBase {
   /**
-   *  Represents a single transformation.
-   *  @class Transformation
-   *  @example
-   *  t = new cloudinary.Transformation();
+   * Represents a single transformation.
+   * @class Transformation
+   * @example
+   * t = new cloudinary.Transformation();
    * t.angle(20).crop("scale").width("auto");
    *
    * // or
    *
    * t = new cloudinary.Transformation( {angle: 20, crop: "scale", width: "auto"});
+   * @see <a href="https://cloudinary.com/documentation/image_transformation_reference" 
+   *  target="_blank">Available image transformations</a>
+   * @see <a href="https://cloudinary.com/documentation/video_transformation_reference" 
+   *  target="_blank">Available video transformations</a>
    */
   constructor(options) {
     super(options);
@@ -597,6 +613,21 @@ var Transformation = class Transformation extends TransformationBase {
     return this.param(value, "crop", "c");
   }
 
+  customFunction(value) {
+    return this.param(value, "custom_function", "fn", () => {
+      return processCustomFunction(value);
+    });
+  }
+
+  customPreFunction(value) {
+    if (this.get('custom_function')) {
+      return;
+    }
+    return this.rawParam(value, "custom_function", "", () => {
+      value = processCustomFunction(value);
+      return value ? `fn_pre:${value}` : value;
+    });
+  }
   
   defaultImage(value) {
     return this.param(value, "default_image", "d");
@@ -829,16 +860,6 @@ var Transformation = class Transformation extends TransformationBase {
     });
   }
 
-  customFunction(value) {
-    return this.param(value, "custom_function", "fn", () => {
-      if(value.function_type === "remote"){
-        return [value.function_type, btoa(value.source)].join(":")
-      }
-      else if (value.function_type === "wasm") 
-        return [value.function_type, value.source].join(":")
-    })
-  }
-
   x(value) {
     return this.param(value, "x", "x", Expression.normalize);
   }
@@ -851,7 +872,7 @@ var Transformation = class Transformation extends TransformationBase {
     return this.param(value, "zoom", "z", Expression.normalize);
   }
 
-};
+}
 
 /**
  * Transformation Class methods.
@@ -870,6 +891,7 @@ Transformation.methods = [
   "colorSpace",
   "crop",
   "customFunction",
+  "customPreFunction",
   "defaultImage",
   "delay",
   "density",

@@ -48,9 +48,9 @@ export {
   default as contains
 } from 'lodash/includes';
 
-import * as isElement from 'lodash/isElement';
-import * as isFunction from 'lodash/isFunction';
-import * as trim from 'lodash/trim';
+import isElement from 'lodash/isElement';
+import isFunction from 'lodash/isFunction';
+import trim from 'lodash/trim';
 
 export * from './baseutil';
 export {

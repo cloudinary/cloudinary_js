@@ -164,7 +164,7 @@ var slice = [].slice,
   * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
   * @example
   *
-  * function Foo(){};  
+  * function Foo(){};
   * isFunction(Foo);
   * // => true
   *
@@ -1067,7 +1067,7 @@ var slice = [].slice,
       return value != null ? value.replace(/^#/, 'rgb:') : void 0;
     };
 
-    Param.prototype.build_array = function(arg) {
+    Param.build_array = function(arg) {
       if (arg == null) {
         arg = [];
       }
@@ -3070,7 +3070,7 @@ var slice = [].slice,
      * @protected
      * @param {string} key - attribute name
      * @param {*|boolean} value - the value of the attribute. If the value is boolean `true`, return the key only.
-     * @returns {string} the attribute  
+     * @returns {string} the attribute
      *
      */
 
