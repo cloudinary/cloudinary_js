@@ -16,10 +16,8 @@ describe("Cloudinary::Utils", function() {
   beforeEach(function() {
     return cl = new cloudinary.Cloudinary({
       cloud_name: "test123",
-      secure_distribution: null,
       private_cdn: false,
       secure: false,
-      cname: null,
       cdn_subdomain: false,
       api_key: "1234",
       api_secret: "b"
@@ -30,10 +28,7 @@ describe("Cloudinary::Utils", function() {
   describe("cloudinary_url", function() {
     var i, len, long, ref, short;
     describe(":fps", function() {
-      var i, len, name, params, range, results, subject, test, url_param;
-      subject = function(options) {
-        return cl.url("fps", options);
-      };
+      var i, len, params, results, test;
       params = [['string range', 'fps_24-29.97', '24-29.97'], ['integer', 'fps_24', 24], ['array', 'fps_24-29.97', [24, 29.97]], ['range', 'fps_-24', -24], ['float', 'fps_24.5', 24.5]];
       results = [];
       for (i = 0, len = params.length; i < len; i++) {
@@ -383,6 +378,100 @@ describe("video", function() {
       source_types: ['webm', 'mp4']
     })).toEqual(`<video poster="${expected_url}.jpg" width="100">` + `<source src="${expected_url}.webm" type="video/webm">` + `<source src="${expected_mp4_url}.mp4" type="video/mp4">` + "</video>");
   });
+
+  describe("sources", function () {
+    const expected_url = VIDEO_UPLOAD_PATH + "movie";
+    const expected_url_mp4 = VIDEO_UPLOAD_PATH + "vc_auto/movie.mp4";
+    const expected_url_webm = VIDEO_UPLOAD_PATH + "vc_auto/movie.webm";
+
+    it("should generate video tag with default sources", function () {
+      const expected_url_h265_mp4 = VIDEO_UPLOAD_PATH + "vc_h265/movie.mp4";
+      const expected_url_vp9_webm = VIDEO_UPLOAD_PATH + "vc_vp9/movie.webm";
+      expect(cl.video("movie", {
+        sources: cloudinary.Cloudinary.DEFAULT_VIDEO_SOURCES
+      })).toEqual(
+          "<video poster=\"" + expected_url + ".jpg\">" +
+          "<source src=\"" + expected_url_h265_mp4 + "\" type=\"video/mp4; codecs=hev1\">" +
+          "<source src=\"" + expected_url_vp9_webm + "\" type=\"video/webm; codecs=vp9\">" +
+          "<source src=\"" + expected_url_mp4 + "\" type=\"video/mp4\">" +
+          "<source src=\"" + expected_url_webm + "\" type=\"video/webm\">" +
+          "</video>");
+    });
+    it("should generate video tag with custom sources", function() {
+      const custom_sources = [
+        {
+          type: "mp4",
+          codecs: "vp8, vorbis",
+          transformations: {
+            video_codec: "auto"
+          }
+        }, {
+          type: "webm",
+          codecs: "avc1.4D401E, mp4a.40.2",
+          transformations: {
+            video_codec: "auto"
+          }
+        }
+      ];
+      return expect(cl.video("movie", {
+        sources: custom_sources
+      })).toEqual(
+          "<video poster=\"" + expected_url + ".jpg\">" +
+          "<source src=\"" + expected_url_mp4 + "\" type=\"video/mp4; codecs=vp8, vorbis\">" +
+          "<source src=\"" + expected_url_webm + "\" type=\"video/webm; codecs=avc1.4D401E, mp4a.40.2\">" +
+          "</video>");
+    });
+    it("should generate video tag with codecs array", function() {
+      const custom_sources = [
+        {
+          type: "mp4",
+          codecs: ["vp8", "vorbis"],
+          transformations: {
+            video_codec: "auto"
+          }
+        }, {
+          type: "webm",
+          codecs: ["avc1.4D401E", "mp4a.40.2"],
+          transformations: {
+            video_codec: "auto"
+          }
+        }
+      ];
+      return expect(cl.video("movie", {
+        sources: custom_sources
+      })).toEqual(
+          "<video poster=\"" + expected_url + ".jpg\">" +
+          "<source src=\"" + expected_url_mp4 + "\" type=\"video/mp4; codecs=vp8, vorbis\">" +
+          "<source src=\"" + expected_url_webm + "\" type=\"video/webm; codecs=avc1.4D401E, mp4a.40.2\">" +
+          "</video>");
+    });
+    return it("should generate video tag with sources and transformations", function() {
+      const options = {
+        source_types: "mp4",
+        html_height: "100",
+        html_width: "200",
+        video_codec: {
+          codec: "h264"
+        },
+        audio_codec: "acc",
+        start_offset: 3,
+        sources: cloudinary.Cloudinary.DEFAULT_VIDEO_SOURCES
+      };
+      const expected_poster_url = VIDEO_UPLOAD_PATH + "ac_acc,so_3,vc_h264/movie.jpg";
+      const expected_url_mp4_codecs = VIDEO_UPLOAD_PATH + "ac_acc,so_3,vc_h265/movie.mp4";
+      const expected_url_webm_codecs = VIDEO_UPLOAD_PATH + "ac_acc,so_3,vc_vp9/movie.webm";
+      const expected_url_mp4_audio = VIDEO_UPLOAD_PATH + "ac_acc,so_3,vc_auto/movie.mp4";
+      const expected_url_webm_audio = VIDEO_UPLOAD_PATH + "ac_acc,so_3,vc_auto/movie.webm";
+      return expect(cl.video("movie", options)).toEqual(
+          "<video height=\"100\" poster=\"" + expected_poster_url + "\" width=\"200\">" +
+          "<source src=\"" + expected_url_mp4_codecs + "\" type=\"video/mp4; codecs=hev1\">" +
+          "<source src=\"" + expected_url_webm_codecs + "\" type=\"video/webm; codecs=vp9\">" +
+          "<source src=\"" + expected_url_mp4_audio + "\" type=\"video/mp4\">" +
+          "<source src=\"" + expected_url_webm_audio + "\" type=\"video/webm\">" +
+          "</video>");
+    });
+  });
+
   return describe("poster", function() {
     var expected_url;
     expected_url = VIDEO_UPLOAD_PATH + "movie";

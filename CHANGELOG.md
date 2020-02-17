@@ -1,3 +1,100 @@
+2.8.0 / 2019-11-24
+==================
+
+New functionality and features
+------------------------------
+  * Add support for  option to  function (#198)
+
+Other Changes
+-------------
+  * Add npm package test (#187)
+  * Fix lodash imports
+  * Fix responsive and minified tests
+  * Fix files list for npm package in 
+
+2.7.4 / 2019-08-18
+==================
+
+New functionality and features
+------------------------------
+  * Add support for remote\local "pre" function invocation
+  
+Other Changes
+-------------
+  * Fix responsive images in ie11
+  * Add pre release test for packages (#185)
+  
+2.7.3 / 2019-08-05
+==================
+
+  * Fix cloudinary-core-shrinkwrap.js missing in release
+  
+2.7.2 / 2019-08-05
+==================
+
+  * Fix cloudinary-react needed file not included in release
+      * Update copy_deployment script
+    
+
+2.7.1 / 2019-08-04
+==================
+
+  * Update copybuilds script
+  
+2.7.0 / 2019-08-04
+==================
+
+New functionality and features
+------------------------------
+  * Feature/add video duration condition (#183)
+  * Support force_version parameter to include default version when generating delivery urls (#173)
+  * add support for antialiasing and hinting
+  * Add support for custom functions
+  * Add support of custom codecs in video tag (#161)
+
+  
+Other Changes
+-------------
+  * Feature/configuration (#172)
+    * Update webpack and karma configuration
+    * Update npm scripts
+  * Add deployment files under a single repository
+    * Add pkg folder
+    * Add copybuilds script
+  * Add test for support of art:incognito effect (#168)
+  * Update jsdoc version (#182)
+  * Add duration to conditions in video (#178)
+  * Fix layer cloning (#163)
+  * Update inline documentation (#174)
+  * Add `fontAntiAliasing` and `fontHinting` to TypeScript definition
+  * Add `FetchLayer` to types
+  * Fix TypeScript cloudinary import
+  * Add default export definition to TypeScript
+  * Bump lodash from 4.17.11 to 4.17.13 (#180)
+  * Bump js-yaml from 3.12.1 to 3.13.1 (#177)
+  * Fix/sample code (#170)
+      * Bump package versions in samples
+
+
+2.6.3 / 2019-04-02
+==================
+
+
+New functionality and features
+------------------------------
+
+  * Add support for composite radius params
+ 
+Other Changes
+-------------
+
+  * Replace `object.assign` with `util.assign` (#169)
+  * Escape quotes in html attributes (#166)
+  * Remove Safari from automated tests
+  * Fix test:all script
+  * Implement isEmpty, isString and fix default function values
+  * Update `.jshintrc to support ES6
+  * Add "join the Community"
 
 2.6.2 / 2019-02-01
 ==================
@@ -46,7 +143,7 @@ New functionality and features
   * Add picture tag and source tag
   * Add support to `fps` transformation parameter (#139)
   * Replaced CoffeeScript with JavaScript
-  * Refactor code as modules
+  * Refactor code as modules 
 
 Other Changes
 -------------

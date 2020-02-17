@@ -8,20 +8,21 @@ import {
   isFunction,
   getData,
   hasClass,
-  merge
+  merge,
+  isString
 } from '../util';
 
 import Transformation from '../transformation';
 
-var HtmlTag = class HtmlTag {
-  /**
-   * Represents an HTML (DOM) tag
-   * @constructor HtmlTag
-   * @param {string} name - the name of the tag
-   * @param {string} [publicId]
-   * @param {Object} options
-   * @example tag = new HtmlTag( 'div', { 'width': 10})
-   */
+/**
+ * Represents an HTML (DOM) tag
+ * @constructor HtmlTag
+ * @param {string} name - the name of the tag
+ * @param {string} [publicId]
+ * @param {Object} options
+ * @example tag = new HtmlTag( 'div', { 'width': 10})
+ */
+class HtmlTag {
   constructor(name, publicId, options) {
     var transformation;
     this.name = name;
@@ -69,7 +70,7 @@ var HtmlTag = class HtmlTag {
       var results;
       results = [];
       for (key in attrs) {
-        value = attrs[key];
+        value = escapeQuotes(attrs[key]);
         if (value) {
           results.push(toAttribute(key, value));
         }
@@ -238,6 +239,15 @@ function toAttribute(key, value) {
   } else {
     return `${key}="${value}"`;
   }
+}
+
+/**
+ * If given value is a string, replaces quotes with character entities (&#34;, &#39;)
+ * @param value - value to change
+ * @returns {*} changed value
+ */
+function escapeQuotes(value) {
+  return isString(value) ? value.replace('"', '&#34;').replace("'", '&#39;') : value;
 }
 
 export default HtmlTag;

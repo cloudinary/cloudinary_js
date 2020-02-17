@@ -48,3 +48,53 @@ export var DEFAULT_VIDEO_PARAMS = {
   transformation: [],
   type: 'upload'
 };
+
+/**
+ * Recommended sources for video tag
+ * @const {Object} Cloudinary.DEFAULT_VIDEO_SOURCES
+ */
+export const DEFAULT_VIDEO_SOURCES = [
+  {
+    type: "mp4",
+    codecs: "hev1",
+    transformations: {video_codec: "h265"}
+  },
+  {
+    type: "webm",
+    codecs: "vp9",
+    transformations: {video_codec: "vp9"}
+  },
+  {
+    type: "mp4",
+    transformations: {video_codec: "auto"}
+  },
+  {
+    type: "webm",
+    transformations: {video_codec: "auto"}
+  }
+];
+
+/**
+ * The resource storage type
+ * @typedef type
+ * @enum {string}
+ * @property  {string} 'upload' A resource uploaded directly to Cloudinary
+ * @property  {string} 'fetch' A resource fetched by Cloudinary from a 3rd party storage
+ * @property  {string} 'private'
+ * @property  {string} 'authenticated'
+ * @property  {string} 'sprite'
+ * @property  {string} 'facebook'
+ * @property  {string} 'twitter'
+ * @property  {string} 'youtube'
+ * @property  {string} 'vimeo'
+ *
+ */
+
+/**
+ * The resource type
+ * @typedef resourceType
+ * @enum {string}
+ * @property {string} 'image' An image file
+ * @property {string} 'video' A video file
+ * @property {string} 'raw'   A raw file
+ */

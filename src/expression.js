@@ -1,10 +1,10 @@
-const Expression = class Expression {
-  /**
-   * Represents a transformation expression
-   * @param {string} expressionStr - a expression in string format
-   * @class Expression
-   *
-   */
+/**
+ * Represents a transformation expression.
+ * @param {string} expressionStr - An expression in string format.
+ * @class Expression
+ *
+ */
+class Expression {
   constructor(expressionStr) {
     /**
      * @protected
@@ -270,7 +270,7 @@ const Expression = class Expression {
     return new this("pageY");
   }
 
-};
+}
 
 /**
  * @internal
@@ -298,13 +298,16 @@ Expression.PREDEFINED_VARS = {
   "aspectRatio": "ar",
   "current_page": "cp",
   "currentPage": "cp",
+  "duration": "du",
   "face_count": "fc",
   "faceCount": "fc",
   "height": "h",
   "initial_aspect_ratio": "iar",
+  "initial_duration": "idu",
   "initial_height": "ih",
   "initial_width": "iw",
   "initialAspectRatio": "iar",
+  "initialDuration": "idu",
   "initialHeight": "ih",
   "initialWidth": "iw",
   "page_count": "pc",

@@ -1,4 +1,3 @@
-
 import Transformation from './transformation';
 
 import {
@@ -16,18 +15,28 @@ import {
 
 import crc32 from './crc32';
 
-function absolutize(url) {
-  var prefix;
-  if (!url.match(/^https?:\//)) {
-    prefix = document.location.protocol + '//' + document.location.host;
-    if (url[0] === '?') {
+/**
+ * Adds protocol, host, pathname prefixes to given string
+ * @param str
+ * @returns {string}
+ */
+function makeUrl(str) {
+    let prefix = document.location.protocol + '//' + document.location.host;
+    if (str[0] === '?') {
       prefix += document.location.pathname;
-    } else if (url[0] !== '/') {
+    } else if (str[0] !== '/') {
       prefix += document.location.pathname.replace(/\/[^\/]*$/, '/');
     }
-    url = prefix + url;
-  }
-  return url;
+    return prefix + str;
+}
+
+/**
+ * Check is given string is a url
+ * @param str
+ * @returns {boolean}
+ */
+function isUrl(str){
+  return str ? !!str.match(/^https?:\//) : false;
 }
 
 // Produce a number between 1 and 5 to be used for cdn sub domains designation
@@ -35,22 +44,53 @@ function cdnSubdomainNumber(publicId) {
   return crc32(publicId) % 5 + 1;
 }
 
-//  * cdn_subdomain - Boolean (default: false). Whether to automatically build URLs with multiple CDN sub-domains. See this blog post for more details.
-//  * private_cdn - Boolean (default: false). Should be set to true for Advanced plan's users that have a private CDN distribution.
-//  * secure_distribution - The domain name of the CDN distribution to use for building HTTPS URLs. Relevant only for Advanced plan's users that have a private CDN distribution.
-//  * cname - Custom domain name to use for building HTTP URLs. Relevant only for Advanced plan's users that have a private CDN distribution and a custom CNAME.
-//  * secure - Boolean (default: false). Force HTTPS URLs of images even if embedded in non-secure HTTP pages.
-function cloudinaryUrlPrefix(publicId, options) {
-  var cdnPart, host, path, protocol, ref, subdomain;
-  if (((ref = options.cloud_name) != null ? ref.indexOf("/") : void 0) === 0) {
+/**
+ * Removes signature from options and returns the signature
+ * Makes sure signature is empty or of this format: s--signature--
+ * @param {object} options
+ * @returns {string} the formatted signature
+ */
+function handleSignature(options) {
+  const {signature} = options;
+  const isFormatted = !signature || (signature.startsWith('s--') && signature.endsWith('--'));
+  delete options.signature;
+
+  return isFormatted ? signature : `s--${signature}--`;
+}
+
+/**
+ * Create the URL prefix for Cloudinary resources.
+ * @param {string} publicId the resource public ID
+ * @param {object} options additional options
+ * @param {string} options.cloud_name - the cloud name.
+ * @param {boolean} [options.cdn_subdomain=false] - Whether to automatically build URLs with
+ *  multiple CDN sub-domains.
+ * @param {string} [options.private_cdn] - Boolean (default: false). Should be set to true for Advanced plan's users
+ *  that have a private CDN distribution.
+ * @param {string} [options.protocol="http://"] - the URI protocol to use. If options.secure is true,
+ *  the value is overridden to "https://"
+ * @param {string} [options.secure_distribution] - The domain name of the CDN distribution to use for building HTTPS URLs.
+ *  Relevant only for Advanced plan's users that have a private CDN distribution.
+ * @param {string} [options.cname] - Custom domain name to use for building HTTP URLs.
+ *  Relevant only for Advanced plan's users that have a private CDN distribution and a custom CNAME.
+ * @param {boolean} [options.secure_cdn_subdomain=true] - When options.secure is true and this parameter is false,
+ *  the subdomain is set to "res".
+ * @param {boolean} [options.secure=false] - Force HTTPS URLs of images even if embedded in non-secure HTTP pages.
+ *  When this value is true, options.secure_distribution will be used as host if provided, and options.protocol is set
+ *  to "https://".
+ * @returns {string} the URL prefix for the resource.
+ * @private
+ */
+function handlePrefix(publicId, options) {
+  if (options.cloud_name && options.cloud_name[0] === '/') {
     return '/res' + options.cloud_name;
   }
   // defaults
-  protocol = "http://";
-  cdnPart = "";
-  subdomain = "res";
-  host = ".cloudinary.com";
-  path = "/" + options.cloud_name;
+  let protocol = "http://";
+  let cdnPart = "";
+  let subdomain = "res";
+  let host = ".cloudinary.com";
+  let path = "/" + options.cloud_name;
   // modifications
   if (options.protocol) {
     protocol = options.protocol + '//';
@@ -83,43 +123,35 @@ function cloudinaryUrlPrefix(publicId, options) {
 
 /**
  * Return the resource type and action type based on the given configuration
- * @function Cloudinary#finalizeResourceType
- * @param {Object|string} resourceType
+ * @function Cloudinary#handleResourceType
+ * @param {Object|string} resource_type
  * @param {string} [type='upload']
- * @param {string} [urlSuffix]
- * @param {boolean} [useRootPath]
+ * @param {string} [url_suffix]
+ * @param {boolean} [use_root_path]
  * @param {boolean} [shorten]
  * @returns {string} resource_type/type
  * @ignore
  */
-function finalizeResourceType(resourceType = "image", type = "upload", urlSuffix, useRootPath, shorten) {
-  var key, options;
+function handleResourceType({resource_type = "image", type = "upload", url_suffix, use_root_path, shorten}) {
+  let options, resourceType = resource_type;
+
   if (isPlainObject(resourceType)) {
     options = resourceType;
     resourceType = options.resource_type;
     type = options.type;
-    urlSuffix = options.url_suffix;
-    useRootPath = options.use_root_path;
     shorten = options.shorten;
   }
   if (type == null) {
     type = 'upload';
   }
-  if (urlSuffix != null) {
+  if (url_suffix != null) {
     resourceType = SEO_TYPES[`${resourceType}/${type}`];
     type = null;
     if (resourceType == null) {
-      throw new Error(`URL Suffix only supported for ${((function () {
-        var results;
-        results = [];
-        for (key in SEO_TYPES) {
-          results.push(key);
-        }
-        return results;
-      })()).join(', ')}`);
+      throw new Error(`URL Suffix only supported for ${Object.keys(SEO_TYPES).join(', ')}`);
     }
   }
-  if (useRootPath) {
+  if (use_root_path) {
     if (resourceType === 'image' && type === 'upload' || resourceType === "images") {
       resourceType = null;
       type = null;
@@ -135,56 +167,32 @@ function finalizeResourceType(resourceType = "image", type = "upload", urlSuffix
 }
 
 /**
- * Generate an resource URL.
- * @function Cloudinary#url
- * @param {string} publicId - the public ID of the resource
- * @param {Object} [options] - options for the tag and transformations, possible values include all {@link Transformation} parameters
- *                          and {@link Configuration} parameters
- * @param {string} [options.type='upload'] - the classification of the resource
- * @param {Object} [options.resource_type='image'] - the type of the resource
- * @param {Object} [config] URL configuration
- * @return {string} The resource URL
+ * Encode publicId
+ * @param publicId
+ * @returns {string} encoded publicId
  */
-export default function url(publicId, options = {}, config = {}) {
-  var error, prefix, ref, resourceTypeAndType, transformation, transformationString, url, version;
-  if (!publicId) {
-    return publicId;
-  }
-  if (options instanceof Transformation) {
-    options = options.toOptions();
-  }
-  options = defaults({}, options, config, DEFAULT_IMAGE_PARAMS);
-  if (options.type === 'fetch') {
-    options.fetch_format = options.fetch_format || options.format;
-    publicId = absolutize(publicId);
-  }
-  transformation = new Transformation(options);
-  transformationString = transformation.serialize();
-  if (!options.cloud_name) {
-    throw 'Unknown cloud_name';
-  }
-  // if publicId has a '/' and doesn't begin with v<number> and doesn't start with http[s]:/ and version is empty
-  if (publicId.search('/') >= 0 && !publicId.match(/^v[0-9]+/) && !publicId.match(/^https?:\//) && !((ref = options.version) != null ? ref.toString() : void 0)) {
-    options.version = 1;
-  }
-  if (publicId.match(/^https?:/)) {
-    if (options.type === 'upload' || options.type === 'asset') {
-      url = publicId;
-    } else {
-      publicId = encodeURIComponent(publicId).replace(/%3A/g, ':').replace(/%2F/g, '/');
-    }
+function encodePublicId(publicId) {
+  return encodeURIComponent(publicId).replace(/%3A/g, ':').replace(/%2F/g, '/');
+}
+
+/**
+ * Encode and format publicId
+ * @param publicId
+ * @param options
+ * @returns {string} publicId
+ */
+function formatPublicId(publicId, options) {
+  if (isUrl(publicId)){
+    publicId = encodePublicId(publicId);
   } else {
     try {
       // Make sure publicId is URI encoded.
       publicId = decodeURIComponent(publicId);
-    } catch (error1) {
-      error = error1;
-    }
-    publicId = encodeURIComponent(publicId).replace(/%3A/g, ':').replace(/%2F/g, '/');
+    } catch (error) {}
+
+    publicId = encodePublicId(publicId);
+
     if (options.url_suffix) {
-      if (options.url_suffix.match(/[\.\/]/)) {
-        throw 'url_suffix should not include . or /';
-      }
       publicId = publicId + '/' + options.url_suffix;
     }
     if (options.format) {
@@ -194,8 +202,149 @@ export default function url(publicId, options = {}, config = {}) {
       publicId = publicId + '.' + options.format;
     }
   }
-  prefix = cloudinaryUrlPrefix(publicId, options);
-  resourceTypeAndType = finalizeResourceType(options.resource_type, options.type, options.url_suffix, options.use_root_path, options.shorten);
-  version = options.version ? 'v' + options.version : '';
-  return url || compact([prefix, resourceTypeAndType, transformationString, version, publicId]).join('/').replace(/([^:])\/+/g, '$1/');
+  return publicId;
+}
+
+/**
+ * Get any error with url options
+ * @param options
+ * @returns {string} if error, otherwise return undefined
+ */
+function validate(options) {
+  const {cloud_name, url_suffix} = options;
+
+  if (!cloud_name) {
+    return 'Unknown cloud_name';
+  }
+
+  if (url_suffix && url_suffix.match(/[\.\/]/)) {
+    return 'url_suffix should not include . or /';
+  }
+}
+
+/**
+ * Get version part of the url
+ * @param publicId
+ * @param options
+ * @returns {string}
+ */
+function handleVersion(publicId, options) {
+  // force_version param means to make sure there is a version in the url (Default is true)
+  const isForceVersion = (options.force_version || typeof options.force_version === 'undefined');
+
+  // Is version included in publicId or in options, or publicId is a url (doesn't need version)
+  const isVersionExist = (publicId.indexOf('/') < 0 || publicId.match(/^v[0-9]+/) || isUrl(publicId)) || options.version;
+
+  if (isForceVersion && !isVersionExist) {
+    options.version = 1;
+  }
+
+  return options.version ? `v${options.version}` : '';
+}
+
+/**
+ * Get final transformation component for url string
+ * @param options
+ * @returns {string}
+ */
+function handleTransformation(options){
+  return (new Transformation(options)).serialize();
+}
+
+/**
+ * If type is 'fetch', update publicId to be a url
+ * @param publicId
+ * @param type
+ * @returns {string}
+ */
+function preparePublicId(publicId, {type}){
+  return (!isUrl(publicId) && type === 'fetch') ? makeUrl(publicId) : publicId;
+}
+
+/**
+ * Generate url string
+ * @param publicId
+ * @param options
+ * @returns {string} final url
+ */
+function urlString(publicId, options) {
+  if (isUrl(publicId) && (options.type === 'upload' || options.type === 'asset')) {
+    return publicId;
+  }
+
+  const version = handleVersion(publicId, options);
+  const transformationString = handleTransformation(options);
+  const prefix = handlePrefix(publicId, options);
+  const signature = handleSignature(options);
+  const resourceType = handleResourceType(options);
+
+  publicId = formatPublicId(publicId, options);
+
+  return compact([prefix, resourceType, signature, transformationString, version, publicId])
+    .join('/')
+    .replace(/([^:])\/+/g, '$1/') // replace '///' with '//'
+    .replace(' ', '%20');
+}
+
+/**
+ * Merge options and config with defaults
+ * update options fetch_format according to 'type' param
+ * @param options
+ * @param config
+ * @returns {*} updated options
+ */
+function prepareOptions(options, config) {
+  if (options instanceof Transformation) {
+    options = options.toOptions();
+  }
+
+  options = defaults({}, options, config, DEFAULT_IMAGE_PARAMS);
+
+  if (options.type === 'fetch') {
+    options.fetch_format = options.fetch_format || options.format;
+  }
+
+  return options;
+}
+
+/**
+ * Generates a URL for any asset in your Media library.
+ * @function url
+ * @ignore
+ * @param {string} publicId - The public ID of the media asset.
+ * @param {Object} [options={}] - The {@link Transformation} parameters to include in the URL.
+ * @param {object} [config={}] - URL configuration parameters
+ * @param {type} [options.type='upload'] - The asset's storage type.
+ *  For details on all fetch types, see
+ * <a href="https://cloudinary.com/documentation/image_transformations#fetching_images_from_remote_locations"
+ *  target="_blank">Fetch types</a>.
+ * @param {Object} [options.resource_type='image'] - The type of asset. <p>Possible values:<br/>
+ *  - `image`<br/>
+ *  - `video`<br/>
+ *  - `raw`
+ * @param {signature} [options.signature='s--12345678--'] - The signature component of a
+ *  signed delivery URL of the format: /s--SIGNATURE--/.
+ *  For details on signatures, see
+ * <a href="https://cloudinary.com/documentation/signatures" target="_blank">Signatures</a>.
+ * @return {string} The media asset URL.
+ * @see <a href="https://cloudinary.com/documentation/image_transformation_reference" target="_blank">
+ *  Available image transformations</a>
+ * @see <a href="https://cloudinary.com/documentation/video_transformation_reference" target="_blank">
+ *  Available video transformations</a>
+ */
+export default function url(publicId, options = {}, config = {}) {
+  if (!publicId) {
+    return publicId;
+  }
+
+  options = prepareOptions(options, config);
+  publicId = preparePublicId(publicId, options);
+
+  const error = validate(options);
+
+  if (error) {
+    throw error;
+  }
+
+  return urlString(publicId, options);
 };

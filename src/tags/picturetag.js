@@ -4,7 +4,7 @@ import Transformation from '../transformation';
 import SourceTag from './sourcetag';
 import {extractUrlParams} from "../util";
 
-const PictureTag = class PictureTag extends HtmlTag {
+class PictureTag extends HtmlTag {
   constructor(publicId, options = {}, sources) {
     super('picture', publicId, options);
     this.widthList = sources;

@@ -1,19 +1,9 @@
 import * as utils from '../util';
+
 const isEmpty = utils.isEmpty;
 import generateBreakpoints from './generateBreakpoints';
 import Transformation from '../transformation';
 import url from '../url';
-
-/**
- * Options used to generate the srcset attribute.
- * @typedef {object} srcset
- * @property {(number[]|string[])}   [breakpoints] An array of breakpoints.
- * @property {number}                [min_width]   Minimal width of the srcset images.
- * @property {number}                [max_width]   Maximal width of the srcset images.
- * @property {number}                [max_images]  Number of srcset images to generate.
- * @property {object|string}         [transformation] The transformation to use in the srcset urls.
- * @property {boolean}               [sizes] Whether to calculate and add the sizes attribute.
- */
 
 /**
  * Options used to generate the srcset attribute.
@@ -40,7 +30,10 @@ import url from '../url';
 export function scaledUrl(public_id, width, transformation, options = {}) {
   let configParams = utils.extractUrlParams(options);
   transformation = transformation || options;
-  configParams.raw_transformation = new Transformation([utils.merge({}, transformation), {crop: 'scale', width: width}]).toString();
+  configParams.raw_transformation = new Transformation([utils.merge({}, transformation), {
+    crop: 'scale',
+    width: width
+  }]).toString();
 
   return url(public_id, configParams);
 }
@@ -53,7 +46,7 @@ export function scaledUrl(public_id, width, transformation, options = {}) {
  * @param {object} options
  * @return {*|Array}
  */
-export function getOrGenerateBreakpoints(public_id, srcset={}, options={}) {
+export function getOrGenerateBreakpoints(public_id, srcset = {}, options = {}) {
   return generateBreakpoints(srcset);
 }
 
@@ -70,7 +63,7 @@ export function getOrGenerateBreakpoints(public_id, srcset={}, options={}) {
 export function generateSrcsetAttribute(public_id, breakpoints, transformation, options) {
   options = utils.cloneDeep(options);
   utils.patchFetchFormat(options);
-  return breakpoints.map(width=>`${scaledUrl(public_id, width, transformation, options)} ${width}w`).join(', ');
+  return breakpoints.map(width => `${scaledUrl(public_id, width, transformation, options)} ${width}w`).join(', ');
 }
 
 /**
@@ -79,8 +72,11 @@ export function generateSrcsetAttribute(public_id, breakpoints, transformation, 
  * @param {number[]} breakpoints An array of breakpoints.
  * @return {string} Resulting sizes attribute value
  */
-export function generateSizesAttribute(breakpoints=[]){
-  return breakpoints.map(width=>`(max-width: ${width}px) ${width}px`).join(', ');
+export function generateSizesAttribute(breakpoints) {
+  if (breakpoints == null) {
+    return '';
+  }
+  return breakpoints.map(width => `(max-width: ${width}px) ${width}px`).join(', ');
 }
 
 /**
@@ -96,7 +92,7 @@ export function generateSizesAttribute(breakpoints=[]){
  *
  * @return array The responsive attributes
  */
-export function generateImageResponsiveAttributes(publicId, attributes={}, srcsetData={}, options={}){
+export function generateImageResponsiveAttributes(publicId, attributes = {}, srcsetData = {}, options = {}) {
   // Create both srcset and sizes here to avoid fetching breakpoints twice
 
   let responsiveAttributes = {};
@@ -137,13 +133,15 @@ export function generateImageResponsiveAttributes(publicId, attributes={}, srcse
  * @param {number|string} options.max_width
  * @return {string} a media query string
  */
-export function generateMediaAttr(options={}){
+export function generateMediaAttr(options) {
   let mediaQuery = [];
-  if(options.min_width != null){
-    mediaQuery.push(`(min-width: ${options.min_width}px)`);
-  }
-  if(options.max_width != null){
-    mediaQuery.push(`(max-width: ${options.max_width}px)`);
+  if (options != null) {
+    if (options.min_width != null) {
+      mediaQuery.push(`(min-width: ${options.min_width}px)`);
+    }
+    if (options.max_width != null) {
+      mediaQuery.push(`(max-width: ${options.max_width}px)`);
+    }
   }
   return mediaQuery.join(' and ');
 }

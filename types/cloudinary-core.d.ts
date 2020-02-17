@@ -2,6 +2,11 @@ export as namespace cloudinary;
 
 /****************************** Constants *************************************/
 type CropMode = string | "scale" | "fit" | "limit" | "mfit" | "fill" | "lfill" | "pad" | "lpad" | "mpad" | "crop" | "thumb" | "imagga_crop" | "imagga_scale";
+type CustomFunctionType = "wasm" | "remote";
+interface CustomFunction {
+    function_type: CustomFunctionType;
+    source: string;
+}
 type Gravity = string | "north_west" | "north" | "north_east" | "west" | "center" | "east" | "south_west" | "south" | "south_east" | "xy_center" |
     "face" | "face:center" | "face:auto" | "faces" | "faces:center" | "faces:auto" | "body" | "body:face" | "adv_face" | "adv_faces" | "adv_eyes" |
     "custom" | "custom:face" | "custom:faces" | "custom:adv_face" | "custom:adv_faces" |
@@ -17,7 +22,6 @@ type VideoFlags = string | Array<string> | "splice" | "layer_apply" | "no_stream
 type AudioCodec = string | "none" | "aac" | "vorbis" | "mp3";
 type AudioFrequency = number | 8000 | 11025 | 16000 | 22050 | 32000 | 37800 | 44056 | 44100 | 47250 | 48000 | 88200 | 96000 | 176400 | 192000;
 type StreamingProfiles = string | "4k" | "full_hd" | "hd" | "sd" | "full_hd_wifi" | "full_hd_lean" | "hd_lean";
-
 
 export function crc32(str: string): any;
 export function utf8_encode(argString: string): any;
@@ -181,6 +185,8 @@ export class Transformation {
     color(value: string): Transformation; // e.g. "red" or "rgb:20a020"
     colorSpace(value: ColorSpace): Transformation;
     crop(value: CropMode): Transformation;
+    customFunction(value: CustomFunction): Transformation;
+    customPreFunction(value: CustomFunction): Transformation;
     defaultImage(value: string): Transformation; // public id of an uploaded image
     delay(value: string): Transformation;
     density(value: number): Transformation; // Control the density to use while converting a PDF document to images. (range: 50-300, default: 150)
@@ -202,6 +208,7 @@ export class Transformation {
     rawTransformation(value: any): Transformation;
     size(value: string): Transformation;
     sourceTypes(value: VideoFileExtension | Array<VideoFileExtension>): Transformation;
+    sources?: Array<object>;
     sourceTransformation(value: Object): Transformation; // Set the transformation to apply on each source by an object with pairs of source type and source transformations to apply
     startOffset(value: number | string): Transformation;
     streamingProfile(value: string): Transformation;
@@ -290,6 +297,8 @@ export namespace Transformation {
         color?: string; // e.g. "red" or "rgb:20a020"
         colorSpace?: ColorSpace;
         crop?: CropMode,
+        customFunction?: CustomFunction,
+        customPreFunction?: CustomFunction,
         defaultImage?: string; // public id of an uploaded image
         delay?: string;
         density?: number | string; // Control the density to use while converting a PDF document to images. (range: 50-300, default: 150)
@@ -513,6 +522,21 @@ export namespace Layer {
         format?: string;
     }
 }
+
+export class FetchLayer extends Layer {
+    constructor(options?: FetchLayer.Options);
+
+    /** setters */
+    url(url: string): FetchLayer;
+    toString(): string;
+}
+
+export namespace FetchLayer {
+    export interface Options {
+        url?: string
+    }
+}
+
 /**
  * @constructor TextLayer
  * @param {Object} options - layer parameters
@@ -525,6 +549,8 @@ export class TextLayer extends Layer {
     fontSize(value: number): TextLayer;
     fontWeight(value: string): TextLayer;
     fontStyle(value: string): TextLayer;
+    fontHinting(value: string): TextLayer;
+    fontAntiAliasing(value: string): TextLayer;
     textDecoration(value: string): TextLayer;
     textAlign(value: string): TextLayer;
     stroke(value: string): TextLayer;
@@ -543,6 +569,8 @@ export namespace TextLayer {
         fontSize?: number;
         fontWeight?: string;
         fontStyle?: string;
+        fontHinting?: string;
+        fontAntialiasing?: string;
         textDecoration?: string;
         textAlign?: string;
         stroke?: string;
@@ -790,6 +818,26 @@ export class Cloudinary {
     transformation(options?: Transformation | Transformation.Options): Transformation;
 }
 
+declare let _default: {
+    ClientHintsMetaTag: ClientHintsMetaTag,
+    Cloudinary: Cloudinary,
+    Condition: Condition,
+    Configuration: Configuration,
+    FetchLayer: FetchLayer,
+    HtmlTag: HtmlTag,
+    ImageTag: ImageTag,
+    Layer: Layer,
+    Param: Param,
+    PictureTag: PictureTag,
+    SubtitlesLayer: SubtitlesLayer,
+    TextLayer: TextLayer,
+    Transformation: Transformation,
+    Util: Util,
+    VideoTag: VideoTag
+}
+
+export default _default;
+
 export const VERSION: string;
 export namespace Configuration {
     export interface Options {
@@ -810,7 +858,7 @@ export namespace Configuration {
         responsive?: boolean;
         responsive_width?: string;
         secure_cdn_subdomain?: boolean;
-        secure_distribution?: boolean;
+        secure_distribution?: string;
         shorten?: string;
         type?: string;
         url_suffix?: string;
@@ -822,3 +870,4 @@ export namespace Configuration {
         [futureKey: string]: any;
     }
 }
+

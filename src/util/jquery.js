@@ -104,21 +104,6 @@ export var width = function(element) {
 };
 
 /**
- * Returns true if item is empty:
- * <ul>
- *   <li>item is null or undefined</li>
- *   <li>item is an array or string of length 0</li>
- *   <li>item is an object with no keys</li>
- * </ul>
- * @function Util.isEmpty
- * @param item
- * @returns {boolean} true if item is empty
- */
-export var isEmpty = function(item) {
-  return (item == null) || (jQuery.isArray(item) || isString(item)) && item.length === 0 || (jQuery.isPlainObject(item) && jQuery.isEmptyObject(item));
-};
-
-/**
  * Returns true if item is a string
  * @param item
  * @returns {boolean} true if item is a string

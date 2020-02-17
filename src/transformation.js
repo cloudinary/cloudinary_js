@@ -51,13 +51,13 @@ function assignNotNull(target, ...sources) {
  * @internal
  */
 
-var TransformationBase = class TransformationBase {
+class TransformationBase {
   /**
    * The base class for transformations.
    * Members of this class are documented as belonging to the {@link Transformation} class for convenience.
    * @class TransformationBase
    */
-  constructor(options = {}) {
+  constructor(options) {
     /** @private */
     /** @private */
     var parent, trans;
@@ -68,8 +68,11 @@ var TransformationBase = class TransformationBase {
      * @function Transformation#toOptions
      * @return {Object} Returns a plain object representing this transformation
      */
-    this.toOptions = function (withChain = true) {
+    this.toOptions = function (withChain) {
       let opt = {};
+      if(withChain == null) {
+        withChain = true;
+      }
       Object.keys(trans).forEach(key => opt[key] = trans[key].origValue);
       assignNotNull(opt, this.otherOptions);
       if (withChain && !isEmpty(this.chained)) {
@@ -260,10 +263,7 @@ var TransformationBase = class TransformationBase {
     };
     this.otherOptions = {};
     this.chained = [];
-    if (!isEmpty(options)) {
-      // Finished constructing the instance, now process the options
-      this.fromOptions(options);
-    }
+    this.fromOptions(options);
   }
 
   /**
@@ -272,7 +272,6 @@ var TransformationBase = class TransformationBase {
    * @returns {Transformation} Returns this instance for chaining
    */
   fromOptions(options) {
-    var key, opt;
     if (options instanceof TransformationBase) {
       this.fromTransformation(options);
     } else {
@@ -283,8 +282,8 @@ var TransformationBase = class TransformationBase {
         };
       }
       options = cloneDeep(options, function (value) {
-        if (value instanceof TransformationBase) {
-          return new value.constructor(value.toOptions());
+        if (value instanceof TransformationBase || value instanceof Layer) {
+          return new value.clone();
         }
       });
       // Handling of "if" statements precedes other options as it creates a chained transformation
@@ -292,14 +291,16 @@ var TransformationBase = class TransformationBase {
         this.set("if", options["if"]);
         delete options["if"];
       }
-      for (key in options) {
-        opt = options[key];
-        if (key.match(VAR_NAME_RE)) {
-          if (key !== '$attr') {
-            this.set('variable', key, opt);
+      for (let key in options) {
+        let opt = options[key];
+        if(opt != null) {
+          if (key.match(VAR_NAME_RE)) {
+            if (key !== '$attr') {
+              this.set('variable', key, opt);
+            }
+          } else {
+            this.set(key, opt);
           }
-        } else {
-          this.set(key, opt);
         }
       }
     }
@@ -403,7 +404,7 @@ var TransformationBase = class TransformationBase {
   }
 
   /**
-   * Returns attributes for an HTML tag.
+   * Returns the attributes for an HTML tag.
    * @function Cloudinary.toHtmlAttributes
    * @return PlainObject
    */
@@ -466,6 +467,10 @@ var TransformationBase = class TransformationBase {
     return this.serialize();
   }
 
+  clone() {
+    return new this.constructor(this.toOptions(true));
+  }
+
 };
 
 const VAR_NAME_RE = /^\$[a-zA-Z0-9]+$/;
@@ -499,6 +504,14 @@ function processVar(varArray) {
   }
 }
 
+function processCustomFunction(value) {
+  if (value.function_type === "remote") {
+    return [value.function_type, btoa(value.source)].join(":")
+  } else if (value.function_type === "wasm") {
+    return [value.function_type, value.source].join(":")
+  }
+}
+
 /**
  * Transformation Class methods.
  * This is a list of the parameters defined in Transformation.
@@ -517,19 +530,23 @@ function processVar(varArray) {
  * @ignore
  * @see toHtmlAttributes
  */
-var Transformation = class Transformation extends TransformationBase {
+class Transformation extends TransformationBase {
   /**
-   *  Represents a single transformation.
-   *  @class Transformation
-   *  @example
-   *  t = new cloudinary.Transformation();
+   * Represents a single transformation.
+   * @class Transformation
+   * @example
+   * t = new cloudinary.Transformation();
    * t.angle(20).crop("scale").width("auto");
    *
    * // or
    *
    * t = new cloudinary.Transformation( {angle: 20, crop: "scale", width: "auto"});
+   * @see <a href="https://cloudinary.com/documentation/image_transformation_reference" 
+   *  target="_blank">Available image transformations</a>
+   * @see <a href="https://cloudinary.com/documentation/video_transformation_reference" 
+   *  target="_blank">Available video transformations</a>
    */
-  constructor(options = {}) {
+  constructor(options) {
     super(options);
   }
 
@@ -596,6 +613,22 @@ var Transformation = class Transformation extends TransformationBase {
     return this.param(value, "crop", "c");
   }
 
+  customFunction(value) {
+    return this.param(value, "custom_function", "fn", () => {
+      return processCustomFunction(value);
+    });
+  }
+
+  customPreFunction(value) {
+    if (this.get('custom_function')) {
+      return;
+    }
+    return this.rawParam(value, "custom_function", "", () => {
+      value = processCustomFunction(value);
+      return value ? `fn_pre:${value}` : value;
+    });
+  }
+  
   defaultImage(value) {
     return this.param(value, "default_image", "d");
   }
@@ -761,7 +794,7 @@ var Transformation = class Transformation extends TransformationBase {
   }
 
   radius(value) {
-    return this.param(value, "radius", "r", Expression.normalize);
+    return this.arrayParam(value, "radius", "r", ":", Expression.normalize);
   }
 
   rawTransformation(value) {
@@ -839,7 +872,7 @@ var Transformation = class Transformation extends TransformationBase {
     return this.param(value, "zoom", "z", Expression.normalize);
   }
 
-};
+}
 
 /**
  * Transformation Class methods.
@@ -857,6 +890,8 @@ Transformation.methods = [
   "color",
   "colorSpace",
   "crop",
+  "customFunction",
+  "customPreFunction",
   "defaultImage",
   "delay",
   "density",

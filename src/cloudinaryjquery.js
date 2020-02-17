@@ -8,12 +8,12 @@ import Cloudinary from './cloudinary';
 import Transformation from './transformation'
 import firstNotNull from './util/firstNotNull'
 
-const CloudinaryJQuery = class CloudinaryJQuery extends Cloudinary {
-  /**
-   * Cloudinary class with jQuery support
-   * @constructor CloudinaryJQuery
-   * @extends Cloudinary
-   */
+/**
+ * Creates a new Cloudinary instance with jQuery support.
+ * @class CloudinaryJQuery
+ * @extends Cloudinary
+ */
+class CloudinaryJQuery extends Cloudinary {
   constructor(options) {
     super(options);
   }
@@ -77,7 +77,7 @@ const CloudinaryJQuery = class CloudinaryJQuery extends Cloudinary {
     }
   }
 
-};
+}
 
 /**
  * The following methods are provided through the jQuery class
@@ -111,19 +111,25 @@ jQuery.fn.cloudinary = function(options) {
 };
 
 /**
- * Update hidpi (dpr_auto) and responsive (w_auto) fields according to the current container size and the device pixel ratio.
- * Only images marked with the cld-responsive class have w_auto updated.
- * options:
- * - responsive_use_stoppoints:
- *   - true - always use stoppoints for width
- *   - "resize" - use exact width on first render and stoppoints on resize (default)
- *   - false - always use exact width
- * - responsive:
- *   - true - enable responsive on this element. Can be done by adding cld-responsive.
- *            Note that jQuery.cloudinary.responsive() should be called once on the page.
- * - responsive_preserve_height: if set to true, original css height is perserved. Should only be used if the transformation supports different aspect ratios.
+ * Updates the dpr (for `dpr_auto`) and responsive (for `w_auto`) fields according to
+  *  the current container size and the device pixel ratio.<br/>
+  *  <b>Note</b>:`w_auto` is updated only for images marked with the `cld-responsive`
+  *  (or other defined {@link Cloudinary#responsive|responsive}) class.
+  * @function jQuery#cloudinary_update
+  * @param {(Array|string|NodeList)} elements - The HTML image elements to modify.
+  * @param {Object} options
+  * @param {boolean|string} [options.responsive_use_breakpoints=true]
+  * Possible values:<br/>
+  *  - `true`: Always use breakpoints for width.<br/>
+  *  - `resize`: Use exact width on first render and breakpoints on resize.<br/>
+  *  - `false`: Always use exact width.
+  * @param {boolean} [options.responsive] - If `true`, enable responsive on all specified elements.
+  *  Alternatively, you can define specific HTML elements to modify by adding the `cld-responsive`
+  *  (or other custom-defined {@link Cloudinary#responsive|responsive_class}) class to those elements.
+  * @param {boolean} [options.responsive_preserve_height] - If `true`, original css height is preserved.
+  *  Should be used only if the transformation supports different aspect ratios.
  */
-jQuery.fn.cloudinary_update = function(options = {}) {
+jQuery.fn.cloudinary_update = function(options) {
   jQuery.cloudinary.cloudinary_update(this.filter('img').toArray(), options);
   return this;
 };

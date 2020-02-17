@@ -1,0 +1,33 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>Blank Cloudinary Page</title>
+
+
+<!--    <script type="application/javascript" src="../../node_modules/lodash/lodash.js"></script>-->
+<!--    <script type="text/javascript" src="../../dist/cloudinary-external-function-object-test-exclude-core.min.js"></script>-->
+    <script type="text/javascript" src="../../dist/cloudinary-external-function-object-test-exclude-core-shrinkwrap.min.js"></script>
+
+
+</head>
+
+<body>
+<div id="name"></div>
+<div id="status"></div>
+<script type="application/javascript">
+  const name = document.getElementById('name');
+  const status = document.getElementById('status');
+  let n = document.getElementsByTagName('script')[0];
+
+  name.innerText += '  ' + n.src;
+  try {
+    cloudinary.Cloudinary.new();
+    status.innerText = "SUCCESS";
+  } catch (e) {
+    status.innerText = e;
+  }
+
+</script>
+</body>
+</html>
