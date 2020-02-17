@@ -88,7 +88,7 @@ class Param {
     return value != null ? value.replace(/^#/, 'rgb:') : void 0;
   }
 
-  build_array(arg) {
+  static build_array(arg) {
     if(arg == null) {
       return [];
     } else if (isArray(arg)) {
@@ -116,11 +116,11 @@ class Param {
       case Object:
         video = "";
         if ('codec' in param) {
-          video = param['codec'];
+          video = param.codec;
           if ('profile' in param) {
-            video += ":" + param['profile'];
+            video += ":" + param.profile;
             if ('level' in param) {
-              video += ":" + param['level'];
+              video += ":" + param.level;
             }
           }
         }
@@ -145,7 +145,7 @@ class ArrayParam extends Param {
    * @extends Param
    * @ignore
    */
-  constructor(name, shortName, sep = '.', process) {
+  constructor(name, shortName, sep = '.', process = undefined) {
     super(name, shortName, process);
     this.sep = sep;
   }
@@ -194,7 +194,7 @@ class TransformationParam extends Param {
    * @extends Param
    * @ignore
    */
-  constructor(name, shortName = "t", sep = '.', process) {
+  constructor(name, shortName = "t", sep = '.', process = undefined) {
     super(name, shortName, process);
     this.sep = sep;
   }
@@ -284,18 +284,6 @@ class RawParam extends Param {
   }
 
 }
-
-const LAYER_KEYWORD_PARAMS = [
-  ["font_weight", "normal"],
-  ["font_style", "normal"],
-  ["text_decoration", "none"],
-  ["text_align", null],
-  ["stroke", "none"],
-  ["letter_spacing", null],
-  ["line_spacing", null],
-  ["font_antialias", null],
-  ["font_hinting", null]
-];
 
 class LayerParam extends Param {
   // Parse layer options
