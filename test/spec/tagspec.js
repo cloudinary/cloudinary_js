@@ -359,26 +359,6 @@ describe("Cloudinary.VideoTag", function() {
     [videoTag, tag] = getTag(videoTag);
     return expect(tag).toBe(`<source src="${expected_url}.ogv" type="video/ogg">`);
   });
-  it("should generate video tag with html5 attributes", function() {
-    var expected_url, tag, videoTag;
-    expected_url = VIDEO_UPLOAD_PATH + "movie";
-    videoTag = new cloudinary.VideoTag("movie", simpleAssign({
-      autoplay: 1,
-      controls: true,
-      loop: true,
-      muted: "true",
-      preload: true,
-      style: "border: 1px"
-    }, options)).toHtml();
-    [videoTag, tag] = getTag(videoTag);
-    expect(tag).toBe(`<video autoplay="1" controls loop muted="true" poster="${expected_url}.jpg" preload style="border: 1px">`);
-    [videoTag, tag] = getTag(videoTag);
-    expect(tag).toBe(`<source src="${expected_url}.webm" type="video/webm">`);
-    [videoTag, tag] = getTag(videoTag);
-    expect(tag).toBe(`<source src="${expected_url}.mp4" type="video/mp4">`);
-    [videoTag, tag] = getTag(videoTag);
-    return expect(tag).toBe(`<source src="${expected_url}.ogv" type="video/ogg">`);
-  });
   describe("attributes", function() {
     var tag;
     tag = cloudinary.HtmlTag.new("div", {
