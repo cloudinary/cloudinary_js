@@ -93,6 +93,16 @@ describe("Cloudinary.ImageTag", function() {
     })).toHtml();
     return expect(tag).toBe(`<img alt="asdfg&#34;&#39;asdf" src="${DEFAULT_UPLOAD_PATH}image_id">`);
   });
+  it("should create an image tag with encoded special chars", function() {
+    const imageId = `test's special < \"characters\" >`;
+    const encodedImageId = "test&#39;s%20special%20%3C%20%22characters%22%20%3E";
+    let tag = new cloudinary.ImageTag(imageId, cloudinary.Util.assign({
+      responsive: true
+    }, config)).toHtml();
+
+    return expect(tag).toBe(`<img data-src="${DEFAULT_UPLOAD_PATH}${encodedImageId}">`);
+  });
+
   it("should set data-src instead of src when using responsive", function() {
     var tag;
     tag = new cloudinary.ImageTag('image_id', cloudinary.Util.assign({
@@ -334,6 +344,41 @@ describe("Cloudinary.VideoTag", function() {
       source_types: "mp4"
     })).toEqual(`<video src="${expected_url}.mp4"></video>`);
   });
+  it("should generate video tag with encoded special chars", function() {
+    const movieId = `test's special < \"characters\" >`;
+    const encodedMovieId = "test&#39;s%20special%20%3C%20%22characters%22%20%3E";
+    let tag, videoTag;
+    const expected_url = VIDEO_UPLOAD_PATH + encodedMovieId;
+    videoTag = new cloudinary.VideoTag(movieId, options).toHtml();
+    [videoTag, tag] = getTag(videoTag);
+    expect(tag).toBe(`<video poster="${expected_url}.jpg">`);
+    [videoTag, tag] = getTag(videoTag);
+    expect(tag).toBe(`<source src="${expected_url}.webm" type="video/webm">`);
+    [videoTag, tag] = getTag(videoTag);
+    expect(tag).toBe(`<source src="${expected_url}.mp4" type="video/mp4">`);
+    [videoTag, tag] = getTag(videoTag);
+    return expect(tag).toBe(`<source src="${expected_url}.ogv" type="video/ogg">`);
+  });
+  it("should generate video tag with html5 attributes", function() {
+    var expected_url, tag, videoTag;
+    expected_url = VIDEO_UPLOAD_PATH + "movie";
+    videoTag = new cloudinary.VideoTag("movie", simpleAssign({
+      autoplay: 1,
+      controls: true,
+      loop: true,
+      muted: "true",
+      preload: true,
+      style: "border: 1px"
+    }, options)).toHtml();
+    [videoTag, tag] = getTag(videoTag);
+    expect(tag).toBe(`<video autoplay="1" controls loop muted="true" poster="${expected_url}.jpg" preload style="border: 1px">`);
+    [videoTag, tag] = getTag(videoTag);
+    expect(tag).toBe(`<source src="${expected_url}.webm" type="video/webm">`);
+    [videoTag, tag] = getTag(videoTag);
+    expect(tag).toBe(`<source src="${expected_url}.mp4" type="video/mp4">`);
+    [videoTag, tag] = getTag(videoTag);
+    return expect(tag).toBe(`<source src="${expected_url}.ogv" type="video/ogg">`);
+  });
   describe("attributes", function() {
     var tag;
     tag = cloudinary.HtmlTag.new("div", {
@@ -494,4 +539,4 @@ describe("PictureTag", function(){
       "</picture>";
     expect(tag.toHtml()).toBe(exp_tag);
   });
-})
+});
