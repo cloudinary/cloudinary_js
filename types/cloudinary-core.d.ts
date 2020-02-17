@@ -858,7 +858,7 @@ export namespace Configuration {
         responsive?: boolean;
         responsive_width?: string;
         secure_cdn_subdomain?: boolean;
-        secure_distribution?: string;
+        secure_distribution?: string | null;
         shorten?: string;
         type?: string;
         url_suffix?: string;
