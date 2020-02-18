@@ -1,3 +1,15 @@
+2.8.1 / 2020-02-18
+==================
+
+* Fix spaces encoding of named transformations
+* Align responsive function with cloudinary_angular's lazy load  
+* Add tests for special chars encoding in urls
+* Fix tests for video offset
+* Fix secure_distribution type definition
+* Add watch mode to tests
+* Refactor normalizeArray function
+* Update puppeteer to version 2.1.1
+
 2.8.0 / 2019-11-24
 ==================
 
