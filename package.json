@@ -12,7 +12,7 @@
   "scripts": {
     "build": "parallel-webpack",
     "doc": "jsdoc -c jsdoc-conf.json",
-    "test": "karma start --single-run --browsers=ChromeHeadless",
+    "test": "npm run build && npm run copybuilds && karma start --single-run --browsers=ChromeHeadless",
     "test:watch": "karma start --auto-watch --browsers=ChromeHeadless",
     "test:pkgs": "tools/scripts/test.pkgs.sh",
     "test:pkgs:minified": "tools/scripts/test.pkgs.minified.sh",
