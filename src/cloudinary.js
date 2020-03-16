@@ -27,6 +27,13 @@ import {
   setData,
   width
 } from './util';
+//
+
+import addFlagToOptions from "./util/transformations/addFlag";
+import getHeadersFromURL from "./util/xhr/getHeadersFromURL";
+import loadScript from "./util/xhr/loadScript";
+import getBlobFromURL from "./util/xhr/getBlobFromURL";
+import createTransparentVideoTag from "./util/features/transparentVideo/createTransparentVideoTag";
 
 defaultBreakpoints = function(width, steps = 100) {
   return steps * Math.ceil(width / steps);
@@ -730,6 +737,100 @@ class Cloudinary {
     return Transformation.new(this.config()).fromOptions(options).setParent(this);
   }
 
+  /**
+   *
+   * @param {HTMLElement} htmlElContainer
+   * @param {string} publicId
+   * @param {Object} options The {@link TransparentVideoOptions} options to apply.
+   */
+  createTransparentVideo(htmlElContainer, publicId, options = {}) {
+    return new Promise((resolveMainPromise, rejectMainPromise) => {
+
+      if (!htmlElContainer) {
+        rejectMainPromise({
+          status: 'error',
+          message: 'Expecting htmlElContainer to be HTMLElement'
+        });
+      }
+
+      options.autoplay = true;
+      options.muted = true;
+      options.controls = false;
+      options.max_timeout = options.max_timeout || 10000;
+      options.class = options.class || '';
+      options.class += ' cld-transparent-video';
+      options.seeThruURL = options.seeThruURL || 'https://unpkg.com/seethru@4/dist/seeThru.min.js';
+
+      let {poster, autoplay, playsinline, loop, muted} = options;
+
+      // ensure there's an alpha transformation present
+      // this is a non document internal flag
+      addFlagToOptions(options, 'alpha');
+
+      // // create URL with transformations
+      let url = this.video_url(publicId, options);
+
+      getHeadersFromURL(url, options.max_timeout).then(({payload}) => {
+        let isNativeTransparent = !payload.hasOwnProperty('X-Cld-Vmuxed-Alpha');
+        // If the video is actually two videos with alpha channel, we must use seeThru
+        if (!isNativeTransparent) {
+          // TODO see if we already have seeThru
+          loadScript(options.seeThruURL, options.max_timeout, window.seeThru).then(() => {
+            getBlobFromURL(url, options.max_timeout).then(({payload}) => {
+              let videoElement = createTransparentVideoTag({
+                src: payload.url,
+                poster,
+                autoplay,
+                playsinline,
+                loop,
+                muted
+              });
+
+              videoElement.onload = () => {
+                URL.revokeObjectURL(payload.url);
+              };
+
+              htmlElContainer.appendChild(videoElement);
+
+              let timerID = setTimeout(() => {
+                rejectMainPromise({status: 'error', message: 'Timeout instantiating seeThru instance'});
+              }, options.max_timeout);
+
+              let seeThruInstance = seeThru.create(videoElement).ready(() => {
+                clearTimeout(timerID); // clear timeout reject error
+                let canvasElement = seeThruInstance.getCanvas();
+                // force container size, else the canvas can overflow out
+                canvasElement.style.width = '100%';
+
+                canvasElement.className += ' ' + options.class;
+                if (options.autoplay) {
+                  seeThruInstance.play();
+                }
+
+                resolveMainPromise(htmlElContainer);
+              });
+              // catch for getBlobFromURL()
+            }).catch(({status, message}) => { rejectMainPromise({status, message});});
+            // catch for loadScript()
+          }).catch(({status, message}) => { rejectMainPromise({status, message});});
+        } else {
+          // VideoTag is really aggressive with how it picks arguments and will create <video seethruurl="...">
+          let videoTagOptions = Object.assign({}, options);
+          delete videoTagOptions.seeThruURL;
+          delete videoTagOptions.max_timeout;
+
+          htmlElContainer.innerHTML = this.videoTag(publicId, videoTagOptions).toHtml();
+
+          // All videos under the html container must have a width of 100%, or they might overflow from the container
+          let element = htmlElContainer.querySelector('.cld-transparent-video');
+          element.style.width = '100%';
+
+          resolveMainPromise(htmlElContainer);
+        }
+        // catch for getHeadersFromURL()
+      }).catch(({status, message}) => { rejectMainPromise({status, message});});
+    });
+  }
 }
 
 assign(Cloudinary, constants);
