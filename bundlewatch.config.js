@@ -12,7 +12,7 @@ const bundlewatchConfig = {
     },
   ],
 
-  defaultCompression: 'gzip', // Do we want the results in gzip form?
+  defaultCompression: 'gzip',  // Do we want the results in gzip form?
 };
 
 module.exports = bundlewatchConfig;
