@@ -8,7 +8,9 @@ if (/phantom|HeadlessChrome|HeadlessFirefox|Chrome/i.test(navigator.userAgent)) 
 myDescribe("Transparent Video Test", function () {
   let restoreXHR = () => {};
   let timeout = 60000;
+  let cl;
   beforeEach(() => {
+    cl = new cloudinary.Cloudinary({cloud_name: "sdk-test"});
     createTestContainer();
   });
   afterEach(() => {
@@ -17,18 +19,16 @@ myDescribe("Transparent Video Test", function () {
     restoreXHR();
   });
 
-
   // Annotations, these will be removed before we merge.
   // TODO global
-  //  Skip this test in Chrome and Headless - Run only in FireFox (There was an issue with
-  //  Upload the video file and then delete it
+  //  DONE - Skip this test in Chrome and Headless - Run only in FireFox (There was an issue with Chrome in tests)
 
   // TODO - seeThru - What was tested?
   //  DONE - Ensure custom class is passed successfully to Canvas
   //  DONE - test max_timout actually times out
   //  DONE - test that we already have seeThru (load a URL twice, ensure no double scriptTags)
   //  DONE - test loop parameter exists
-  //       - test for seeThru URL
+  //  DONE - test for seeThru URL
 
   // TODO NativeSupport
   //  DONE - Ensure custom class is passed successfully to video element
@@ -41,9 +41,8 @@ myDescribe("Transparent Video Test", function () {
       restoreXHR = forceNativeTransparentSupport(false);
       let container = getTestContainer();
 
-      let cl = new cloudinary.Cloudinary({cloud_name: "eran2903"});
 
-      cl.createTransparentVideo(container, 'transparency/girl_test_vpusyw', {
+      cl.createTransparentVideo(container, 'transparentVideoTests/transparent-girl', {
         loop: true,
         max_timeout: timeout,
         class: 'a-custom-class'
@@ -73,9 +72,8 @@ myDescribe("Transparent Video Test", function () {
     it("Should timeout with a short enough max_timeout", function (done) {
       restoreXHR = forceNativeTransparentSupport(false);
       let container = getTestContainer();
-      let cl = new cloudinary.Cloudinary({cloud_name: "eran2903"});
 
-      cl.createTransparentVideo(container, 'transparency/girl_test_vpusyw', {
+      cl.createTransparentVideo(container, 'transparentVideoTests/transparent-girl', {
         max_timeout: 1
       }).catch((err) => {
         // We expect to fail due to a short timeout
@@ -89,7 +87,7 @@ myDescribe("Transparent Video Test", function () {
       let container = getTestContainer();
       let cl = new cloudinary.Cloudinary({cloud_name: "eran2903"});
 
-      cl.createTransparentVideo(container, 'transparency/girl_test_vpusyw', {
+      cl.createTransparentVideo(container, 'transparentVideoTests/transparent-girl', {
         max_timeout: timeout,
         seeThruURL: 'http://abc.xyz.tmp'
       }).catch((err) => {
@@ -104,19 +102,16 @@ myDescribe("Transparent Video Test", function () {
     it("Loading two videos should not include seeThru.js twice", function (done) {
       restoreXHR = forceNativeTransparentSupport(false);
       let container = getTestContainer();
-      let cl = new cloudinary.Cloudinary({cloud_name: "eran2903"});
 
-      cl.createTransparentVideo(container, 'transparency/girl_test_vpusyw', {
+      cl.createTransparentVideo(container, 'transparentVideoTests/transparent-girl', {
         max_timeout: timeout
       }).then(() => {
-        cl.createTransparentVideo(container, 'transparency/girl_test_vpusyw', {
+        cl.createTransparentVideo(container, 'transparentVideoTests/transparent-girl', {
           max_timeout: timeout
         }).then(() => {
-          setTimeout(() => {
-            let scripts = [...document.head.querySelectorAll('script')];
-            expect(scripts.length).toBe(1);
-            done();
-          });
+          let scripts = [...document.head.querySelectorAll("[src*=seethru]")];
+          expect(scripts.length).toBe(1);
+          done();
         });
       });
     }, timeout * 2);
@@ -126,9 +121,8 @@ myDescribe("Transparent Video Test", function () {
     it("Display regular Video Element for if browser supports it", function (done) {
       restoreXHR = forceNativeTransparentSupport(true);
       let container = getTestContainer();
-      let cl = new cloudinary.Cloudinary({cloud_name: "eran2903"});
 
-      cl.createTransparentVideo(container, 'transparency/girl_test_vpusyw', {
+      cl.createTransparentVideo(container, 'transparentVideoTests/transparent-girl', {
         class: 'a-custom-class'
       }).then((res) => {
         let canvas = res.querySelector('canvas.cld-transparent-video');
@@ -162,9 +156,8 @@ myDescribe("Transparent Video Test", function () {
     it("Has a loop attribute", function (done) {
       restoreXHR = forceNativeTransparentSupport(true);
       let container = getTestContainer();
-      let cl = new cloudinary.Cloudinary({cloud_name: "eran2903"});
 
-      cl.createTransparentVideo(container, 'transparency/girl_test_vpusyw')
+      cl.createTransparentVideo(container, 'transparentVideoTests/transparent-girl')
         .then((res) => {
         let video = res.querySelector('video');
         // Autoplay and Muted are always on and cannot be overwritten
@@ -180,9 +173,8 @@ myDescribe("Transparent Video Test", function () {
     it("Times out correctly", function (done) {
       restoreXHR = forceNativeTransparentSupport(false);
       let container = getTestContainer();
-      let cl = new cloudinary.Cloudinary({cloud_name: "eran2903"});
 
-      cl.createTransparentVideo(container, 'transparency/girl_test_vpusyw', {
+      cl.createTransparentVideo(container, 'transparentVideoTests/transparent-girl', {
         max_timeout: 1
       }).catch((err) => {
         // We expect to fail due to a short timeout
@@ -222,12 +214,13 @@ function removeTestContainer() {
 
 function removeSeeThruScript() {
   let scripts = [...document.head.querySelectorAll('script')];
-  let script = scripts.find((script) => {
-    return script.src.indexOf('seeThru.min.js') >= 0;
+
+  scripts.forEach((script) => {
+    if (script.src.indexOf('seeThru.min.js') >= 0) {
+      script.remove();
+      delete window.seeThru;
+    }
   });
-  if (script) {
-    script.remove();
-    delete window.seeThru;
-  }
 }
+
 
