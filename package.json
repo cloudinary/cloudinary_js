@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "build": "parallel-webpack && npm run bundlewatch",
-    "bundlewatch": "bundlewatch --max-size 100kb ./dist/*.js",
+    "bundlewatch": "bundlewatch --max-size 60kb ./dist/*.js",
     "doc": "jsdoc -c jsdoc-conf.json",
     "test": "karma start --single-run --browsers=ChromeHeadless",
     "test:watch": "karma start --auto-watch --browsers=ChromeHeadless",
