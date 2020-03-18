@@ -10,7 +10,8 @@
     "src/**/*"
   ],
   "scripts": {
-    "build": "parallel-webpack",
+    "build": "parallel-webpack && npm run bundlewatch",
+    "bundlewatch": "bundlewatch --max-size 100kb ./dist/*.js",
     "doc": "jsdoc -c jsdoc-conf.json",
     "test": "karma start --single-run --browsers=ChromeHeadless",
     "test:watch": "karma start --auto-watch --browsers=ChromeHeadless",
@@ -65,6 +66,7 @@
     "webpack-cli": "^3.3.0"
   },
   "dependencies": {
+    "bundlewatch": "^0.2.6",
     "jsdoc": "^3.6.3"
   }
 }
