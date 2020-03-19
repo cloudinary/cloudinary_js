@@ -828,7 +828,7 @@ interface TransparentVideoOptions extends Transformation.Options {
     playsinline?: boolean,
     muted?: true,
     controls?: false,
-    max_timeout?: number,
+    max_timeout_ms?: number,
     class?: string,
     poster?: string
 }

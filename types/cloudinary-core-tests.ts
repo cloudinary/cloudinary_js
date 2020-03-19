@@ -21,7 +21,7 @@ let cld: Cloudinary = new Cloudinary(config);
 cld.createTransparentVideo(document.createElement('div'), 'woman', {
     loop: true,
     autoplay:true,
-    max_timeout: 25000,
+    max_timeout_ms: 25000,
     class: 'custom-class',
     seeThruURL: 'https://...'
 }).then((resp) => {

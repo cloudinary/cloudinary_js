@@ -739,9 +739,35 @@ class Cloudinary {
 
   /**
    *
+   * @description This function will will append a TransparentVideo element to the htmlElContainer passed to it.
+   *              TransparentVideo can either be an HTML Video tag, or an HTML Canvas Tag.
+   *              Given a publicId and a set of transformation options, the function will query the resource in the CDN
+   *              and check the 'X-Cld-Vmuxed-Alpha' Header (if it's present or not).
+   *              If present, the video returned is not natively transparent, which means it has a second video attached
+   *              with the Alpha Layer.
+   *              This video has to be then processed in the Client, for that we use the 3rd party library "SeeThru".
+   *              Since SeeThru operates on a Canvas it creates, and due to CORS restrictions in drawing on Canvas videos
+   *              from cross-origins, we need to work around that by fetching a BLOB, creating a blob URL and feeding that
+   *              do SeeThru, now with a same-origin URL(blob).
+   *              If the video is natively transparent (header is not present), we create a regular HTML video tag.
    * @param {HTMLElement} htmlElContainer
    * @param {string} publicId
-   * @param {Object} options The {@link TransparentVideoOptions} options to apply.
+   * @param {Object} options The {@link TransparentVideoOptions} options to apply - Extends TransformationOptions
+   *
+   *                 options.max_timeout_ms - Sets the maximum time to wait for the video to play.
+   *                                          Since there are multiple potential fail points, this is checked at every
+   *                                          step - Fetching SeeThru, Checking Headers, Fetching Blob URL, instantiating SeeThru
+   *                                          If any of those fail or timeout, we reject
+   *                 options.seeThruURL     - Allows to set a custom seeThru script URL, instead of the default unpkg.
+   *                                          Useful for users who want to maintain control of what assets are fetched
+   *                                          into the page.
+   *                 options.playsinline    - HTML Video Tag's native playsinline - passed to video element.
+   *                 options.poster         - HTML Video Tag's native poster - passed to video element.
+   *                 options.loop           - HTML Video Tag's native loop - passed to video element.
+   *
+   *
+   *
+   * @return {Promise<HTMLElement | {status:string, message:string}>}
    */
   createTransparentVideo(htmlElContainer, publicId, options = {}) {
     return new Promise((resolveMainPromise, rejectMainPromise) => {
@@ -756,7 +782,7 @@ class Cloudinary {
       options.autoplay = true;
       options.muted = true;
       options.controls = false;
-      options.max_timeout = options.max_timeout || 10000;
+      options.max_timeout_ms = options.max_timeout_ms || 10000;
       options.class = options.class || '';
       options.class += ' cld-transparent-video';
       options.seeThruURL = options.seeThruURL || 'https://unpkg.com/seethru@4/dist/seeThru.min.js';
@@ -770,13 +796,14 @@ class Cloudinary {
       // // create URL with transformations
       let url = this.video_url(publicId, options);
 
-      getHeadersFromURL(url, options.max_timeout).then(({payload}) => {
+      getHeadersFromURL(url, options.max_timeout_ms).then(({payload}) => {
         let isNativeTransparent = !payload.hasOwnProperty('X-Cld-Vmuxed-Alpha');
         // If the video is actually two videos with alpha channel, we must use seeThru
         if (!isNativeTransparent) {
           // TODO see if we already have seeThru
-          loadScript(options.seeThruURL, options.max_timeout, window.seeThru).then(() => {
-            getBlobFromURL(url, options.max_timeout).then(({payload}) => {
+          loadScript(options.seeThruURL, options.max_timeout_ms, window.seeThru).then(() => {
+            getBlobFromURL(url, options.max_timeout_ms).then(({payload}) => {
+
               let videoElement = createTransparentVideoTag({
                 src: payload.url,
                 poster,
@@ -794,7 +821,7 @@ class Cloudinary {
 
               let timerID = setTimeout(() => {
                 rejectMainPromise({status: 'error', message: 'Timeout instantiating seeThru instance'});
-              }, options.max_timeout);
+              }, options.max_timeout_ms);
 
               let seeThruInstance = seeThru.create(videoElement).ready(() => {
                 clearTimeout(timerID); // clear timeout reject error
@@ -817,7 +844,7 @@ class Cloudinary {
           // VideoTag is really aggressive with how it picks arguments and will create <video seethruurl="...">
           let videoTagOptions = Object.assign({}, options);
           delete videoTagOptions.seeThruURL;
-          delete videoTagOptions.max_timeout;
+          delete videoTagOptions.max_timeout_ms;
 
           htmlElContainer.innerHTML = this.videoTag(publicId, videoTagOptions).toHtml();
 

@@ -44,7 +44,7 @@ myDescribe("Transparent Video Test", function () {
 
       cl.createTransparentVideo(container, 'transparentVideoTests/transparent-girl', {
         loop: true,
-        max_timeout: timeout,
+        max_timeout_ms: timeout,
         class: 'a-custom-class'
       }).then((res) => {
         let canvas = res.querySelector('.cld-transparent-video');
@@ -57,7 +57,7 @@ myDescribe("Transparent Video Test", function () {
         expect(video.hasAttribute('muted')).toBe(true);
         expect(video.getAttribute('src')).toContain('blob:http://');
         expect(video.hasAttribute('seethruurl')).toBe(false);
-        expect(video.hasAttribute('max_timeout')).toBe(false);
+        expect(video.hasAttribute('max_timeout_ms')).toBe(false);
 
         let classes = canvas.className.split(/\s+/);
         expect(classes.indexOf('a-custom-class')).toBeGreaterThanOrEqual(0);
@@ -69,12 +69,12 @@ myDescribe("Transparent Video Test", function () {
       });
     }, timeout); // timeout
 
-    it("Should timeout with a short enough max_timeout", function (done) {
+    it("Should timeout with a short enough max_timeout_ms", function (done) {
       restoreXHR = forceNativeTransparentSupport(false);
       let container = getTestContainer();
 
       cl.createTransparentVideo(container, 'transparentVideoTests/transparent-girl', {
-        max_timeout: 1
+        max_timeout_ms: 1
       }).catch((err) => {
         // We expect to fail due to a short timeout
         expect(err.status).toBe('error');
@@ -88,7 +88,7 @@ myDescribe("Transparent Video Test", function () {
       let cl = new cloudinary.Cloudinary({cloud_name: "eran2903"});
 
       cl.createTransparentVideo(container, 'transparentVideoTests/transparent-girl', {
-        max_timeout: timeout,
+        max_timeout_ms: timeout,
         seeThruURL: 'http://abc.xyz.tmp'
       }).catch((err) => {
         // we expect it to fail due to an invalid script
@@ -104,10 +104,10 @@ myDescribe("Transparent Video Test", function () {
       let container = getTestContainer();
 
       cl.createTransparentVideo(container, 'transparentVideoTests/transparent-girl', {
-        max_timeout: timeout
+        max_timeout_ms: timeout
       }).then(() => {
         cl.createTransparentVideo(container, 'transparentVideoTests/transparent-girl', {
-          max_timeout: timeout
+          max_timeout_ms: timeout
         }).then(() => {
           let scripts = [...document.head.querySelectorAll("[src*=seethru]")];
           expect(scripts.length).toBe(1);
@@ -138,7 +138,7 @@ myDescribe("Transparent Video Test", function () {
 
         // no invalid attributes passed to video tag (these are added to options by default)
         expect(video.hasAttribute('seethruurl')).toBe(false);
-        expect(video.hasAttribute('max_timeout')).toBe(false);
+        expect(video.hasAttribute('max_timeout_ms')).toBe(false);
 
         // Ensure custom class name is passed down to video element
         let sources = [...video.querySelectorAll('source')];
@@ -160,7 +160,7 @@ myDescribe("Transparent Video Test", function () {
       cl.createTransparentVideo(container, 'transparentVideoTests/transparent-girl')
         .then((res) => {
         let video = res.querySelector('video');
-        // Autoplay and Muted are always on and cannot be overwritten
+        // Test that the video does not automatically gets the loop attribute
         expect(video.hasAttribute('loop')).toBe(false);
         done();
       }).catch((err) => {
@@ -175,7 +175,7 @@ myDescribe("Transparent Video Test", function () {
       let container = getTestContainer();
 
       cl.createTransparentVideo(container, 'transparentVideoTests/transparent-girl', {
-        max_timeout: 1
+        max_timeout_ms: 1
       }).catch((err) => {
         // We expect to fail due to a short timeout
         expect(err.status).toBe('error');
