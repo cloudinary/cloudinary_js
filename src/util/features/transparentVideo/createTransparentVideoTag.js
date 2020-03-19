@@ -13,12 +13,18 @@ function createTransparentVideoTag(videoOptions) {
   el.x = 0;
   el.y = 0;
   el.src = src;
+  el.muted  = muted; // this is also needed for autoplay, on top of setAttribute
 
   autoplay && el.setAttribute('autoplay', autoplay);
   playsinline && el.setAttribute('playsinline', playsinline);
   loop && el.setAttribute('loop', loop);
   muted && el.setAttribute('muted', muted);
   poster && el.setAttribute('poster', poster || '');
+
+  // Free memory at the end of the file loading.
+  el.onload = () => {
+    URL.revokeObjectURL(src);
+  };
 
   return el;
 }

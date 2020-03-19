@@ -34,6 +34,8 @@ import getHeadersFromURL from "./util/xhr/getHeadersFromURL";
 import loadScript from "./util/xhr/loadScript";
 import getBlobFromURL from "./util/xhr/getBlobFromURL";
 import createTransparentVideoTag from "./util/features/transparentVideo/createTransparentVideoTag";
+import instantiateSeeThru from "./util/features/transparentVideo/instantiateSeeThru";
+import mountCloudinaryVideoTag from "./util/features/transparentVideo/mountCloudinaryVideoTag";
 
 defaultBreakpoints = function(width, steps = 100) {
   return steps * Math.ceil(width / steps);
@@ -803,7 +805,6 @@ class Cloudinary {
           // TODO see if we already have seeThru
           loadScript(options.seeThruURL, options.max_timeout_ms, window.seeThru).then(() => {
             getBlobFromURL(url, options.max_timeout_ms).then(({payload}) => {
-
               let videoElement = createTransparentVideoTag({
                 src: payload.url,
                 poster,
@@ -813,45 +814,22 @@ class Cloudinary {
                 muted
               });
 
-              videoElement.onload = () => {
-                URL.revokeObjectURL(payload.url);
-              };
-
               htmlElContainer.appendChild(videoElement);
 
-              let timerID = setTimeout(() => {
-                rejectMainPromise({status: 'error', message: 'Timeout instantiating seeThru instance'});
-              }, options.max_timeout_ms);
+              instantiateSeeThru(videoElement, options.max_timeout_ms, options.class, options.autoplay)
+                .then(() => {
+                  resolveMainPromise(htmlElContainer);
+                })
+                .catch((err) => {
+                  rejectMainPromise(err);
+                });
 
-              let seeThruInstance = seeThru.create(videoElement).ready(() => {
-                clearTimeout(timerID); // clear timeout reject error
-                let canvasElement = seeThruInstance.getCanvas();
-                // force container size, else the canvas can overflow out
-                canvasElement.style.width = '100%';
-
-                canvasElement.className += ' ' + options.class;
-                if (options.autoplay) {
-                  seeThruInstance.play();
-                }
-
-                resolveMainPromise(htmlElContainer);
-              });
               // catch for getBlobFromURL()
             }).catch(({status, message}) => { rejectMainPromise({status, message});});
             // catch for loadScript()
           }).catch(({status, message}) => { rejectMainPromise({status, message});});
         } else {
-          // VideoTag is really aggressive with how it picks arguments and will create <video seethruurl="...">
-          let videoTagOptions = Object.assign({}, options);
-          delete videoTagOptions.seeThruURL;
-          delete videoTagOptions.max_timeout_ms;
-
-          htmlElContainer.innerHTML = this.videoTag(publicId, videoTagOptions).toHtml();
-
-          // All videos under the html container must have a width of 100%, or they might overflow from the container
-          let element = htmlElContainer.querySelector('.cld-transparent-video');
-          element.style.width = '100%';
-
+          mountCloudinaryVideoTag(htmlElContainer, this.videoTag.bind(this), publicId, options);
           resolveMainPromise(htmlElContainer);
         }
         // catch for getHeadersFromURL()
