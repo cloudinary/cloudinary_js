@@ -235,6 +235,12 @@ myDescribe("Transparent Video Test", function () {
 });
 
 // Utilities for the test
+/**
+ * @description forces the returned headers from the XHR to be X-Cld-Vmuxed-Alpha or not, based on parameter
+ *              Overwrites XHR.prototype.getAllResponseHeaders to return something specific for the test.
+ * @param {boolean} isNativeSupported
+ * @return {function(...[*]=)}
+ */
 function forceNativeTransparentSupport(isNativeSupported) {
   let xhr = window.XMLHttpRequest;
   let original = xhr.prototype.getAllResponseHeaders;
@@ -247,20 +253,33 @@ function forceNativeTransparentSupport(isNativeSupported) {
   };
 }
 
+/**
+ * Appends an HTMLElement container with a specific ID to the DOM
+ */
 function createTestContainer() {
   let div = document.createElement('div');
   div.setAttribute('id', 'container');
   document.body.append(div);
 }
 
+/**
+ * Gets the the container created by createTestContainer();
+ */
 function getTestContainer() {
   return document.getElementById('container');
 }
 
+/**
+ * Cleans up the container created by createTestContainer();
+ */
 function removeTestContainer() {
   document.getElementById('container').remove();
 }
 
+/**
+ * Removes the <script> tag for seeThru, and also deletes the seeThru reference on the window object
+ * this is used to make the tests as atomic as possible
+ */
 function removeSeeThruScript() {
   let scripts = [...document.head.querySelectorAll('script')];
 
