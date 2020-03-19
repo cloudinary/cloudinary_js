@@ -202,7 +202,7 @@ myDescribe("Transparent Video Test", function () {
       });
     }, timeout); // timeout
 
-    it("Has a loop attribute", function (done) {
+    it("Has a false loop attribute", function (done) {
       restoreXHR = forceNativeTransparentSupport(true);
       let container = getTestContainer();
 
