@@ -5,7 +5,7 @@
  * @return {HTMLVideoElement}
  */
 function createTransparentVideoTag(videoOptions) {
-  let { autoplay, playsinline, loop, muted, poster, src } = videoOptions;
+  let { autoplay, playsinline, loop, muted, poster, src, dataSrc} = videoOptions;
 
   let el = document.createElement('video');
   el.style.visibility = 'hidden';
@@ -13,6 +13,7 @@ function createTransparentVideoTag(videoOptions) {
   el.x = 0;
   el.y = 0;
   el.src = src;
+  el.setAttribute('data-src', dataSrc); // for debugging/testing
   el.muted  = muted; // this is also needed for autoplay, on top of setAttribute
 
   autoplay && el.setAttribute('autoplay', autoplay);
