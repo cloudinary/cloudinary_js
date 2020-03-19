@@ -73,14 +73,40 @@ myDescribe("Transparent Video Test", function () {
       restoreXHR = forceNativeTransparentSupport(false);
       let container = getTestContainer();
 
+      // Add a more strict check that the function was really rejected in a very short time
+      let now = Date.now();
       cl.createTransparentVideo(container, 'transparentVideoTests/transparent-girl', {
         max_timeout_ms: 1
       }).catch((err) => {
+        let then = Date.now();
+        expect(then - now).toBeLessThan(50);
         // We expect to fail due to a short timeout
         expect(err.status).toBe('error');
         done();
       });
-    }, timeout);
+    }, 100);
+
+    it("seeThru - Loads flat transformation into the URL correctly, and alpha flag injected correctly", function (done) {
+        restoreXHR = forceNativeTransparentSupport(false);
+        let container = getTestContainer();
+
+        cl.createTransparentVideo(container, 'transparentVideoTests/transparent-girl', {
+          max_timeout_ms: timeout,
+          width:100,
+          height:100,
+          crop: 'fit'
+        }).then((res) => {
+          let canvas = res.querySelector('canvas');
+          let video = res.querySelector('video');
+          let videoSrc = video.getAttribute('data-src');
+          expect(videoSrc).toContain("/c_fit,fl_alpha,h_100,w_100/v1/transparentVideoTests/transparent-girl");
+          done();
+        }).catch((err) => {
+          // Fail test if we reach the catch
+          expect(err).toBeUndefined();
+          done();
+        });
+    }, timeout); // timeout
 
     it("Test that a custom seeThru URL can be used", function (done) {
       restoreXHR = forceNativeTransparentSupport(false);
@@ -89,11 +115,11 @@ myDescribe("Transparent Video Test", function () {
 
       cl.createTransparentVideo(container, 'transparentVideoTests/transparent-girl', {
         max_timeout_ms: timeout,
-        seeThruURL: 'http://abc.xyz.tmp'
+        seeThruURL: 'zzz'
       }).catch((err) => {
         // we expect it to fail due to an invalid script
         expect(err.status).toBe('error');
-        expect(err.message).toContain('http://abc.xyz.tmp');
+        expect(err.message).toContain('zzz');
         expect(err.status).toBe('error');
         done();
       });
@@ -147,6 +173,29 @@ myDescribe("Transparent Video Test", function () {
         expect(classes.indexOf('a-custom-class')).toBeGreaterThanOrEqual(0);
         done();
       }).catch((err) => {
+        // Fail test if we reach the catch
+        expect(err).toBeUndefined();
+        done();
+      });
+    }, timeout); // timeout
+
+    it("Native - Loads flat transformation into the URL correctly, and alpha flag injected correctly", function (done) {
+      restoreXHR = forceNativeTransparentSupport(true);
+      let container = getTestContainer();
+
+      cl.createTransparentVideo(container, 'transparentVideoTests/transparent-girl', {
+        width:100,
+        height:100,
+        crop: 'fit'
+      })
+        .then((res) => {
+          let video = res.querySelector('video');
+          let videoSrc = video.children[0].src;
+          // Test that the video does not automatically gets the loop attribute
+          expect(video.hasAttribute('loop')).toBe(false);
+          expect(videoSrc).toContain("/c_fit,fl_alpha,h_100,w_100/v1/transparentVideoTests/transparent-girl");
+          done();
+        }).catch((err) => {
         // Fail test if we reach the catch
         expect(err).toBeUndefined();
         done();
