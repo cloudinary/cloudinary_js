@@ -4,12 +4,12 @@
  *                The function doesn't resolve any value,
  *                this is not a UMD loader where you can get your library name back.
  * @param scriptURL {string}
- * @param maxTimeout {number} max wait time before timeout
+ * @param maxTimeoutMS {number} max wait time before timeout
  * @param isAlreadyLoaded {boolean} if true, the loadScript resolves immediately
  *                                  this is used for multiple invocations - prevents the script from being loaded multiple times
  * @return {Promise<any | {status:string, message:string}>}
  */
-function loadScript(scriptURL, maxTimeout, isAlreadyLoaded) {
+function loadScript(scriptURL, maxTimeoutMS, isAlreadyLoaded) {
   return new Promise((resolve, reject) => {
     if (isAlreadyLoaded) {
       resolve();
@@ -22,7 +22,7 @@ function loadScript(scriptURL, maxTimeout, isAlreadyLoaded) {
           status: 'error',
           message: `Timeout loading script ${scriptURL}`
         });
-      }, maxTimeout); // 10 seconds for timeout
+      }, maxTimeoutMS); // 10 seconds for timeout
 
       scriptTag.onerror = () => {
         clearTimeout(timerID); // clear timeout reject error
