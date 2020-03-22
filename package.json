@@ -10,7 +10,7 @@
     "src/**/*"
   ],
   "scripts": {
-    "build": "parallel-webpack && npm run bundlewatch",
+    "build": "parallel-webpack && npm run bundlewatch" ,
     "bundlewatch": "bundlewatch --config ./bundlewatch.config.js",
     "doc": "jsdoc -c jsdoc-conf.json",
     "test": "karma start --single-run --browsers=ChromeHeadless",
