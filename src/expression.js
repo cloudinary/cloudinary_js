@@ -36,7 +36,7 @@ class Expression {
       return expression;
     }
     expression = String(expression);
-    operators = "\\|\\||>=|<=|&&|!=|>|=|<|/|-|\\+|\\*";
+    operators = "\\|\\||>=|<=|&&|!=|>|=|<|/|-|\\+|\\*|\\^";
     pattern = "((" + operators + ")(?=[ _])|(?<!\\$)(" + Object.keys(Expression.PREDEFINED_VARS).join("|") + "))";
     replaceRE = new RegExp(pattern, "g");
     expression = expression.replace(replaceRE, function (match) {
@@ -287,7 +287,8 @@ Expression.OPERATORS = {
   "*": "mul",
   "/": "div",
   "+": "add",
-  "-": "sub"
+  "-": "sub",
+  "^": "pow",
 };
 
 /**
