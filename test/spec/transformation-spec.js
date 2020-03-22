@@ -874,6 +874,12 @@ describe("Transformation", function() {
       t = new Transformation(options).toString();
       return expect(t).toEqual("$foo_10/if_fc_gt_2/c_scale,w_$foo_mul_200_div_fc/if_end");
     });
+    it("should support and translate pow operator", function () {
+      test_cloudinary_url("sample", {
+        $small: 150,
+        $big: "$small ^ 1.5",
+      }, `http://res.cloudinary.com/test123/image/upload/$big_$small_pow_1.5,$small_150/sample`, {});
+    });
     it("should sort variables", function() {
       var t;
       t = new Transformation({

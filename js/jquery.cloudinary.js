@@ -1403,7 +1403,8 @@ var slice = [].slice,
       "*": "mul",
       "/": "div",
       "+": "add",
-      "-": "sub"
+      "-": "sub",
+      "^": "pow",
     };
 
 
@@ -1486,7 +1487,7 @@ var slice = [].slice,
         return expression;
       }
       expression = String(expression);
-      operators = "\\|\\||>=|<=|&&|!=|>|=|<|/|-|\\+|\\*";
+      operators = "\\|\\||>=|<=|&&|!=|>|=|<|/|-|\\+|\\*|\\^";
       pattern = "((" + operators + ")(?=[ _])|(?<!\$)(" + Object.keys(Expression.PREDEFINED_VARS).join("|") + "))";
       replaceRE = new RegExp(pattern, "g");
       expression = expression.replace(replaceRE, function(match) {
