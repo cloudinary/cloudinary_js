@@ -795,13 +795,12 @@ class Cloudinary {
       // this is a non document internal flag
       addFlagToOptions(options, 'alpha');
 
-      // // create URL with transformations
+      // create URL with transformations
       let url = this.video_url(publicId, options);
       getHeadersFromURL(url, options.max_timeout_ms).then(({payload}) => {
         let isNativeTransparent = !payload.hasOwnProperty('X-Cld-Vmuxed-Alpha');
         // If the video is actually two videos with alpha channel, we must use seeThru
         if (!isNativeTransparent) {
-          // TODO see if we already have seeThru
           loadScript(options.seeThruURL, options.max_timeout_ms, window.seeThru).then(() => {
             getBlobFromURL(url, options.max_timeout_ms).then(({payload}) => {
               let videoElement = createTransparentVideoTag({
