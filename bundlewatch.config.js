@@ -17,7 +17,7 @@ const bundlewatchConfig = {
       maxSize: '47kb'
     }
   ],
-  defaultCompression: 'gzip',  // Do we want the results in gzip form?
+  defaultCompression: 'gzip',
 };
 
 module.exports = bundlewatchConfig;
