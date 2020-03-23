@@ -14,7 +14,7 @@ const bundlewatchConfig = {
     },
     {
       path: './dist/cloudinary-jquery-file-upload.min.js',
-      maxSize: '20kb'
+      maxSize: '21kb'
     }
   ],
   defaultCompression: 'gzip',
