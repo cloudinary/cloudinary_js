@@ -1,7 +1,6 @@
 /**
- *
- * @description Creates a hidden HTMLVideoElement with the spcified videoOptions
- * @param {{autoplay, playsinline, loop, muted, poster, src }} videoOptions
+ * @description Creates a hidden HTMLVideoElement with the specified videoOptions
+ * @param {{autoplay, playsinline, loop, muted, poster, src, dataSrc }} videoOptions
  * @return {HTMLVideoElement}
  */
 function createTransparentVideoTag(videoOptions) {
@@ -14,12 +13,12 @@ function createTransparentVideoTag(videoOptions) {
   el.y = 0;
   el.src = src;
   el.setAttribute('data-src', dataSrc); // for debugging/testing
-  el.muted  = muted; // this is also needed for autoplay, on top of setAttribute
 
   autoplay && el.setAttribute('autoplay', autoplay);
   playsinline && el.setAttribute('playsinline', playsinline);
   loop && el.setAttribute('loop', loop);
   muted && el.setAttribute('muted', muted);
+  muted && (el.muted = muted); // this is also needed for autoplay, on top of setAttribute
   poster && el.setAttribute('poster', poster || '');
 
   // Free memory at the end of the file loading.

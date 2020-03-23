@@ -29,13 +29,10 @@ import {
 } from './util';
 //
 
-import addFlagToOptions from "./util/transformations/addFlag";
-import getHeadersFromURL from "./util/xhr/getHeadersFromURL";
-import loadScript from "./util/xhr/loadScript";
-import getBlobFromURL from "./util/xhr/getBlobFromURL";
-import createTransparentVideoTag from "./util/features/transparentVideo/createTransparentVideoTag";
-import instantiateSeeThru from "./util/features/transparentVideo/instantiateSeeThru";
 import mountCloudinaryVideoTag from "./util/features/transparentVideo/mountCloudinaryVideoTag";
+import enforceOptionsForTransparentVideo from "./util/features/transparentVideo/enforceOptionsForTransparentVideo";
+import mountSeeThruCanvasTag from "./util/features/transparentVideo/mountSeeThruCanvasTag";
+import checkSupportForTransparency from "./util/features/transparentVideo/checkSupportForTransparency";
 
 defaultBreakpoints = function(width, steps = 100) {
   return steps * Math.ceil(width / steps);
@@ -739,99 +736,45 @@ class Cloudinary {
     return Transformation.new(this.config()).fromOptions(options).setParent(this);
   }
 
+
   /**
-   *
    * @description This function will will append a TransparentVideo element to the htmlElContainer passed to it.
    *              TransparentVideo can either be an HTML Video tag, or an HTML Canvas Tag.
-   *              Given a publicId and a set of transformation options, the function will query the resource in the CDN
-   *              and check the 'X-Cld-Vmuxed-Alpha' Header (if it's present or not).
-   *              If present, the video returned is not natively transparent, which means it has a second video attached
-   *              with the Alpha Layer.
-   *              This video has to be then processed in the Client, for that we use the 3rd party library "SeeThru".
-   *              Since SeeThru operates on a Canvas it creates, and due to CORS restrictions in drawing on Canvas videos
-   *              from cross-origins, we need to work around that by fetching a BLOB, creating a blob URL and feeding that
-   *              do SeeThru, now with a same-origin URL(blob).
-   *              If the video is natively transparent (header is not present), we create a regular HTML video tag.
    * @param {HTMLElement} htmlElContainer
    * @param {string} publicId
-   * @param {Object} options The {@link TransparentVideoOptions} options to apply - Extends TransformationOptions
-   *
-   *                 options.max_timeout_ms - Sets the maximum time to wait for the video to play.
-   *                                          Since there are multiple potential fail points, this is checked at every
-   *                                          step - Fetching SeeThru, Checking Headers, Fetching Blob URL, instantiating SeeThru
-   *                                          If any of those fail or timeout, we reject
-   *                 options.seeThruURL     - Allows to set a custom seeThru script URL, instead of the default unpkg.
-   *                                          Useful for users who want to maintain control of what assets are fetched
-   *                                          into the page.
+   * @param {object} options The {@link TransparentVideoOptions} options to apply - Extends TransformationOptions
    *                 options.playsinline    - HTML Video Tag's native playsinline - passed to video element.
    *                 options.poster         - HTML Video Tag's native poster - passed to video element.
    *                 options.loop           - HTML Video Tag's native loop - passed to video element.
-   *
-   *
-   *
+   *                 options?.externalLibraries = { [key: string]: string} - map of external libraries to be loaded
    * @return {Promise<HTMLElement | {status:string, message:string}>}
    */
   createTransparentVideo(htmlElContainer, publicId, options = {}) {
     return new Promise((resolveMainPromise, rejectMainPromise) => {
-
       if (!htmlElContainer) {
-        rejectMainPromise({
-          status: 'error',
-          message: 'Expecting htmlElContainer to be HTMLElement'
-        });
+        rejectMainPromise({status: 'error', message: 'Expecting htmlElContainer to be HTMLElement'});
       }
 
-      options.autoplay = true;
-      options.muted = true;
-      options.controls = false;
-      options.max_timeout_ms = options.max_timeout_ms || 10000;
-      options.class = options.class || '';
-      options.class += ' cld-transparent-video';
-      options.seeThruURL = options.seeThruURL || 'https://unpkg.com/seethru@4/dist/seeThru.min.js';
+      enforceOptionsForTransparentVideo(options);
 
-      let {poster, autoplay, playsinline, loop, muted} = options;
+      let videoURL = this.video_url(publicId, options);
 
-      // ensure there's an alpha transformation present
-      // this is a non document internal flag
-      addFlagToOptions(options, 'alpha');
+      checkSupportForTransparency(videoURL, options.max_timeout_ms).then((isNativelyTransparent) => {
+        let mountPromise;
 
-      // create URL with transformations
-      let url = this.video_url(publicId, options);
-      getHeadersFromURL(url, options.max_timeout_ms).then(({payload}) => {
-        let isNativeTransparent = !payload.hasOwnProperty('X-Cld-Vmuxed-Alpha');
-        // If the video is actually two videos with alpha channel, we must use seeThru
-        if (!isNativeTransparent) {
-          loadScript(options.seeThruURL, options.max_timeout_ms, window.seeThru).then(() => {
-            getBlobFromURL(url, options.max_timeout_ms).then(({payload}) => {
-              let videoElement = createTransparentVideoTag({
-                src: payload.url,
-                dataSrc: url, // for debugging/testing
-                poster,
-                autoplay,
-                playsinline,
-                loop,
-                muted
-              });
-
-              htmlElContainer.appendChild(videoElement);
-
-              instantiateSeeThru(videoElement, options.max_timeout_ms, options.class, options.autoplay)
-                .then(() => {
-                  resolveMainPromise(htmlElContainer);
-                })
-                .catch((err) => {
-                  rejectMainPromise(err);
-                });
-
-              // catch for getBlobFromURL()
-            }).catch(({status, message}) => { rejectMainPromise({status, message});});
-            // catch for loadScript()
-          }).catch(({status, message}) => { rejectMainPromise({status, message});});
-        } else {
-          mountCloudinaryVideoTag(htmlElContainer, this.videoTag.bind(this), publicId, options);
+        if (isNativelyTransparent) {
+          mountPromise = mountCloudinaryVideoTag(htmlElContainer, this, publicId, options);
           resolveMainPromise(htmlElContainer);
+        } else {
+          mountPromise = mountSeeThruCanvasTag(htmlElContainer, videoURL, options);
         }
-        // catch for getHeadersFromURL()
+
+        mountPromise
+          .then(() => {
+          resolveMainPromise(htmlElContainer);
+        }).catch(({status, message}) => { rejectMainPromise({status, message});});
+
+        // catch for checkSupportForTransparency()
       }).catch(({status, message}) => { rejectMainPromise({status, message});});
     });
   }

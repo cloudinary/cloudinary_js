@@ -19,22 +19,6 @@ myDescribe("Transparent Video Test", function () {
     restoreXHR();
   });
 
-  // Annotations, these will be removed before we merge.
-  // TODO global
-  //  DONE - Skip this test in Chrome and Headless - Run only in FireFox (There was an issue with Chrome in tests)
-
-  // TODO - seeThru - What was tested?
-  //  DONE - Ensure custom class is passed successfully to Canvas
-  //  DONE - test max_timout actually times out
-  //  DONE - test that we already have seeThru (load a URL twice, ensure no double scriptTags)
-  //  DONE - test loop parameter exists
-  //  DONE - test for seeThru URL
-
-  // TODO NativeSupport
-  //  DONE - Ensure custom class is passed successfully to video element
-  //  DONE - test max_timout
-  //  DONE - test loop parameter exists
-  //  DONE - Test our extra arguments are not passing to video element
 
   describe('SeeThru tests', () => {
     it("Display seeThru canvas if there is no Native support for video", function (done) {
@@ -74,17 +58,17 @@ myDescribe("Transparent Video Test", function () {
       let container = getTestContainer();
 
       // Add a more strict check that the function was really rejected in a very short time
-      let now = Date.now();
+      let start = Date.now();
       cl.createTransparentVideo(container, 'transparentVideoTests/transparent-girl', {
         max_timeout_ms: 1
       }).catch((err) => {
-        let then = Date.now();
-        expect(then - now).toBeLessThan(50);
+        let end = Date.now();
+        expect(end - start).toBeLessThan(50);
         // We expect to fail due to a short timeout
         expect(err.status).toBe('error');
         done();
       });
-    }, 100);
+    }, 1000);
 
     it("seeThru - Loads flat transformation into the URL correctly, and alpha flag injected correctly", function (done) {
         restoreXHR = forceNativeTransparentSupport(false);
@@ -111,11 +95,13 @@ myDescribe("Transparent Video Test", function () {
     it("Test that a custom seeThru URL can be used", function (done) {
       restoreXHR = forceNativeTransparentSupport(false);
       let container = getTestContainer();
-      let cl = new cloudinary.Cloudinary({cloud_name: "eran2903"});
+      let cl = new cloudinary.Cloudinary({cloud_name: "test-sdk"});
 
       cl.createTransparentVideo(container, 'transparentVideoTests/transparent-girl', {
         max_timeout_ms: timeout,
-        seeThruURL: 'zzz'
+        externalLibraries: {
+          seeThru : 'zzz'
+        }
       }).catch((err) => {
         // we expect it to fail due to an invalid script
         expect(err.status).toBe('error');

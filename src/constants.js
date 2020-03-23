@@ -8,6 +8,8 @@ export var AKAMAI_SHARED_CDN = "res.cloudinary.com";
 
 export var SHARED_CDN = AKAMAI_SHARED_CDN;
 
+export var DEFAULT_TIMEOUT_MS = 10000;
+
 export var DEFAULT_POSTER_OPTIONS = {
   format: 'jpg',
   resource_type: 'video'
@@ -73,6 +75,10 @@ export const DEFAULT_VIDEO_SOURCES = [
     transformations: {video_codec: "auto"}
   }
 ];
+
+export const DEFAULT_EXTERNAL_LIBRARIES = {
+  seeThru: 'https://unpkg.com/seethru@4/dist/seeThru.min.js'
+}
 
 /**
  * The resource storage type

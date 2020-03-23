@@ -1,7 +1,8 @@
 /**
+ * @description This function creates a new instanc eof seeThru (seeThru.create()) and returns a promise of the seeThru instance
  * @param {HTMLVideoElement} videoElement
- * @param {number} max_timeout_ms
- * @param {string} customClass
+ * @param {number} max_timeout_ms - Time to elapse before promise is rejected
+ * @param {string} customClass - A classname to be added to the canvas element created by seeThru
  * @param {boolean} autoPlay
  * @return {Promise<any>} SeeThru instance or rejection error
  */

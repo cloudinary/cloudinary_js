@@ -1,17 +1,18 @@
 /**
- * @description Returns an object hash of header->value
+ * @description Returns an object hash of header -> value
  * @param {string} url
+ * @param {number} max_timeout_ms - Time to elapse before promise is rejected
  * @return {Promise<{
  *   status: 'success' | 'error'
  *   message?: string
  *   payload: object,
  * }>}
  */
-function getHeadersFromURL(url, maxTimeout) {
+function getHeadersFromURL(url, max_timeout_ms) {
   return new Promise((resolve, reject) => {
     let xhr = new XMLHttpRequest();
 
-    let timeoutID = setErrorHandling(xhr, maxTimeout, reject);
+    let timeoutID = setErrorHandling(xhr, max_timeout_ms, reject);
 
     xhr.onreadystatechange = function () {
       if (this.readyState === this.HEADERS_RECEIVED) {
@@ -58,17 +59,17 @@ function headerStringToMap(headers) {
 /**
  *
  * @param {XMLHttpRequest} xhr
- * @param {number} maxTimeout
+ * @param {number} max_timeout_ms - Time to elapse before promise is rejected
  * @param {Function} rejectCb
  * @return {number};
  */
-function setErrorHandling(xhr, maxTimeout, rejectCb) {
+function setErrorHandling(xhr, max_timeout_ms, rejectCb) {
   let timeoutID = setTimeout(() => {
     rejectCb({
       status: 'error',
       message: 'Timeout reading headers from server'
     });
-  }, maxTimeout);
+  }, max_timeout_ms);
 
   xhr.onerror = function () {
     clearTimeout(timeoutID); // clear timeout reject error

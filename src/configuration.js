@@ -203,7 +203,9 @@ Configuration.CONFIG_PARAMS = [
   "upload_preset",
   "url_suffix",
   "use_root_path",
-  "version"
+  "version",
+  "externalLibraries",
+  "max_timeout_ms"
 ];
 
 export default Configuration;

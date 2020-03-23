@@ -1,6 +1,7 @@
 /**
  * @description Converts a URL to a BLOB URL
  * @param {string} urlToLoad
+ * @param {number} max_timeout_ms - Time to elapse before promise is rejected
  * @return {Promise<{
  *   status: 'success' | 'error'
  *   message?: string,
@@ -9,14 +10,14 @@
  *    }
  * }>}
  */
-function getBlobFromURL(urlToLoad, maxTimeout) {
+function getBlobFromURL(urlToLoad, max_timeout_ms) {
   return new Promise((resolve, reject) => {
     let timerID = setTimeout(() => {
       reject({
         status: 'error',
         message: 'Timeout loading Blob URL'
       });
-    }, maxTimeout);
+    }, max_timeout_ms);
 
     let xhr = new XMLHttpRequest();
     xhr.responseType = 'blob';
@@ -25,7 +26,7 @@ function getBlobFromURL(urlToLoad, maxTimeout) {
       resolve({
         status: 'success',
         payload: {
-          url: URL.createObjectURL(xhr.response)
+          blobURL: URL.createObjectURL(xhr.response)
         }
       });
     };
