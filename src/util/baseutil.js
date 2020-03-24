@@ -259,6 +259,7 @@ const URL_KEYS = [
   'secure',
   'secure_cdn_subdomain',
   'secure_distribution',
+  'signature',
   'shorten',
   'sign_url',
   'ssl_detected',
