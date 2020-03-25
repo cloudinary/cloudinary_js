@@ -63,10 +63,10 @@
     "typescript": "^2.9.2",
     "webpack": "^4.30.0",
     "webpack-bundle-analyzer": "^3.3.2",
-    "webpack-cli": "^3.3.0"
+    "webpack-cli": "^3.3.0",
+    "bundlewatch": "^0.2.6"
   },
   "dependencies": {
-    "bundlewatch": "^0.2.6",
     "jsdoc": "^3.6.3"
   }
 }
