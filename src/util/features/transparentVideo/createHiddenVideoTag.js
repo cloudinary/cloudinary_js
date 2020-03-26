@@ -1,9 +1,9 @@
 /**
  * @description Creates a hidden HTMLVideoElement with the specified videoOptions
  * @param {{autoplay, playsinline, loop, muted, poster, blobURL, videoURL }} videoOptions
- * @param {boolean} videoOptions.autoplay - Should video auto-play
- * @param {string} videoOptions.blobURL - the BlobURL to set as video.src
- * @param {string} videoOptions.blobURL - the original videoURL the user created (with transformations)
+ * @param {boolean} videoOptions.autoplay - autoplays the video if true
+ * @param {string} videoOptions.blobURL - the blobURL to set as video.src
+ * @param {string} videoOptions.videoURL - the original videoURL the user created (with transformations)
  * @return {HTMLVideoElement}
  */
 function createHiddenVideoTag(videoOptions) {
