@@ -1,3 +1,9 @@
+2.8.2 / 2020-03-25
+==================
+
+* Fix - Add signature to list of url keys so that extractUrlParams() won't filter it
+* Add test for package size using bundlewatch
+
 2.8.1 / 2020-02-18
 ==================
 

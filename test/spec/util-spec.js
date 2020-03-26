@@ -41,6 +41,16 @@ describe("util", function () {
       } else {
         console.warn("Set is not preset.")
       }
-    })
-  })
+    });
+  });
+  describe("extractUrlParams",function () {
+    it("should filter non-url param and keep url params", function () {
+      const {extractUrlParams} = cloudinary.Util;
+      options = {signature: 'signature', signature1: 'signature1'};
+      expected = {signature: 'signature'};
+      actual = extractUrlParams(options);
+
+      expect(actual).toEqual(expected);
+    });
+  });
 });

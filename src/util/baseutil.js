@@ -261,6 +261,7 @@ const URL_KEYS = [
   'secure_distribution',
   'shorten',
   'sign_url',
+  'signature',
   'ssl_detected',
   'type',
   'url_suffix',
