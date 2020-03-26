@@ -26,7 +26,7 @@ myDescribe("Transparent Video Test", function () {
       let container = getTestContainer();
 
 
-      cl.createTransparentVideo(container, 'transparentVideoTests/transparent-girl', {
+      cl.injectTransparentVideoElement(container, 'transparentVideoTests/transparent-girl', {
         loop: true,
         max_timeout_ms: timeout,
         class: 'a-custom-class'
@@ -59,7 +59,7 @@ myDescribe("Transparent Video Test", function () {
 
       // Add a more strict check that the function was really rejected in a very short time
       let start = Date.now();
-      cl.createTransparentVideo(container, 'transparentVideoTests/transparent-girl', {
+      cl.injectTransparentVideoElement(container, 'transparentVideoTests/transparent-girl', {
         max_timeout_ms: 1
       }).catch((err) => {
         let end = Date.now();
@@ -74,7 +74,7 @@ myDescribe("Transparent Video Test", function () {
         restoreXHR = forceNativeTransparentSupport(false);
         let container = getTestContainer();
 
-        cl.createTransparentVideo(container, 'transparentVideoTests/transparent-girl', {
+        cl.injectTransparentVideoElement(container, 'transparentVideoTests/transparent-girl', {
           max_timeout_ms: timeout,
           width:100,
           height:100,
@@ -82,7 +82,7 @@ myDescribe("Transparent Video Test", function () {
         }).then((res) => {
           let canvas = res.querySelector('canvas');
           let video = res.querySelector('video');
-          let videoSrc = video.getAttribute('data-src');
+          let videoSrc = video.getAttribute('data-video-url');
           expect(videoSrc).toContain("/c_fit,fl_alpha,h_100,w_100/v1/transparentVideoTests/transparent-girl");
           done();
         }).catch((err) => {
@@ -97,7 +97,7 @@ myDescribe("Transparent Video Test", function () {
       let container = getTestContainer();
       let cl = new cloudinary.Cloudinary({cloud_name: "test-sdk"});
 
-      cl.createTransparentVideo(container, 'transparentVideoTests/transparent-girl', {
+      cl.injectTransparentVideoElement(container, 'transparentVideoTests/transparent-girl', {
         max_timeout_ms: timeout,
         externalLibraries: {
           seeThru : 'zzz'
@@ -115,10 +115,10 @@ myDescribe("Transparent Video Test", function () {
       restoreXHR = forceNativeTransparentSupport(false);
       let container = getTestContainer();
 
-      cl.createTransparentVideo(container, 'transparentVideoTests/transparent-girl', {
+      cl.injectTransparentVideoElement(container, 'transparentVideoTests/transparent-girl', {
         max_timeout_ms: timeout
       }).then(() => {
-        cl.createTransparentVideo(container, 'transparentVideoTests/transparent-girl', {
+        cl.injectTransparentVideoElement(container, 'transparentVideoTests/transparent-girl', {
           max_timeout_ms: timeout
         }).then(() => {
           let scripts = [...document.head.querySelectorAll("[src*=seethru]")];
@@ -134,7 +134,7 @@ myDescribe("Transparent Video Test", function () {
       restoreXHR = forceNativeTransparentSupport(true);
       let container = getTestContainer();
 
-      cl.createTransparentVideo(container, 'transparentVideoTests/transparent-girl', {
+      cl.injectTransparentVideoElement(container, 'transparentVideoTests/transparent-girl', {
         class: 'a-custom-class'
       }).then((res) => {
         let canvas = res.querySelector('canvas.cld-transparent-video');
@@ -169,7 +169,7 @@ myDescribe("Transparent Video Test", function () {
       restoreXHR = forceNativeTransparentSupport(true);
       let container = getTestContainer();
 
-      cl.createTransparentVideo(container, 'transparentVideoTests/transparent-girl', {
+      cl.injectTransparentVideoElement(container, 'transparentVideoTests/transparent-girl', {
         width:100,
         height:100,
         crop: 'fit'
@@ -192,7 +192,7 @@ myDescribe("Transparent Video Test", function () {
       restoreXHR = forceNativeTransparentSupport(true);
       let container = getTestContainer();
 
-      cl.createTransparentVideo(container, 'transparentVideoTests/transparent-girl')
+      cl.injectTransparentVideoElement(container, 'transparentVideoTests/transparent-girl')
         .then((res) => {
         let video = res.querySelector('video');
         // Test that the video does not automatically gets the loop attribute
@@ -209,7 +209,7 @@ myDescribe("Transparent Video Test", function () {
       restoreXHR = forceNativeTransparentSupport(false);
       let container = getTestContainer();
 
-      cl.createTransparentVideo(container, 'transparentVideoTests/transparent-girl', {
+      cl.injectTransparentVideoElement(container, 'transparentVideoTests/transparent-girl', {
         max_timeout_ms: 1
       }).catch((err) => {
         // We expect to fail due to a short timeout

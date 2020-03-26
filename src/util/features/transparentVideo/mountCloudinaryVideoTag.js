@@ -10,8 +10,8 @@ function mountCloudinaryVideoTag(htmlElContainer, clInstance, publicId, options)
     htmlElContainer.innerHTML = clInstance.videoTag(publicId, options).toHtml();
 
     // All videos under the html container must have a width of 100%, or they might overflow from the container
-    let element = htmlElContainer.querySelector('.cld-transparent-video');
-    element.style.width = '100%';
+    let cloudinaryVideoElement = htmlElContainer.querySelector('.cld-transparent-video');
+    cloudinaryVideoElement.style.width = '100%';
     resolve(htmlElContainer);
   });
 }

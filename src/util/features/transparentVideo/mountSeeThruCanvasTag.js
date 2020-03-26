@@ -1,6 +1,6 @@
 import loadScript from "../../xhr/loadScript";
 import getBlobFromURL from "../../xhr/getBlobFromURL";
-import createTransparentVideoTag from "./createTransparentVideoTag";
+import createHiddenVideoTag from "./createHiddenVideoTag";
 import instantiateSeeThru from "./instantiateSeeThru";
 
 /**
@@ -16,9 +16,9 @@ function mountSeeThruCanvasTag(htmlElContainer, videoURL, options) {
   return new Promise((resolve, reject) => {
     loadScript(options.externalLibraries.seeThru, options.max_timeout_ms, window.seeThru).then(() => {
       getBlobFromURL(videoURL, options.max_timeout_ms).then(({payload}) => {
-        let videoElement = createTransparentVideoTag({
-          src: payload.blobURL,
-          dataSrc: videoURL, // for debugging/testing
+        let videoElement = createHiddenVideoTag({
+          blobURL: payload.blobURL,
+          videoURL: videoURL, // for debugging/testing
           poster,
           autoplay,
           playsinline,

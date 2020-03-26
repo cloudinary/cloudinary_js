@@ -817,12 +817,15 @@ export class Cloudinary {
      */
     transformation(options?: Transformation | Transformation.Options): Transformation;
 
-    createTransparentVideo(container: HTMLElement, publicId: string, options: TransparentVideoOptions): Promise<HTMLElement | {status: string, message: string}>
+    injectTransparentVideoElement(container: HTMLElement, publicId: string, options: TransparentVideoOptions): Promise<HTMLElement | {status: string, message: string}>
 }
 
 
 interface TransparentVideoOptions extends Transformation.Options {
-    seeThruURL?:string,
+    externalLibraries?: {
+        seeThru?: string,
+        [future:string]:string
+    }
     loop?: boolean,
     autoplay?: true,
     playsinline?: boolean,

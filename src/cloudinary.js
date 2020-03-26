@@ -749,7 +749,7 @@ class Cloudinary {
    *                 options?.externalLibraries = { [key: string]: string} - map of external libraries to be loaded
    * @return {Promise<HTMLElement | {status:string, message:string}>}
    */
-  createTransparentVideo(htmlElContainer, publicId, options = {}) {
+  injectTransparentVideoElement(htmlElContainer, publicId, options = {}) {
     return new Promise((resolveMainPromise, rejectMainPromise) => {
       if (!htmlElContainer) {
         rejectMainPromise({status: 'error', message: 'Expecting htmlElContainer to be HTMLElement'});

@@ -16,14 +16,19 @@ function instantiateSeeThru(videoElement, max_timeout_ms, customClass, autoPlay)
 
     if (seeThru) {
       let seeThruInstance = seeThru.create(videoElement).ready(() => {
-        clearTimeout(timerID); // clear timeout reject error
+        // clear timeout reject error
+        clearTimeout(timerID);
+
+        // force container width, else the canvas can overflow out
         let canvasElement = seeThruInstance.getCanvas();
-        // force container size, else the canvas can overflow out
         canvasElement.style.width = '100%';
         canvasElement.className += ' ' + customClass;
+
+        // start the video if autoplay is set
         if (autoPlay) {
           seeThruInstance.play();
         }
+
         resolve(seeThruInstance);
       });
     } else {

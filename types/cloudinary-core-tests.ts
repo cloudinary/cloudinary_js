@@ -18,7 +18,7 @@ config = { cloud_name: 'demo', some_new_key: "value", some_other_key: { other: '
 let cld: Cloudinary = new Cloudinary(config);
 
 
-cld.createTransparentVideo(document.createElement('div'), 'woman', {
+cld.injectTransparentVideoElement(document.createElement('div'), 'woman', {
     loop: true,
     autoplay:true,
     max_timeout_ms: 25000,
