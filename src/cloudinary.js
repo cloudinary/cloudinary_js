@@ -738,7 +738,7 @@ class Cloudinary {
 
 
   /**
-   * @description This function will will append a TransparentVideo element to the htmlElContainer passed to it.
+   * @description This function will append a TransparentVideo element to the htmlElContainer passed to it.
    *              TransparentVideo can either be an HTML Video tag, or an HTML Canvas Tag.
    * @param {HTMLElement} htmlElContainer
    * @param {string} publicId
