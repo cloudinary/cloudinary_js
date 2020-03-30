@@ -750,9 +750,9 @@ class Cloudinary {
    * @return {Promise<HTMLElement | {status:string, message:string}>}
    */
   injectTransparentVideoElement(htmlElContainer, publicId, options = {}) {
-    return new Promise((resolveMainPromise, rejectMainPromise) => {
+    return new Promise((resolve, reject) => {
       if (!htmlElContainer) {
-        rejectMainPromise({status: 'error', message: 'Expecting htmlElContainer to be HTMLElement'});
+        reject({status: 'error', message: 'Expecting htmlElContainer to be HTMLElement'});
       }
 
       enforceOptionsForTransparentVideo(options);
@@ -764,18 +764,18 @@ class Cloudinary {
 
         if (isNativelyTransparent) {
           mountPromise = mountCloudinaryVideoTag(htmlElContainer, this, publicId, options);
-          resolveMainPromise(htmlElContainer);
+          resolve(htmlElContainer);
         } else {
           mountPromise = mountSeeThruCanvasTag(htmlElContainer, videoURL, options);
         }
 
         mountPromise
           .then(() => {
-          resolveMainPromise(htmlElContainer);
-        }).catch(({status, message}) => { rejectMainPromise({status, message});});
+          resolve(htmlElContainer);
+        }).catch(({status, message}) => { reject({status, message});});
 
         // catch for checkSupportForTransparency()
-      }).catch(({status, message}) => { rejectMainPromise({status, message});});
+      }).catch(({status, message}) => { reject({status, message});});
     });
   }
 }
