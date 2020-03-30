@@ -35,7 +35,7 @@ function getHeadersFromURL(url, max_timeout_ms) {
 }
 
 /**
- * Convert the Header string to a map of key:value
+ * @description Convert the Header string to a map of key:value
  * @param {string} headers
  * @return {{}}
  */
