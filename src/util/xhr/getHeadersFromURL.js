@@ -59,13 +59,13 @@ function headerStringToMap(headers) {
 /**
  *
  * @param {XMLHttpRequest} xhr
- * @param {number} max_timeout_ms - Time to elapse before promise is rejected
- * @param {Function} rejectCb
+ * @param {number} max_timeout_ms - Time to elapse before timeoutCallback is called
+ * @param {Function} timeoutCallback
  * @return {number};
  */
-function setErrorHandling(xhr, max_timeout_ms, rejectCb) {
+function setErrorHandling(xhr, max_timeout_ms, timeoutCallback) {
   let timeoutID = setTimeout(() => {
-    rejectCb({
+    timeoutCallback({
       status: 'error',
       message: 'Timeout reading headers from server'
     });
@@ -73,7 +73,7 @@ function setErrorHandling(xhr, max_timeout_ms, rejectCb) {
 
   xhr.onerror = function () {
     clearTimeout(timeoutID); // clear timeout reject error
-    rejectCb({
+    timeoutCallback({
       status: 'error',
       message: 'Error reading headers from server'
     });
