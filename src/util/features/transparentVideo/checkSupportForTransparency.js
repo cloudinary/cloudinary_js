@@ -8,7 +8,7 @@ import getHeadersFromURL from "../../xhr/getHeadersFromURL";
 function checkSupportForTransparency(videoURL, max_timeout_ms) {
   return new Promise((resolve, reject) => {
     return getHeadersFromURL(videoURL, max_timeout_ms).then(({payload}) => {
-      let isNativeTransparent = !payload.hasOwnProperty('X-Cld-Vmuxed-Alpha');
+      let isNativeTransparent = !payload.hasOwnProperty('x-cld-vmuxed-alpha');
       resolve(isNativeTransparent);
     }).catch((err) => {
       reject(err);

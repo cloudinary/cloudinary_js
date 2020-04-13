@@ -8,7 +8,8 @@
  *   payload: object,
  * }>}
  */
-function getHeadersFromURL(url, max_timeout_ms) {
+function getHeadersFromURL(url, max_timeout_ms = 5000) {
+  url = url + '.webm';
   return new Promise((resolve, reject) => {
     let xhr = new XMLHttpRequest();
 
