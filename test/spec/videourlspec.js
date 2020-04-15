@@ -444,7 +444,7 @@ describe("Cloudinary::Utils", function () {
       });
     });
 
-    return describe("poster", function () {
+    describe("poster", function () {
       var expected_url;
       expected_url = VIDEO_UPLOAD_PATH + "movie";
       it("should accept a URL", function () {
@@ -488,6 +488,17 @@ describe("Cloudinary::Utils", function () {
           poster: false,
           source_types: "mp4"
         })).toEqual(`<video src="${expected_url}.mp4"></video>`);
+      });
+    });
+    describe("Video Preview", function () {
+      it('should support duration in video preview', () => {
+        const expected_url = `${VIDEO_UPLOAD_PATH}e_preview:duration_2/video_id`;
+        const options = {
+          resource_type: 'video',
+          effect: "preview:duration_2"
+        };
+
+        test_cloudinary_url("video_id", options, expected_url, {});
       });
     });
   });
