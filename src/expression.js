@@ -298,6 +298,7 @@ Expression.PREDEFINED_VARS = {
   "aspectRatio": "ar",
   "current_page": "cp",
   "currentPage": "cp",
+  "preview:duration": "preview:duration",
   "duration": "du",
   "face_count": "fc",
   "faceCount": "fc",
