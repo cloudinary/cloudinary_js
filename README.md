@@ -16,7 +16,9 @@ Cloudinary provides URL and HTTP based APIs that can be easily integrated with a
 
 ## New API!
 
-Version 2.x.x refactored the Cloudinary JavaScript library, and the biggest news is that the newly introduced Core Library is jQuery-independent. The build process produces 3 artifacts:
+Version 2.x.x is a completely refactored Cloudinary JavaScript library, and the biggest news is that the newly introduced Core Library is jQuery-independent.
+
+The build process produces 3 artifacts:
 
 Github Repository                                                                                    | Package name                    | Description
 -----------------------------------------------------------------------------------------------------|---------------------------------|--------------------------------------------------------------------------
