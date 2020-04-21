@@ -119,12 +119,12 @@ describe('Cloudinary', function() {
       type: 'youtube'
     }, protocol + '//res.cloudinary.com/test123/image/youtube/http://www.youtube.com/watch%3Fv%3Dd9NF2edxy-M', {});
   });
-  it('should support extenal cname', function() {
+  it('should support external cname', function() {
     return test_cloudinary_url('test', {
       cname: 'hello.com'
     }, protocol + '//hello.com/test123/image/upload/test', {});
   });
-  it('should support extenal cname with cdn_subdomain on', function() {
+  it('should support external cname with cdn_subdomain on', function() {
     return test_cloudinary_url('test', {
       cname: 'hello.com',
       cdn_subdomain: true
