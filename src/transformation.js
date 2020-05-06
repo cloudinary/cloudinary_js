@@ -755,6 +755,10 @@ class Transformation extends TransformationBase {
     return this.param(value, "keyframe_interval", "ki");
   }
 
+  ocr(value) {
+    return this.param(value, "ocr", "ocr");
+  }
+
   offset(value) {
     var end_o, start_o;
     [start_o, end_o] = (isFunction(value != null ? value.split : void 0)) ? value.split('..') : isArray(value) ? value : [null, null];
@@ -909,6 +913,7 @@ Transformation.methods = [
   "htmlWidth",
   "if",
   "keyframeInterval",
+  "ocr",
   "offset",
   "opacity",
   "overlay",
