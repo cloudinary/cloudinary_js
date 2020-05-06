@@ -280,7 +280,7 @@ describe("Transformation", function() {
         });
       });
     });
-    it("should support auto:ocr_text and ocr_text for gravity", function() {
+    it("should support auto:ocr_text and ocr_text", function() {
       test_cloudinary_url("test", {
         width: 100,
         height: 100,
