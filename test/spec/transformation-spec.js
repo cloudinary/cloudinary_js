@@ -284,7 +284,7 @@ describe("Transformation", function() {
       test_cloudinary_url("test", {
         width: 100,
         height: 100,
-        crop: 'crop',
+        crop: "crop",
         gravity: "auto:ocr_text"
       }, "http://res.cloudinary.com/test123/image/upload/c_crop,g_auto:ocr_text,h_100,w_100/test", {
         width: 100,
@@ -293,7 +293,7 @@ describe("Transformation", function() {
       test_cloudinary_url("test", {
         width: 100,
         height: 100,
-        crop: 'crop',
+        crop: "crop",
         gravity: "ocr_text"
       }, "http://res.cloudinary.com/test123/image/upload/c_crop,g_ocr_text,h_100,w_100/test", {
         width: 100,
@@ -463,13 +463,13 @@ describe("Transformation", function() {
     it('should support blur_region effect with ocr_text gravity', function() {
       test_cloudinary_url('test', {
         effect: ['blur_region', 5000],
-        gravity: "ocr_text",
+        gravity: 'ocr_text',
       }, protocol + '//res.cloudinary.com/test123/image/upload/e_blur_region:5000,g_ocr_text/test', {});
     });
     it('should support pixelate_region effect with ocr_text gravity', function() {
       test_cloudinary_url('test', {
         effect: 'pixelate_region',
-        gravity: "ocr_text",
+        gravity: 'ocr_text',
       }, protocol + '//res.cloudinary.com/test123/image/upload/e_pixelate_region,g_ocr_text/test', {});
     });
   });
