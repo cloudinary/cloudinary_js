@@ -12,7 +12,7 @@ import instantiateSeeThru from "./instantiateSeeThru";
  */
 function mountSeeThruCanvasTag(htmlElContainer, videoURL, options) {
   let {poster, autoplay, playsinline, loop, muted} = options;
-  
+  videoURL = videoURL + '.mp4';
   return new Promise((resolve, reject) => {
     loadScript(options.externalLibraries.seeThru, options.max_timeout_ms, window.seeThru).then(() => {
       getBlobFromURL(videoURL, options.max_timeout_ms).then(({payload}) => {

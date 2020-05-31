@@ -232,7 +232,7 @@ function forceNativeTransparentSupport(isNativeSupported) {
   let original = xhr.prototype.getAllResponseHeaders;
 
   xhr.prototype.getAllResponseHeaders = () => {
-    return isNativeSupported ? '' : 'X-Cld-Vmuxed-Alpha';
+    return isNativeSupported ? '' : 'server-timing: akam;dur=9;start=2020-05-31T11:15:15.603Z;desc=hit,rtt;dur=21,content-info;desc="vmux-alpha=?1"';
   };
   return () => {
     xhr.prototype.getAllResponseHeaders = original;
