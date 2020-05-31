@@ -37,7 +37,7 @@ class Expression {
     }
     expression = String(expression);
     operators = "\\|\\||>=|<=|&&|!=|>|=|<|/|-|\\+|\\*";
-    pattern = "((" + operators + ")(?=[ _])|" + Object.keys(Expression.PREDEFINED_VARS).join("|") + ")";
+    pattern = "((" + operators + ")(?=[ _])|(?<!\\$)(" + Object.keys(Expression.PREDEFINED_VARS).join("|") + "))";
     replaceRE = new RegExp(pattern, "g");
     expression = expression.replace(replaceRE, function (match) {
       return Expression.OPERATORS[match] || Expression.PREDEFINED_VARS[match];
@@ -298,6 +298,7 @@ Expression.PREDEFINED_VARS = {
   "aspectRatio": "ar",
   "current_page": "cp",
   "currentPage": "cp",
+  "preview:duration": "preview:duration",
   "duration": "du",
   "face_count": "fc",
   "faceCount": "fc",

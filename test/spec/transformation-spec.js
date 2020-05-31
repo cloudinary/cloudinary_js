@@ -100,6 +100,19 @@ describe("Transformation", function() {
       transformation: {}
     })).toBe(protocol + '//res.cloudinary.com/test123/image/upload/test');
   });
+  it('should not change variable names even if they look like keywords', function() {
+    const options = { transformation: [
+        {
+          $width: 10,
+        },
+        {
+          width: '$width + 10 + width',
+          crop: 'scale',
+        },
+      ]};
+    const t = cloudinary.Transformation.new(options);
+    expect(t.toString()).toEqual('$width_10/c_scale,w_$width_add_10_add_w');
+  });
   describe("width and height", function() {
     it('should use width and height from options only if crop is given', function() {
       expect(cl.url('test', {
