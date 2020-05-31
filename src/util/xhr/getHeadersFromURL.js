@@ -9,7 +9,7 @@
  * }>}
  */
 function getHeadersFromURL(url, max_timeout_ms = 5000) {
-  url = url + '.webm';
+  url = url + '.webm'; // Headers are alaways fetched as webm
   return new Promise((resolve, reject) => {
     let xhr = new XMLHttpRequest();
 
