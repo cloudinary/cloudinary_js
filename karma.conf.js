@@ -11,6 +11,7 @@ function testFiles(pkg) {
     'test/spec/chaining-spec.js',
     'test/spec/layer-spec.js',
     'test/spec/lazy-load-spec.js',
+    'test/spec/get-sdk-versionID-spec.js',
     `test/spec/responsive-${pkg}-spec.js`,
   ];
   if (pkg === 'jquery-file-upload') {
