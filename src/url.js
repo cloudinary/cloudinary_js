@@ -338,7 +338,6 @@ export default function url(publicId, options = {}, config = {}) {
   if (!publicId) {
     return publicId;
   }
-
   options = prepareOptions(options, config);
   publicId = preparePublicId(publicId, options);
 
@@ -348,7 +347,7 @@ export default function url(publicId, options = {}, config = {}) {
     throw error;
   }
   let resultUrl = urlString(publicId, options);
-  if(config.analytics) {
+  if(options.analytics) {
     let sdkVersionID = getSDKVersionID(options.analyticsOptions);
     // url might already have a '?' query param
     let appender = '?';

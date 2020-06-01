@@ -5,7 +5,7 @@
  * sdkCode is letter associated with Cloudinary SDK
  */
 describe('Tests for sdk versionID util', function () {
-  it('should not appent analytics if false', function () {
+  it('should not append analytics if false', function () {
     cl = cloudinary.Cloudinary.new({cloud_name: 'sdk-test', analytics: false});
 
     let analyticsOptions = {techVersion: '12.0.0', sdkSemver: '1.24.0', feature: '0', sdkCode: 'M'};
