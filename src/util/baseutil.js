@@ -373,21 +373,25 @@ export function isNativeLazyLoadSupported() {
  * @param {function} onIntersect - called when the given element is in view
  */
 export function detectIntersection(el, onIntersect) {
-  if (isNativeLazyLoadSupported() || !isIntersectionObserverSupported()) {
-    // Return if there's no need or possibility to detect intersection
-    onIntersect();
-    return;
-  }
+  try {
+    if (isNativeLazyLoadSupported() || !isIntersectionObserverSupported()) {
+      // Return if there's no need or possibility to detect intersection
+      onIntersect();
+      return;
+    }
 
-  // Detect intersection with given element using IntersectionObserver
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          onIntersect();
-          observer.unobserve(entry.target);
-        }
-      });
-    }, {threshold: [0, 0.01]});
-  observer.observe(el);
+    // Detect intersection with given element using IntersectionObserver
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            onIntersect();
+            observer.unobserve(entry.target);
+          }
+        });
+      }, {threshold: [0, 0.01]});
+    observer.observe(el);
+  } catch (e) {
+    onIntersect();
+  }
 }
