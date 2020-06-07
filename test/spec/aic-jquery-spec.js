@@ -48,11 +48,17 @@ describeAicTest('client side advanced image component' + navigator.userAgent, fu
 
       cloudinary.Util.detectIntersection(lazy1, lazyLoad(lazy1));
 
-      triggerScroll(testWindow);
       setTimeout(()=>{
-        expect(lazy1.getAttribute('src')).toEqual(url);
-        expect(lazy1.getAttribute('data-src')).toEqual(null);
-        done();
+        expect(lazy1.getAttribute('src')).toEqual(null);
+        expect(lazy1.getAttribute('data-src')).toEqual(url);
+        triggerScroll(testWindow);
+
+        setTimeout(()=>{
+          expect(lazy1.getAttribute('src')).toEqual(url);
+          expect(lazy1.getAttribute('data-src')).toEqual(null);
+          done();
+        }, 100);
+
       }, 100);
     });
   });
