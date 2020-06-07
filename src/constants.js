@@ -105,16 +105,6 @@ export const PLACEHOLDER_IMAGE_OPTIONS = {
   'vectorize': ()=> [{effect: 'vectorize:3:0.1', fetch_format: 'svg'}]
 };
 
-/*
-  if (type === 'predominant-color' && height && width) {
-
-    return this.cloudinary.url(this.publicId, {transformation: [transformation, ...predominantColorTransformPxl]});
-  } else {
-    return this.cloudinary.url(this.publicId, {transformation: [transformation, ...(placeholderImageOptions[type] || placeholderImageOptions.blur)]});
-  }
-
- */
-
 /**
  * The resource storage type
  * @typedef type
