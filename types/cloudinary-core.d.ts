@@ -60,6 +60,7 @@ export class Util {
     static identity(value: any): any;
     static isPlainObject(value: any): boolean;
     static trim(text: string): string;
+    static detectIntersection(element: Element, onIntersect: Function): void;
 }
 
 
