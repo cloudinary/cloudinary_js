@@ -75,6 +75,47 @@ export const DEFAULT_VIDEO_SOURCES = [
 ];
 
 /**
+ * Generates a pixel size image which color is the predominant color of the original image.
+ */
+const predominantColorTransformPixel = [
+  {width: 'iw_div_2', aspect_ratio: 1, crop: 'pad', background: 'auto'},
+  {crop: 'crop', width: 1, height: 1, gravity: 'north_east'},
+  {fetch_format: 'auto', quality: 'auto'}];
+
+/**
+ * Generates an image which color is the predominant color of the original image.
+ */
+const predominantColorTransform  = [
+  {variables: [['$currWidth', 'w'], ['$currHeight', 'h']]},
+  {width: 'iw_div_2', aspect_ratio: 1, crop: 'pad', background: 'auto'},
+  {crop: 'crop', width: 10, height: 10, gravity: 'north_east'},
+  {width: '$currWidth', height: '$currHeight', crop: 'fill'},
+  {fetch_format: 'auto', quality: 'auto'}];
+
+/**
+ * Predefined placeholder transformations
+ * @const {Object} Cloudinary.PLACEHOLDER_IMAGE_OPTIONS
+ */
+export const PLACEHOLDER_IMAGE_OPTIONS = {
+  'blur': () => [{effect: 'blur:2000', quality: 1, fetch_format: 'auto'}], // Default
+  'pixelate': ()=> [{effect: 'pixelate', quality: 1, fetch_format: 'auto'}],
+  'predominant-color': ({width, height}) => (
+    width && height ? predominantColorTransformPixel : predominantColorTransform
+  ),
+  'vectorize': ()=> [{effect: 'vectorize:3:0.1', fetch_format: 'svg'}]
+};
+
+/*
+  if (type === 'predominant-color' && height && width) {
+
+    return this.cloudinary.url(this.publicId, {transformation: [transformation, ...predominantColorTransformPxl]});
+  } else {
+    return this.cloudinary.url(this.publicId, {transformation: [transformation, ...(placeholderImageOptions[type] || placeholderImageOptions.blur)]});
+  }
+
+ */
+
+/**
  * The resource storage type
  * @typedef type
  * @enum {string}

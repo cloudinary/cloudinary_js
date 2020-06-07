@@ -207,6 +207,19 @@ class Cloudinary {
   }
 
   /**
+   * Generates a URL for an image intended to be used as a placeholder for the specified image.
+   * @param {string} publicId - original image public id
+   * @param {string} placeholderType - type of placeholder: 'blur'/'pixelate'/'predominant-color'/'vectorize'
+   * @param {Object} [options] - The {@link Transformation} parameters to include in the URL.
+   * @return {string}
+   */
+  placeholder_url(publicId, placeholderType = "blur", options = {}) {
+    const {PLACEHOLDER_IMAGE_OPTIONS} = constants;
+    const placeholder = PLACEHOLDER_IMAGE_OPTIONS[placeholderType] || PLACEHOLDER_IMAGE_OPTIONS.blur;
+    return this.url(publicId, {transformation: [options, ...placeholder(options)]});
+  }
+
+  /**
    * Generates a string representation of the specified transformation options.
    * @function Cloudinary#transformation_string
    * @param {Object} options - The {@link Transformation} options.

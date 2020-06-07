@@ -352,7 +352,7 @@ describe('Cloudinary', function() {
     result = cl.url(publicId, options);
     expect(result).toEqual(expected);
   });
-  return describe('window.devicePixelRatio', function() {
+  describe('window.devicePixelRatio', function() {
     var dpr, options;
     dpr = window.devicePixelRatio;
     options = {};
@@ -396,6 +396,54 @@ describe('Cloudinary', function() {
         return expect($(result).attr('src')).toEqual(protocol + '//res.cloudinary.com/test123/image/upload/dpr_2.0/test');
       });
     }
+  });
+  describe("placeholder_url", function () {
+    const publicId = "sample";
+    let transformation;
+    let cl;
+    let config = {
+      'cloud_name': 'test123'
+    };
+
+    beforeEach(function () {
+      transformation = {};
+      cl = new cloudinary.Cloudinary(config);
+    });
+
+    it(`should generate blur placeholder image for undefined placeholder type`, function () {
+      const placeholder = cl.placeholder_url(publicId);
+      expect(placeholder).toEqual('http://res.cloudinary.com/test123/image/upload/e_blur:2000,f_auto,q_1/sample');
+    });
+    it(`should generate blur placeholder image for nonexistent placeholder type`, function () {
+      const placeholder = cl.placeholder_url(publicId, "custom");
+      expect(placeholder).toEqual('http://res.cloudinary.com/test123/image/upload/e_blur:2000,f_auto,q_1/sample');
+    });
+    it(`should generate blur placeholder image`, function () {
+      const placeholder = cl.placeholder_url(publicId, 'blur', transformation);
+      expect(placeholder).toEqual('http://res.cloudinary.com/test123/image/upload/e_blur:2000,f_auto,q_1/sample');
+    });
+    it(`should generate vectorize placeholder image`, function () {
+      const placeholder = cl.placeholder_url(publicId, 'vectorize', transformation);
+      expect(placeholder).toEqual('http://res.cloudinary.com/test123/image/upload/e_vectorize:3:0.1,f_svg/sample');
+    });
+    it(`should generate pixelate placeholder image`, function () {
+      const placeholder = cl.placeholder_url(publicId, 'pixelate', transformation);
+      expect(placeholder).toEqual('http://res.cloudinary.com/test123/image/upload/e_pixelate,f_auto,q_1/sample');
+    });
+    it(`should generate predominant-color placeholder image`, function () {
+      const placeholder = cl.placeholder_url(publicId, 'predominant-color', transformation);
+      expect(placeholder).toEqual('http://res.cloudinary.com/test123/image/upload/$currWidth_w,$currHeight_h/ar_1,b_auto,c_pad,w_iw_div_2/c_crop,g_north_east,h_10,w_10/c_fill,h_$currHeight,w_$currWidth/f_auto,q_auto/sample');
+    });
+    it(`should generate a predominant-color-pixel placeholder image`, function () {
+      transformation = {width: 100, height: 100};
+      const placeholder = cl.placeholder_url(publicId, 'predominant-color', transformation);
+      expect(placeholder).toEqual('http://res.cloudinary.com/test123/image/upload/ar_1,b_auto,c_pad,w_iw_div_2/c_crop,g_north_east,h_1,w_1/f_auto,q_auto/sample');
+    });
+    it(`should aggregate placeholder transformations`, function () {
+      transformation = {angle: 0};
+      const placeholder = cl.placeholder_url(publicId, null, transformation);
+      expect(placeholder).toEqual('http://res.cloudinary.com/test123/image/upload/a_0/e_blur:2000,f_auto,q_1/sample');
+    });
   });
 });
 
