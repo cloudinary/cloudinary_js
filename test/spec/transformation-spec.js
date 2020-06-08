@@ -1076,6 +1076,28 @@ describe("Transformation", function() {
         });
       });
     });
+    describe("Accessibility", function () {
+      it('should support darkmode', function () {
+        return test_cloudinary_url('test', {
+          accessibility: 'darkmode'
+        }, protocol + '//res.cloudinary.com/test123/image/upload/e_tint:75:black/test', {});
+      });
+      it('should support brightmode', function () {
+        return test_cloudinary_url('test', {
+          accessibility: 'brightmode'
+        }, protocol + '//res.cloudinary.com/test123/image/upload/e_tint:50:white/test', {});
+      });
+      it('should support monochrome', function () {
+        return test_cloudinary_url('test', {
+          accessibility: 'monochrome'
+        }, protocol + '//res.cloudinary.com/test123/image/upload/e_grayscale/test', {});
+      });
+      it('should support colorblind', function () {
+        return test_cloudinary_url('test', {
+          accessibility: 'colorblind'
+        }, protocol + '//res.cloudinary.com/test123/image/upload/e_assist_colorblind/test', {});
+      });
+    });
   });
 });
 

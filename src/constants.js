@@ -96,13 +96,24 @@ const predominantColorTransform  = [
  * Predefined placeholder transformations
  * @const {Object} Cloudinary.PLACEHOLDER_IMAGE_OPTIONS
  */
-export const PLACEHOLDER_IMAGE_OPTIONS = {
+export const PLACEHOLDER_IMAGE_MODES = {
   'blur': () => [{effect: 'blur:2000', quality: 1, fetch_format: 'auto'}], // Default
   'pixelate': ()=> [{effect: 'pixelate', quality: 1, fetch_format: 'auto'}],
   'predominant-color': ({width, height}) => (
     width && height ? predominantColorTransformPixel : predominantColorTransform
   ),
   'vectorize': ()=> [{effect: 'vectorize:3:0.1', fetch_format: 'svg'}]
+};
+
+/**
+ * Predefined accessibility transformations
+ * @const {Object} Cloudinary.ACCESSIBILITY_MODES
+ */
+export const ACCESSIBILITY_MODES = {
+  darkmode: 'tint:75:black',
+  brightmode: 'tint:50:white',
+  monochrome: 'grayscale',
+  colorblind: 'assist_colorblind'
 };
 
 /**

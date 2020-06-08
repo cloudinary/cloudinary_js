@@ -214,8 +214,8 @@ class Cloudinary {
    * @return {string}
    */
   placeholder_url(publicId, placeholderType = "blur", options = {}) {
-    const {PLACEHOLDER_IMAGE_OPTIONS} = constants;
-    const placeholder = PLACEHOLDER_IMAGE_OPTIONS[placeholderType] || PLACEHOLDER_IMAGE_OPTIONS.blur;
+    const {PLACEHOLDER_IMAGE_MODES} = constants;
+    const placeholder = PLACEHOLDER_IMAGE_MODES[placeholderType] || PLACEHOLDER_IMAGE_MODES.blur;
     return this.url(publicId, {transformation: [options, ...placeholder(options)]});
   }
 
