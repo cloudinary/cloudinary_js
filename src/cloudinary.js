@@ -1,4 +1,5 @@
 import {normalizeToArray} from "./util/parse/normalizeToArray";
+import {TransformationBase} from './transformation';
 
 var applyBreakpoints, closestAbove, defaultBreakpoints, findContainerWidth, maxWidth, updateDpr;
 
@@ -210,13 +211,34 @@ class Cloudinary {
    * Generates a URL for an image intended to be used as a placeholder for the specified image.
    * @param {string} publicId - original image public id
    * @param {string} placeholderType - type of placeholder: 'blur'/'pixelate'/'predominant-color'/'vectorize'
-   * @param {Object} [options] - The {@link Transformation} parameters to include in the URL.
+   * @param {Object} options - The {@link Transformation} parameters to include in the URL.
    * @return {string}
    */
   placeholder_url(publicId, placeholderType = "blur", options = {}) {
     const {PLACEHOLDER_IMAGE_MODES} = constants;
     const placeholder = PLACEHOLDER_IMAGE_MODES[placeholderType] || PLACEHOLDER_IMAGE_MODES.blur;
-    return this.url(publicId, {transformation: [options, ...placeholder(options)]});
+    const config = {}; //non transformation params
+    const transformation = {}; //transformation params
+
+    // If available, use toOptions(), for example: when options is a Transformation
+    if (options && typeof options.toOptions === "function") {
+      options = options.toOptions(); //config.transformation = [...placeholder(options), options];
+    }
+
+    //Filter non-transformation params into {config}
+    Object.keys(options).filter(key => !Transformation[key] && key.toLowerCase() !== "transformation").forEach(key => {
+      config[key] = options[key];
+    });
+
+    //Filter transformation params into {transformation}
+    Object.keys(options).filter(key => !config[key]).forEach(key => {
+      transformation[key] = options[key];
+    });
+
+    //Merge config and transformation
+    config.transformation = [...placeholder(transformation), transformation];
+
+    return this.url(publicId, config);
   }
 
   /**

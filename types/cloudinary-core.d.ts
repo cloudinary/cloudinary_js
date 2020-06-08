@@ -684,7 +684,7 @@ export class Cloudinary {
      * Generates a URL for an image intended to be used as a placeholder for the original image.
      * @param {string} publicId - original image public id
      * @param {string} placeholderType - type of placeholder: 'blur'/'pixelate'/'predominant-color'/'vectorize'
-     * @param {Object} [options] - The {@link Transformation} parameters to include in the URL.
+     * @param {Object} options - The {@link Transformation} parameters to include in the URL.
      * @return {string} The image placeholder URL.
      */
     placeholder_url(publicId: string, placeholderType: string, options?: Transformation | Transformation.Options): string;
@@ -722,8 +722,6 @@ export class Cloudinary {
      * @param {Object} [options] - options for the tag and transformations
      * @return {HTMLImageElement} An image tag element
      */
-    video_thumbnail(publicId: string, options?: Transformation | Transformation.Options): HTMLImageElement;
-
     video_thumbnail(publicId: string, options?: Transformation | Transformation.Options): HTMLImageElement;
 
     /**
