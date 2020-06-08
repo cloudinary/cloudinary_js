@@ -1,11 +1,11 @@
-let describeAicTest = describe;
+let describeLazyLoadTest = describe;
 
 if (/phantom|HeadlessChrome|HeadlessFirefox/i.test(navigator.userAgent)) {
   console.warn("Skipping responsive tests in PhantomJS or HeadlessChrome");
-  describeAicTest = xdescribe;
+  describeLazyLoadTest = xdescribe;
 }
 
-describeAicTest('client side advanced image component' + navigator.userAgent, function () {
+describeLazyLoadTest('client side advanced image component' + navigator.userAgent, function () {
   describe("lazy loading", function () {
     var container, fixtureContainer, testDocument, testWindow, triggerScroll, lazyLoad;
     fixtureContainer = void 0;
@@ -16,7 +16,7 @@ describeAicTest('client side advanced image component' + navigator.userAgent, fu
       var testURL;
       // Open a new window with test HTML. A dynamic title is required in order to open a *new* window each time even if
       // previous window was not closed.
-      testURL = "aic-jquery-file-upload-test.html";
+      testURL = "lazy-load-shrinkwrap-test.html";
       if (typeof __karma__ !== "undefined") {
         testURL = `/base/test/docRoot/${testURL}`;
       }
