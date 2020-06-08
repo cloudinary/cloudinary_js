@@ -1,5 +1,4 @@
 import {normalizeToArray} from "./util/parse/normalizeToArray";
-import {TransformationBase} from './transformation';
 
 var applyBreakpoints, closestAbove, defaultBreakpoints, findContainerWidth, maxWidth, updateDpr;
 
