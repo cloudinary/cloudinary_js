@@ -415,7 +415,7 @@ describe('Cloudinary', function() {
       expect(placeholder).toEqual('http://res.cloudinary.com/test123/image/upload/e_blur:2000,f_auto,q_1/sample');
     });
     it(`should generate blur placeholder image for nonexistent placeholder type`, function () {
-      const placeholder = cl.placeholder_url(publicId, "custom");
+      const placeholder = cl.placeholder_url(publicId, "non_existing_type");
       expect(placeholder).toEqual('http://res.cloudinary.com/test123/image/upload/e_blur:2000,f_auto,q_1/sample');
     });
     it(`should generate blur placeholder image`, function () {
