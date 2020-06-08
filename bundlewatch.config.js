@@ -2,7 +2,7 @@ const bundlewatchConfig = {
   files: [
     {
       path: './dist/cloudinary-core.min.js',
-      maxSize: '20kb'
+      maxSize: '21kb'
     },
     {
       path: './dist/cloudinary-core-shrinkwrap.min.js',

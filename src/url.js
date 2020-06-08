@@ -15,6 +15,7 @@ import {
 
 import crc32 from './crc32';
 import getSDKVersionID from "./sdkVersionID/getSDKVersionID";
+import getAnalyticsOptions from "./sdkVersionID/getAnalyticsOptions";
 
 
 /**
@@ -348,7 +349,8 @@ export default function url(publicId, options = {}, config = {}) {
   }
   let resultUrl = urlString(publicId, options);
   if(options.analytics) {
-    let sdkVersionID = getSDKVersionID(options.analyticsOptions);
+    let analyticsOptions = getAnalyticsOptions(options);
+    let sdkVersionID = getSDKVersionID(analyticsOptions);
     // url might already have a '?' query param
     let appender = '?';
     if (resultUrl.indexOf('?') >= 0) {
