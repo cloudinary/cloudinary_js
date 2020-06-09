@@ -562,6 +562,7 @@ class Transformation extends TransformationBase {
     Transformation Parameters
   */
   accessibility(value) {
+    this.chain();
     return this.effect(ACCESSIBILITY_MODES[value]);
   }
 
