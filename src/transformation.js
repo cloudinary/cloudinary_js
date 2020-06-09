@@ -1,7 +1,7 @@
 import Expression from './expression';
 import Condition from './condition';
 import Configuration from './configuration';
-import {ACCESSIBILITY_MODES} from './constants';
+import {ACCESSIBILITY_MODES, PLACEHOLDER_IMAGE_MODES} from './constants';
 
 import {
   assign,
@@ -783,6 +783,19 @@ class Transformation extends TransformationBase {
     return this.param(value, "page", "pg");
   }
 
+  placeholder(value) {
+    const mode = PLACEHOLDER_IMAGE_MODES[value] || PLACEHOLDER_IMAGE_MODES.blur;
+    const width = this.getValue("width");
+    const height = this.getValue("height");
+    let transformations = mode({width, height});
+    this.chain();
+    transformations.forEach(t=>{
+      this.rawTransformation(new Transformation(t));
+      this.chain();
+    });
+    return this;
+  }
+
   poster(value) {
     return this.param(value, "poster");
   }
@@ -919,6 +932,7 @@ Transformation.methods = [
   "opacity",
   "overlay",
   "page",
+  "placeholder",
   "poster",
   "prefix",
   "quality",

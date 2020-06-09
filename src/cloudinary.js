@@ -221,21 +221,23 @@ class Cloudinary {
 
     // If available, use toOptions(), for example: when options is a Transformation
     if (options && typeof options.toOptions === "function") {
-      options = options.toOptions(); //config.transformation = [...placeholder(options), options];
+      options = options.toOptions(true); //config.transformation = [...placeholder(options), options];
     }
 
     //Filter non-transformation params into {config}
-    Object.keys(options).filter(key => !Transformation[key] && key.toLowerCase() !== "transformation").forEach(key => {
+    Object.keys(options).filter(key => (isEmpty(Transformation.prototype[key]) && key !== "transformation")).forEach(key => {
       config[key] = options[key];
     });
 
     //Filter transformation params into {transformation}
-    Object.keys(options).filter(key => !config[key]).forEach(key => {
+    Object.keys(options).filter(key => isEmpty(config[key])).forEach(key => {
       transformation[key] = options[key];
     });
 
     //Merge config and transformation
-    config.transformation = [...placeholder(transformation), transformation];
+    //config.transformation = [...placeholder(transformation), transformation];
+    config.transformation = new Transformation(transformation);
+    config.transformation.placeholder(placeholderType);
 
     return this.url(publicId, config);
   }
