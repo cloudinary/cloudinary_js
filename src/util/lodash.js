@@ -52,11 +52,12 @@ import isElement from 'lodash/isElement';
 import isFunction from 'lodash/isFunction';
 import trim from 'lodash/trim';
 
+export * from './lazyLoad';
 export * from './baseutil';
 export {
   isElement,
   isFunction,
-  trim}
+  trim};
 /*
  * Includes utility methods and lodash / jQuery shims
  */
