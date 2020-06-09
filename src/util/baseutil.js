@@ -83,6 +83,33 @@ export var defaults = function(destination, ...sources) {
   }, destination);
 };
 
+/**
+ * Split options to {config, transformation}
+ * config - non transformation params, transformation - transformation params
+ * @param {Object} options - Cloudinary configuration or transformation
+ * @return {{transformation: {}, config: {}}}
+ */
+export function splitOptions(options){
+  const config = {}; //non transformation params
+  const transformation = {}; //transformation params
+  if (options) {
+    // If available, use toOptions(), for example: when options is a Transformation
+    const asOptions = typeof options.toOptions === "function" ? options.toOptions(true) : options;
+
+    Object.keys(asOptions).forEach(key => {
+      if (isEmpty(Transformation.prototype[key]) && key !== "transformation") {
+        //Filter non-transformation params into {config}
+        config[key] = asOptions[key];
+      } else {
+        //Filter transformation params into {transformation}
+        transformation[key] = asOptions[key];
+      }
+    });
+  }
+
+  return {config, transformation};
+}
+
 /*********** lodash functions */
 export var objectProto = Object.prototype;
 

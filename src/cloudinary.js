@@ -1,4 +1,5 @@
 import {normalizeToArray} from "./util/parse/normalizeToArray";
+import {splitOptions} from "./util";
 
 var applyBreakpoints, closestAbove, defaultBreakpoints, findContainerWidth, maxWidth, updateDpr;
 
@@ -214,28 +215,9 @@ class Cloudinary {
    * @return {string}
    */
   placeholder_url(publicId, placeholderType = "blur", options = {}) {
-    const {PLACEHOLDER_IMAGE_MODES} = constants;
-    const placeholder = PLACEHOLDER_IMAGE_MODES[placeholderType] || PLACEHOLDER_IMAGE_MODES.blur;
-    const config = {}; //non transformation params
-    const transformation = {}; //transformation params
-
-    // If available, use toOptions(), for example: when options is a Transformation
-    if (options && typeof options.toOptions === "function") {
-      options = options.toOptions(true); //config.transformation = [...placeholder(options), options];
-    }
-
-    //Filter non-transformation params into {config}
-    Object.keys(options).filter(key => (isEmpty(Transformation.prototype[key]) && key !== "transformation")).forEach(key => {
-      config[key] = options[key];
-    });
-
-    //Filter transformation params into {transformation}
-    Object.keys(options).filter(key => isEmpty(config[key])).forEach(key => {
-      transformation[key] = options[key];
-    });
+    const {config, transformation} = splitOptions(options);
 
     //Merge config and transformation
-    //config.transformation = [...placeholder(transformation), transformation];
     config.transformation = new Transformation(transformation);
     config.transformation.placeholder(placeholderType);
 
