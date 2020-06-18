@@ -1,5 +1,4 @@
 import {normalizeToArray} from "./util/parse/normalizeToArray";
-import {splitOptions} from "./util";
 
 var applyBreakpoints, closestAbove, defaultBreakpoints, findContainerWidth, maxWidth, updateDpr;
 
@@ -16,6 +15,7 @@ import * as constants from './constants';
 import {
   addClass,
   assign,
+  cloneDeep,
   defaults,
   getData,
   isArray,
@@ -215,13 +215,25 @@ class Cloudinary {
    * @return {string}
    */
   placeholder_url(publicId, placeholderType = "blur", options = {}) {
-    const {config, transformation} = splitOptions(options);
+    const {PLACEHOLDER_IMAGE_MODES} = constants;
+    const placeholderMode = PLACEHOLDER_IMAGE_MODES[placeholderType] || PLACEHOLDER_IMAGE_MODES.blur;
+    const placeholderTransformations = placeholderMode(options.transformation || options);
 
-    //Merge config and transformation
-    config.transformation = new Transformation(transformation);
-    config.transformation.placeholder(placeholderType);
+    // Make sure options has a Transformation object we can append the placeholder to.
+    const placeholderOptions = (!options || !(options.transformation instanceof Transformation)) ?
+      new Transformation(options) : cloneDeep(options);
 
-    return this.url(publicId, config);
+    const transformation = (placeholderOptions instanceof Transformation ?
+      placeholderOptions : placeholderOptions.transformation);
+
+    // Append placeholder transformations
+    placeholderTransformations.forEach(t => {
+      transformation
+        .chain()
+        .rawTransformation(new Transformation(t));
+    });
+
+    return this.url(publicId, placeholderOptions);
   }
 
   /**

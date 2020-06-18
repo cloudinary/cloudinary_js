@@ -435,7 +435,7 @@ describe('Cloudinary', function() {
     it(`should generate a predominant-color-pixel placeholder image`, function () {
       const options = {width: 100, height: 100};
       const placeholder = cl.placeholder_url(publicId, 'predominant-color', options);
-      expect(placeholder).toEqual('http://res.cloudinary.com/test123/image/upload/$currWidth_w,$currHeight_h/ar_1,b_auto,c_pad,w_iw_div_2/c_crop,g_north_east,h_10,w_10/c_fill,h_$currHeight,w_$currWidth/f_auto,q_auto/sample');
+      expect(placeholder).toEqual('http://res.cloudinary.com/test123/image/upload/ar_1,b_auto,c_pad,w_iw_div_2/c_crop,g_north_east,h_1,w_1/f_auto,q_auto/sample');
     });
     it(`should generate a predominant-color-pixel placeholder image and aggregate scale transforamtion`, function () {
       const options = {width: 100, height: 100, crop: "scale"};
@@ -448,7 +448,8 @@ describe('Cloudinary', function() {
       expect(placeholder).toEqual('http://res.cloudinary.com/test123/image/upload/a_0,c_scale,w_300/e_blur:2000,f_auto,q_1/sample');
     });
     it(`should aggregate Transformation with placeholder`, function () {
-      const options = new Transformation({transformation: [{angle: 0},{width:300,crop:"scale"}]});
+      const transformation = new Transformation({transformation: [{angle: 0},{width:300,crop:"scale"}]});
+      const options = {transformation};
       const placeholder = cl.placeholder_url(publicId, null, options);
       expect(placeholder).toEqual('http://res.cloudinary.com/test123/image/upload/a_0/c_scale,w_300/e_blur:2000,f_auto,q_1/sample');
     });
