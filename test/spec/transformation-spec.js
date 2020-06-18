@@ -293,6 +293,26 @@ describe("Transformation", function() {
         });
       });
     });
+    it("should support auto:ocr_text and ocr_text", function() {
+      test_cloudinary_url("test", {
+        width: 100,
+        height: 100,
+        crop: "crop",
+        gravity: "auto:ocr_text"
+      }, "http://res.cloudinary.com/test123/image/upload/c_crop,g_auto:ocr_text,h_100,w_100/test", {
+        width: 100,
+        height: 100
+      });
+      test_cloudinary_url("test", {
+        width: 100,
+        height: 100,
+        crop: "crop",
+        gravity: "ocr_text"
+      }, "http://res.cloudinary.com/test123/image/upload/c_crop,g_ocr_text,h_100,w_100/test", {
+        width: 100,
+        height: 100
+      });
+    });
     return it("should support custom_no_override", function() {
       return test_cloudinary_url("test", {
         width: 100,
@@ -453,6 +473,18 @@ describe("Transformation", function() {
         effect: ['art', 'incognito']
       }, protocol + '//res.cloudinary.com/test123/image/upload/e_art:incognito/test', {});
     });
+    it('should support blur_region effect with ocr_text gravity', function() {
+      test_cloudinary_url('test', {
+        effect: ['blur_region', 5000],
+        gravity: 'ocr_text',
+      }, protocol + '//res.cloudinary.com/test123/image/upload/e_blur_region:5000,g_ocr_text/test', {});
+    });
+    it('should support pixelate_region effect with ocr_text gravity', function() {
+      test_cloudinary_url('test', {
+        effect: 'pixelate_region',
+        gravity: 'ocr_text',
+      }, protocol + '//res.cloudinary.com/test123/image/upload/e_pixelate_region,g_ocr_text/test', {});
+    });
   });
   it('should support density', function() {
     return test_cloudinary_url('test', {
@@ -503,6 +535,11 @@ describe("Transformation", function() {
     return test_cloudinary_url('test', {
       dpr: 1.5
     }, protocol + '//res.cloudinary.com/test123/image/upload/dpr_1.5/test', {});
+  });
+  it('should support ocr analysis', function () {
+    return test_cloudinary_url("test", {
+      ocr: "adv_ocr",
+    }, `${upload_path}/ocr_adv_ocr/test`, {});
   });
   describe("keyframe_interval", function() {
     it('should support keyframe_interval in options', function() {
