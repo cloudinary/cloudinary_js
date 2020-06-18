@@ -630,7 +630,11 @@ export class Param {
  * @param {Object} options - options to configure Cloudinary
  * @see Configuration for more details
  * @example
+ *    // Include cloudinary_js in a <script> tag, then:
  *    var cl = new cloudinary.Cloudinary( { cloud_name: "mycloud"});
+ *    // Or import it from the npm package:
+ *    import { Cloudinary } from 'cloudinary-core';
+ *    var cl = new Cloudinary( { cloud_name: "mycloud"});
  *    var imgTag = cl.image("myPicID");
  */
 export class Cloudinary {
