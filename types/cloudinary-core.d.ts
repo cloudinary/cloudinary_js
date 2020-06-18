@@ -550,7 +550,7 @@ export class TextLayer extends Layer {
     fontWeight(value: string): TextLayer;
     fontStyle(value: string): TextLayer;
     fontHinting(value: string): TextLayer;
-    fontAntiAliasing(value: string): TextLayer;
+    fontAntialiasing(value: string): TextLayer;
     textDecoration(value: string): TextLayer;
     textAlign(value: string): TextLayer;
     stroke(value: string): TextLayer;
