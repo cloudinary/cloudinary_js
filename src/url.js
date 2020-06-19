@@ -273,11 +273,7 @@ function add_placeholder(options, transformation) {
     placeholder += placeholderSuffix;
     const placeholderTransformations = PLACEHOLDER_IMAGE_MODES[placeholder] || PLACEHOLDER_IMAGE_MODES.blur;
 
-    placeholderTransformations.forEach(t => {
-      transformation
-        .chain()
-        .rawTransformation(new Transformation(t));
-    });
+    placeholderTransformations.forEach(t => transformation.chain().transformation(t));
   }
 }
 
