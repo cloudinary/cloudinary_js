@@ -251,44 +251,23 @@ function handleVersion(publicId, options) {
  */
 function handleTransformation(options) {
   const result = new Transformation(options);
-  add_placeholder(options, result); // Append placeholder transformations
-  add_accessibility(options, result); // Append accessibility transformations
+  let {placeholder, accessibility} = options || {};
+
+  // Append placeholder transformations
+  if (placeholder) {
+    if (placeholder === "predominant-color" && result.getValue('width') && result.getValue('height')) {
+      placeholder += '-pixel';
+    }
+    const placeholderTransformations = PLACEHOLDER_IMAGE_MODES[placeholder] || PLACEHOLDER_IMAGE_MODES.blur;
+    placeholderTransformations.forEach(t => result.chain().transformation(t));
+  }
+
+  // Append accessibility transformations
+  if (accessibility) {
+    result.chain().effect(ACCESSIBILITY_MODES[accessibility]);
+  }
 
   return result.serialize();
-}
-
-/**
- * Append placeholder transformations to given transformation
- * @param options
- * @param {Transformation} transformation
- */
-function add_placeholder(options, transformation) {
-  let placeholder = options ? options.placeholder : null;
-
-  if (placeholder && transformation) {
-    const width = transformation.getValue('width');
-    const height = transformation.getValue('height');
-    const placeholderSuffix = (placeholder === "predominant-color" && width && height) ? '-pixel' : '';
-    placeholder += placeholderSuffix;
-    const placeholderTransformations = PLACEHOLDER_IMAGE_MODES[placeholder] || PLACEHOLDER_IMAGE_MODES.blur;
-
-    placeholderTransformations.forEach(t => transformation.chain().transformation(t));
-  }
-}
-
-/**
- * Append accessibility transformations to given transformation
- * @param options
- * @param {Transformation} transformation
- */
-function add_accessibility(options, transformation) {
-  const accessibility = options ? options.accessibility : null;
-
-  if (accessibility && transformation) {
-    transformation
-      .chain()
-      .effect(ACCESSIBILITY_MODES[accessibility]);
-  }
 }
 
 /**
