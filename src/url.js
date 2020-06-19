@@ -12,11 +12,10 @@ import {
 import {
   defaults,
   compact,
-  isPlainObject,
+  isPlainObject
 } from './util';
 
 import crc32 from './crc32';
-import * as constants from "./constants";
 
 /**
  * Adds protocol, host, pathname prefixes to given string
@@ -286,7 +285,6 @@ function add_accessibility(options, transformation) {
   const accessibility = options ? options.accessibility : null;
 
   if (accessibility && transformation) {
-    const {ACCESSIBILITY_MODES} = constants;
     transformation
       .chain()
       .effect(ACCESSIBILITY_MODES[accessibility]);
