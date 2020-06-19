@@ -19,7 +19,9 @@
     "test:pkgs:minified": "tools/scripts/test.pkgs.minified.sh",
     "test:types": "tsc",
     "copybuilds": "tools/scripts/copybuilds.sh",
-    "verify-pkgs": "jasmine pkg/verify-pkgs.js"
+    "verify-pkgs": "jasmine pkg/verify-pkgs.js",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -67,6 +69,8 @@
     "bundlewatch": "^0.2.6"
   },
   "dependencies": {
-    "jsdoc": "^3.6.3"
-  }
+    "jsdoc": "^3.6.3",
+    "snyk": "^1.319.1"
+  },
+  "snyk": true
 }
