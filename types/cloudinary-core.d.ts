@@ -681,15 +681,6 @@ export class Cloudinary {
     video_thumbnail_url(publicId: string, options?: Transformation | Transformation.VideoOptions): string;
 
     /**
-     * Generates a URL for an image intended to be used as a placeholder for the original image.
-     * @param {string} publicId - original image public id
-     * @param {string} placeholderType - type of placeholder: 'blur'/'pixelate'/'predominant-color'/'vectorize'
-     * @param {Object} options - The {@link Transformation} parameters to include in the URL.
-     * @return {string} The image placeholder URL.
-     */
-    placeholder_url(publicId: string, placeholderType: string, options?: Transformation | Transformation.Options): string;
-
-    /**
      * Generate a string representation of the provided transformation options.
      * @function Cloudinary#transformation_string
      * @param {Object} options - the transformation options
@@ -876,6 +867,9 @@ export namespace Configuration {
 
         static_image_support?: string;
         enhance_image_tag?: boolean;
+
+        placeholder?: string | "blur" | "pixelate" | "predominant-color" | "vectorize";
+        accessibility?: string | "darkmode" | "brightmode" | "monochrome" | "colorblind";
         [futureKey: string]: any;
     }
 }

@@ -1,4 +1,5 @@
 describe('Cloudinary', function() {
+  const publicId = "test";
   var cl, fixtureContainer, protocol, test_cloudinary_url;
   cl = {};
   fixtureContainer = void 0;
@@ -398,66 +399,86 @@ describe('Cloudinary', function() {
     }
   });
   describe("placeholder_url", function () {
-    const publicId = "sample";
-    let transformation;
-    let cl;
-    let config;
-
-    beforeEach(function () {
-      config = {'cloud_name': 'test123'};
-      cl = new cloudinary.Cloudinary(config);
-    });
-
-    it(`should generate blur placeholder image for undefined placeholder type`, function () {
-      const placeholder = cl.placeholder_url(publicId);
-      expect(placeholder).toEqual('http://res.cloudinary.com/test123/image/upload/e_blur:2000,f_auto,q_1/sample');
-    });
     it(`should generate blur placeholder image for nonexistent placeholder type`, function () {
-      const placeholder = cl.placeholder_url(publicId, "non_existing_type");
-      expect(placeholder).toEqual('http://res.cloudinary.com/test123/image/upload/e_blur:2000,f_auto,q_1/sample');
+      test_cloudinary_url(publicId, {
+        placeholder: 'non_existing_type',
+      }, `${protocol}//res.cloudinary.com/test123/image/upload/e_blur:2000,f_auto,q_1/${publicId}`, {});
     });
     it(`should generate blur placeholder image`, function () {
-      const placeholder = cl.placeholder_url(publicId, 'blur');
-      expect(placeholder).toEqual('http://res.cloudinary.com/test123/image/upload/e_blur:2000,f_auto,q_1/sample');
+      test_cloudinary_url(publicId, {
+        placeholder: 'blur',
+      }, `${protocol}//res.cloudinary.com/test123/image/upload/e_blur:2000,f_auto,q_1/${publicId}`, {});
     });
     it(`should generate vectorize placeholder image`, function () {
-      const placeholder = cl.placeholder_url(publicId, 'vectorize');
-      expect(placeholder).toEqual('http://res.cloudinary.com/test123/image/upload/e_vectorize:3:0.1,f_svg/sample');
+      test_cloudinary_url(publicId, {
+        placeholder: 'vectorize',
+      }, `${protocol}//res.cloudinary.com/test123/image/upload/e_vectorize:3:0.1,f_svg/${publicId}`, {});
     });
     it(`should generate pixelate placeholder image`, function () {
-      const placeholder = cl.placeholder_url(publicId, 'pixelate');
-      expect(placeholder).toEqual('http://res.cloudinary.com/test123/image/upload/e_pixelate,f_auto,q_1/sample');
+      test_cloudinary_url(publicId, {
+        placeholder: 'pixelate',
+      }, `${protocol}//res.cloudinary.com/test123/image/upload/e_pixelate,f_auto,q_1/${publicId}`, {});
     });
     it(`should generate predominant-color placeholder image`, function () {
-      const placeholder = cl.placeholder_url(publicId, 'predominant-color');
-      expect(placeholder).toEqual('http://res.cloudinary.com/test123/image/upload/$currWidth_w,$currHeight_h/ar_1,b_auto,c_pad,w_iw_div_2/c_crop,g_north_east,h_10,w_10/c_fill,h_$currHeight,w_$currWidth/f_auto,q_auto/sample');
-    });
-    it(`should generate a predominant-color-pixel placeholder image`, function () {
-      const options = {width: 100, height: 100};
-      const placeholder = cl.placeholder_url(publicId, 'predominant-color', options);
-      expect(placeholder).toEqual('http://res.cloudinary.com/test123/image/upload/ar_1,b_auto,c_pad,w_iw_div_2/c_crop,g_north_east,h_1,w_1/f_auto,q_auto/sample');
+      test_cloudinary_url(publicId, {
+        placeholder: 'predominant-color',
+      }, `${protocol}//res.cloudinary.com/test123/image/upload/$currWidth_w,$currHeight_h/ar_1,b_auto,c_pad,w_iw_div_2/c_crop,g_north_east,h_10,w_10/c_fill,h_$currHeight,w_$currWidth/f_auto,q_auto/${publicId}`, {});
     });
     it(`should generate a predominant-color-pixel placeholder image and aggregate scale transforamtion`, function () {
-      const options = {width: 100, height: 100, crop: "scale"};
-      const placeholder = cl.placeholder_url(publicId, 'predominant-color', options);
-      expect(placeholder).toEqual('http://res.cloudinary.com/test123/image/upload/c_scale,h_100,w_100/ar_1,b_auto,c_pad,w_iw_div_2/c_crop,g_north_east,h_1,w_1/f_auto,q_auto/sample');
+      test_cloudinary_url(publicId, {
+          placeholder: 'predominant-color',
+          width: 100,
+          height: 100,
+          crop: 'scale'
+        },
+        `${protocol}//res.cloudinary.com/test123/image/upload/c_scale,h_100,w_100/ar_1,b_auto,c_pad,w_iw_div_2/c_crop,g_north_east,h_1,w_1/f_auto,q_auto/${publicId}`, {
+          width: 100,
+          height: 100
+        }
+      );
     });
     it(`should aggregate transformation with placeholder`, function () {
-      const options = {angle: 0, width:300,crop:"scale"};
-      const placeholder = cl.placeholder_url(publicId, null, options);
-      expect(placeholder).toEqual('http://res.cloudinary.com/test123/image/upload/a_0,c_scale,w_300/e_blur:2000,f_auto,q_1/sample');
+      test_cloudinary_url(publicId, {
+        placeholder: 'blur',
+        angle: 0,
+        width: 300,
+        crop: 'scale'
+      }, `${protocol}//res.cloudinary.com/test123/image/upload/a_0,c_scale,w_300/e_blur:2000,f_auto,q_1/${publicId}`, {});
     });
     it(`should aggregate Transformation with placeholder`, function () {
-      const transformation = new Transformation({transformation: [{angle: 0},{width:300,crop:"scale"}]});
-      const options = {transformation};
-      const placeholder = cl.placeholder_url(publicId, null, options);
-      expect(placeholder).toEqual('http://res.cloudinary.com/test123/image/upload/a_0/c_scale,w_300/e_blur:2000,f_auto,q_1/sample');
+      test_cloudinary_url(publicId, {
+        placeholder: 'blur',
+        transformation: new cloudinary.Transformation({transformation: [{angle: 0}, {width: 300, crop: "scale"}]})
+      }, `${protocol}//res.cloudinary.com/test123/image/upload/a_0/c_scale,w_300/e_blur:2000,f_auto,q_1/${publicId}`, {});
     });
     it(`should aggregate config & transformation with placeholder`, function () {
-      const transformation = new Transformation({transformation: [{angle: 0},{width:300,crop:"scale"}]});
-      const options = {transformation, secure: true};
-      const placeholder = cl.placeholder_url(publicId, null, options);
-      expect(placeholder).toEqual('https://res.cloudinary.com/test123/image/upload/a_0/c_scale,w_300/e_blur:2000,f_auto,q_1/sample');
+      test_cloudinary_url(publicId, {
+        placeholder: 'blur',
+        transformation: new cloudinary.Transformation({transformation: [{angle: 0}, {width: 300, crop: "scale"}]}),
+        secure: true
+      }, `https://res.cloudinary.com/test123/image/upload/a_0/c_scale,w_300/e_blur:2000,f_auto,q_1/${publicId}`, {});
+    });
+  });
+  describe("Accessibility", function () {
+    it('should support darkmode', function () {
+      return test_cloudinary_url(publicId, {
+        accessibility: 'darkmode'
+      }, `${protocol}//res.cloudinary.com/test123/image/upload/e_tint:75:black/${publicId}`, {});
+    });
+    it('should support brightmode', function () {
+      return test_cloudinary_url(publicId, {
+        accessibility: 'brightmode'
+      }, `${protocol}//res.cloudinary.com/test123/image/upload/e_tint:50:white/${publicId}`, {});
+    });
+    it('should support monochrome', function () {
+      return test_cloudinary_url(publicId, {
+        accessibility: 'monochrome'
+      }, `${protocol}//res.cloudinary.com/test123/image/upload/e_grayscale/${publicId}`, {});
+    });
+    it('should support colorblind', function () {
+      return test_cloudinary_url(publicId, {
+        accessibility: 'colorblind'
+      }, `${protocol}//res.cloudinary.com/test123/image/upload/e_assist_colorblind/${publicId}`, {});
     });
   });
 });

@@ -75,34 +75,27 @@ export const DEFAULT_VIDEO_SOURCES = [
 ];
 
 /**
- * Generates a pixel size image which color is the predominant color of the original image.
- */
-const predominantColorTransformPixel = [
-  {width: 'iw_div_2', aspect_ratio: 1, crop: 'pad', background: 'auto'},
-  {crop: 'crop', width: 1, height: 1, gravity: 'north_east'},
-  {fetch_format: 'auto', quality: 'auto'}];
-
-/**
- * Generates an image which color is the predominant color of the original image.
- */
-const predominantColorTransform  = [
-  {variables: [['$currWidth', 'w'], ['$currHeight', 'h']]},
-  {width: 'iw_div_2', aspect_ratio: 1, crop: 'pad', background: 'auto'},
-  {crop: 'crop', width: 10, height: 10, gravity: 'north_east'},
-  {width: '$currWidth', height: '$currHeight', crop: 'fill'},
-  {fetch_format: 'auto', quality: 'auto'}];
-
-/**
  * Predefined placeholder transformations
- * @const {Object} Cloudinary.PLACEHOLDER_IMAGE_OPTIONS
+ * @const {Object} Cloudinary.PLACEHOLDER_IMAGE_MODES
  */
 export const PLACEHOLDER_IMAGE_MODES = {
-  'blur': () => [{effect: 'blur:2000', quality: 1, fetch_format: 'auto'}], // Default
-  'pixelate': ()=> [{effect: 'pixelate', quality: 1, fetch_format: 'auto'}],
-  'predominant-color': ({width, height}) => (
-    width && height ? predominantColorTransformPixel : predominantColorTransform
-  ),
-  'vectorize': ()=> [{effect: 'vectorize:3:0.1', fetch_format: 'svg'}]
+  'blur': [{effect: 'blur:2000', quality: 1, fetch_format: 'auto'}], // Default
+  'pixelate': [{effect: 'pixelate', quality: 1, fetch_format: 'auto'}],
+  // Generates a pixel size image which color is the predominant color of the original image.
+  'predominant-color-pixel': [
+    {width: 'iw_div_2', aspect_ratio: 1, crop: 'pad', background: 'auto'},
+    {crop: 'crop', width: 1, height: 1, gravity: 'north_east'},
+    {fetch_format: 'auto', quality: 'auto'}
+  ],
+  // Generates an image which color is the predominant color of the original image.
+  'predominant-color': [
+    {variables: [['$currWidth', 'w'], ['$currHeight', 'h']]},
+    {width: 'iw_div_2', aspect_ratio: 1, crop: 'pad', background: 'auto'},
+    {crop: 'crop', width: 10, height: 10, gravity: 'north_east'},
+    {width: '$currWidth', height: '$currHeight', crop: 'fill'},
+    {fetch_format: 'auto', quality: 'auto'}
+  ],
+  'vectorize': [{effect: 'vectorize:3:0.1', fetch_format: 'svg'}]
 };
 
 /**

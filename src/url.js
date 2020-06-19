@@ -1,8 +1,10 @@
 import Transformation from './transformation';
 
 import {
+  ACCESSIBILITY_MODES,
   DEFAULT_IMAGE_PARAMS,
   OLD_AKAMAI_SHARED_CDN,
+  PLACEHOLDER_IMAGE_MODES,
   SHARED_CDN,
   SEO_TYPES
 } from './constants';
@@ -10,10 +12,11 @@ import {
 import {
   defaults,
   compact,
-  isPlainObject
+  isPlainObject,
 } from './util';
 
 import crc32 from './crc32';
+import * as constants from "./constants";
 
 /**
  * Adds protocol, host, pathname prefixes to given string
@@ -247,8 +250,51 @@ function handleVersion(publicId, options) {
  * @param options
  * @returns {string}
  */
-function handleTransformation(options){
-  return (new Transformation(options)).serialize();
+function handleTransformation(options) {
+  const result = new Transformation(options);
+  add_placeholder(options, result); // Append placeholder transformations
+  add_accessibility(options, result); // Append accessibility transformations
+
+  return result.serialize();
+}
+
+/**
+ * Append placeholder transformations to given transformation
+ * @param options
+ * @param {Transformation} transformation
+ */
+function add_placeholder(options, transformation) {
+  let placeholder = options ? options.placeholder : null;
+
+  if (placeholder && transformation) {
+    const width = transformation.getValue('width');
+    const height = transformation.getValue('height');
+    const placeholderSuffix = (placeholder === "predominant-color" && width && height) ? '-pixel' : '';
+    placeholder += placeholderSuffix;
+    const placeholderTransformations = PLACEHOLDER_IMAGE_MODES[placeholder] || PLACEHOLDER_IMAGE_MODES.blur;
+
+    placeholderTransformations.forEach(t => {
+      transformation
+        .chain()
+        .rawTransformation(new Transformation(t));
+    });
+  }
+}
+
+/**
+ * Append accessibility transformations to given transformation
+ * @param options
+ * @param {Transformation} transformation
+ */
+function add_accessibility(options, transformation) {
+  const accessibility = options ? options.accessibility : null;
+
+  if (accessibility && transformation) {
+    const {ACCESSIBILITY_MODES} = constants;
+    transformation
+      .chain()
+      .effect(ACCESSIBILITY_MODES[accessibility]);
+  }
 }
 
 /**

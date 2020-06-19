@@ -1,7 +1,6 @@
 import Expression from './expression';
 import Condition from './condition';
 import Configuration from './configuration';
-import {ACCESSIBILITY_MODES} from './constants';
 
 import {
   assign,
@@ -561,11 +560,6 @@ class Transformation extends TransformationBase {
   /*
     Transformation Parameters
   */
-  accessibility(value) {
-    this.chain();
-    return this.effect(ACCESSIBILITY_MODES[value]);
-  }
-
   angle(value) {
     return this.arrayParam(value, "angle", "a", ".", Expression.normalize);
   }
@@ -883,7 +877,6 @@ class Transformation extends TransformationBase {
  * Values are camelCased.
  */
 Transformation.methods = [
-  "accessibility",
   "angle",
   "audioCodec",
   "audioFrequency",
@@ -920,7 +913,6 @@ Transformation.methods = [
   "opacity",
   "overlay",
   "page",
-  "placeholder",
   "poster",
   "prefix",
   "quality",
