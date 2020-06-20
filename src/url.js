@@ -263,7 +263,7 @@ function handleTransformation(options) {
   }
 
   // Append accessibility transformations
-  if (accessibility) {
+  if (accessibility && ACCESSIBILITY_MODES[accessibility]) {
     result.chain().effect(ACCESSIBILITY_MODES[accessibility]);
   }
 
