@@ -59,6 +59,7 @@ module.exports = function(config) {
 
   console.log(`Testing ${minified ? 'minified' : 'un-minified'}`);
   const subject = `dist/cloudinary-${pkg}${minified ? '.min' : ''}.js`;
+  const lazyLoadBase = `test/spec/lazyLoadTestBase.js`;
 
   const responsiveHtmlFile = `test/docRoot/responsive-${pkg}-test.html`;
   const lazyLoadHtmlFile = `test/docRoot/lazy-load-${pkg}-test.html`;
@@ -74,6 +75,7 @@ module.exports = function(config) {
     files: [
       ...dependency(pkg),
       subject,
+      lazyLoadBase,
       ...testFiles(pkg),
       {
         pattern: [
