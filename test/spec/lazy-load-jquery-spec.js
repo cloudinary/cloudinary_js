@@ -1,7 +1,7 @@
 let describeLazyLoadTest = describe;
 
 if (/phantom|HeadlessChrome|HeadlessFirefox/i.test(navigator.userAgent)) {
-  console.warn("Skipping responsive tests in PhantomJS or HeadlessChrome");
+  console.warn("Skipping LazyLoad tests in PhantomJS or HeadlessChrome");
   describeLazyLoadTest = xdescribe;
 }
 
