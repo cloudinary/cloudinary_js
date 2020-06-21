@@ -253,6 +253,11 @@ function handleTransformation(options) {
   let {placeholder, accessibility, ...otherOptions} = options || {};
   const result = new Transformation(otherOptions);
 
+  // Append accessibility transformations
+  if (accessibility && ACCESSIBILITY_MODES[accessibility]) {
+    result.chain().effect(ACCESSIBILITY_MODES[accessibility]);
+  }
+
   // Append placeholder transformations
   if (placeholder) {
     if (placeholder === "predominant-color" && result.getValue('width') && result.getValue('height')) {
@@ -260,11 +265,6 @@ function handleTransformation(options) {
     }
     const placeholderTransformations = PLACEHOLDER_IMAGE_MODES[placeholder] || PLACEHOLDER_IMAGE_MODES.blur;
     placeholderTransformations.forEach(t => result.chain().transformation(t));
-  }
-
-  // Append accessibility transformations
-  if (accessibility && ACCESSIBILITY_MODES[accessibility]) {
-    result.chain().effect(ACCESSIBILITY_MODES[accessibility]);
   }
 
   return result.serialize();
