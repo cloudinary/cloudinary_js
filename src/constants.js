@@ -110,6 +110,35 @@ export const ACCESSIBILITY_MODES = {
 };
 
 /**
+ * A list of keys used by the url() function.
+ * @private
+ */
+export const URL_KEYS = [
+  'accessibility',
+  'api_secret',
+  'auth_token',
+  'cdn_subdomain',
+  'cloud_name',
+  'cname',
+  'format',
+  'placeholder',
+  'private_cdn',
+  'resource_type',
+  'secure',
+  'secure_cdn_subdomain',
+  'secure_distribution',
+  'shorten',
+  'sign_url',
+  'signature',
+  'ssl_detected',
+  'type',
+  'url_suffix',
+  'use_root_path',
+  'version'
+];
+
+
+/**
  * The resource storage type
  * @typedef type
  * @enum {string}

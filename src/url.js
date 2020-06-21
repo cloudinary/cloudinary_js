@@ -250,8 +250,8 @@ function handleVersion(publicId, options) {
  * @returns {string}
  */
 function handleTransformation(options) {
-  const result = new Transformation(options);
-  let {placeholder, accessibility} = options || {};
+  let {placeholder, accessibility, ...otherOptions} = options || {};
+  const result = new Transformation(otherOptions);
 
   // Append placeholder transformations
   if (placeholder) {

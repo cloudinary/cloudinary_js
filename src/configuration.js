@@ -181,14 +181,12 @@ const DEFAULT_CONFIGURATION_PARAMS = {
 };
 
 Configuration.CONFIG_PARAMS = [
-  "accessibility",
   "api_key",
   "api_secret",
   "callback",
   "cdn_subdomain",
   "cloud_name",
   "cname",
-  "placeholder",
   "private_cdn",
   "protocol",
   "resource_type",
