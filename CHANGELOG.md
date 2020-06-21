@@ -1,3 +1,27 @@
+2.9.0 / 2020-06-21
+==================
+
+New functionality and features
+------------------------------
+* Add support for OCR in transformation (#224)
+* Add support for POW operator
+
+Bug Fixes
+---------
+* Fix fontAntialiasing type definition (#233)
+* Fix Transformation normalization for predefined variables
+* Fix Transformation normalization in browsers that do not support
+  lookbehind in regular expressions (#228)
+* Fix bug where preview:duration was shortened to preview:du
+
+Other Changes
+-------------
+* Update test descriptions (#223)
+* Update devDependencies packages
+* Remove CoffeeScript and Grunt mentions from readme (#222)
+* Remove unneeded  file (#221)
+* Update issue templates (#218)
+
 2.8.2 / 2020-03-25
 ==================
 
