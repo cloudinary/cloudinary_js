@@ -15,10 +15,8 @@ import * as constants from './constants';
 import {
   addClass,
   assign,
-  cloneDeep,
   defaults,
   getData,
-  isArray,
   isEmpty,
   isFunction,
   isString,
