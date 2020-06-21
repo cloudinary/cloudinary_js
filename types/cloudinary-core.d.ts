@@ -60,8 +60,8 @@ export class Util {
     static identity(value: any): any;
     static isPlainObject(value: any): boolean;
     static trim(text: string): string;
+    static detectIntersection(element: Element, onIntersect: Function): void
 }
-
 
 /**
  *  Represents a single transformation.
@@ -871,6 +871,9 @@ export namespace Configuration {
 
         static_image_support?: string;
         enhance_image_tag?: boolean;
+
+        placeholder?: string | "blur" | "pixelate" | "predominant-color" | "vectorize";
+        accessibility?: string | "darkmode" | "brightmode" | "monochrome" | "colorblind";
         [futureKey: string]: any;
     }
 }

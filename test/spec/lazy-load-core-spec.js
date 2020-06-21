@@ -1,0 +1,1 @@
+testLazyLoad("lazy-load-core-test.html");

@@ -1,8 +1,10 @@
 import Transformation from './transformation';
 
 import {
+  ACCESSIBILITY_MODES,
   DEFAULT_IMAGE_PARAMS,
   OLD_AKAMAI_SHARED_CDN,
+  PLACEHOLDER_IMAGE_MODES,
   SHARED_CDN,
   SEO_TYPES
 } from './constants';
@@ -247,8 +249,25 @@ function handleVersion(publicId, options) {
  * @param options
  * @returns {string}
  */
-function handleTransformation(options){
-  return (new Transformation(options)).serialize();
+function handleTransformation(options) {
+  const result = new Transformation(options);
+  let {placeholder, accessibility} = options || {};
+
+  // Append placeholder transformations
+  if (placeholder) {
+    if (placeholder === "predominant-color" && result.getValue('width') && result.getValue('height')) {
+      placeholder += '-pixel';
+    }
+    const placeholderTransformations = PLACEHOLDER_IMAGE_MODES[placeholder] || PLACEHOLDER_IMAGE_MODES.blur;
+    placeholderTransformations.forEach(t => result.chain().transformation(t));
+  }
+
+  // Append accessibility transformations
+  if (accessibility && ACCESSIBILITY_MODES[accessibility]) {
+    result.chain().effect(ACCESSIBILITY_MODES[accessibility]);
+  }
+
+  return result.serialize();
 }
 
 /**

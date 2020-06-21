@@ -13,9 +13,13 @@ function testFiles(pkg) {
     'test/spec/lazy-load-spec.js',
     `test/spec/responsive-${pkg}-spec.js`,
   ];
+
   if (pkg === 'jquery-file-upload') {
     files.push('test/spec/cloudinary-jquery-upload-spec.js');
+  } else{
+    files.push(`test/spec/lazy-load-${pkg}-spec.js`);
   }
+
   return files;
 }
 
@@ -55,8 +59,10 @@ module.exports = function(config) {
 
   console.log(`Testing ${minified ? 'minified' : 'un-minified'}`);
   const subject = `dist/cloudinary-${pkg}${minified ? '.min' : ''}.js`;
+  const lazyLoadBase = `test/spec/lazyLoadTestBase.js`;
 
   const responsiveHtmlFile = `test/docRoot/responsive-${pkg}-test.html`;
+  const lazyLoadHtmlFile = `test/docRoot/lazy-load-${pkg}-test.html`;
 
   return config.set({
     // base path that will be used to resolve all patterns (eg. files, exclude)
@@ -69,12 +75,14 @@ module.exports = function(config) {
     files: [
       ...dependency(pkg),
       subject,
+      lazyLoadBase,
       ...testFiles(pkg),
       {
         pattern: [
           '{', // keep this first
           `dist/*.map`,
           responsiveHtmlFile,
+          lazyLoadHtmlFile,
           `node_modules/bootstrap/dist/+(css|js)/*`,
           `test/docRoot/css/logo-nav.css`,
           '}' // keep this last

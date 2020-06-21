@@ -1,0 +1,1 @@
+testLazyLoad("lazy-load-shrinkwrap-test.html");

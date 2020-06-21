@@ -2,6 +2,7 @@
   * Includes utility methods and lodash / jQuery shims
  */
 export * from './baseutil';
+export * from './lazyLoad';
 
 /**
   * Get data from the DOM element.
