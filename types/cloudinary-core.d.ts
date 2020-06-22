@@ -22,6 +22,7 @@ type VideoFlags = string | Array<string> | "splice" | "layer_apply" | "no_stream
 type AudioCodec = string | "none" | "aac" | "vorbis" | "mp3";
 type AudioFrequency = number | 8000 | 11025 | 16000 | 22050 | 32000 | 37800 | 44056 | 44100 | 47250 | 48000 | 88200 | 96000 | 176400 | 192000;
 type StreamingProfiles = string | "4k" | "full_hd" | "hd" | "sd" | "full_hd_wifi" | "full_hd_lean" | "hd_lean";
+type UrlOptions = (Transformation | Transformation.Options) & { placeholder?: string, accessibility?: string };
 
 export function crc32(str: string): any;
 export function utf8_encode(argString: string): any;
