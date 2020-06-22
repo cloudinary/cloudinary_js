@@ -4,13 +4,6 @@
         "noImplicitAny": true,
         "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
-        "skipLibCheck": true
-    },
-    "include": [
-        "dist/**/*",
-        "types/**/*"
-    ],
-    "exclude": [
-        "node_modules"
-    ]
+        "typeRoots": ["./types"]
+    }
 }
