@@ -646,12 +646,12 @@ export class Cloudinary {
      * @function Cloudinary#url
      * @param {string} publicId - the public ID of the resource
      * @param {Object} [options] - options for the tag and transformations, possible values include all {@link Transformation} parameters
-     *                          and {@link Configuration} parameters
+     *                          and {@link Configuration} parameters with addition of 'placeholder' and 'accessibility'
      * @param {string} [options.type='upload'] - the classification of the resource
      * @param {Object} [options.resource_type='image'] - the type of the resource
      * @return {string} The resource URL
      */
-    url(publicId: string, options?: Transformation | Transformation.Options): string;
+    url(publicId: string, options?: UrlOptions ): string;
 
     /**
      * Generate an video resource URL.
@@ -872,8 +872,6 @@ export namespace Configuration {
         static_image_support?: string;
         enhance_image_tag?: boolean;
 
-        placeholder?: string | "blur" | "pixelate" | "predominant-color" | "vectorize";
-        accessibility?: string | "darkmode" | "brightmode" | "monochrome" | "colorblind";
         [futureKey: string]: any;
     }
 }
