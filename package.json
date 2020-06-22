@@ -17,7 +17,7 @@
     "test:watch": "karma start --auto-watch --browsers=ChromeHeadless",
     "test:pkgs": "tools/scripts/test.pkgs.sh",
     "test:pkgs:minified": "tools/scripts/test.pkgs.minified.sh",
-    "test:types": "tsc --typeRoots [\"./types\"]",
+    "test:types": "tsc",
     "copybuilds": "tools/scripts/copybuilds.sh",
     "verify-pkgs": "jasmine pkg/verify-pkgs.js",
     "snyk-protect": "snyk protect",

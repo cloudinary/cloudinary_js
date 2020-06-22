@@ -3,7 +3,8 @@
         "module": "commonjs",
         "noImplicitAny": true,
         "esModuleInterop": true,
-        "allowSyntheticDefaultImports": true
+        "allowSyntheticDefaultImports": true,
+        "skipLibCheck": true
     },
     "include": [
         "dist/**/*",
@@ -11,5 +12,5 @@
     ],
     "exclude": [
         "node_modules"
-    ] 
+    ]
 }
