@@ -1,7 +1,7 @@
 /**
  * @description Gets the analyticsOptions from options- should include sdkSemver, techVersion, sdkCode, and feature
  * @param options
- * @returns {{sdkSemver: (string), sdkCode, feature: string, techVersion: (string)}}
+ * @returns {{sdkSemver: (string), sdkCode, feature: string, techVersion: (string)} || {}}
  */
 export default function getAnalyticsOptions(options) {
   let analyticsOptions = {
@@ -24,5 +24,7 @@ export default function getAnalyticsOptions(options) {
       analyticsOptions.feature = 'B';
     }
     return analyticsOptions;
+  } else {
+    return {};
   }
 }

@@ -26,6 +26,17 @@ type StreamingProfiles = string | "4k" | "full_hd" | "hd" | "sd" | "full_hd_wifi
 export function crc32(str: string): any;
 export function utf8_encode(argString: string): any;
 
+type AnalyticsOptions = {
+    sdkSemver: string;
+    techVersion: string;
+    sdkCode: string;
+    feature: string;
+}
+
+export function getAnalyticsOptions(options: {sdkSemver?:string, sdkCode?:string, feature?: string, techVersion?: string}) : AnalyticsOptions;
+export function getSDKAnalyticsSignature(options: AnalyticsOptions):string;
+
+
 export class Util {
     static allStrings(list: Array<any>): boolean;
     static camelCase(text: string): string;
