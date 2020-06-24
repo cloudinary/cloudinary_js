@@ -2,19 +2,24 @@ import encodeVersion from "./encodeVersion.js";
 
 /**
  * @description Gets the SDK signature by encoding the SDK version and tech version
- * @param analyticsOptions
- * @return {string} encodedSDK sdkVersionID
+ * @param {{
+ *    [techVersion]:string,
+ *    [sdkSemver]: string,
+ *    [sdkCode]: string,
+ *    [feature]: string
+ * }} analyticsOptions
+ * @return {string} sdkAnalyticsSignature
  */
-export default function getSDKVersionID(analyticsOptions={}) {
+export default function getSDKAnalyticsSignature(analyticsOptions={}) {
   try {
     let twoPartVersion = removePatchFromSemver(analyticsOptions.techVersion);
     let encodedSDKVersion = encodeVersion(analyticsOptions.sdkSemver);
     let encodedTechVersion = encodeVersion(twoPartVersion);
     let featureCode = analyticsOptions.feature;
     let SDKCode = analyticsOptions.sdkCode;
+    let algoVersion = 'A'; // The algo version is determined here, it should not be an argument
 
-    return `${SDKCode}${encodedSDKVersion}${encodedTechVersion}${featureCode}`;
-
+    return `${algoVersion}${SDKCode}${encodedSDKVersion}${encodedTechVersion}${featureCode}`;
   } catch (e) {
     // Either SDK or Node versions were unparsable
     return 'E';

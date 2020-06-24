@@ -14,8 +14,8 @@ import {
 } from './util';
 
 import crc32 from './crc32';
-import getSDKVersionID from "./sdkVersionID/getSDKVersionID";
-import getAnalyticsOptions from "./sdkVersionID/getAnalyticsOptions";
+import getSDKAnalyticsSignature from "./sdkAnalytics/getSDKAnalyticsSignature";
+import getAnalyticsOptions from "./sdkAnalytics/getAnalyticsOptions";
 
 
 /**
@@ -350,13 +350,13 @@ export default function url(publicId, options = {}, config = {}) {
   let resultUrl = urlString(publicId, options);
   if(options.analytics) {
     let analyticsOptions = getAnalyticsOptions(options);
-    let sdkVersionID = getSDKVersionID(analyticsOptions);
+    let sdkAnalyticsSignature = getSDKAnalyticsSignature(analyticsOptions);
     // url might already have a '?' query param
     let appender = '?';
     if (resultUrl.indexOf('?') >= 0) {
       appender = '&';
     }
-    resultUrl = `${resultUrl}${appender}_s=${sdkVersionID}`;
+    resultUrl = `${resultUrl}${appender}_a=${sdkAnalyticsSignature}`;
   }
   return resultUrl;
 };

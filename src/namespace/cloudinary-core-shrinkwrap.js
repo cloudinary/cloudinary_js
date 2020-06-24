@@ -17,8 +17,10 @@ import FetchLayer from '../layer/fetchlayer';
 import TextLayer from '../layer/textlayer';
 import SubtitlesLayer from '../layer/subtitleslayer';
 import Cloudinary from '../cloudinary';
+import getSDKAnalyticsSignature from "../sdkAnalytics/getSDKAnalyticsSignature";
 
 export default {
+  getSDKAnalyticsSignature,
   ClientHintsMetaTag,
   Cloudinary,
   Condition,

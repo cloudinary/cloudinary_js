@@ -16,29 +16,29 @@ describe('Tests for sdk versionID util', function () {
     cl = cloudinary.Cloudinary.new({cloud_name: 'sdk-test', analytics: true});
 
     let img = cl.url("sample", {techVersion: '12.0.0', sdkSemver: '1.24.0', sdkCode: 'M'});
-    expect(img).toEqual('http://res.cloudinary.com/sdk-test/image/upload/sample?_s=MAlhAM0');
+    expect(img).toEqual('http://res.cloudinary.com/sdk-test/image/upload/sample?_a=AMAlhAM0');
   });
   it('creates the correct sdk versionID', function () {
     cl = cloudinary.Cloudinary.new({cloud_name: 'sdk-test', analytics: true});
     // Sanity check taken from node
     let img = cl.url("sample", {techVersion: '12.0', sdkSemver: '1.24.0', sdkCode: 'M'});
-    expect(img).toEqual('http://res.cloudinary.com/sdk-test/image/upload/sample?_s=MAlhAM0');
+    expect(img).toEqual('http://res.cloudinary.com/sdk-test/image/upload/sample?_a=AMAlhAM0');
 
     img = cl.url("sample", {techVersion: '43.21.26', sdkSemver: '43.21.26', sdkCode: 'M'});
-    expect(img).toEqual('http://res.cloudinary.com/sdk-test/image/upload/sample?_s=M///hf0');
+    expect(img).toEqual('http://res.cloudinary.com/sdk-test/image/upload/sample?_a=AM///hf0');
 
     img = cl.url("sample", {techVersion: '0.0.0', sdkSemver: '0.0.0', sdkCode: 'M'});
-    expect(img).toEqual('http://res.cloudinary.com/sdk-test/image/upload/sample?_s=MAAAAA0');
+    expect(img).toEqual('http://res.cloudinary.com/sdk-test/image/upload/sample?_a=AMAAAAA0');
 
     img = cl.url("sample", {techVersion: '1.2.0', sdkSemver: '6.1.0', loading: 'lazy', sdkCode: 'K'});
     console.log('imgggg', img);
-    expect(img).toEqual('http://res.cloudinary.com/sdk-test/image/upload/sample?_s=KABqDJC');
+    expect(img).toEqual('http://res.cloudinary.com/sdk-test/image/upload/sample?_a=AKABqDJC');
   });
   it('Handles invalid arguments gracefully', function () {
     cl = cloudinary.Cloudinary.new({cloud_name: 'sdk-test', analytics: true});
 
     let img = cl.url("sample", {techVersion: 'abcdefg', sdkSemver: 'abcdefg', sdkCode: 'M'});
 
-    expect(img).toEqual('http://res.cloudinary.com/sdk-test/image/upload/sample?_s=E');
+    expect(img).toEqual('http://res.cloudinary.com/sdk-test/image/upload/sample?_a=E');
   });
 });
