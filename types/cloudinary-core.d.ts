@@ -550,7 +550,7 @@ export class TextLayer extends Layer {
     fontWeight(value: string): TextLayer;
     fontStyle(value: string): TextLayer;
     fontHinting(value: string): TextLayer;
-    fontAntiAliasing(value: string): TextLayer;
+    fontAntialiasing(value: string): TextLayer;
     textDecoration(value: string): TextLayer;
     textAlign(value: string): TextLayer;
     stroke(value: string): TextLayer;
@@ -630,7 +630,11 @@ export class Param {
  * @param {Object} options - options to configure Cloudinary
  * @see Configuration for more details
  * @example
+ *    // Include cloudinary_js in a <script> tag, then:
  *    var cl = new cloudinary.Cloudinary( { cloud_name: "mycloud"});
+ *    // Or import it from the npm package:
+ *    import { Cloudinary } from 'cloudinary-core';
+ *    var cl = new Cloudinary( { cloud_name: "mycloud"});
  *    var imgTag = cl.image("myPicID");
  */
 export class Cloudinary {

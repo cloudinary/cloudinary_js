@@ -31,17 +31,23 @@ class Expression {
    * @return {string} the normalized form of the value expression, e.g. "w_gt_100"
    */
   static normalize(expression) {
-    var operators, pattern, replaceRE;
+    var operators, operatorsPattern, operatorsReplaceRE, predefinedVarsPattern, predefinedVarsReplaceRE;
     if (expression == null) {
       return expression;
     }
     expression = String(expression);
-    operators = "\\|\\||>=|<=|&&|!=|>|=|<|/|-|\\+|\\*";
-    pattern = "((" + operators + ")(?=[ _])|(?<!\\$)(" + Object.keys(Expression.PREDEFINED_VARS).join("|") + "))";
-    replaceRE = new RegExp(pattern, "g");
-    expression = expression.replace(replaceRE, function (match) {
-      return Expression.OPERATORS[match] || Expression.PREDEFINED_VARS[match];
-    });
+    operators = "\\|\\||>=|<=|&&|!=|>|=|<|/|-|\\+|\\*|\\^";
+
+    // operators
+    operatorsPattern = "((" + operators + ")(?=[ _]))";
+    operatorsReplaceRE = new RegExp(operatorsPattern, "g");
+    expression = expression.replace(operatorsReplaceRE, match => Expression.OPERATORS[match]);
+
+    // predefined variables
+    predefinedVarsPattern = "(" + Object.keys(Expression.PREDEFINED_VARS).join("|") + ")";
+    predefinedVarsReplaceRE = new RegExp(predefinedVarsPattern, "g");
+    expression = expression.replace(predefinedVarsReplaceRE, (match, p1, offset) => (expression[offset - 1] === '$' ? match : Expression.PREDEFINED_VARS[match]));
+
     return expression.replace(/[ _]+/g, '_');
   }
 
@@ -287,7 +293,8 @@ Expression.OPERATORS = {
   "*": "mul",
   "/": "div",
   "+": "add",
-  "-": "sub"
+  "-": "sub",
+  "^": "pow",
 };
 
 /**
