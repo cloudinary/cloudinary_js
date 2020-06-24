@@ -42,6 +42,8 @@ export default {
 };
 
 export {
+  getAnalyticsOptions,
+  getSDKAnalyticsSignature,
   ClientHintsMetaTag,
   Cloudinary,
   Condition,
