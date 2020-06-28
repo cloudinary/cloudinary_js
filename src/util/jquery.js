@@ -2,6 +2,10 @@
   * Includes utility methods and lodash / jQuery shims
  */
 export * from './baseutil';
+import getSDKAnalyticsSignature from "../sdkAnalytics/getSDKAnalyticsSignature";
+import getAnalyticsOptions from "../sdkAnalytics/getAnalyticsOptions";
+export {getSDKAnalyticsSignature , getAnalyticsOptions};
+
 
 /**
   * Get data from the DOM element.

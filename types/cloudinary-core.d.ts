@@ -46,8 +46,7 @@ type AnalyticsOptionsParameters = {
 }
 
 
-export function getAnalyticsOptions(options: AnalyticsOptionsParameters) : AnalyticsOptions;
-export function getSDKAnalyticsSignature(options: AnalyticsOptions):string;
+
 
 
 export class Util {
@@ -84,6 +83,9 @@ export class Util {
     static identity(value: any): any;
     static isPlainObject(value: any): boolean;
     static trim(text: string): string;
+
+    static getAnalyticsOptions(options: AnalyticsOptionsParameters) : AnalyticsOptions;
+    static getSDKAnalyticsSignature(options: AnalyticsOptions):string;;
 }
 
 
