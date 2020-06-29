@@ -9,13 +9,13 @@ import getSDKAnalyticsSignature from "../../src/sdkAnalytics/getSDKAnalyticsSign
  */
 describe('Tests for sdk analytics util', function () {
   it('Should correctly export the analytics functions', function () {
-    let foo = cloudinary.getAnalyticsOptions({
+    let foo = cloudinary.Util.getAnalyticsOptions({
       sdkCode: 'M',
       sdkSemver: '1.24.0',
       techVersion: '12.0.0'
     });
 
-    let sig = cloudinary.getSDKAnalyticsSignature(foo);
+    let sig = cloudinary.Util.getSDKAnalyticsSignature(foo);
 
     expect(sig).toBe('AMAlhAM0');
   });

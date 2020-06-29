@@ -1,5 +1,9 @@
 var nodeContains;
 
+import getSDKAnalyticsSignature from "../sdkAnalytics/getSDKAnalyticsSignature";
+import getAnalyticsOptions from "../sdkAnalytics/getAnalyticsOptions";
+export {getSDKAnalyticsSignature , getAnalyticsOptions};
+
 export {
   default as assign
 } from 'lodash/assign';

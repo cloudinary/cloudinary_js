@@ -26,6 +26,7 @@ type StreamingProfiles = string | "4k" | "full_hd" | "hd" | "sd" | "full_hd_wifi
 export function crc32(str: string): any;
 export function utf8_encode(argString: string): any;
 
+
 type AnalyticsOptions = {
     sdkSemver: string;
     techVersion: string;
@@ -33,8 +34,19 @@ type AnalyticsOptions = {
     feature: string;
 }
 
-export function getAnalyticsOptions(options: {sdkSemver?:string, sdkCode?:string, feature?: string, techVersion?: string}) : AnalyticsOptions;
-export function getSDKAnalyticsSignature(options: AnalyticsOptions):string;
+type AnalyticsOptionsParameters = {
+    sdkSemver: string;
+    techVersion: string;
+    sdkCode: string;
+    analytics?: boolean;
+    accessibility?: boolean;
+    loading?: string;
+    responsive?: boolean;
+    placeholder?: boolean;
+}
+
+
+
 
 
 export class Util {
@@ -71,6 +83,9 @@ export class Util {
     static identity(value: any): any;
     static isPlainObject(value: any): boolean;
     static trim(text: string): string;
+
+    static getAnalyticsOptions(options: AnalyticsOptionsParameters) : AnalyticsOptions;
+    static getSDKAnalyticsSignature(options: AnalyticsOptions):string;;
 }
 
 
