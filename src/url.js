@@ -16,6 +16,9 @@ import {
 } from './util';
 
 import crc32 from './crc32';
+import getSDKAnalyticsSignature from "./sdkAnalytics/getSDKAnalyticsSignature";
+import getAnalyticsOptions from "./sdkAnalytics/getAnalyticsOptions";
+
 
 /**
  * Adds protocol, host, pathname prefixes to given string
@@ -355,7 +358,6 @@ export default function url(publicId, options = {}, config = {}) {
   if (!publicId) {
     return publicId;
   }
-
   options = prepareOptions(options, config);
   publicId = preparePublicId(publicId, options);
 
@@ -364,6 +366,16 @@ export default function url(publicId, options = {}, config = {}) {
   if (error) {
     throw error;
   }
-
-  return urlString(publicId, options);
+  let resultUrl = urlString(publicId, options);
+  if(options.analytics) {
+    let analyticsOptions = getAnalyticsOptions(options);
+    let sdkAnalyticsSignature = getSDKAnalyticsSignature(analyticsOptions);
+    // url might already have a '?' query param
+    let appender = '?';
+    if (resultUrl.indexOf('?') >= 0) {
+      appender = '&';
+    }
+    resultUrl = `${resultUrl}${appender}_a=${sdkAnalyticsSignature}`;
+  }
+  return resultUrl;
 };

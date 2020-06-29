@@ -3,6 +3,10 @@
  */
 export * from './baseutil';
 export * from './lazyLoad';
+import getSDKAnalyticsSignature from "../sdkAnalytics/getSDKAnalyticsSignature";
+import getAnalyticsOptions from "../sdkAnalytics/getAnalyticsOptions";
+export {getSDKAnalyticsSignature , getAnalyticsOptions};
+
 
 /**
   * Get data from the DOM element.

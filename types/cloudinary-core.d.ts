@@ -27,6 +27,24 @@ type UrlOptions = (Transformation | Transformation.Options) & { placeholder?: st
 export function crc32(str: string): any;
 export function utf8_encode(argString: string): any;
 
+type AnalyticsOptions = {
+    sdkSemver: string;
+    techVersion: string;
+    sdkCode: string;
+    feature: string;
+}
+
+type AnalyticsOptionsParameters = {
+    sdkSemver: string;
+    techVersion: string;
+    sdkCode: string;
+    analytics?: boolean;
+    accessibility?: boolean;
+    loading?: string;
+    responsive?: boolean;
+    placeholder?: boolean;
+}
+
 export class Util {
     static allStrings(list: Array<any>): boolean;
     static camelCase(text: string): string;
@@ -62,7 +80,11 @@ export class Util {
     static isPlainObject(value: any): boolean;
     static trim(text: string): string;
     static detectIntersection(element: Element, onIntersect: Function): void
+
+    static getAnalyticsOptions(options: AnalyticsOptionsParameters) : AnalyticsOptions;
+    static getSDKAnalyticsSignature(options: AnalyticsOptions):string;;
 }
+
 
 /**
  *  Represents a single transformation.
@@ -872,7 +894,6 @@ export namespace Configuration {
 
         static_image_support?: string;
         enhance_image_tag?: boolean;
-
         [futureKey: string]: any;
     }
 }
