@@ -480,25 +480,26 @@ class Cloudinary {
    * @see {@link Cloudinary#cloudinary_update|cloudinary_update} for additional configuration parameters
    * @see <a href="https://cloudinary.com/documentation/responsive_images#automating_responsive_images_with_javascript"
    *  target="_blank">Automating responsive images with JavaScript</a>
+   * @return {function} that when called, removes the resize EventListener added by this function
    */
   responsive(options, bootstrap = true) {
     var ref, ref1, ref2, responsiveClass, responsiveResize, timeout;
     this.responsiveConfig = merge(this.responsiveConfig || {}, options);
-    responsiveClass = (ref = this.responsiveConfig['responsive_class']) != null ? ref : this.config('responsive_class');
+    responsiveClass = (ref = this.responsiveConfig.responsive_class) != null ? ref : this.config('responsive_class');
     if (bootstrap) {
       this.cloudinary_update(`img.${responsiveClass}, img.cld-hidpi`, this.responsiveConfig);
     }
-    responsiveResize = (ref1 = (ref2 = this.responsiveConfig['responsive_resize']) != null ? ref2 : this.config('responsive_resize')) != null ? ref1 : true;
+    responsiveResize = (ref1 = (ref2 = this.responsiveConfig.responsive_resize) != null ? ref2 : this.config('responsive_resize')) != null ? ref1 : true;
     if (responsiveResize && !this.responsiveResizeInitialized) {
       this.responsiveConfig.resizing = this.responsiveResizeInitialized = true;
       timeout = null;
-      return window.addEventListener('resize', () => {
+      const makeResponsive = () => {
         var debounce, ref3, ref4, reset, run, wait, waitFunc;
-        debounce = (ref3 = (ref4 = this.responsiveConfig['responsive_debounce']) != null ? ref4 : this.config('responsive_debounce')) != null ? ref3 : 100;
+        debounce = (ref3 = (ref4 = this.responsiveConfig.responsive_debounce) != null ? ref4 : this.config('responsive_debounce')) != null ? ref3 : 100;
         reset = function() {
           if (timeout) {
             clearTimeout(timeout);
-            return timeout = null;
+            timeout = null;
           }
         };
         run = () => {
@@ -510,14 +511,16 @@ class Cloudinary {
         };
         wait = function() {
           reset();
-          return timeout = setTimeout(waitFunc, debounce);
+          timeout = setTimeout(waitFunc, debounce);
         };
         if (debounce) {
           return wait();
         } else {
           return run();
         }
-      });
+      };
+      window.addEventListener('resize', makeResponsive);
+      return ()=>window.removeEventListener('resize', makeResponsive);
     }
   }
 
