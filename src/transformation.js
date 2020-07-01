@@ -1,6 +1,7 @@
 import Expression from './expression';
 import Condition from './condition';
 import Configuration from './configuration';
+import {URL_KEYS} from './constants';
 
 import {
   assign,
@@ -408,11 +409,13 @@ class TransformationBase {
    * @return PlainObject
    */
   toHtmlAttributes() {
-    var attrName, height, options, ref2, ref3, value, width;
+    let attrName, height, options, ref2, ref3, value, width;
     options = {};
+    let snakeCaseKey;
     Object.keys(this.otherOptions).forEach(key=>{
       value = this.otherOptions[key];
-      if (!contains(Transformation.PARAM_NAMES, snakeCase(key))) {
+      snakeCaseKey = snakeCase(key);
+      if (!contains(Transformation.PARAM_NAMES, snakeCaseKey) && !contains(URL_KEYS, snakeCaseKey)) {
         attrName = /^html_/.test(key) ? key.slice(5) : key;
         options[attrName] = value;
       }

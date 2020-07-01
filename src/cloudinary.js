@@ -17,7 +17,6 @@ import {
   assign,
   defaults,
   getData,
-  isArray,
   isEmpty,
   isFunction,
   isString,

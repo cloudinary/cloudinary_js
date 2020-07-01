@@ -22,10 +22,10 @@ type VideoFlags = string | Array<string> | "splice" | "layer_apply" | "no_stream
 type AudioCodec = string | "none" | "aac" | "vorbis" | "mp3";
 type AudioFrequency = number | 8000 | 11025 | 16000 | 22050 | 32000 | 37800 | 44056 | 44100 | 47250 | 48000 | 88200 | 96000 | 176400 | 192000;
 type StreamingProfiles = string | "4k" | "full_hd" | "hd" | "sd" | "full_hd_wifi" | "full_hd_lean" | "hd_lean";
+type UrlOptions = (Transformation | Transformation.Options) & { placeholder?: string, accessibility?: string };
 
 export function crc32(str: string): any;
 export function utf8_encode(argString: string): any;
-
 
 type AnalyticsOptions = {
     sdkSemver: string;
@@ -44,10 +44,6 @@ type AnalyticsOptionsParameters = {
     responsive?: boolean;
     placeholder?: boolean;
 }
-
-
-
-
 
 export class Util {
     static allStrings(list: Array<any>): boolean;
@@ -83,6 +79,7 @@ export class Util {
     static identity(value: any): any;
     static isPlainObject(value: any): boolean;
     static trim(text: string): string;
+    static detectIntersection(element: Element, onIntersect: Function): void
 
     static getAnalyticsOptions(options: AnalyticsOptionsParameters) : AnalyticsOptions;
     static getSDKAnalyticsSignature(options: AnalyticsOptions):string;;
@@ -672,12 +669,12 @@ export class Cloudinary {
      * @function Cloudinary#url
      * @param {string} publicId - the public ID of the resource
      * @param {Object} [options] - options for the tag and transformations, possible values include all {@link Transformation} parameters
-     *                          and {@link Configuration} parameters
+     *                          and {@link Configuration} parameters with addition of 'placeholder' and 'accessibility'
      * @param {string} [options.type='upload'] - the classification of the resource
      * @param {Object} [options.resource_type='image'] - the type of the resource
      * @return {string} The resource URL
      */
-    url(publicId: string, options?: Transformation | Transformation.Options): string;
+    url(publicId: string, options?: UrlOptions ): string;
 
     /**
      * Generate an video resource URL.
