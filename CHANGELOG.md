@@ -1,3 +1,17 @@
+2.10.0 / 2020-07-01
+==================
+
+New functionality and features
+------------------------------
+* Add support for intersection detection.
+* Add support for placeholder and accessibility to url() function (#236)
+* Update responsive() to return a callback that removes the listener it adds
+
+Other Changes
+-------------
+* Add SDK analytics signature to the URL (off by default)
+* Update tsconfig to only test types folder (#237)
+
 2.9.0 / 2020-06-21
 ==================
 
