@@ -99,7 +99,7 @@ function baseConfig(name, mode) {
     plugins: [
       new webpack.BannerPlugin({
         banner: `/**
-   * cloudinary-[name].js
+   * cloudinary-${name}.js
    * Cloudinary's JavaScript library - Version ${version}
    * Copyright Cloudinary
    * see https://github.com/cloudinary/cloudinary_js
