@@ -1,5 +1,6 @@
 import base64Map from "./base64Map";
 import reverseVersion from "./reverseVersion";
+import stringPad from "./stringPad";
 
 /**
  * @description Encodes a semVer-like version string
@@ -22,7 +23,9 @@ export default function encodeVersion(semVer) {
 
   // Represent as binary, add left padding to 12 or 18 characters.
   // 150,501 -> 100100101111100101
-  let paddedBinary = num.toString(2).padStart(paddedStringLength, '0');
+
+  let paddedBinary = num.toString(2);
+  paddedBinary = stringPad(paddedBinary, paddedStringLength, '0');
 
   // Stop in case an invalid version number was provided
   // paddedBinary must be built from sections of 6 bits

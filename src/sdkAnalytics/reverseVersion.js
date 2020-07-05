@@ -1,3 +1,5 @@
+import stringPad from "./stringPad";
+
 /**
  * @description A semVer like string, x.y.z or x.y is allowed
  *              Reverses the version positions, x.y.z turns to z.y.x
@@ -13,6 +15,6 @@ export default function reverseVersion(semVer) {
 
   // Split by '.', reverse, create new array with padded values and concat it together
   return semVer.split('.').reverse().map((segment) => {
-    return segment.padStart(2, '0');
+    return stringPad(segment,2, '0');
   }).join('.');
 }
