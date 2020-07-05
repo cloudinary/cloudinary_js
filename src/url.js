@@ -367,7 +367,7 @@ export default function url(publicId, options = {}, config = {}) {
     throw error;
   }
   let resultUrl = urlString(publicId, options);
-  if(options.analytics) {
+  if(options.urlAnalytics) {
     let analyticsOptions = getAnalyticsOptions(options);
     let sdkAnalyticsSignature = getSDKAnalyticsSignature(analyticsOptions);
     // url might already have a '?' query param

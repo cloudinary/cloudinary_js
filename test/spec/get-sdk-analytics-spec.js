@@ -21,20 +21,20 @@ describe('Tests for sdk analytics util', function () {
   });
 
   it('should not append analytics if false', function () {
-    cl = cloudinary.Cloudinary.new({cloud_name: 'sdk-test', analytics: false});
+    cl = cloudinary.Cloudinary.new({cloud_name: 'sdk-test', urlAnalytics: false});
 
     let img = cl.url("sample", {techVersion: '12.0.0', sdkSemver: '1.24.0', sdkCode: 'M'});
 
     expect(img).toEqual('http://res.cloudinary.com/sdk-test/image/upload/sample');
   });
-  it('creates the correct sdk analytics x.y.z', function () {
-    cl = cloudinary.Cloudinary.new({cloud_name: 'sdk-test', analytics: true});
+  it('creates the correct sdk urlAnalytics x.y.z', function () {
+    cl = cloudinary.Cloudinary.new({cloud_name: 'sdk-test', urlAnalytics: true});
 
     let img = cl.url("sample", {techVersion: '12.0.0', sdkSemver: '1.24.0', sdkCode: 'M'});
     expect(img).toEqual('http://res.cloudinary.com/sdk-test/image/upload/sample?_a=AMAlhAM0');
   });
-  it('creates the correct sdk analytics', function () {
-    cl = cloudinary.Cloudinary.new({cloud_name: 'sdk-test', analytics: true});
+  it('creates the correct sdk urlAnalytics', function () {
+    cl = cloudinary.Cloudinary.new({cloud_name: 'sdk-test', urlAnalytics: true});
     // Sanity check taken from node
     let img = cl.url("sample", {techVersion: '12.0', sdkSemver: '1.24.0', sdkCode: 'M'});
     expect(img).toEqual('http://res.cloudinary.com/sdk-test/image/upload/sample?_a=AMAlhAM0');
@@ -50,7 +50,7 @@ describe('Tests for sdk analytics util', function () {
     expect(img).toEqual('http://res.cloudinary.com/sdk-test/image/upload/sample?_a=AKABqDJC');
   });
   it('Handles invalid arguments gracefully', function () {
-    cl = cloudinary.Cloudinary.new({cloud_name: 'sdk-test', analytics: true});
+    cl = cloudinary.Cloudinary.new({cloud_name: 'sdk-test', urlAnalytics: true});
 
     let img = cl.url("sample", {techVersion: 'abcdefg', sdkSemver: 'abcdefg', sdkCode: 'M'});
 
