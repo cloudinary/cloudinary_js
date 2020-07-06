@@ -44,7 +44,6 @@ describe('Tests for sdk analytics util', function () {
     expect(img).toEqual('http://res.cloudinary.com/sdk-test/image/upload/sample?_a=AMAAAAA0');
 
     img = cl.url("sample", {techVersion: '1.2.0', sdkSemver: '6.1.0', loading: 'lazy', sdkCode: 'K'});
-    console.log('imgggg', img);
     expect(img).toEqual('http://res.cloudinary.com/sdk-test/image/upload/sample?_a=AKABqDJC');
   });
   it('Handles invalid arguments gracefully', function () {
