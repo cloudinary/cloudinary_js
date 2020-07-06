@@ -7,8 +7,17 @@ export default function stringPad(value, targetLength,padString) {
   else {
     targetLength = targetLength-value.length;
     if (targetLength > padString.length) {
-      padString += padString.repeat(targetLength/padString.length); //append to original to ensure we are longer than needed
+      padString += repeatStringNumTimes(padString, targetLength/padString.length);
     }
     return padString.slice(0,targetLength) + String(value);
   }
+}
+
+function repeatStringNumTimes(string, times) {
+  var repeatedString = "";
+  while (times > 0) {
+    repeatedString += string;
+    times--;
+  }
+  return repeatedString;
 }
