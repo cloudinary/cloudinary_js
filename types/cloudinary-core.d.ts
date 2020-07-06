@@ -38,7 +38,7 @@ type AnalyticsOptionsParameters = {
     sdkSemver: string;
     techVersion: string;
     sdkCode: string;
-    analytics?: boolean;
+    urlAnalytics?: boolean;
     accessibility?: boolean;
     loading?: string;
     responsive?: boolean;
