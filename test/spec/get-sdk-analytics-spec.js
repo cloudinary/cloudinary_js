@@ -1,6 +1,3 @@
-import getAnalyticsOptions from "../../src/sdkAnalytics/getAnalyticsOptions";
-import getSDKAnalyticsSignature from "../../src/sdkAnalytics/getSDKAnalyticsSignature";
-
 /**
  * techVersion is the techVersion of the framework
  * sdkSemver is the version of the Cloudinary SDK
@@ -12,7 +9,8 @@ describe('Tests for sdk analytics util', function () {
     let foo = cloudinary.Util.getAnalyticsOptions({
       sdkCode: 'M',
       sdkSemver: '1.24.0',
-      techVersion: '12.0.0'
+      techVersion: '12.0.0',
+      urlAnalytics: true
     });
 
     let sig = cloudinary.Util.getSDKAnalyticsSignature(foo);
