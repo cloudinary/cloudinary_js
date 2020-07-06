@@ -1,3 +1,12 @@
+2.10.1 / 2020-07-06
+==================
+
+* Update analytics param to be urlAnalytics (#245)
+* Fix IE11 support by removing unsupported padStart function (#244)
+* Fix normalize() in jquery library used by server-side sdks
+* Fix title added to npm packages
+* Update travis configuration to test on node 8,10,12,14 (#241)
+
 2.10.0 / 2020-07-01
 ==================
 
