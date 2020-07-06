@@ -69,5 +69,8 @@
     "webpack-bundle-analyzer": "^3.3.2",
     "webpack-cli": "^3.3.0"
   },
-  "snyk": true
+  "snyk": true,
+  "dependencies": {
+    "core-js": "^3.6.5"
+  }
 }
