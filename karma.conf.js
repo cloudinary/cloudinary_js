@@ -1,24 +1,31 @@
 process.env.CHROME_BIN = require('puppeteer').executablePath();
 
+let fs = require('fs');
+let glob = require('glob');
+
+function returnFilePathOrThrow(filePath) {
+  if (!fs.existsSync(filePath)) {
+    throw `Cannot find ${filePath}`;
+  } else {
+    return filePath;
+  }
+}
+
 function testFiles(pkg) {
-  let files = [
-    'test/spec/spec-helper.js',
-    'test/spec/util-spec.js',
-    'test/spec/cloudinary-spec.js',
-    'test/spec/transformation-spec.js',
-    'test/spec/tagspec.js',
-    'test/spec/videourlspec.js',
-    'test/spec/chaining-spec.js',
-    'test/spec/layer-spec.js',
-    'test/spec/lazy-load-spec.js',
-    'test/spec/get-sdk-analytics-spec.js',
-    `test/spec/responsive-${pkg}-spec.js`,
-  ];
+  // all files under test/specspec/tests/
+  const files = glob.sync('test/spec/automatic/**/*.js'  , { cwd:process.cwd() });
+
+  if (files.length === 0) {
+    throw 'Error in glob pattern, no tests found';
+  }
+
+  // Ensure the responsive file exists add it
+  files.push(returnFilePathOrThrow(`test/spec/manual/responsive-${pkg}-spec.js`));
 
   if (pkg === 'jquery-file-upload') {
-    files.push('test/spec/cloudinary-jquery-upload-spec.js');
+    files.push(returnFilePathOrThrow('test/spec/cloudinary-jquery-upload-spec.js'));
   } else{
-    files.push(`test/spec/lazy-load-${pkg}-spec.js`);
+    files.push(returnFilePathOrThrow(`test/spec/manual/lazy-load-${pkg}-spec.js`));
   }
 
   return files;
@@ -59,11 +66,11 @@ module.exports = function(config) {
   let {minified, pkg='core'} = config.cloudinary || {};
 
   console.log(`Testing ${minified ? 'minified' : 'un-minified'}`);
-  const subject = `dist/cloudinary-${pkg}${minified ? '.min' : ''}.js`;
-  const lazyLoadBase = `test/spec/lazyLoadTestBase.js`;
+  const subject = returnFilePathOrThrow(`dist/cloudinary-${pkg}${minified ? '.min' : ''}.js`);
+  const lazyLoadBase = returnFilePathOrThrow(`test/spec/manual/lazyLoadTestBase.js`);
 
-  const responsiveHtmlFile = `test/docRoot/responsive-${pkg}-test.html`;
-  const lazyLoadHtmlFile = `test/docRoot/lazy-load-${pkg}-test.html`;
+  const responsiveHtmlFile = returnFilePathOrThrow(`test/docRoot/responsive-${pkg}-test.html`);
+  const lazyLoadHtmlFile = returnFilePathOrThrow(`test/docRoot/lazy-load-${pkg}-test.html`);
 
   return config.set({
     // base path that will be used to resolve all patterns (eg. files, exclude)
