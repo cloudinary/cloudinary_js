@@ -1,6 +1,3 @@
-import getAnalyticsOptions from "../../src/sdkAnalytics/getAnalyticsOptions";
-import getSDKAnalyticsSignature from "../../src/sdkAnalytics/getSDKAnalyticsSignature";
-
 /**
  * techVersion is the techVersion of the framework
  * sdkSemver is the version of the Cloudinary SDK
@@ -12,7 +9,8 @@ describe('Tests for sdk analytics util', function () {
     let foo = cloudinary.Util.getAnalyticsOptions({
       sdkCode: 'M',
       sdkSemver: '1.24.0',
-      techVersion: '12.0.0'
+      techVersion: '12.0.0',
+      urlAnalytics: true
     });
 
     let sig = cloudinary.Util.getSDKAnalyticsSignature(foo);
@@ -46,7 +44,6 @@ describe('Tests for sdk analytics util', function () {
     expect(img).toEqual('http://res.cloudinary.com/sdk-test/image/upload/sample?_a=AMAAAAA0');
 
     img = cl.url("sample", {techVersion: '1.2.0', sdkSemver: '6.1.0', loading: 'lazy', sdkCode: 'K'});
-    console.log('imgggg', img);
     expect(img).toEqual('http://res.cloudinary.com/sdk-test/image/upload/sample?_a=AKABqDJC');
   });
   it('Handles invalid arguments gracefully', function () {

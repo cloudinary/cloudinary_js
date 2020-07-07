@@ -10,7 +10,7 @@ export default function getAnalyticsOptions(options) {
     sdkCode: options.sdkCode,
     feature: '0'
   };
-  if (options.analytics) {
+  if (options.urlAnalytics) {
     if (options.accessibility) {
       analyticsOptions.feature = 'D';
     }
