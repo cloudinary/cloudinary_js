@@ -759,7 +759,7 @@ class Cloudinary {
 
       let videoURL = this.video_url(publicId, options);
 
-      checkSupportForTransparency(videoURL, options.max_timeout_ms).then((isNativelyTransparent) => {
+      checkSupportForTransparency().then((isNativelyTransparent) => {
         let mountPromise;
 
         if (isNativelyTransparent) {
