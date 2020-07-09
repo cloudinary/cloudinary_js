@@ -13,6 +13,7 @@
     "build": "parallel-webpack && npm run bundlewatch",
     "bundlewatch": "bundlewatch --config ./bundlewatch.config.js",
     "doc": "jsdoc -c jsdoc-conf.json",
+    "pretest": "jasmine test/spec/env/*-spec.js",
     "test": "karma start --single-run --browsers=ChromeHeadless",
     "test:watch": "karma start --auto-watch --browsers=ChromeHeadless",
     "test:pkgs": "tools/scripts/test.pkgs.sh",
