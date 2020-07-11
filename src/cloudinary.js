@@ -680,11 +680,14 @@ class Cloudinary {
               setUrl = false;
             }
           }
-          if(options.loading === 'lazy' && !this.isNativeLazyLoadSupported() && this.isLazyLoadSupported() && !elements[0].getAttribute('src')) {
-            this.setImgOnLazyLoad(elements, options);
-          }else if (setUrl) {
+          const isLazyLoading = (options.loading === 'lazy' && !this.isNativeLazyLoadSupported() && this.isLazyLoadSupported() && !elements[0].getAttribute('src'));
+          if (setUrl || isLazyLoading){
+            // If data-width exists, set width to be data-width
+            this.setAttributeIfExists(elements[0], 'width', 'data-width');
+          }
+
+          if (setUrl && !isLazyLoading) {
             setAttribute(tag, 'src', dataSrc);
-            elements[0].setAttribute('width', elements[0].getAttribute('data-width'));
           }
         }
       }
@@ -693,12 +696,16 @@ class Cloudinary {
   }
 
   /**
-   * Sets width when not using native lazy load
-   * @param img
-   * @param options
+   * Sets element[toAttribute] = element[fromAttribute] if element[fromAttribute] is set
+   * @param element
+   * @param toAttribute
+   * @param fromAttribute
    */
-  setImgOnLazyLoad(img, options){
-    img[0].setAttribute('width', img[0].getAttribute('data-width'));
+  setAttributeIfExists(element, toAttribute, fromAttribute){
+    const attributeValue = element.getAttribute(fromAttribute);
+    if (attributeValue != null) {
+      setAttribute(element, toAttribute, attributeValue);
+    }
   }
 
   /**

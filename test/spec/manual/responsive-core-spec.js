@@ -140,7 +140,45 @@ describeTest('client side responsive' + navigator.userAgent, function() {
       testWindow.resizeBy(200, 0);
       triggerResize(window);
     });
-    return describe("responsive_class", function() {
+    it('should correctly set image width attribute', function(done) {
+      var dpr, img;
+      container = void 0;
+      img = void 0;
+      dpr = cl.device_pixel_ratio();
+      container = document.createElement('div');
+      container.style.width = "101px";
+      fixtureContainer.appendChild(container);
+      img = cl.image('sample.jpg', {
+        width: 100,
+        dpr: 'auto',
+        crop: 'scale',
+        responsive: true
+      });
+      container.appendChild(img);
+      expect(img.getAttribute('src')).toBeTruthy();
+      expect(img.getAttribute('width')).toEqual('100');
+      expect(cloudinary.Util.hasClass(img, 'cld-responsive')).toBeTruthy();
+      cl.responsive();
+      expect(img.getAttribute('src')).toEqual(window.location.protocol + '//res.cloudinary.com/sdk-test/image/upload/c_scale,dpr_' + dpr + ',w_100/sample.jpg');
+      expect(img.getAttribute('width')).toEqual('100');
+      container.style.width = "211px";
+      expect(img.getAttribute('src')).toEqual(window.location.protocol + '//res.cloudinary.com/sdk-test/image/upload/c_scale,dpr_' + dpr + ',w_100/sample.jpg');
+      expect(img.getAttribute('width')).toEqual('100');
+      triggerResize(window);
+      return window.setTimeout(function() {
+        // wait(200)
+        expect(img.getAttribute('src')).toEqual(window.location.protocol + '//res.cloudinary.com/sdk-test/image/upload/c_scale,dpr_' + dpr + ',w_100/sample.jpg');
+        expect(img.getAttribute('width')).toEqual('100');
+        container.style.width = "101px";
+        return window.setTimeout(function() {
+          // wait(200)
+          expect(img.getAttribute('src')).toEqual(window.location.protocol + '//res.cloudinary.com/sdk-test/image/upload/c_scale,dpr_' + dpr + ',w_100/sample.jpg');
+          expect(img.getAttribute('width')).toEqual('100');
+          return done();
+        }, 200);
+      }, 200);
+    });
+    describe("responsive_class", function() {
       return it("should set the class used for responsive functionality", function() {
         var img;
         img = cl.image("sample", {
