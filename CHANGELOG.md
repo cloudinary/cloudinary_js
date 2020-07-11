@@ -1,3 +1,9 @@
+2.10.3 / 2020-07-11
+==================
+
+* Fix bug where image width was set to 'null' for responsive images
+* Refactor tests configuration and folder structure
+
 2.10.2 / 2020-07-08
 ==================
 
