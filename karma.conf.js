@@ -23,7 +23,7 @@ function testFiles(pkg) {
   files.push(returnFilePathOrThrow(`test/spec/manual/responsive-${pkg}-spec.js`));
 
   if (pkg === 'jquery-file-upload') {
-    files.push(returnFilePathOrThrow('test/spec/cloudinary-jquery-upload-spec.js'));
+    files.push(returnFilePathOrThrow('test/spec/manual/cloudinary-jquery-upload-spec.js'));
   } else{
     files.push(returnFilePathOrThrow(`test/spec/manual/lazy-load-${pkg}-spec.js`));
   }
@@ -70,7 +70,27 @@ module.exports = function(config) {
   const lazyLoadBase = returnFilePathOrThrow(`test/spec/manual/lazyLoadTestBase.js`);
 
   const responsiveHtmlFile = returnFilePathOrThrow(`test/docRoot/responsive-${pkg}-test.html`);
-  const lazyLoadHtmlFile = returnFilePathOrThrow(`test/docRoot/lazy-load-${pkg}-test.html`);
+
+  let lazyLoadHtmlFile;
+  if (pkg !== 'jquery-file-upload') {
+    lazyLoadHtmlFile = returnFilePathOrThrow(`test/docRoot/lazy-load-${pkg}-test.html`);
+  }
+
+  let pattern = [
+    '{', // keep this first
+    `dist/*.map`
+  ];
+
+  if (responsiveHtmlFile) {
+    pattern.push(responsiveHtmlFile);
+  }
+
+  pattern = pattern.concat([
+    lazyLoadHtmlFile,
+    `node_modules/bootstrap/dist/+(css|js)/*`,
+    `test/docRoot/css/logo-nav.css`,
+    '}' // keep this last
+  ]).join(',');
 
   return config.set({
     // base path that will be used to resolve all patterns (eg. files, exclude)
@@ -86,15 +106,7 @@ module.exports = function(config) {
       lazyLoadBase,
       ...testFiles(pkg),
       {
-        pattern: [
-          '{', // keep this first
-          `dist/*.map`,
-          responsiveHtmlFile,
-          lazyLoadHtmlFile,
-          `node_modules/bootstrap/dist/+(css|js)/*`,
-          `test/docRoot/css/logo-nav.css`,
-          '}' // keep this last
-        ].join(','),
+        pattern,
         watched: false,
         included: false,
         served: true,
