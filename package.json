@@ -11,6 +11,7 @@
   ],
   "scripts": {
     "build": "parallel-webpack && npm run bundlewatch",
+    "postbuild": "npm run copybuilds",
     "bundlewatch": "bundlewatch --config ./bundlewatch.config.js",
     "doc": "jsdoc -c jsdoc-conf.json",
     "test": "jasmine test/spec/env/js-folder-spec.js && karma start --single-run --browsers=ChromeHeadless",
