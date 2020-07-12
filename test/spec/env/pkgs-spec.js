@@ -1,5 +1,5 @@
 /**
- * Verify existance of all needed files in each package.
+ * Verify existence of all needed files in each package.
  * This test file should be run before each release.
  */
 
