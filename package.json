@@ -20,6 +20,7 @@
     "test:types": "tsc",
     "copybuilds": "tools/scripts/copybuilds.sh",
     "verify-pkgs": "jasmine pkg/verify-pkgs.js",
+    "init-git-hooks": "git config core.hooksPath .githooks",
     "snyk-protect": "snyk protect",
     "prepublish": "npm run snyk-protect"
   },

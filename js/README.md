@@ -1,3 +1,4 @@
+Test
 # Cloudinary Client Side Jquery Library
 This folder contains a backup of cloudinary-jquery version 2.5.0, with minor fixes.
 It also contains several jquery plugins that can be used for client-side upload.
