@@ -13,7 +13,7 @@
     "build": "parallel-webpack && npm run bundlewatch",
     "bundlewatch": "bundlewatch --config ./bundlewatch.config.js",
     "doc": "jsdoc -c jsdoc-conf.json",
-    "test": "karma start --single-run --browsers=ChromeHeadless",
+    "test": "jasmine test/spec/env/js-folder-spec.js && karma start --single-run --browsers=ChromeHeadless",
     "test:watch": "karma start --auto-watch --browsers=ChromeHeadless",
     "test:pkgs": "tools/scripts/test.pkgs.sh",
     "test:pkgs:minified": "tools/scripts/test.pkgs.minified.sh",
@@ -21,7 +21,7 @@
     "copybuilds": "tools/scripts/copybuilds.sh",
     "verify-pkgs": "jasmine pkg/verify-pkgs.js",
     "snyk-protect": "snyk protect",
-    "prepublish": "npm run snyk-protect"
+    "prepublishOnly": "jasmine test/spec/env/pkgs-spec.js && npm run snyk-protect"
   },
   "repository": {
     "type": "git",
