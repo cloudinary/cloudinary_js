@@ -51,7 +51,7 @@ myDescribe("Transparent Video Test", function () {
         expect(err).toBeUndefined();
         done();
       });
-    }, timeout); // timeout
+    }, timeout);
 
     it("Should timeout with a short enough max_timeout_ms", function (done) {
       restoreXHR = forceNativeTransparentSupport(false);
@@ -228,14 +228,15 @@ myDescribe("Transparent Video Test", function () {
  * @return {function(...[*]=)}
  */
 function forceNativeTransparentSupport(isNativeSupported) {
-  let xhr = window.XMLHttpRequest;
-  let original = xhr.prototype.getAllResponseHeaders;
+  let original = HTMLVideoElement.prototype.canPlayType;
 
-  xhr.prototype.getAllResponseHeaders = () => {
-    return isNativeSupported ? '' : 'server-timing: akam;dur=9;start=2020-05-31T11:15:15.603Z;desc=hit,rtt;dur=21,content-info;desc="vmux-alpha=?1"';
+
+  HTMLVideoElement.prototype.canPlayType = () => {
+    return isNativeSupported ? 'maybe' : '';
   };
+
   return () => {
-    xhr.prototype.getAllResponseHeaders = original;
+    HTMLVideoElement.prototype.canPlayType = original;
   };
 }
 
