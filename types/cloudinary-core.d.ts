@@ -843,6 +843,24 @@ export class Cloudinary {
      * @return {Transformation}
      */
     transformation(options?: Transformation | Transformation.Options): Transformation;
+
+    injectTransparentVideoElement(container: HTMLElement, publicId: string, options: TransparentVideoOptions): Promise<HTMLElement | {status: string, message: string}>
+}
+
+
+interface TransparentVideoOptions extends Transformation.Options {
+    externalLibraries?: {
+        seeThru?: string,
+        [future:string]:string
+    }
+    loop?: boolean,
+    autoplay?: true,
+    playsinline?: boolean,
+    muted?: true,
+    controls?: false,
+    max_timeout_ms?: number,
+    class?: string,
+    poster?: string
 }
 
 declare let _default: {

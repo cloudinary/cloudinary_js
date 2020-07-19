@@ -18,6 +18,22 @@ config = { cloud_name: 'demo', some_new_key: "value", some_other_key: { other: '
 let cld: Cloudinary = new Cloudinary(config);
 
 
+cld.injectTransparentVideoElement(document.createElement('div'), 'woman', {
+    loop: true,
+    autoplay:true,
+    max_timeout_ms: 25000,
+    class: 'custom-class',
+    seeThruURL: 'https://...'
+}).then((resp) => {
+    if (resp instanceof HTMLElement) {
+        let container = resp; // the container we provided
+    }
+}).catch((resp) => {
+    if (typeof resp.status === 'string') {
+        let {status, message} = resp;
+    }
+});
+
 cld.url('sample'); // http://res.cloudinary.com/demo/image/upload/sample
 
 

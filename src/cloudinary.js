@@ -26,6 +26,12 @@ import {
   setData,
   width
 } from './util';
+//
+
+import mountCloudinaryVideoTag from "./util/features/transparentVideo/mountCloudinaryVideoTag";
+import enforceOptionsForTransparentVideo from "./util/features/transparentVideo/enforceOptionsForTransparentVideo";
+import mountSeeThruCanvasTag from "./util/features/transparentVideo/mountSeeThruCanvasTag";
+import checkSupportForTransparency from "./util/features/transparentVideo/checkSupportForTransparency";
 
 defaultBreakpoints = function(width, steps = 100) {
   return steps * Math.ceil(width / steps);
@@ -739,6 +745,48 @@ class Cloudinary {
     return Transformation.new(this.config()).fromOptions(options).setParent(this);
   }
 
+
+  /**
+   * @description This function will append a TransparentVideo element to the htmlElContainer passed to it.
+   *              TransparentVideo can either be an HTML Video tag, or an HTML Canvas Tag.
+   * @param {HTMLElement} htmlElContainer
+   * @param {string} publicId
+   * @param {object} options The {@link TransparentVideoOptions} options to apply - Extends TransformationOptions
+   *                 options.playsinline    - HTML Video Tag's native playsinline - passed to video element.
+   *                 options.poster         - HTML Video Tag's native poster - passed to video element.
+   *                 options.loop           - HTML Video Tag's native loop - passed to video element.
+   *                 options?.externalLibraries = { [key: string]: string} - map of external libraries to be loaded
+   * @return {Promise<HTMLElement | {status:string, message:string}>}
+   */
+  injectTransparentVideoElement(htmlElContainer, publicId, options = {}) {
+    return new Promise((resolve, reject) => {
+      if (!htmlElContainer) {
+        reject({status: 'error', message: 'Expecting htmlElContainer to be HTMLElement'});
+      }
+
+      enforceOptionsForTransparentVideo(options);
+
+      let videoURL = this.video_url(publicId, options);
+
+      checkSupportForTransparency().then((isNativelyTransparent) => {
+        let mountPromise;
+
+        if (isNativelyTransparent) {
+          mountPromise = mountCloudinaryVideoTag(htmlElContainer, this, publicId, options);
+          resolve(htmlElContainer);
+        } else {
+          mountPromise = mountSeeThruCanvasTag(htmlElContainer, videoURL, options);
+        }
+
+        mountPromise
+          .then(() => {
+          resolve(htmlElContainer);
+        }).catch(({status, message}) => { reject({status, message});});
+
+        // catch for checkSupportForTransparency()
+      }).catch(({status, message}) => { reject({status, message});});
+    });
+  }
 }
 
 assign(Cloudinary, constants);

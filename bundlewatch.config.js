@@ -2,19 +2,19 @@ const bundlewatchConfig = {
   files: [
     {
       path: './dist/cloudinary-core.min.js',
-      maxSize: '22kb'
+      maxSize: '23kb'
     },
     {
       path: './dist/cloudinary-core-shrinkwrap.min.js',
-      maxSize: '30kb'
+      maxSize: '31kb'
     },
     {
       path: './dist/cloudinary-jquery.min.js',
-      maxSize: '21kb'
+      maxSize: '23kb'
     },
     {
       path: './dist/cloudinary-jquery-file-upload.min.js',
-      maxSize: '22kb'
+      maxSize: '24kb'
     }
   ],
   defaultCompression: 'gzip',
