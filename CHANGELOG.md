@@ -1,3 +1,62 @@
+2.10.3 / 2020-07-11
+==================
+
+* Fix bug where image width was set to 'null' for responsive images
+* Refactor tests configuration and folder structure
+
+2.10.2 / 2020-07-08
+==================
+
+* Fix ie11 support by removing usage of string.repeat() (#247)
+
+
+2.10.1 / 2020-07-06
+==================
+
+* Update analytics param to be urlAnalytics (#245)
+* Fix IE11 support by removing unsupported padStart function (#244)
+* Fix normalize() in jquery library used by server-side sdks
+* Fix title added to npm packages
+* Update travis configuration to test on node 8,10,12,14 (#241)
+
+2.10.0 / 2020-07-01
+==================
+
+New functionality and features
+------------------------------
+* Add support for intersection detection.
+* Add support for placeholder and accessibility to url() function (#236)
+* Update responsive() to return a callback that removes the listener it adds
+
+Other Changes
+-------------
+* Add SDK analytics signature to the URL (off by default)
+* Update tsconfig to only test types folder (#237)
+
+2.9.0 / 2020-06-21
+==================
+
+New functionality and features
+------------------------------
+* Add support for OCR in transformation (#224)
+* Add support for POW operator
+
+Bug Fixes
+---------
+* Fix fontAntialiasing type definition (#233)
+* Fix Transformation normalization for predefined variables
+* Fix Transformation normalization in browsers that do not support
+  lookbehind in regular expressions (#228)
+* Fix bug where preview:duration was shortened to preview:du
+
+Other Changes
+-------------
+* Update test descriptions (#223)
+* Update devDependencies packages
+* Remove CoffeeScript and Grunt mentions from readme (#222)
+* Remove unneeded  file (#221)
+* Update issue templates (#218)
+
 2.8.2 / 2020-03-25
 ==================
 

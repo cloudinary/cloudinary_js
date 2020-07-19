@@ -1,6 +1,6 @@
 {
   "name": "cloudinary_js",
-  "version": "2.8.2",
+  "version": "2.10.3",
   "description": "Cloudinary streamlines your web application’s image manipulation needs. Cloudinary's cloud-based servers automate image uploading, resizing, cropping, optimizing, sprite generation and more. Cloudinary's jQuery plugin allows direct uploading from the browser to the cloud and dynamic cloud-based image transformations and effects.",
   "main": "js/jquery.cloudinary.js",
   "directories": {
@@ -13,13 +13,16 @@
     "build": "parallel-webpack && npm run bundlewatch",
     "bundlewatch": "bundlewatch --config ./bundlewatch.config.js",
     "doc": "jsdoc -c jsdoc-conf.json",
-    "test": "npm run build && npm run copybuilds && karma start --single-run --browsers=ChromeHeadless",
+    "test": "jasmine test/spec/env/js-folder-spec.js && karma start --single-run --browsers=ChromeHeadless",
     "test:watch": "karma start --auto-watch --browsers=ChromeHeadless",
     "test:pkgs": "tools/scripts/test.pkgs.sh",
     "test:pkgs:minified": "tools/scripts/test.pkgs.minified.sh",
     "test:types": "tsc",
     "copybuilds": "tools/scripts/copybuilds.sh",
-    "verify-pkgs": "jasmine pkg/verify-pkgs.js"
+    "verify-pkgs": "jasmine pkg/verify-pkgs.js",
+    "init-git-hooks": "git config core.hooksPath .githooks && chmod 755 .githooks/pre-commit",
+    "snyk-protect": "snyk protect",
+    "prepublishOnly": "jasmine test/spec/env/pkgs-spec.js && npm run snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -41,11 +44,14 @@
     "babel-minify": "^0.5.0",
     "blueimp-file-upload": "^9.29.0",
     "bootstrap": "^4.2.1",
+    "bundlewatch": "^0.2.7",
     "clean-webpack-plugin": "^1.0.1",
+    "glob": "^7.1.6",
     "jasmine": "^3.4.0",
     "jasmine-core": "^3.4.0",
     "jasmine-spec-reporter": "^4.2.1",
     "jquery": "^3.4.0",
+    "jsdoc": "^3.6.3",
     "karma": "^4.1.0",
     "karma-babel-preprocessor": "^8.0.0-beta.0",
     "karma-chrome-launcher": "^2.0.0",
@@ -53,20 +59,17 @@
     "karma-firefox-launcher": "^1.0.0",
     "karma-jasmine": "^2.0.1",
     "karma-story-reporter": "~0.3",
-    "lodash": "^4.17.13",
-    "lodash-cli": "^4.15.0",
+    "lodash": "^4.17.15",
     "parallel-webpack": "^2.3.0",
     "puppeteer": "^2.1.1",
     "requirejs": "^2.3.6",
+    "snyk": "^1.319.1",
     "tar": "^4.4.10",
     "terser-webpack-plugin": "^1.2.3",
     "typescript": "^2.9.2",
     "webpack": "^4.30.0",
     "webpack-bundle-analyzer": "^3.3.2",
-    "webpack-cli": "^3.3.0",
-    "bundlewatch": "^0.2.6"
+    "webpack-cli": "^3.3.0"
   },
-  "dependencies": {
-    "jsdoc": "^3.6.3"
-  }
+  "snyk": true
 }

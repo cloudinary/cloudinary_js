@@ -53,4 +53,25 @@ describe("util", function () {
       expect(actual).toEqual(expected);
     });
   });
+  describe("detectIntersection",function () {
+    let onIntersect;
+    beforeEach(function() {
+      onIntersect = jasmine.createSpy("onIntersect");
+      jasmine.clock().install();
+    });
+
+    it("should call onIntersect", function () {
+      const {detectIntersection} = cloudinary.Util;
+
+      setTimeout(function() {
+        detectIntersection({}, onIntersect);
+      }, 100);
+
+      expect(onIntersect).not.toHaveBeenCalled();
+
+      jasmine.clock().tick(101);
+
+      expect(onIntersect).toHaveBeenCalled();
+    });
+  });
 });

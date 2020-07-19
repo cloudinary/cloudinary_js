@@ -1,8 +1,10 @@
 import Transformation from './transformation';
 
 import {
+  ACCESSIBILITY_MODES,
   DEFAULT_IMAGE_PARAMS,
   OLD_AKAMAI_SHARED_CDN,
+  PLACEHOLDER_IMAGE_MODES,
   SHARED_CDN,
   SEO_TYPES
 } from './constants';
@@ -14,6 +16,9 @@ import {
 } from './util';
 
 import crc32 from './crc32';
+import getSDKAnalyticsSignature from "./sdkAnalytics/getSDKAnalyticsSignature";
+import getAnalyticsOptions from "./sdkAnalytics/getAnalyticsOptions";
+
 
 /**
  * Adds protocol, host, pathname prefixes to given string
@@ -247,8 +252,25 @@ function handleVersion(publicId, options) {
  * @param options
  * @returns {string}
  */
-function handleTransformation(options){
-  return (new Transformation(options)).serialize();
+function handleTransformation(options) {
+  let {placeholder, accessibility, ...otherOptions} = options || {};
+  const result = new Transformation(otherOptions);
+
+  // Append accessibility transformations
+  if (accessibility && ACCESSIBILITY_MODES[accessibility]) {
+    result.chain().effect(ACCESSIBILITY_MODES[accessibility]);
+  }
+
+  // Append placeholder transformations
+  if (placeholder) {
+    if (placeholder === "predominant-color" && result.getValue('width') && result.getValue('height')) {
+      placeholder += '-pixel';
+    }
+    const placeholderTransformations = PLACEHOLDER_IMAGE_MODES[placeholder] || PLACEHOLDER_IMAGE_MODES.blur;
+    placeholderTransformations.forEach(t => result.chain().transformation(t));
+  }
+
+  return result.serialize();
 }
 
 /**
@@ -336,7 +358,6 @@ export default function url(publicId, options = {}, config = {}) {
   if (!publicId) {
     return publicId;
   }
-
   options = prepareOptions(options, config);
   publicId = preparePublicId(publicId, options);
 
@@ -345,6 +366,16 @@ export default function url(publicId, options = {}, config = {}) {
   if (error) {
     throw error;
   }
-
-  return urlString(publicId, options);
+  let resultUrl = urlString(publicId, options);
+  if(options.urlAnalytics) {
+    let analyticsOptions = getAnalyticsOptions(options);
+    let sdkAnalyticsSignature = getSDKAnalyticsSignature(analyticsOptions);
+    // url might already have a '?' query param
+    let appender = '?';
+    if (resultUrl.indexOf('?') >= 0) {
+      appender = '&';
+    }
+    resultUrl = `${resultUrl}${appender}_a=${sdkAnalyticsSignature}`;
+  }
+  return resultUrl;
 };

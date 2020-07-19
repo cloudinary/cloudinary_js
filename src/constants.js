@@ -81,6 +81,70 @@ export const DEFAULT_EXTERNAL_LIBRARIES = {
 }
 
 /**
+ * Predefined placeholder transformations
+ * @const {Object} Cloudinary.PLACEHOLDER_IMAGE_MODES
+ */
+export const PLACEHOLDER_IMAGE_MODES = {
+  'blur': [{effect: 'blur:2000', quality: 1, fetch_format: 'auto'}], // Default
+  'pixelate': [{effect: 'pixelate', quality: 1, fetch_format: 'auto'}],
+  // Generates a pixel size image which color is the predominant color of the original image.
+  'predominant-color-pixel': [
+    {width: 'iw_div_2', aspect_ratio: 1, crop: 'pad', background: 'auto'},
+    {crop: 'crop', width: 1, height: 1, gravity: 'north_east'},
+    {fetch_format: 'auto', quality: 'auto'}
+  ],
+  // Generates an image which color is the predominant color of the original image.
+  'predominant-color': [
+    {variables: [['$currWidth', 'w'], ['$currHeight', 'h']]},
+    {width: 'iw_div_2', aspect_ratio: 1, crop: 'pad', background: 'auto'},
+    {crop: 'crop', width: 10, height: 10, gravity: 'north_east'},
+    {width: '$currWidth', height: '$currHeight', crop: 'fill'},
+    {fetch_format: 'auto', quality: 'auto'}
+  ],
+  'vectorize': [{effect: 'vectorize:3:0.1', fetch_format: 'svg'}]
+};
+
+/**
+ * Predefined accessibility transformations
+ * @const {Object} Cloudinary.ACCESSIBILITY_MODES
+ */
+export const ACCESSIBILITY_MODES = {
+  darkmode: 'tint:75:black',
+  brightmode: 'tint:50:white',
+  monochrome: 'grayscale',
+  colorblind: 'assist_colorblind'
+};
+
+/**
+ * A list of keys used by the url() function.
+ * @private
+ */
+export const URL_KEYS = [
+  'accessibility',
+  'api_secret',
+  'auth_token',
+  'cdn_subdomain',
+  'cloud_name',
+  'cname',
+  'format',
+  'placeholder',
+  'private_cdn',
+  'resource_type',
+  'secure',
+  'secure_cdn_subdomain',
+  'secure_distribution',
+  'shorten',
+  'sign_url',
+  'signature',
+  'ssl_detected',
+  'type',
+  'url_suffix',
+  'use_root_path',
+  'version'
+];
+
+
+/**
  * The resource storage type
  * @typedef type
  * @enum {string}

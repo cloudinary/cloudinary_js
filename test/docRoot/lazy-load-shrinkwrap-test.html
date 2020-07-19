@@ -1,0 +1,31 @@
+<html>
+<head>
+    <title>Lazy Loading Image Test</title>
+    <!-- Custom CSS -->
+    <link href="css/logo-nav.css" rel="stylesheet">
+    <script src="../../dist/cloudinary-core-shrinkwrap.js"></script>
+    <script src="../../dist/cloudinary-core-shrinkwrap.min.js"></script>
+    <script src="../spec/manual/lazyLoadTestBase.js"></script>
+    <title>Responsive Test</title>
+</head>
+
+<body>
+
+<div style="height:7000px">
+    <h1>Lazy Loading Image</h1>
+    <hr>
+    <div style="height:3000px">
+    <p>Scroll down to see the image</p>
+    </div>
+    <div style="height:3000px">
+        <img id="lazy1" loading="lazy" data-src="https://res.cloudinary.com/demo/image/upload/sample.jpg">
+    </div>
+
+    <script type="text/javascript">
+        window.onload = function(){
+            var event = new Event('karma-ready');
+            window.dispatchEvent(event);
+        };
+    </script>
+</div>
+</body>

@@ -1,5 +1,5 @@
 /**
- * Verify existance of all needed files in each package.
+ * Verify existence of all needed files in each package.
  * This test file should be run before each release.
  */
 
@@ -17,9 +17,9 @@ jasmine.getEnv().addReporter(new SpecReporter({
   },
 }));
 
-const mainPath = path.join(__dirname, '..');
-const pkgPath = path.join(__dirname, '..', 'pkg');
-const buildPath = path.join(__dirname, '..', 'dist');
+const mainPath = path.join(__dirname, '..', '..', '..');
+const pkgPath = path.join(__dirname, '..', '..', '..', 'pkg');
+const buildPath = path.join(__dirname, '..', '..', '..', 'dist');
 const version = getVersion();
 const commonFiles = ['src', 'package.json', 'README.md'];
 const commonExtensions = {
@@ -49,22 +49,22 @@ function verifyPackageConsistency(pkg) {
     it('Folder should contain required files', () => {
       getArrayDiff(pkg.files, actualFiles).forEach(file => {
         fail(file);
-      })
+      });
     });
     it('Folder should not contain redundant files', () => {
       getArrayDiff(actualFiles, pkg.files).forEach(file => {
         fail(file);
-      })
+      });
     });
     it('Pack file should contain required files', () => {
       getArrayDiff(pkg.files, packedFiles).forEach(file => {
         fail(file);
-      })
+      });
     });
     it('Pack file should not contain redundant files', () => {
       getArrayDiff(packedFiles, pkg.files).forEach(file => {
         fail(file);
-      })
+      });
     });
     it(`Package version should be same as cloudinary_js: ${version}`, () => {
       expect(pkgVersion).toEqual(version);
