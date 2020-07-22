@@ -57,7 +57,7 @@ function cdnSubdomainNumber(publicId) {
  */
 function handleSignature(options) {
   const {signature} = options;
-  const isFormatted = !signature || (signature.startsWith('s--') && signature.endsWith('--'));
+  const isFormatted = !signature || (signature.indexOf('s--') === 0 && signature.substr(-2) === '--');
   delete options.signature;
 
   return isFormatted ? signature : `s--${signature}--`;
