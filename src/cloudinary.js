@@ -24,8 +24,7 @@ import {
   removeAttribute,
   setAttribute,
   setData,
-  width,
-  isIntersectionObserverSupported
+  width
 } from './util';
 //
 
@@ -687,7 +686,7 @@ class Cloudinary {
               setUrl = false;
             }
           }
-          const isLazyLoading = (options.loading === 'lazy' && isIntersectionObserverSupported() && !tag.getAttribute('src'));
+          const isLazyLoading = (options.loading === 'lazy' && !this.isNativeLazyLoadSupported() && this.isLazyLoadSupported() && !elements[0].getAttribute('src'));
           if (setUrl || isLazyLoading){
             // If data-width exists, set width to be data-width
             this.setAttributeIfExists(elements[0], 'width', 'data-width');
@@ -713,6 +712,22 @@ class Cloudinary {
     if (attributeValue != null) {
       setAttribute(element, toAttribute, attributeValue);
     }
+  }
+
+  /**
+   * Returns true if Intersection Observer API is supported
+   * @returns {boolean}
+   */
+  isLazyLoadSupported() {
+    return window && 'IntersectionObserver' in window;
+  }
+
+  /**
+   * Returns true if using Chrome
+   * @returns {boolean}
+   */
+  isNativeLazyLoadSupported() {
+    return 'loading' in HTMLImageElement.prototype;
   }
 
   /**
