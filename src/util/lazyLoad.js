@@ -12,13 +12,22 @@ export function isIntersectionObserverSupported() {
 }
 
 /**
- * Calls onIntersect() when intersection is detected, or when IntersectionObserver isn't supported.
+ * Check if native lazy loading is supported
+ * @return {boolean} true if 'loading' property is defined for HTMLImageElement
+ */
+export function isNativeLazyLoadSupported() {
+  return typeof HTMLImageElement === "object" && HTMLImageElement.prototype.loading;
+}
+
+/**
+ * Calls onIntersect() when intersection is detected, or when
+ * no native lazy loading or when IntersectionObserver isn't supported.
  * @param {Element} el - the element to observe
  * @param {function} onIntersect - called when the given element is in view
  */
 export function detectIntersection(el, onIntersect) {
   try {
-    if (!isIntersectionObserverSupported()) {
+    if (isNativeLazyLoadSupported() || !isIntersectionObserverSupported()) {
       // Return if there's no need or possibility to detect intersection
       onIntersect();
       return;
