@@ -1,3 +1,16 @@
+2.11.0 / 2020-07-26
+==================
+
+New functionality and features
+------------------------------
+* Add support for transparent video (#211)
+
+Other Changes
+-------------
+* Fix lazy loading of responsive images (#253)
+* Fix signature param support in ie11 (#252)
+* Add test and pre commit hook to prevent js folder changes (#249) (#251)
+
 2.10.3 / 2020-07-11
 ==================
 
