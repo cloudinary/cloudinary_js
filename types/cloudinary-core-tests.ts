@@ -70,14 +70,14 @@ cld.url('sample', {
     ]
 }) // http://res.cloudinary.com/demo/image/upload/if_w_lt_200,c_fill,h_120,w_80/if_w_gt_400,c_fit,h_150,w_150/e_sepia/sample
 
-// const publicId = 'imagePublicId';
-// let image: HTMLImageElement = cld.image(publicId); // image.src == http://res.cloudinary.com/demo/image/upload/${publicId}
+const publicId = 'imagePublicId';
+cld.image(publicId); // image.src == http://res.cloudinary.com/demo/image/upload/${publicId}
 
 
-// let video: string = cld.video(publicId); // video == <video poster="http://res.cloudinary.com/demo/video/upload/${publicId}.jpg"><source src="http://res.cloudinary.com/demo/video/upload/${publicId}.webm" type="video/webm"><source src="http://res.cloudinary.com/demo/video/upload/${publicId}.mp4" type="video/mp4"><source src="http://res.cloudinary.com/demo/video/upload/${publicId}.ogv" type="video/ogg"></video>
+cld.video(publicId); // video == <video poster="http://res.cloudinary.com/demo/video/upload/${publicId}.jpg"><source src="http://res.cloudinary.com/demo/video/upload/${publicId}.webm" type="video/webm"><source src="http://res.cloudinary.com/demo/video/upload/${publicId}.mp4" type="video/mp4"><source src="http://res.cloudinary.com/demo/video/upload/${publicId}.ogv" type="video/ogg"></video>
 
 
-// const videoTag: VideoTag = cld.videoTag(publicId); // videoTag.getOption('source_types')) == ['webm', 'mp4', 'ogv']
+cld.videoTag(publicId); // videoTag.getOption('source_types')) == ['webm', 'mp4', 'ogv']
 
 
 cld.transformation_string({
