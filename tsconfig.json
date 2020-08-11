@@ -3,6 +3,7 @@
         "module": "commonjs",
         "noImplicitAny": true,
         "esModuleInterop": true,
+        "strictNullChecks": true,
         "allowSyntheticDefaultImports": true,
         "typeRoots": ["./types"]
     }

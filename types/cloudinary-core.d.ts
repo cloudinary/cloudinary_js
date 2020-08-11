@@ -850,8 +850,9 @@ export class Cloudinary {
 
 interface TransparentVideoOptions extends Transformation.Options {
     externalLibraries?: {
-        seeThru?: string,
         [future:string]:string
+    } & {
+        seeThru?: string,
     }
     loop?: boolean,
     autoplay?: true,
@@ -896,14 +897,14 @@ export namespace Configuration {
         api_secret?: string;
         cdn_subdomain?: boolean;
         cloud_name?: string;
-        cname?: string;
+        cname?: string | null;
         private_cdn?: boolean;
         protocol?: string;
         resource_type?: string;
         responsive?: boolean;
         responsive_width?: string;
         secure_cdn_subdomain?: boolean;
-        secure_distribution?: string;
+        secure_distribution?: string | null;
         shorten?: string;
         type?: string;
         url_suffix?: string;
