@@ -82,7 +82,7 @@ export class Util {
     static detectIntersection(element: Element, onIntersect: Function): void
 
     static getAnalyticsOptions(options: AnalyticsOptionsParameters) : AnalyticsOptions;
-    static getSDKAnalyticsSignature(options: AnalyticsOptions):string;;
+    static getSDKAnalyticsSignature(options: AnalyticsOptions):string;
 }
 
 
@@ -314,7 +314,7 @@ export class Condition {
 export namespace Transformation {
     export interface Options extends Configuration.Options {
         angle?: Angle; // degrees or mode
-        aspectRatio?: string | number | string; // ratio or percent, e.g. 1.5 or 16:9
+        aspectRatio?: string | number; // ratio or percent, e.g. 1.5 or 16:9
         background?: string; // color, e.g. "blue" or "rgb:9090ff"
         border?: string; // style, e.g. "6px_solid_rgb:00390b60"
         color?: string; // e.g. "red" or "rgb:20a020"
@@ -338,7 +338,7 @@ export namespace Transformation {
         "else"?: string;
         endIf?: string;
         opacity?: number | string; // percent, 0-100
-        overlay?: string | string; // Identifier, e.g. "text:Arial_50:Smile!", or public id of a different resource
+        overlay?: string; // Identifier, e.g. "text:Arial_50:Smile!", or public id of a different resource
         page?: number | string; // Given a multi-page file (PDF, animated GIF, TIFF), generate an image of a single page using the given index.
         prefix?: string;
         quality?: string | number; // percent or percent[:chroma_subsampling] or auto[:quality_level]
@@ -850,8 +850,9 @@ export class Cloudinary {
 
 interface TransparentVideoOptions extends Transformation.Options {
     externalLibraries?: {
-        seeThru?: string,
         [future:string]:string
+    } & {
+        seeThru?: string,
     }
     loop?: boolean,
     autoplay?: true,
@@ -896,14 +897,14 @@ export namespace Configuration {
         api_secret?: string;
         cdn_subdomain?: boolean;
         cloud_name?: string;
-        cname?: string;
+        cname?: string | null;
         private_cdn?: boolean;
         protocol?: string;
         resource_type?: string;
         responsive?: boolean;
         responsive_width?: string;
         secure_cdn_subdomain?: boolean;
-        secure_distribution?: string;
+        secure_distribution?: string | null;
         shorten?: string;
         type?: string;
         url_suffix?: string;
