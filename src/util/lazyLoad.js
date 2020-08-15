@@ -16,7 +16,8 @@ export function isIntersectionObserverSupported() {
  * @return {boolean} true if 'loading' property is defined for HTMLImageElement
  */
 export function isNativeLazyLoadSupported() {
-  return typeof HTMLImageElement === "object" && HTMLImageElement.prototype.loading;
+  return 'loading' in HTMLImageElement.prototype &&
+    'loading' in HTMLIFrameElement.prototype;
 }
 
 /**
