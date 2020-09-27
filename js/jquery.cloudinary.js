@@ -1490,12 +1490,16 @@ var slice = [].slice,
       // operators
       operatorsPattern = "((" + operators + ")(?=[ _]))";
       operatorsReplaceRE = new RegExp(operatorsPattern, "g");
-      expression = expression.replace(operatorsReplaceRE, match => Expression.OPERATORS[match]);
+      expression = expression.replace(operatorsReplaceRE, function (match) {
+        return Expression.OPERATORS[match];
+      });
 
       // predefined variables
       predefinedVarsPattern = "(" + Object.keys(Expression.PREDEFINED_VARS).join("|") + ")";
       predefinedVarsReplaceRE = new RegExp(predefinedVarsPattern, "g");
-      expression = expression.replace(predefinedVarsReplaceRE, (match, p1, offset) => (expression[offset - 1] === '$' ? match : Expression.PREDEFINED_VARS[match]));
+      expression = expression.replace(predefinedVarsReplaceRE, function(match, p1, offset){
+        return (expression[offset - 1] === '$' ? match : Expression.PREDEFINED_VARS[match]);
+      });
 
       return expression.replace(/[ _]+/g, '_');
     };
