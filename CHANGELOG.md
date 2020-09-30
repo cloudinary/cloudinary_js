@@ -1,3 +1,8 @@
+2.11.3 / 2020-09-30
+==================
+
+* Fix js/jquery.cloudinary.js es5 compatibility by removing arrow functions
+
 2.11.2 / 2020-08-11
 ==================
 
