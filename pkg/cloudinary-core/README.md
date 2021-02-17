@@ -1,7 +1,5 @@
 [![Build Status](https://travis-ci.org/cloudinary/cloudinary_js.svg?branch=master)](https://travis-ci.org/cloudinary/cloudinary_js) [![npm](https://img.shields.io/npm/v/cloudinary-core.svg?maxAge=2592000)]() [![Bower](https://img.shields.io/bower/v/cloudinary-core.svg?maxAge=2592000)]() [![license](https://img.shields.io/github/license/cloudinary/pkg-cloudinary-core.svg?maxAge=2592000)]()
 
-:information_source: This is a distribution repository for `bower` and `npm`. The sources for this repository are maintained at the [cloudinary_js repository](https://github.com/cloudinary/cloudinary_js). Please submit issues and pull requests to that repository.
-
 # Cloudinary Client Side JavaScript Library<br>`bower` and `npm` repository
 
 Cloudinary is a cloud service that offers a solution to a web application's entire image management pipeline.

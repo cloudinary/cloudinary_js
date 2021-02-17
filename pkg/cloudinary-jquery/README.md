@@ -1,7 +1,5 @@
 [![Build Status](https://travis-ci.org/cloudinary/cloudinary_js.svg?branch=master)](https://travis-ci.org/cloudinary/cloudinary_js) [![npm](https://img.shields.io/npm/v/cloudinary-jquery.svg?maxAge=2592000)]() [![Bower](https://img.shields.io/bower/v/cloudinary-jquery.svg?maxAge=2592000)]() [![license](https://img.shields.io/github/license/cloudinary/pkg-cloudinary-jquery.svg?maxAge=2592000)]()
 
-:information_source: This is a distribution repository for `bower` and `npm`. The sources for this repository are maintained at the [cloudinary_js repository](https://github.com/cloudinary/cloudinary_js). Please submit issues and pull requests to that repository.
-
 # Cloudinary Client Side JavaScript Library - jQuery Plugin<br>`bower` and `npm` repository
 
 Cloudinary is a cloud service that offers a solution to a web application's entire image management pipeline.
@@ -243,6 +241,39 @@ The Core Cloudinary JavaScript library does not depend on jQuery: [https://githu
 #### jQuery File upload
 The Cloudinary jQuery File Upload library extends the Cloudinary jQuery plugin with support for the [Blueimp jQuery File Upload library](https://blueimp.github.io/jQuery-File-Upload/).
 The library can be found at [https://github.com/cloudinary/pkg-cloudinary-jquery-file-upload](https://github.com/cloudinary/pkg-cloudinary-jquery-file-upload).
+
+## Client side image resizing before upload
+
+See the File Processing Options in https://github.com/blueimp/jQuery-File-Upload/wiki/Options.
+Modify your script tags based on the the following example (order is important!):
+
+```    
+<script src="node_modules/jquery/dist/jquery.js" type="text/javascript"></script>
+<script src="node_modules/jquery.ui/ui/widget.js" type="text/javascript"></script>
+<script src="node_modules/blueimp-load-image/js/load-image.all.min.js"></script>
+<script src="node_modules/blueimp-canvas-to-blob/js/canvas-to-blob.min.js"></script>
+<script src="node_modules/blueimp-file-upload/js/jquery.iframe-transport.js" type="text/javascript"></script>
+<script src="node_modules/blueimp-file-upload/js/jquery.fileupload.js" type="text/javascript"></script>
+<script src="node_modules/blueimp-file-upload/js/jquery.fileupload-process.js"></script>
+<script src="node_modules/blueimp-file-upload/js/jquery.fileupload-image.js" type="text/javascript"></script>
+<script src="node_modules/blueimp-file-upload/js/jquery.fileupload-validate.js"></script>
+<script src="node_modules/cloudinary-jquery-file-upload/cloudinary-jquery-file-upload.js" type="text/javascript"></script>
+```
+
+Also, add the following javascript:
+
+```javascript
+$(document).ready(function() {
+  $('.cloudinary-fileupload').cloudinary_fileupload({
+    disableImageResize: false,
+    imageMaxWidth: 800,                           // 800 is an example value
+    imageMaxHeight: 600,                          // 600 is an example value
+    maxFileSize: 20000000,                        // 20MB is an example value
+    loadImageMaxFileSize: 20000000,               // default is 10MB
+    acceptFileTypes: /(\.|\/)(gif|jpe?g|png|bmp|ico)$/i
+  });
+});
+```
 
 ## Additional resources
 
