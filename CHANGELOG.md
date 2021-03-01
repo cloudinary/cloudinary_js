@@ -1,3 +1,109 @@
+2.11.3 / 2020-09-30
+==================
+
+* Fix js/jquery.cloudinary.js es5 compatibility by removing arrow functions
+
+2.11.2 / 2020-08-11
+==================
+
+* Fix typescript declarations (#257)
+
+
+2.11.1 / 2020-07-26
+==================
+
+* Revert Fix lazy loading of responsive images (#253)
+
+2.11.0 / 2020-07-26
+==================
+
+New functionality and features
+------------------------------
+* Add support for transparent video (#211)
+
+Other Changes
+-------------
+* Fix lazy loading of responsive images (#253)
+* Fix signature param support in ie11 (#252)
+* Add test and pre commit hook to prevent js folder changes (#249) (#251)
+
+2.10.3 / 2020-07-11
+==================
+
+* Fix bug where image width was set to 'null' for responsive images
+* Refactor tests configuration and folder structure
+
+2.10.2 / 2020-07-08
+==================
+
+* Fix ie11 support by removing usage of string.repeat() (#247)
+
+
+2.10.1 / 2020-07-06
+==================
+
+* Update analytics param to be urlAnalytics (#245)
+* Fix IE11 support by removing unsupported padStart function (#244)
+* Fix normalize() in jquery library used by server-side sdks
+* Fix title added to npm packages
+* Update travis configuration to test on node 8,10,12,14 (#241)
+
+2.10.0 / 2020-07-01
+==================
+
+New functionality and features
+------------------------------
+* Add support for intersection detection.
+* Add support for placeholder and accessibility to url() function (#236)
+* Update responsive() to return a callback that removes the listener it adds
+
+Other Changes
+-------------
+* Add SDK analytics signature to the URL (off by default)
+* Update tsconfig to only test types folder (#237)
+
+2.9.0 / 2020-06-21
+==================
+
+New functionality and features
+------------------------------
+* Add support for OCR in transformation (#224)
+* Add support for POW operator
+
+Bug Fixes
+---------
+* Fix fontAntialiasing type definition (#233)
+* Fix Transformation normalization for predefined variables
+* Fix Transformation normalization in browsers that do not support
+  lookbehind in regular expressions (#228)
+* Fix bug where preview:duration was shortened to preview:du
+
+Other Changes
+-------------
+* Update test descriptions (#223)
+* Update devDependencies packages
+* Remove CoffeeScript and Grunt mentions from readme (#222)
+* Remove unneeded  file (#221)
+* Update issue templates (#218)
+
+2.8.2 / 2020-03-25
+==================
+
+* Fix - Add signature to list of url keys so that extractUrlParams() won't filter it
+* Add test for package size using bundlewatch
+
+2.8.1 / 2020-02-18
+==================
+
+* Fix spaces encoding of named transformations
+* Align responsive function with cloudinary_angular's lazy load  
+* Add tests for special chars encoding in urls
+* Fix tests for video offset
+* Fix secure_distribution type definition
+* Add watch mode to tests
+* Refactor normalizeArray function
+* Update puppeteer to version 2.1.1
+
 2.8.0 / 2019-11-24
 ==================
 

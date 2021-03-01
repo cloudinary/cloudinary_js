@@ -1,8 +1,8 @@
 /*
  * Includes common utility methods and shims
  */
-import {isString} from "../util";
-import {contains} from "../util";
+import {contains, isString} from "../util";
+import {URL_KEYS} from '../constants';
 
 export function omit(obj, keys) {
   obj = obj || {};
@@ -242,31 +242,6 @@ export var base64EncodeURL = function(url) {
   }
   return base64Encode(url);
 };
-
-/**
- * A list of keys used by the url() function.
- * @private
- */
-const URL_KEYS = [
-  'api_secret',
-  'auth_token',
-  'cdn_subdomain',
-  'cloud_name',
-  'cname',
-  'format',
-  'private_cdn',
-  'resource_type',
-  'secure',
-  'secure_cdn_subdomain',
-  'secure_distribution',
-  'shorten',
-  'sign_url',
-  'ssl_detected',
-  'type',
-  'url_suffix',
-  'use_root_path',
-  'version'
-];
 
 /**
  * Create a new object with only URL parameters

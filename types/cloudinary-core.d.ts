@@ -22,9 +22,28 @@ type VideoFlags = string | Array<string> | "splice" | "layer_apply" | "no_stream
 type AudioCodec = string | "none" | "aac" | "vorbis" | "mp3";
 type AudioFrequency = number | 8000 | 11025 | 16000 | 22050 | 32000 | 37800 | 44056 | 44100 | 47250 | 48000 | 88200 | 96000 | 176400 | 192000;
 type StreamingProfiles = string | "4k" | "full_hd" | "hd" | "sd" | "full_hd_wifi" | "full_hd_lean" | "hd_lean";
+type UrlOptions = (Transformation | Transformation.Options) & { placeholder?: string, accessibility?: string };
 
 export function crc32(str: string): any;
 export function utf8_encode(argString: string): any;
+
+type AnalyticsOptions = {
+    sdkSemver: string;
+    techVersion: string;
+    sdkCode: string;
+    feature: string;
+}
+
+type AnalyticsOptionsParameters = {
+    sdkSemver: string;
+    techVersion: string;
+    sdkCode: string;
+    urlAnalytics?: boolean;
+    accessibility?: boolean;
+    loading?: string;
+    responsive?: boolean;
+    placeholder?: boolean;
+}
 
 export class Util {
     static allStrings(list: Array<any>): boolean;
@@ -60,6 +79,10 @@ export class Util {
     static identity(value: any): any;
     static isPlainObject(value: any): boolean;
     static trim(text: string): string;
+    static detectIntersection(element: Element, onIntersect: Function): void
+
+    static getAnalyticsOptions(options: AnalyticsOptionsParameters) : AnalyticsOptions;
+    static getSDKAnalyticsSignature(options: AnalyticsOptions):string;
 }
 
 
@@ -291,7 +314,7 @@ export class Condition {
 export namespace Transformation {
     export interface Options extends Configuration.Options {
         angle?: Angle; // degrees or mode
-        aspectRatio?: string | number | string; // ratio or percent, e.g. 1.5 or 16:9
+        aspectRatio?: string | number; // ratio or percent, e.g. 1.5 or 16:9
         background?: string; // color, e.g. "blue" or "rgb:9090ff"
         border?: string; // style, e.g. "6px_solid_rgb:00390b60"
         color?: string; // e.g. "red" or "rgb:20a020"
@@ -315,7 +338,7 @@ export namespace Transformation {
         "else"?: string;
         endIf?: string;
         opacity?: number | string; // percent, 0-100
-        overlay?: string | string; // Identifier, e.g. "text:Arial_50:Smile!", or public id of a different resource
+        overlay?: string; // Identifier, e.g. "text:Arial_50:Smile!", or public id of a different resource
         page?: number | string; // Given a multi-page file (PDF, animated GIF, TIFF), generate an image of a single page using the given index.
         prefix?: string;
         quality?: string | number; // percent or percent[:chroma_subsampling] or auto[:quality_level]
@@ -550,7 +573,7 @@ export class TextLayer extends Layer {
     fontWeight(value: string): TextLayer;
     fontStyle(value: string): TextLayer;
     fontHinting(value: string): TextLayer;
-    fontAntiAliasing(value: string): TextLayer;
+    fontAntialiasing(value: string): TextLayer;
     textDecoration(value: string): TextLayer;
     textAlign(value: string): TextLayer;
     stroke(value: string): TextLayer;
@@ -630,7 +653,11 @@ export class Param {
  * @param {Object} options - options to configure Cloudinary
  * @see Configuration for more details
  * @example
+ *    // Include cloudinary_js in a <script> tag, then:
  *    var cl = new cloudinary.Cloudinary( { cloud_name: "mycloud"});
+ *    // Or import it from the npm package:
+ *    import { Cloudinary } from 'cloudinary-core';
+ *    var cl = new Cloudinary( { cloud_name: "mycloud"});
  *    var imgTag = cl.image("myPicID");
  */
 export class Cloudinary {
@@ -642,12 +669,12 @@ export class Cloudinary {
      * @function Cloudinary#url
      * @param {string} publicId - the public ID of the resource
      * @param {Object} [options] - options for the tag and transformations, possible values include all {@link Transformation} parameters
-     *                          and {@link Configuration} parameters
+     *                          and {@link Configuration} parameters with addition of 'placeholder' and 'accessibility'
      * @param {string} [options.type='upload'] - the classification of the resource
      * @param {Object} [options.resource_type='image'] - the type of the resource
      * @return {string} The resource URL
      */
-    url(publicId: string, options?: Transformation | Transformation.Options): string;
+    url(publicId: string, options?: UrlOptions ): string;
 
     /**
      * Generate an video resource URL.
@@ -816,6 +843,25 @@ export class Cloudinary {
      * @return {Transformation}
      */
     transformation(options?: Transformation | Transformation.Options): Transformation;
+
+    injectTransparentVideoElement(container: HTMLElement, publicId: string, options: TransparentVideoOptions): Promise<HTMLElement | {status: string, message: string}>
+}
+
+
+interface TransparentVideoOptions extends Transformation.Options {
+    externalLibraries?: {
+        [future:string]:string
+    } & {
+        seeThru?: string,
+    }
+    loop?: boolean,
+    autoplay?: true,
+    playsinline?: boolean,
+    muted?: true,
+    controls?: false,
+    max_timeout_ms?: number,
+    class?: string,
+    poster?: string
 }
 
 declare let _default: {
@@ -851,14 +897,14 @@ export namespace Configuration {
         api_secret?: string;
         cdn_subdomain?: boolean;
         cloud_name?: string;
-        cname?: string;
+        cname?: string | null;
         private_cdn?: boolean;
         protocol?: string;
         resource_type?: string;
         responsive?: boolean;
         responsive_width?: string;
         secure_cdn_subdomain?: boolean;
-        secure_distribution?: boolean;
+        secure_distribution?: string | null;
         shorten?: string;
         type?: string;
         url_suffix?: string;

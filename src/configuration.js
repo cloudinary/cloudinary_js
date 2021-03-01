@@ -25,11 +25,11 @@ class Configuration {
   }
 
   /**
-   * Initializes the configuration. This method is a convenience method that invokes both 
-   *  {@link Configuration#fromEnvironment|fromEnvironment()} (Node.js environment only) 
-   *  and {@link Configuration#fromDocument|fromDocument()}. 
-   *  It first tries to retrieve the configuration from the environment variable. 
-   *  If not available, it tries from the document meta tags. 
+   * Initializes the configuration. This method is a convenience method that invokes both
+   *  {@link Configuration#fromEnvironment|fromEnvironment()} (Node.js environment only)
+   *  and {@link Configuration#fromDocument|fromDocument()}.
+   *  It first tries to retrieve the configuration from the environment variable.
+   *  If not available, it tries from the document meta tags.
    * @function Configuration#init
    * @return {Configuration} returns `this` for chaining
    * @see fromDocument
@@ -203,7 +203,9 @@ Configuration.CONFIG_PARAMS = [
   "upload_preset",
   "url_suffix",
   "use_root_path",
-  "version"
+  "version",
+  "externalLibraries",
+  "max_timeout_ms"
 ];
 
 export default Configuration;

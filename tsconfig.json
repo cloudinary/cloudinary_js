@@ -3,13 +3,15 @@
         "module": "commonjs",
         "noImplicitAny": true,
         "esModuleInterop": true,
-        "allowSyntheticDefaultImports": true
-    },
-    "include": [
-        "dist/**/*",
-        "types/**/*"
-    ],
-    "exclude": [
-        "node_modules"
-    ] 
+        "strictNullChecks": true,
+        "strictFunctionTypes": true,
+        "strictPropertyInitialization": true,
+        "noImplicitThis": true,
+        "alwaysStrict": true,
+        "noImplicitReturns" : true,
+        "noUnusedLocals" : true,
+        "noUnusedParameters": true,
+        "allowSyntheticDefaultImports": true,
+        "typeRoots": ["./types"]
+    }
 }

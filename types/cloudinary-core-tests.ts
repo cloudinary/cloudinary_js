@@ -4,11 +4,10 @@
 
 
 import {
-    Cloudinary, Util, Configuration, Transformation, ImageTag, PictureTag, VideoTag, Condition, Layer, TextLayer, HtmlTag,
+    Cloudinary, Util, Configuration, Transformation, ImageTag, VideoTag, Layer, TextLayer, HtmlTag,
     ClientHintsMetaTag, Param
 } from './cloudinary-core';
 
-import cloudinary from './cloudinary-core';
 
 let config: Configuration.Options = { cloud_name: 'demo' };
 
@@ -17,6 +16,20 @@ config = { cloud_name: 'demo', some_new_key: "value", some_other_key: { other: '
 
 let cld: Cloudinary = new Cloudinary(config);
 
+
+cld.injectTransparentVideoElement(document.createElement('div'), 'woman', {
+    loop: true,
+    autoplay:true,
+    max_timeout_ms: 25000,
+    class: 'custom-class',
+    seeThruURL: 'https://...'
+}).then((resp) => {
+    if (resp instanceof HTMLElement) {
+    }
+}).catch((resp) => {
+    if (typeof resp.status === 'string') {
+    }
+});
 
 cld.url('sample'); // http://res.cloudinary.com/demo/image/upload/sample
 
@@ -58,13 +71,13 @@ cld.url('sample', {
 }) // http://res.cloudinary.com/demo/image/upload/if_w_lt_200,c_fill,h_120,w_80/if_w_gt_400,c_fit,h_150,w_150/e_sepia/sample
 
 const publicId = 'imagePublicId';
-let image: HTMLImageElement = cld.image(publicId); // image.src == http://res.cloudinary.com/demo/image/upload/${publicId}
+cld.image(publicId); // image.src == http://res.cloudinary.com/demo/image/upload/${publicId}
 
 
-let video: string = cld.video(publicId); // video == <video poster="http://res.cloudinary.com/demo/video/upload/${publicId}.jpg"><source src="http://res.cloudinary.com/demo/video/upload/${publicId}.webm" type="video/webm"><source src="http://res.cloudinary.com/demo/video/upload/${publicId}.mp4" type="video/mp4"><source src="http://res.cloudinary.com/demo/video/upload/${publicId}.ogv" type="video/ogg"></video>
+cld.video(publicId); // video == <video poster="http://res.cloudinary.com/demo/video/upload/${publicId}.jpg"><source src="http://res.cloudinary.com/demo/video/upload/${publicId}.webm" type="video/webm"><source src="http://res.cloudinary.com/demo/video/upload/${publicId}.mp4" type="video/mp4"><source src="http://res.cloudinary.com/demo/video/upload/${publicId}.ogv" type="video/ogg"></video>
 
 
-const videoTag: VideoTag = cld.videoTag(publicId); // videoTag.getOption('source_types')) == ['webm', 'mp4', 'ogv']
+cld.videoTag(publicId); // videoTag.getOption('source_types')) == ['webm', 'mp4', 'ogv']
 
 
 cld.transformation_string({
@@ -102,12 +115,12 @@ transformation.serialize();
 transformation.toHtmlAttributes();
 
 
-let url: string = cld.url('sample', cld.transformation().if().width('gt', 100).and().width('lt', 200).then().width(50).crop('scale').endIf()); // http://res.cloudinary.com/demo/image/upload/if_w_gt_100_and_w_lt_200/c_scale,w_50/if_end/sample
+// let url: string = cld.url('sample', cld.transformation().if().width('gt', 100).and().width('lt', 200).then().width(50).crop('scale').endIf()); // http://res.cloudinary.com/demo/image/upload/if_w_gt_100_and_w_lt_200/c_scale,w_50/if_end/sample
 
 
-url = cld.url('sample', cld.transformation().if().width("gt", 100).and().width("lt", 200).then().width(50).crop("scale").endIf()); // http://res.cloudinary.com/demo/image/upload/if_w_gt_100_and_w_lt_200/c_scale,w_50/if_end/sample
+cld.url('sample', cld.transformation().if().width("gt", 100).and().width("lt", 200).then().width(50).crop("scale").endIf()); // http://res.cloudinary.com/demo/image/upload/if_w_gt_100_and_w_lt_200/c_scale,w_50/if_end/sample
 
-url = cld.url('sample', cld.transformation().if().width("gt", 100).and().width("lt", 200).then().width(50).crop("scale").else().width(100).crop("crop").endIf()); // http://res.cloudinary.com/demo/image/upload/if_w_gt_100_and_w_lt_200/c_scale,w_50/if_else/c_crop,w_100/if_end/sample
+cld.url('sample', cld.transformation().if().width("gt", 100).and().width("lt", 200).then().width(50).crop("scale").else().width(100).crop("crop").endIf()); // http://res.cloudinary.com/demo/image/upload/if_w_gt_100_and_w_lt_200/c_scale,w_50/if_else/c_crop,w_100/if_end/sample
 
 
 transformation = cld.transformation().if("w > 1000 and aspectRatio < 3:4")
@@ -116,10 +129,10 @@ transformation = cld.transformation().if("w > 1000 and aspectRatio < 3:4")
     .else()
     .width(500)
     .crop("scale");
-url = cld.url('sample', transformation); // http://res.cloudinary.com/demo/image/upload/if_w_gt_1000_and_ar_lt_3:4,c_scale,w_1000/if_else,c_scale,w_500/sample
+cld.url('sample', transformation); // http://res.cloudinary.com/demo/image/upload/if_w_gt_1000_and_ar_lt_3:4,c_scale,w_1000/if_else,c_scale,w_500/sample
 
 
-image = cld.facebook_profile_image('officialchucknorrispage',
+cld.facebook_profile_image('officialchucknorrispage',
     {
         secure: true,
         responsive: true,
@@ -127,10 +140,10 @@ image = cld.facebook_profile_image('officialchucknorrispage',
     }); // image.src == https://res.cloudinary.com/demo/image/facebook/e_art:hokusai/officialchucknorrispage && image.getAttribute('data-src-cache') == expectedImageUrl
 
 
-let tag = ImageTag.new("publicId");
+ImageTag.new("publicId");
 
 
-let videoHtml = cld.videoTag("movie").setSourceTypes('mp4')
+cld.videoTag("movie").setSourceTypes('mp4')
     .transformation()
     .htmlHeight("100")
     .htmlWidth("200")

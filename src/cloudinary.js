@@ -1,3 +1,5 @@
+import {normalizeToArray} from "./util/parse/normalizeToArray";
+
 var applyBreakpoints, closestAbove, defaultBreakpoints, findContainerWidth, maxWidth, updateDpr;
 
 import Configuration from './configuration';
@@ -15,7 +17,6 @@ import {
   assign,
   defaults,
   getData,
-  isArray,
   isEmpty,
   isFunction,
   isString,
@@ -25,6 +26,12 @@ import {
   setData,
   width
 } from './util';
+//
+
+import mountCloudinaryVideoTag from "./util/features/transparentVideo/mountCloudinaryVideoTag";
+import enforceOptionsForTransparentVideo from "./util/features/transparentVideo/enforceOptionsForTransparentVideo";
+import mountSeeThruCanvasTag from "./util/features/transparentVideo/mountSeeThruCanvasTag";
+import checkSupportForTransparency from "./util/features/transparentVideo/checkSupportForTransparency";
 
 defaultBreakpoints = function(width, steps = 100) {
   return steps * Math.ceil(width / steps);
@@ -478,25 +485,26 @@ class Cloudinary {
    * @see {@link Cloudinary#cloudinary_update|cloudinary_update} for additional configuration parameters
    * @see <a href="https://cloudinary.com/documentation/responsive_images#automating_responsive_images_with_javascript"
    *  target="_blank">Automating responsive images with JavaScript</a>
+   * @return {function} that when called, removes the resize EventListener added by this function
    */
   responsive(options, bootstrap = true) {
     var ref, ref1, ref2, responsiveClass, responsiveResize, timeout;
     this.responsiveConfig = merge(this.responsiveConfig || {}, options);
-    responsiveClass = (ref = this.responsiveConfig['responsive_class']) != null ? ref : this.config('responsive_class');
+    responsiveClass = (ref = this.responsiveConfig.responsive_class) != null ? ref : this.config('responsive_class');
     if (bootstrap) {
       this.cloudinary_update(`img.${responsiveClass}, img.cld-hidpi`, this.responsiveConfig);
     }
-    responsiveResize = (ref1 = (ref2 = this.responsiveConfig['responsive_resize']) != null ? ref2 : this.config('responsive_resize')) != null ? ref1 : true;
+    responsiveResize = (ref1 = (ref2 = this.responsiveConfig.responsive_resize) != null ? ref2 : this.config('responsive_resize')) != null ? ref1 : true;
     if (responsiveResize && !this.responsiveResizeInitialized) {
       this.responsiveConfig.resizing = this.responsiveResizeInitialized = true;
       timeout = null;
-      return window.addEventListener('resize', () => {
+      const makeResponsive = () => {
         var debounce, ref3, ref4, reset, run, wait, waitFunc;
-        debounce = (ref3 = (ref4 = this.responsiveConfig['responsive_debounce']) != null ? ref4 : this.config('responsive_debounce')) != null ? ref3 : 100;
+        debounce = (ref3 = (ref4 = this.responsiveConfig.responsive_debounce) != null ? ref4 : this.config('responsive_debounce')) != null ? ref3 : 100;
         reset = function() {
           if (timeout) {
             clearTimeout(timeout);
-            return timeout = null;
+            timeout = null;
           }
         };
         run = () => {
@@ -508,14 +516,16 @@ class Cloudinary {
         };
         wait = function() {
           reset();
-          return timeout = setTimeout(waitFunc, debounce);
+          timeout = setTimeout(waitFunc, debounce);
         };
         if (debounce) {
           return wait();
         } else {
           return run();
         }
-      });
+      };
+      window.addEventListener('resize', makeResponsive);
+      return ()=>window.removeEventListener('resize', makeResponsive);
     }
   }
 
@@ -580,6 +590,7 @@ class Cloudinary {
       // similar to `$.fn.cloudinary`
       return this;
     }
+
     options = defaults({}, options || {}, this.config());
     let images = nodes
       .filter(node=>/^img$/i.test(node.tagName))
@@ -630,18 +641,9 @@ class Cloudinary {
       options = {};
     }
     const responsive = options.responsive != null ? options.responsive : this.config('responsive');
-    elements = (function() {
-      switch (false) {
-        case !isArray(elements):
-          return elements;
-        case elements.constructor.name !== "NodeList":
-          return elements;
-        case !isString(elements):
-          return Array.prototype.slice.call(document.querySelectorAll(elements), 0);
-        default:
-          return [elements];
-      }
-    })();
+
+    elements = normalizeToArray(elements);
+
     let responsiveClass;
     if (this.responsiveConfig && this.responsiveConfig.responsive_class != null) {
       responsiveClass = this.responsiveConfig.responsive_class;
@@ -665,21 +667,24 @@ class Cloudinary {
           if (HtmlTag.isResponsive(tag, responsiveClass)) {
             containerWidth = findContainerWidth(tag);
             if (containerWidth !== 0) {
-              switch (false) {
-                case !/w_auto:breakpoints/.test(dataSrc):
-                  if (requiredWidth = maxWidth(containerWidth, tag)) {
-                    dataSrc = dataSrc.replace(/w_auto:breakpoints([_0-9]*)(:[0-9]+)?/, `w_auto:breakpoints$1:${requiredWidth}`);
-                  } else {
-                    setUrl = false;
-                  }
-                  break;
-                case !(match = /w_auto(:(\d+))?/.exec(dataSrc)):
+              if (/w_auto:breakpoints/.test(dataSrc)) {
+                requiredWidth = maxWidth(containerWidth, tag);
+                if (requiredWidth) {
+                  dataSrc = dataSrc.replace(/w_auto:breakpoints([_0-9]*)(:[0-9]+)?/, `w_auto:breakpoints$1:${requiredWidth}`);
+                } else {
+                  setUrl = false;
+                }
+              } else {
+                match = /w_auto(:(\d+))?/.exec(dataSrc);
+                if (match) {
                   requiredWidth = applyBreakpoints.call(this, tag, containerWidth, match[2], options);
-                  if (requiredWidth = maxWidth(requiredWidth, tag)) {
+                  requiredWidth = maxWidth(requiredWidth, tag)
+                  if (requiredWidth) {
                     dataSrc = dataSrc.replace(/w_auto[^,\/]*/g, `w_${requiredWidth}`);
                   } else {
                     setUrl = false;
                   }
+                }
               }
               removeAttribute(tag, 'width');
               if (!options.responsive_preserve_height) {
@@ -690,13 +695,48 @@ class Cloudinary {
               setUrl = false;
             }
           }
-          if (setUrl) {
+          const isLazyLoading = (options.loading === 'lazy' && !this.isNativeLazyLoadSupported() && this.isLazyLoadSupported() && !elements[0].getAttribute('src'));
+          if (setUrl || isLazyLoading){
+            // If data-width exists, set width to be data-width
+            this.setAttributeIfExists(elements[0], 'width', 'data-width');
+          }
+
+          if (setUrl && !isLazyLoading) {
             setAttribute(tag, 'src', dataSrc);
           }
         }
       }
     });
     return this;
+  }
+
+  /**
+   * Sets element[toAttribute] = element[fromAttribute] if element[fromAttribute] is set
+   * @param element
+   * @param toAttribute
+   * @param fromAttribute
+   */
+  setAttributeIfExists(element, toAttribute, fromAttribute){
+    const attributeValue = element.getAttribute(fromAttribute);
+    if (attributeValue != null) {
+      setAttribute(element, toAttribute, attributeValue);
+    }
+  }
+
+  /**
+   * Returns true if Intersection Observer API is supported
+   * @returns {boolean}
+   */
+  isLazyLoadSupported() {
+    return window && 'IntersectionObserver' in window;
+  }
+
+  /**
+   * Returns true if using Chrome
+   * @returns {boolean}
+   */
+  isNativeLazyLoadSupported() {
+    return 'loading' in HTMLImageElement.prototype;
   }
 
   /**
@@ -714,6 +754,48 @@ class Cloudinary {
     return Transformation.new(this.config()).fromOptions(options).setParent(this);
   }
 
+
+  /**
+   * @description This function will append a TransparentVideo element to the htmlElContainer passed to it.
+   *              TransparentVideo can either be an HTML Video tag, or an HTML Canvas Tag.
+   * @param {HTMLElement} htmlElContainer
+   * @param {string} publicId
+   * @param {object} options The {@link TransparentVideoOptions} options to apply - Extends TransformationOptions
+   *                 options.playsinline    - HTML Video Tag's native playsinline - passed to video element.
+   *                 options.poster         - HTML Video Tag's native poster - passed to video element.
+   *                 options.loop           - HTML Video Tag's native loop - passed to video element.
+   *                 options?.externalLibraries = { [key: string]: string} - map of external libraries to be loaded
+   * @return {Promise<HTMLElement | {status:string, message:string}>}
+   */
+  injectTransparentVideoElement(htmlElContainer, publicId, options = {}) {
+    return new Promise((resolve, reject) => {
+      if (!htmlElContainer) {
+        reject({status: 'error', message: 'Expecting htmlElContainer to be HTMLElement'});
+      }
+
+      enforceOptionsForTransparentVideo(options);
+
+      let videoURL = this.video_url(publicId, options);
+
+      checkSupportForTransparency().then((isNativelyTransparent) => {
+        let mountPromise;
+
+        if (isNativelyTransparent) {
+          mountPromise = mountCloudinaryVideoTag(htmlElContainer, this, publicId, options);
+          resolve(htmlElContainer);
+        } else {
+          mountPromise = mountSeeThruCanvasTag(htmlElContainer, videoURL, options);
+        }
+
+        mountPromise
+          .then(() => {
+          resolve(htmlElContainer);
+        }).catch(({status, message}) => { reject({status, message});});
+
+        // catch for checkSupportForTransparency()
+      }).catch(({status, message}) => { reject({status, message});});
+    });
+  }
 }
 
 assign(Cloudinary, constants);

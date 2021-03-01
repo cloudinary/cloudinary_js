@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SeeThru Demo</title>
+  <script src="../../pkg/cloudinary-core/cloudinary-core-shrinkwrap.js"></script>
+</head>
+<body>
+<div id="container" style="width:400px"></div>
+<script>
+  // this is a cloud we know has this video below
+  let myCloudinary = new cloudinary.Cloudinary({cloud_name: "eran2903"});
+
+  let container = document.getElementById('container');
+
+  myCloudinary.injectTransparentVideoElement(container, 'transparency/all_xl59zu', {
+    max_timeout_ms: 15000,
+    protocol: 'https:', // ensures https:// in test environment
+  }).catch((err) => {
+    console.log(err);
+  });
+</script>
+</body>
+</html>

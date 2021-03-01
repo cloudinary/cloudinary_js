@@ -50,33 +50,34 @@ class CloudinaryJQuery extends Cloudinary {
     if (responsive_resize && !responsiveResizeInitialized) {
       responsiveConfig.resizing = responsiveResizeInitialized = true;
       timeout = null;
-      return jQuery(window).on('resize', () => {
-        const debounce = firstNotNull(responsiveConfig.responsive_debounce, this.config('responsive_debounce'), 100);
-        let reset = function() {
-          if (timeout) {
-            clearTimeout(timeout);
-            return timeout = null;
+      const makeResponsive = () => {
+          const debounce = firstNotNull(responsiveConfig.responsive_debounce, this.config('responsive_debounce'), 100);
+          let reset = function () {
+            if (timeout) {
+              clearTimeout(timeout);
+              return timeout = null;
+            }
+          };
+          let run = function () {
+            return jQuery(`img.${responsiveClass}`).cloudinary_update(responsiveConfig);
+          };
+          let wait = function () {
+            reset();
+            return setTimeout((function () {
+              reset();
+              return run();
+            }), debounce);
+          };
+          if (debounce) {
+            return wait();
+          } else {
+            return run();
           }
         };
-        let run = function() {
-          return jQuery(`img.${responsiveClass}`).cloudinary_update(responsiveConfig);
-        };
-        let wait = function() {
-          reset();
-          return setTimeout((function() {
-            reset();
-            return run();
-          }), debounce);
-        };
-        if (debounce) {
-          return wait();
-        } else {
-          return run();
-        }
-      });
+        jQuery(window).on('resize', makeResponsive);
+        return ()=>jQuery(window).off('resize', makeResponsive);
     }
   }
-
 }
 
 /**

@@ -41,6 +41,37 @@ describe("util", function () {
       } else {
         console.warn("Set is not preset.")
       }
-    })
-  })
+    });
+  });
+  describe("extractUrlParams",function () {
+    it("should filter non-url param and keep url params", function () {
+      const {extractUrlParams} = cloudinary.Util;
+      options = {signature: 'signature', signature1: 'signature1'};
+      expected = {signature: 'signature'};
+      actual = extractUrlParams(options);
+
+      expect(actual).toEqual(expected);
+    });
+  });
+  describe("detectIntersection",function () {
+    let onIntersect;
+    beforeEach(function() {
+      onIntersect = jasmine.createSpy("onIntersect");
+      jasmine.clock().install();
+    });
+
+    it("should call onIntersect", function () {
+      const {detectIntersection} = cloudinary.Util;
+
+      setTimeout(function() {
+        detectIntersection({}, onIntersect);
+      }, 100);
+
+      expect(onIntersect).not.toHaveBeenCalled();
+
+      jasmine.clock().tick(101);
+
+      expect(onIntersect).toHaveBeenCalled();
+    });
+  });
 });

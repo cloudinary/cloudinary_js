@@ -164,7 +164,7 @@ var slice = [].slice,
   * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
   * @example
   *
-  * function Foo(){};  
+  * function Foo(){};
   * isFunction(Foo);
   * // => true
   *
@@ -1403,7 +1403,8 @@ var slice = [].slice,
       "*": "mul",
       "/": "div",
       "+": "add",
-      "-": "sub"
+      "-": "sub",
+      "^": "pow",
     };
 
 
@@ -1472,29 +1473,36 @@ var slice = [].slice,
       return new this(expressionStr);
     };
 
-
     /**
      * Normalize a string expression
      * @function Cloudinary#normalize
      * @param {string} expression a expression, e.g. "w gt 100", "width_gt_100", "width > 100"
      * @return {string} the normalized form of the value expression, e.g. "w_gt_100"
      */
-
     Expression.normalize = function(expression) {
-      var operators, pattern, replaceRE;
+      var operators, operatorsPattern, operatorsReplaceRE, predefinedVarsPattern, predefinedVarsReplaceRE;
       if (expression == null) {
         return expression;
       }
       expression = String(expression);
-      operators = "\\|\\||>=|<=|&&|!=|>|=|<|/|-|\\+|\\*";
-      pattern = "((" + operators + ")(?=[ _])|" + Object.keys(Expression.PREDEFINED_VARS).join("|") + ")";
-      replaceRE = new RegExp(pattern, "g");
-      expression = expression.replace(replaceRE, function(match) {
-        return Expression.OPERATORS[match] || Expression.PREDEFINED_VARS[match];
+      operators = "\\|\\||>=|<=|&&|!=|>|=|<|/|-|\\+|\\*|\\^";
+
+      // operators
+      operatorsPattern = "((" + operators + ")(?=[ _]))";
+      operatorsReplaceRE = new RegExp(operatorsPattern, "g");
+      expression = expression.replace(operatorsReplaceRE, function (match) {
+        return Expression.OPERATORS[match];
       });
+
+      // predefined variables
+      predefinedVarsPattern = "(" + Object.keys(Expression.PREDEFINED_VARS).join("|") + ")";
+      predefinedVarsReplaceRE = new RegExp(predefinedVarsPattern, "g");
+      expression = expression.replace(predefinedVarsReplaceRE, function(match, p1, offset){
+        return (expression[offset - 1] === '$' ? match : Expression.PREDEFINED_VARS[match]);
+      });
+
       return expression.replace(/[ _]+/g, '_');
     };
-
 
     /**
      * Serialize the expression
@@ -3070,7 +3078,7 @@ var slice = [].slice,
      * @protected
      * @param {string} key - attribute name
      * @param {*|boolean} value - the value of the attribute. If the value is boolean `true`, return the key only.
-     * @returns {string} the attribute  
+     * @returns {string} the attribute
      *
      */
 
@@ -4293,7 +4301,8 @@ var slice = [].slice,
             if (containerWidth !== 0) {
               switch (false) {
                 case !/w_auto:breakpoints/.test(dataSrc):
-                  if (requiredWidth = maxWidth(containerWidth, tag)) {
+                  requiredWidth = maxWidth(containerWidth, tag);
+                  if (requiredWidth) {
                     dataSrc = dataSrc.replace(/w_auto:breakpoints([_0-9]*)(:[0-9]+)?/, "w_auto:breakpoints$1:" + requiredWidth);
                   } else {
                     setUrl = false;
@@ -4301,7 +4310,8 @@ var slice = [].slice,
                   break;
                 case !(match = /w_auto(:(\d+))?/.exec(dataSrc)):
                   requiredWidth = applyBreakpoints.call(this, tag, containerWidth, match[2], options);
-                  if (requiredWidth = maxWidth(requiredWidth, tag)) {
+                  requiredWidth = maxWidth(requiredWidth, tag);
+                  if (requiredWidth) {
                     dataSrc = dataSrc.replace(/w_auto[^,\/]*/g, "w_" + requiredWidth);
                   } else {
                     setUrl = false;

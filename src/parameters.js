@@ -13,11 +13,8 @@ import {
 } from './util';
 
 import Layer from './layer/layer';
-
 import TextLayer from './layer/textlayer';
-
 import SubtitlesLayer from './layer/subtitleslayer';
-
 import FetchLayer from './layer/fetchlayer';
 
 /**
@@ -91,7 +88,7 @@ class Param {
     return value != null ? value.replace(/^#/, 'rgb:') : void 0;
   }
 
-  build_array(arg) {
+  static build_array(arg) {
     if(arg == null) {
       return [];
     } else if (isArray(arg)) {
@@ -119,11 +116,11 @@ class Param {
       case Object:
         video = "";
         if ('codec' in param) {
-          video = param['codec'];
+          video = param.codec;
           if ('profile' in param) {
-            video += ":" + param['profile'];
+            video += ":" + param.profile;
             if ('level' in param) {
-              video += ":" + param['level'];
+              video += ":" + param.level;
             }
           }
         }
@@ -134,7 +131,6 @@ class Param {
         return null;
     }
   }
-
 }
 
 class ArrayParam extends Param {
@@ -149,7 +145,7 @@ class ArrayParam extends Param {
    * @extends Param
    * @ignore
    */
-  constructor(name, shortName, sep = '.', process) {
+  constructor(name, shortName, sep = '.', process = undefined) {
     super(name, shortName, process);
     this.sep = sep;
   }
@@ -185,10 +181,9 @@ class ArrayParam extends Param {
       return super.set([origValue]);
     }
   }
-
 }
 
-var TransformationParam = class TransformationParam extends Param {
+class TransformationParam extends Param {
   /**
    * A parameter that represents a transformation
    * @param {string} name - The name of the parameter in snake_case
@@ -199,7 +194,7 @@ var TransformationParam = class TransformationParam extends Param {
    * @extends Param
    * @ignore
    */
-  constructor(name, shortName = "t", sep = '.', process) {
+  constructor(name, shortName = "t", sep = '.', process = undefined) {
     super(name, shortName, process);
     this.sep = sep;
   }
@@ -248,12 +243,15 @@ var TransformationParam = class TransformationParam extends Param {
       return super.set([this.origValue]);
     }
   }
+}
 
-};
+const number_pattern = "([0-9]*)\\.([0-9]+)|([0-9]+)";
+const offset_any_pattern = "(" + number_pattern + ")([%pP])?";
 
 class RangeParam extends Param {
+
   /**
-   * A parameter that represents a range.
+   * A parameter that represents a range
    * @param {string} name - The name of the parameter in snake_case
    * @param {string} shortName - The name of the serialized form of the parameter
    *                         If a value is not provided, the parameter will not be serialized.
@@ -262,24 +260,21 @@ class RangeParam extends Param {
    * @extends Param
    * @ignore
    */
-  constructor(name, shortName, process) {
+  constructor(name, shortName, process = RangeParam.norm_range_value) {
     super(name, shortName, process);
-    this.process || (this.process = this.norm_range_value);
   }
-
   static norm_range_value(value) {
-    var modifier, offset;
-    offset = String(value).match(new RegExp('^' + offset_any_pattern + '$'));
+
+    let offset = String(value).match(new RegExp('^' + offset_any_pattern + '$'));
     if (offset) {
-      modifier = offset[5] != null ? 'p' : '';
+      let modifier = offset[5] != null ? 'p' : '';
       value = (offset[1] || offset[4]) + modifier;
     }
     return value;
   }
-
 }
 
-var RawParam = class RawParam extends Param {
+class RawParam extends Param {
   constructor(name, shortName, process = identity) {
     super(name, shortName, process);
   }
@@ -288,19 +283,7 @@ var RawParam = class RawParam extends Param {
     return this.value();
   }
 
-};
-
-const LAYER_KEYWORD_PARAMS = [
-  ["font_weight", "normal"],
-  ["font_style", "normal"],
-  ["text_decoration", "none"],
-  ["text_align", null],
-  ["stroke", "none"],
-  ["letter_spacing", null],
-  ["line_spacing", null],
-  ["font_antialias", null],
-  ["font_hinting", null]
-];
+}
 
 class LayerParam extends Param {
   // Parse layer options
@@ -336,17 +319,15 @@ class LayerParam extends Param {
     return result.toString();
   }
 
-  textStyle(layer) {
+  static textStyle(layer) {
     return (new TextLayer(layer)).textStyleIdentifier();
   }
-
 }
 
 class ExpressionParam extends Param {
   serialize() {
     return Expression.normalize(super.serialize());
   }
-
 }
 
 export {
