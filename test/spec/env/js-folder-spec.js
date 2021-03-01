@@ -16,7 +16,7 @@ jasmine.getEnv().addReporter(new SpecReporter({
 // List of files to test
 const files = [
   {name: 'canvas-to-blob.min.js', checkSum: "33ecbe6885ad339c3a5af0cfa063810d"},
-  {name: 'jquery.cloudinary.js', checkSum: "27886431ad43cf97ca3edd2ed3f4e379"},
+  {name: 'jquery.cloudinary.js', checkSum: "0d492c6cd3350b0178c65d0ac3c0e23f"},
   {name: 'jquery.fileupload.js', checkSum: "4bfd85460689a29e314ddfad50c184e0"},
   {name: 'jquery.fileupload-image.js', checkSum: "7c40367b00f74b0c7c43bff009dde942"},
   {name: 'jquery.fileupload-process.js', checkSum: "840f65232eaf1619ea0aff1ab4f5e444"},
