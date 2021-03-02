@@ -4302,12 +4302,20 @@ var slice = [].slice,
               switch (false) {
                 case !/w_auto:breakpoints/.test(dataSrc):
                   requiredWidth = maxWidth(containerWidth, tag);
-                  dataSrc = dataSrc.replace(/w_auto:breakpoints([_0-9]*)(:[0-9]+)?/, "w_auto:breakpoints$1:" + requiredWidth);
+                  if (requiredWidth) {
+                    dataSrc = dataSrc.replace(/w_auto:breakpoints([_0-9]*)(:[0-9]+)?/, "w_auto:breakpoints$1:" + requiredWidth);
+                  } else {
+                    setUrl = false;
+                  }
                   break;
                 case !(match = /w_auto(:(\d+))?/.exec(dataSrc)):
                   requiredWidth = applyBreakpoints.call(this, tag, containerWidth, match[2], options);
                   requiredWidth = maxWidth(requiredWidth, tag);
-                  dataSrc = dataSrc.replace(/w_auto[^,\/]*/g, "w_" + requiredWidth);
+                  if (requiredWidth) {
+                    dataSrc = dataSrc.replace(/w_auto[^,\/]*/g, "w_" + requiredWidth);
+                  } else {
+                    setUrl = false;
+                  }
               }
               Util.removeAttribute(tag, 'width');
               if (!options.responsive_preserve_height) {

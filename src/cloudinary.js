@@ -667,15 +667,24 @@ class Cloudinary {
           if (HtmlTag.isResponsive(tag, responsiveClass)) {
             containerWidth = findContainerWidth(tag);
             if (containerWidth !== 0) {
-              switch (false) {
-                case !/w_auto:breakpoints/.test(dataSrc):
-                  requiredWidth = maxWidth(containerWidth, tag);
+              if (/w_auto:breakpoints/.test(dataSrc)) {
+                requiredWidth = maxWidth(containerWidth, tag);
+                if (requiredWidth) {
                   dataSrc = dataSrc.replace(/w_auto:breakpoints([_0-9]*)(:[0-9]+)?/, `w_auto:breakpoints$1:${requiredWidth}`);
-                  break;
-                case !(match = /w_auto(:(\d+))?/.exec(dataSrc)):
+                } else {
+                  setUrl = false;
+                }
+              } else {
+                match = /w_auto(:(\d+))?/.exec(dataSrc);
+                if (match) {
                   requiredWidth = applyBreakpoints.call(this, tag, containerWidth, match[2], options);
-                  requiredWidth = maxWidth(requiredWidth, tag);
-                  dataSrc = dataSrc.replace(/w_auto[^,\/]*/g, `w_${requiredWidth}`);
+                  requiredWidth = maxWidth(requiredWidth, tag)
+                  if (requiredWidth) {
+                    dataSrc = dataSrc.replace(/w_auto[^,\/]*/g, `w_${requiredWidth}`);
+                  } else {
+                    setUrl = false;
+                  }
+                }
               }
               removeAttribute(tag, 'width');
               if (!options.responsive_preserve_height) {
