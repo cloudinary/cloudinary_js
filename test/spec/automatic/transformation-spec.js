@@ -113,6 +113,66 @@ describe("Transformation", function() {
     const t = cloudinary.Transformation.new(options);
     expect(t.toString()).toEqual('$width_10/c_scale,w_$width_add_10_add_w');
   });
+  it("should not affect user variable names containing predefined names", function() {
+    const options = { transformation: [
+        {
+          $mywidth: "100",
+          $aheight: 300
+        },
+        {
+          width: "3 + $mywidth * 3 + 4 / 2 * initialWidth * $mywidth",
+          height: "3 * initialHeight + $aheight",
+          crop: 'scale'
+        }
+      ]};
+    const t = cloudinary.Transformation.new(options);
+    expect(t.toString()).toEqual("$aheight_300,$mywidth_100/c_scale,h_3_mul_ih_add_$aheight,w_3_add_$mywidth_mul_3_add_4_div_2_mul_iw_mul_$mywidth");
+  });
+  describe("Expression normalization", function() {
+    const cases = {
+      'null is not affected': [null, null],
+      'number replaced with a string value': [10, '10'],
+      'empty string is not affected': ['', ''],
+      'single space is replaced with a single underscore': [' ', '_'],
+      'blank string is replaced with a single underscore': ['   ', '_'],
+      'underscore is not affected': ['_', '_'],
+      'sequence of underscores and spaces is replaced with a single underscore': [' _ __  _', '_'],
+      'arbitrary text is not affected': ['foobar', 'foobar'],
+      'double ampersand replaced with and operator': ['foo && bar', 'foo_and_bar'],
+      'double ampersand with no space at the end is not affected': ['foo&&bar', 'foo&&bar'],
+      'width recognized as variable and replaced with w': ['width', 'w'],
+      'initial aspect ratio recognized as variable and replaced with iar': ['initial_aspect_ratio', 'iar'],
+      '$width recognized as user variable and not affected': ['$width', '$width'],
+      '$initial_aspect_ratio recognized as user variable followed by aspect_ratio variable': [
+        '$initial_aspect_ratio',
+        '$initial_ar',
+      ],
+      '$mywidth recognized as user variable and not affected': ['$mywidth', '$mywidth'],
+      '$widthwidth recognized as user variable and not affected': ['$widthwidth', '$widthwidth'],
+      '$_width recognized as user variable and not affected': ['$_width', '$_width'],
+      '$__width recognized as user variable and not affected': ['$__width', '$_width'],
+      '$$width recognized as user variable and not affected': ['$$width', '$$width'],
+      '$height recognized as user variable and not affected': ['$height_100', '$height_100'],
+      '$heightt_100 recognized as user variable and not affected': ['$heightt_100', '$heightt_100'],
+      '$$height_100 recognized as user variable and not affected': ['$$height_100', '$$height_100'],
+      '$heightmy_100 recognized as user variable and not affected': ['$heightmy_100', '$heightmy_100'],
+      '$myheight_100 recognized as user variable and not affected': ['$myheight_100', '$myheight_100'],
+      '$heightheight_100 recognized as user variable and not affected': [
+        '$heightheight_100',
+        '$heightheight_100',
+      ],
+      '$theheight_100 recognized as user variable and not affected': ['$theheight_100', '$theheight_100'],
+      '$__height_100 recognized as user variable and not affected': ['$__height_100', '$_height_100']
+    };
+
+    _.forIn(cases, function(params, testDescription) {
+      it(testDescription, function() {
+        const input = params[0],
+            expected = params[1];
+        return expect(cloudinary.Expression.normalize(input)).toEqual(expected);
+      });
+    });
+  });
   describe("width and height", function() {
     it('should use width and height from options only if crop is given', function() {
       expect(cl.url('test', {

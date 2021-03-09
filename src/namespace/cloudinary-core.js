@@ -7,6 +7,7 @@ import * as Util from '../util';
 import Transformation from '../transformation';
 import Condition from '../condition';
 import Configuration from '../configuration';
+import Expression from "../expression";
 import HtmlTag from '../tags/htmltag';
 import ImageTag from '../tags/imagetag';
 import PictureTag from '../tags/picturetag';
@@ -24,6 +25,7 @@ export default {
   Condition,
   Configuration,
   crc32,
+  Expression,
   FetchLayer,
   HtmlTag,
   ImageTag,
@@ -43,6 +45,7 @@ export {
   Condition,
   Configuration,
   crc32,
+  Expression,
   FetchLayer,
   HtmlTag,
   ImageTag,

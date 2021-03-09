@@ -2,7 +2,7 @@
  * Represents a transformation expression.
  * @param {string} expressionStr - An expression in string format.
  * @class Expression
- *
+ * Normally this class is not instantiated directly
  */
 class Expression {
   constructor(expressionStr) {
@@ -31,22 +31,22 @@ class Expression {
    * @return {string} the normalized form of the value expression, e.g. "w_gt_100"
    */
   static normalize(expression) {
-    var operators, operatorsPattern, operatorsReplaceRE, predefinedVarsPattern, predefinedVarsReplaceRE;
     if (expression == null) {
       return expression;
     }
     expression = String(expression);
-    operators = "\\|\\||>=|<=|&&|!=|>|=|<|/|-|\\+|\\*|\\^";
+    const operators = "\\|\\||>=|<=|&&|!=|>|=|<|/|-|\\+|\\*|\\^";
 
     // operators
-    operatorsPattern = "((" + operators + ")(?=[ _]))";
-    operatorsReplaceRE = new RegExp(operatorsPattern, "g");
+    const operatorsPattern = "((" + operators + ")(?=[ _]))";
+    const operatorsReplaceRE = new RegExp(operatorsPattern, "g");
     expression = expression.replace(operatorsReplaceRE, match => Expression.OPERATORS[match]);
 
     // predefined variables
-    predefinedVarsPattern = "(" + Object.keys(Expression.PREDEFINED_VARS).join("|") + ")";
-    predefinedVarsReplaceRE = new RegExp(predefinedVarsPattern, "g");
-    expression = expression.replace(predefinedVarsReplaceRE, (match, p1, offset) => (expression[offset - 1] === '$' ? match : Expression.PREDEFINED_VARS[match]));
+    const predefinedVarsPattern = "(" + Object.keys(Expression.PREDEFINED_VARS).join("|") + ")";
+    const userVariablePattern = '(\\$_*[^_ ]+)';
+    const variablesReplaceRE = new RegExp(`${userVariablePattern}|${predefinedVarsPattern}`, "g");
+    expression = expression.replace(variablesReplaceRE, (match) => (Expression.PREDEFINED_VARS[match] || match));
 
     return expression.replace(/[ _]+/g, '_');
   }
