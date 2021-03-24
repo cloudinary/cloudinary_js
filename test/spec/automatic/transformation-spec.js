@@ -877,6 +877,18 @@ describe("Transformation", function() {
       });
     });
   });
+  describe('Context metadata to user variables', function (){
+    it('should use context value as user variables', function(){
+      const options = {
+        variables: [["$xpos", "ctx:!x_pos!_to_f"], ["$ypos", "ctx:!y_pos!_to_f"]],
+        crop: "crop",
+        x: "$xpos * w",
+        y: "$ypos * h"
+      };
+      const t = new Transformation(options).toString();
+      expect(t).toEqual('$xpos_ctx:!x_pos!_to_f,$ypos_ctx:!y_pos!_to_f,c_crop,x_$xpos_mul_w,y_$ypos_mul_h')
+    });
+  });
   describe('User Define Variables', function() {
     it("array should define a set of variables", function() {
       var options, t;
