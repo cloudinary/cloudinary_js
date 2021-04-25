@@ -8,6 +8,7 @@ import Transformation from '../transformation';
 import Condition from '../condition';
 import Configuration from '../configuration';
 import HtmlTag from '../tags/htmltag';
+import Expression from "../expression";
 import ImageTag from '../tags/imagetag';
 import PictureTag from '../tags/picturetag';
 import VideoTag from '../tags/videotag';
@@ -23,6 +24,7 @@ export default {
   Cloudinary,
   Condition,
   Configuration,
+  Expression,
   crc32,
   FetchLayer,
   HtmlTag,
@@ -42,6 +44,7 @@ export {
   Cloudinary,
   Condition,
   Configuration,
+  Expression,
   crc32,
   FetchLayer,
   HtmlTag,
