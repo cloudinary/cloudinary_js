@@ -165,11 +165,10 @@ describe("Transformation", function() {
       '$__height_100 recognized as user variable and not affected': ['$__height_100', '$_height_100']
     };
 
-    _.forIn(cases, function(params, testDescription) {
-      it(testDescription, function() {
-        const input = params[0],
-            expected = params[1];
-        return expect(cloudinary.Expression.normalize(input)).toEqual(expected);
+    Object.keys(cases).forEach(function (testDescription) {
+      const [input, expected] = cases[testDescription];
+      it(testDescription, function () {
+        expect(cloudinary.Expression.normalize(input)).toEqual(expected);
       });
     });
   });

@@ -18,6 +18,7 @@ import TextLayer from '../layer/textlayer';
 import SubtitlesLayer from '../layer/subtitleslayer';
 import Cloudinary from '../cloudinary';
 import CloudinaryJQuery from '../cloudinaryjquery';
+import Expression from "../expression";
 
 export default {
   ClientHintsMetaTag,
@@ -25,6 +26,7 @@ export default {
   CloudinaryJQuery,
   Condition,
   Configuration,
+  Expression,
   crc32,
   FetchLayer,
   HtmlTag,
@@ -45,6 +47,7 @@ export {
   CloudinaryJQuery,
   Condition,
   Configuration,
+  Expression,
   crc32,
   FetchLayer,
   HtmlTag,
