@@ -1,3 +1,11 @@
+2.11.4 / 2021-04-25
+==================
+
+* Fix transformations with variable names containing predefined names (#265)
+* Fix responsive URL generation for zero width images (#206)
+* Fix incorrect readme text and broken links (#264)
+* Add test for context metadata as user variables (#266)
+
 2.11.3 / 2020-09-30
 ==================
 
