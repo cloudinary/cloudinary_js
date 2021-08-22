@@ -131,7 +131,7 @@ describe("Transformation", function() {
   describe("Expression normalization", function() {
     const cases = {
       'null is not affected': [null, null],
-      'number replaced with a string value': [10, '10'],
+      'None is not affected': ['None', 'None'],
       'empty string is not affected': ['', ''],
       'single space is replaced with a single underscore': [' ', '_'],
       'blank string is replaced with a single underscore': ['   ', '_'],
@@ -142,10 +142,12 @@ describe("Transformation", function() {
       'double ampersand with no space at the end is not affected': ['foo&&bar', 'foo&&bar'],
       'width recognized as variable and replaced with w': ['width', 'w'],
       'initial aspect ratio recognized as variable and replaced with iar': ['initial_aspect_ratio', 'iar'],
+      'duration is recognized as a variable and replaced with du': ['duration', 'du'],
+      'duration after : is not a variable and is not affected': ['preview:duration_2', 'preview:duration_2'],
       '$width recognized as user variable and not affected': ['$width', '$width'],
       '$initial_aspect_ratio recognized as user variable followed by aspect_ratio variable': [
         '$initial_aspect_ratio',
-        '$initial_ar',
+        '$initial_ar'
       ],
       '$mywidth recognized as user variable and not affected': ['$mywidth', '$mywidth'],
       '$widthwidth recognized as user variable and not affected': ['$widthwidth', '$widthwidth'],

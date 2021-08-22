@@ -43,8 +43,12 @@ class Expression {
     expression = expression.replace(operatorsReplaceRE, match => Expression.OPERATORS[match]);
 
     // predefined variables
-    const predefinedVarsPattern = "(" + Object.keys(Expression.PREDEFINED_VARS).join("|") + ")";
+    // The :${v} part is to prevent normalization of vars with a preceding colon (such as :duration),
+    // It won't be found in PREDEFINED_VARS and so won't be normalized.
+    // It is done like this because ie11 does not support regex lookbehind
+    const predefinedVarsPattern = "(" + Object.keys(Expression.PREDEFINED_VARS).map(v=>`:${v}|${v}`).join("|") + ")";
     const userVariablePattern = '(\\$_*[^_ ]+)';
+
     const variablesReplaceRE = new RegExp(`${userVariablePattern}|${predefinedVarsPattern}`, "g");
     expression = expression.replace(variablesReplaceRE, (match) => (Expression.PREDEFINED_VARS[match] || match));
 
@@ -305,7 +309,6 @@ Expression.PREDEFINED_VARS = {
   "aspectRatio": "ar",
   "current_page": "cp",
   "currentPage": "cp",
-  "preview:duration": "preview:duration",
   "duration": "du",
   "face_count": "fc",
   "faceCount": "fc",
