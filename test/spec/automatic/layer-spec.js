@@ -54,6 +54,11 @@ describe("TextLayer", function() {
     transformation = new Transformation().overlay(options).toString();
     return expect(transformation.toString()).toEqual("l_text:Arial_18_hinting_full:Cloudinary%20for%20the%20win%21");
   });
+  it("should support variables in text styles", function () {
+    const layer = new TextLayer().text("hello-world").textStyle('$style');
+    const transformation = new Transformation().variables([["$style", "!Arial_12!"]]).chain().overlay(layer.toString());
+    return expect(transformation.toString()).toEqual("$style_!Arial_12!/l_text:$style:hello-world");
+  });
 });
 
 describe("FetchLayer", function() {

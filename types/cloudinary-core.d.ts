@@ -580,6 +580,7 @@ export class TextLayer extends Layer {
     letterSpacing(value: number): TextLayer;
     lineSpacing(value: number): TextLayer;
     text(value: string): TextLayer;
+    textStyle(value: string): TextLayer;
     /** Getters */
     toString(): string;
     textStyleIdentifier(): Array<string>;
@@ -600,6 +601,7 @@ export namespace TextLayer {
         letterSpacing?: number;
         lineSpacing?: number;
         text?: string;
+        textStyle?: string;
     }
 }
 

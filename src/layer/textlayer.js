@@ -16,7 +16,7 @@ class TextLayer extends Layer {
   constructor(options) {
     var keys;
     super(options);
-    keys = ["resourceType", "resourceType", "fontFamily", "fontSize", "fontWeight", "fontStyle", "textDecoration", "textAlign", "stroke", "letterSpacing", "lineSpacing", "fontHinting", "fontAntialiasing", "text"];
+    keys = ["resourceType", "resourceType", "fontFamily", "fontSize", "fontWeight", "fontStyle", "textDecoration", "textAlign", "stroke", "letterSpacing", "lineSpacing", "fontHinting", "fontAntialiasing", "text", "textStyle"];
     if (options != null) {
       keys.forEach((key) => {
         var ref;
@@ -98,6 +98,11 @@ class TextLayer extends Layer {
     return this;
   }
 
+  textStyle(textStyle) {
+    this.options.textStyle = textStyle;
+    return this;
+  }
+
   /**
    * generate the string representation of the layer
    * @function TextLayer#toString
@@ -132,6 +137,10 @@ class TextLayer extends Layer {
   }
 
   textStyleIdentifier() {
+    // Note: if a text-style argument is provided as a whole, it overrides everything else, no mix and match.
+    if (!isEmpty(this.options.textStyle)) {
+      return this.options.textStyle;
+    }
     var components;
     components = [];
     if (this.options.fontWeight !== "normal") {
