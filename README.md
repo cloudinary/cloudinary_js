@@ -11,10 +11,9 @@ Cloudinary provides URL and HTTP based APIs that can be easily integrated with a
 
 # About this repository
 This repository is the home for three distinct packages
-- [cloudinary-core](https://github.com/cloudinary/pkg-cloudinary-core#installation)
-- [cloudinary-jquery](https://github.com/cloudinary/cloudinary_js/tree/master/pkg/cloudinary-jquery)
-- [cloudinary-jquery-file-upload](https://github.com/cloudinary/cloudinary-jquery-file-upload#installation)
-
+- [cloudinary-core](https://www.npmjs.com/package/cloudinary-core)
+- [cloudinary-jquery](https://www.npmjs.com/package/cloudinary-jquery)
+- [cloudinary-jquery-file-upload](https://www.npmjs.com/package/cloudinary-jquery-file-upload)
 
 # Cloudinary Core
 Cloudinary-Core is a cross-platform library for Cloudinary.</br>
