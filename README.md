@@ -21,7 +21,7 @@ The library provides URL generation capabilities as well as other utlity functio
 
 This SDK does not contain API methods, for that please refer to our [Node SDK](https://github.com/cloudinary/cloudinary_npm)
 
-[cloudinary-core readme](https://github.com/cloudinary/pkg-cloudinary-core)
+* [cloudinary-core readme](https://github.com/cloudinary/cloudinary_js/tree/master/pkg/cloudinary-core/README.md)
 ### Quick start
 
 ```javascript
@@ -37,12 +37,12 @@ cl.config( "cloud_name", "demo");
 ------------------------------
 
 # Cloudinary jQuery
-[cloudinary-jquery readme](https://github.com/cloudinary/cloudinary_js/tree/master/pkg/cloudinary-jquery)
-[Getting started guide for jQuery](http://cloudinary.com/documentation/jquery_integration#getting_started_guide)
+* [cloudinary-jquery readme](https://github.com/cloudinary/cloudinary_js/tree/master/pkg/cloudinary-jquery/README.md)
+* [Getting started guide for jQuery](http://cloudinary.com/documentation/jquery_integration#getting_started_guide)
 
 ------------------------------
 # Cloudinary jQuery File Upload
-[cloudinary-jquery-file-upload readme](https://github.com/cloudinary/cloudinary-jquery-file-upload)
+* [cloudinary-jquery-file-upload readme](https://github.com/cloudinary/cloudinary_js/tree/master/pkg/cloudinary-jquery-file-upload/README.md)
 
 
 # Additional Resources
