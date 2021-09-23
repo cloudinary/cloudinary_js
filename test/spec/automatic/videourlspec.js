@@ -108,6 +108,13 @@ describe("Cloudinary::Utils", function () {
       });
     });
 
+    describe (":start_offset_auto", function() {
+      it('should support auto as a valid start_offset', function() {
+        test_cloudinary_url("video_id", {resource_type: 'video', start_offset: 'auto'},  `${upload_path}/so_auto/video_id`, {});
+      });
+    });
+
+
     const timeParams = [
       {short: 'so', long: 'start_offset'},
       {short: 'eo', long: 'end_offset'},
