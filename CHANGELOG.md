@@ -1,3 +1,15 @@
+
+2.12.0 / 2021-10-10
+=============
+New functionality and features
+------------------------------
+  * Add support for variables in text style (#271)
+
+Other Changes
+-------------
+  * Fix README.md npm package links (#272)
+  * Refactor normalization of e_preview:duration (#270)
+  
 2.11.4 / 2021-04-25
 ==================
 
