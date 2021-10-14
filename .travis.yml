@@ -11,3 +11,7 @@ script:
   - npm run test
   - npm run test:pkgs
 
+notifications:
+  email:
+    recipients:
+      - sdk_developers@cloudinary.com
