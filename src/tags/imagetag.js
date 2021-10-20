@@ -31,8 +31,8 @@ class ImageTag extends HtmlTag {
     var attr, options, srcAttribute;
     attr = super.attributes() || {};
     options = this.getOptions();
-    let srcsetParam = this.getOption('srcset');
     let attributes = this.getOption('attributes') || {};
+    let srcsetParam = this.getOption('srcset')|| attributes.srcset;
 
     let responsiveAttributes = {};
     if (isString(srcsetParam)) {
@@ -41,8 +41,8 @@ class ImageTag extends HtmlTag {
       responsiveAttributes = generateImageResponsiveAttributes(this.publicId, attributes, srcsetParam, options);
     }
     if(!isEmpty(responsiveAttributes)) {
-      delete options.width;
-      delete options.height;
+      delete attr.width;
+      delete attr.height;
     }
 
     merge(attr, responsiveAttributes);
