@@ -5,7 +5,7 @@ import SourceTag from './sourcetag';
 import {extractUrlParams} from "../util";
 
 class PictureTag extends HtmlTag {
-  constructor(publicId, options = {}, sources) {
+  constructor(publicId, options = {}, sources = []) {
     super('picture', publicId, options);
     this.widthList = sources;
   }

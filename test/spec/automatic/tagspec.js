@@ -519,4 +519,51 @@ describe("PictureTag", function(){
       "</picture>";
     expect(tag.toHtml()).toBe(exp_tag);
   });
+
+  describe("pictureTag", function(){
+    let defaultUploadPath, config, cl;
+    config = {'cloud_name': 'test123'};
+    defaultUploadPath = `${protocol}//res.cloudinary.com/${config.cloud_name}/image/upload/`;
+
+    beforeEach(function () {
+      cl = new Cloudinary(config);
+    });
+
+    it("should generate a picture tag", function () {
+      let tag = cl.pictureTag('image_id').toHtml();
+      return expect(tag).toBe(`<picture><img src="${defaultUploadPath}image_id"></picture>`);
+    });
+
+    it("should generate a picture tag with options", function () {
+      let tag = cl.pictureTag('image_id', {width: 150, crop: "fill"}).toHtml();
+      return expect(tag).toBe(`<picture><img src="${defaultUploadPath}c_fill,w_150/image_id" width="150"></picture>`);
+    });
+
+    it("should generate a picture tag with options and sources", function () {
+      let tag = cl.pictureTag(
+          'image_id',
+          {
+            width: 150,
+            crop: "fill"
+          },
+          [
+            {
+              "max_width": 200,
+              "transformation": {
+                "crop": "scale",
+                "effect": "sepia",
+                "angle": 17,
+                "width": 100
+              }
+            }
+          ]
+      ).toHtml();
+      return expect(tag).toBe(
+          `<picture>` +
+          `<source media="(max-width: 200px)" srcset="${defaultUploadPath}c_fill,w_150/a_17,c_scale,e_sepia,w_100/image_id">` +
+          `<img src="${defaultUploadPath}c_fill,w_150/image_id" width="150">` +
+          `</picture>`
+      );
+    });
+  });
 });

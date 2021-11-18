@@ -451,10 +451,23 @@ export class ImageTag extends HtmlTag {
  * @extends HtmlTag
  * @param {string} [publicId]
  * @param {Object} [options]
+ * @param {Array<Object>} [widthList]
  */
 export class PictureTag extends HtmlTag {
-    static "new"(publicId: string, options?: Transformation.Options, widthList?: Array<[number, number, Transformation]>): PictureTag;
+    static "new"(publicId: string, options?: Transformation.Options, widthList?: Array<Object>): PictureTag;
     static "new"(name: string, publicId: string, options?: Transformation.Options): PictureTag;
+}
+
+/**
+ * Creates an HTML (DOM) Source tag using Cloudinary as the source.
+ * @constructor SourceTag
+ * @extends HtmlTag
+ * @param {string} [publicId]
+ * @param {Object} [options]
+ */
+export class SourceTag extends HtmlTag {
+    static "new"(publicId: string, options?: Transformation.Options): SourceTag;
+    static "new"(name: string, publicId: string, options?: Transformation.Options): SourceTag;
 }
 
 /**
@@ -736,6 +749,25 @@ export class Cloudinary {
     imageTag(publicId: string, options?: Transformation | Transformation.Options): ImageTag;
 
     /**
+     * Creates a new PictureTag instance, configured using this own's configuration.
+     * @function Cloudinary#pictureTag
+     * @param {string} publicId - the public ID of the resource
+     * @param {Object} options - additional options to pass to the new PictureTag instance
+     * @param {Array<Object>} sources - the sources definitions
+     * @return {PictureTag} An PictureTag that is attached (chained) to this Cloudinary instance
+     */
+    pictureTag(publicId: string, options?: Transformation | Transformation.Options, sources?: Array<object>): PictureTag;
+
+    /**
+     * Creates a new SourceTag instance, configured using this own's configuration.
+     * @function Cloudinary#sourceTag
+     * @param {string} publicId - the public ID of the resource
+     * @param {Object} options - additional options to pass to the new SourceTag instance
+     * @return {SourceTag} An SourceTag that is attached (chained) to this Cloudinary instance
+     */
+    sourceTag(publicId: string, options?: Transformation | Transformation.Options): SourceTag;
+
+    /**
      * Generate an image tag for the video thumbnail.
      * @function Cloudinary#video_thumbnail
      * @param {string} publicId - the public ID of the video
@@ -877,6 +909,7 @@ declare let _default: {
     Layer: Layer,
     Param: Param,
     PictureTag: PictureTag,
+    SourceTag: SourceTag,
     SubtitlesLayer: SubtitlesLayer,
     TextLayer: TextLayer,
     Transformation: Transformation,
