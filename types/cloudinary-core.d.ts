@@ -239,7 +239,7 @@ export class Transformation {
     underlay(value: string): Transformation; // public id of an uploaded image
     variable(name: string, value: any): Transformation;
     variables(value: Array<[string, any]>): Transformation;
-    videoCodec(value: string | Object): Transformation; // Select the video codec and control the video content of the profile used. Can be provided in the form <codec>[:<profile>:[<level>]] to specify specific values to apply for video codec, profile and level, e.g. "h264:baseline:3.1". Also accepts a hash of values such as { codec: 'h264', profile: 'basic', level: '3.1' }
+    videoCodec(value: string | Object): Transformation; // Select the video codec and control the video content of the profile used. Can be provided in the form <codec>[:<profile>:[<level>:[<:b_frames>]]] to specify specific values to apply for video codec, profile, level and b_frames, e.g. "h264:baseline:3.1:bframes_no". Also accepts a hash of values such as { codec: 'h264', profile: 'basic', level: '3.1', b_frames: false }
     videoSampling(value: number | string): Transformation; // Integer - The total number of frames to sample from the original video. String - The number of seconds between each frame to sample from the original video. e.g. 2.3s takes one frame every 2.3 seconds.
     width(value: string | number): Transformation; // Number of pixels, width % or "auto" with rounding step
     x(value: number): Transformation; // pixels or percent
@@ -373,7 +373,7 @@ export namespace Transformation {
         sourceTransformation?: string;
         startOffset?: number | string; // Float or string
         streamingProfile?: StreamingProfiles
-        videoCodec?: string | Object; // Select the video codec and control the video content of the profile used. Can be provided in the form <codec>[:<profile>:[<level>]] to specify specific values to apply for video codec, profile and level, e.g. "h264:baseline:3.1". Also accepts a hash of values such as { codec: 'h264', profile: 'basic', level: '3.1' }
+        videoCodec?: string | Object; // Select the video codec and control the video content of the profile used. Can be provided in the form <codec>[:<profile>:[<level>:[<:b_frames>]]] to specify specific values to apply for video codec, profile, level and b_frames, e.g. "h264:baseline:3.1:bframes_no". Also accepts a hash of values such as { codec: 'h264', profile: 'basic', level: '3.1', b_frames: false }
         videoSampling?: number | string; // Integer - The total number of frames to sample from the original video. The frames are spread out over the length of the video, e.g. 20 takes one frame every 5% -- OR -- String - The number of seconds between each frame to sample from the original video. e.g. 2.3s takes one frame every 2.3 seconds.
     }
 }
