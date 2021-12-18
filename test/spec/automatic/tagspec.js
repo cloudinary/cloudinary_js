@@ -78,16 +78,15 @@ describe("Cloudinary.ImageTag", function() {
     'cloud_name': 'test123'
   };
 
-  let minWidth = 100;
-  let maxWidth = 399;
-  let breakpointList = [minWidth, 200, 300, maxWidth];
-  let commonSrcset = {'breakpoints': breakpointList};
-  let publicId = 'sample';
-  let imageFormat = 'jpg';
-  let fullPublicId = publicId + '.' + imageFormat;
-  let commonTransformation = {'effect': 'sepia'};
-  let commonTransformationStr = 'e_sepia';
-  let commonImageOptions = Object.assign({}, config, {
+  const minWidth = 100;
+  const maxWidth = 399;
+  const breakpointList = [minWidth, 200, 300, maxWidth];
+  const commonSrcset = {'breakpoints': breakpointList};
+  const publicId = 'sample';
+  const imageFormat = 'jpg';
+  const fullPublicId = publicId + '.' + imageFormat;
+  const commonTransformation = {'effect': 'sepia'};
+  const commonImageOptions = Object.assign({}, config, {
     transformation: [commonTransformation],
   });
 
@@ -96,17 +95,21 @@ describe("Cloudinary.ImageTag", function() {
   });
   DEFAULT_UPLOAD_PATH = `${protocol}//res.cloudinary.com/test123/image/upload/`;
 
-  it("Should create srcset attribute with provided breakpoints", function () {
+  it("Should create srcset attribute from provided breakpoints", function () {
     let tag = new cloudinary.ImageTag(
         fullPublicId,
         Object.assign({}, commonImageOptions, {srcset: commonSrcset})
     ).toHtml();
-    let expectedTag = expectedImageTagFromParams(fullPublicId, commonTransformationStr, '', breakpointList);
 
-    return expect(expectedTag).toBe(tag);
+    return expect(`<img src="${DEFAULT_UPLOAD_PATH}e_sepia/${fullPublicId}" srcset="` +
+        `${DEFAULT_UPLOAD_PATH}e_sepia/c_scale,w_100/${fullPublicId} 100w, ` +
+        `${DEFAULT_UPLOAD_PATH}e_sepia/c_scale,w_200/${fullPublicId} 200w, ` +
+        `${DEFAULT_UPLOAD_PATH}e_sepia/c_scale,w_300/${fullPublicId} 300w, ` +
+        `${DEFAULT_UPLOAD_PATH}e_sepia/c_scale,w_399/${fullPublicId} 399w">`)
+        .toBe(tag);
   });
 
-  it("Should create srcset attribute with provided breakpoints as float values", function () {
+  it("Should create srcset attribute from provided breakpoints as float values", function () {
     let breakpointListFloat = [...breakpointList];
     breakpointListFloat.forEach(function (part, index, theArray) {
       theArray[index] += 0.1;
@@ -117,9 +120,13 @@ describe("Cloudinary.ImageTag", function() {
         fullPublicId,
         Object.assign({}, commonImageOptions, {srcset: commonSrcsetFloat})
     ).toHtml();
-    let expectedTag = expectedImageTagFromParams(fullPublicId, commonTransformationStr, '', breakpointListFloat);
 
-    return expect(expectedTag).toBe(tag);
+    return expect(`<img src="${DEFAULT_UPLOAD_PATH}e_sepia/${fullPublicId}" srcset="` +
+        `${DEFAULT_UPLOAD_PATH}e_sepia/c_scale,w_100.1/${fullPublicId} 100.1w, ` +
+        `${DEFAULT_UPLOAD_PATH}e_sepia/c_scale,w_200.1/${fullPublicId} 200.1w, ` +
+        `${DEFAULT_UPLOAD_PATH}e_sepia/c_scale,w_300.1/${fullPublicId} 300.1w, ` +
+        `${DEFAULT_UPLOAD_PATH}e_sepia/c_scale,w_399.1/${fullPublicId} 399.1w">`)
+        .toBe(tag);
   });
 
   it("Should support srcset attribute defined by min_width, max_width, and max_images", function () {
@@ -129,16 +136,19 @@ describe("Cloudinary.ImageTag", function() {
         fullPublicId,
         Object.assign({}, commonImageOptions, {srcset: srcsetParams})
     ).toHtml();
-    let expectedTag = expectedImageTagFromParams(fullPublicId, commonTransformationStr, '', breakpointList);
 
-    return expect(expectedTag).toBe(tag);
+    return expect(`<img src="${DEFAULT_UPLOAD_PATH}e_sepia/${fullPublicId}" srcset="` +
+        `${DEFAULT_UPLOAD_PATH}e_sepia/c_scale,w_100/${fullPublicId} 100w, ` +
+        `${DEFAULT_UPLOAD_PATH}e_sepia/c_scale,w_200/${fullPublicId} 200w, ` +
+        `${DEFAULT_UPLOAD_PATH}e_sepia/c_scale,w_300/${fullPublicId} 300w, ` +
+        `${DEFAULT_UPLOAD_PATH}e_sepia/c_scale,w_399/${fullPublicId} 399w">`)
+        .toBe(tag);
   });
 
   it("Should support 1 image in srcset", function () {
     let srcsetParams = {'min_width': minWidth, 'max_width': maxWidth, 'max_images': 1};
     let srcsetBreakpoint = {"breakpoints": [maxWidth]};
 
-    let expectedTag = expectedImageTagFromParams(fullPublicId, commonTransformationStr, '', [maxWidth]);
     let tagByParams = new cloudinary.ImageTag(
         fullPublicId,
         Object.assign({}, commonImageOptions, {srcset: srcsetParams})
@@ -148,6 +158,9 @@ describe("Cloudinary.ImageTag", function() {
         Object.assign({}, commonImageOptions, {srcset: srcsetBreakpoint})
     ).toHtml();
 
+    let expectedTag = `<img src="${DEFAULT_UPLOAD_PATH}e_sepia/${fullPublicId}" srcset="` +
+        `${DEFAULT_UPLOAD_PATH}e_sepia/c_scale,w_399/${fullPublicId} 399w">`;
+
     expect(expectedTag).toBe(tagByParams);
     return expect(expectedTag).toBe(tagByBreakpoint);
   });
@@ -156,61 +169,44 @@ describe("Cloudinary.ImageTag", function() {
     let srcsetParams = Object.assign({}, commonSrcset, {
       transformation: {'crop': 'crop', 'width': 10, 'height': 20},
     });
-    let customTransformationStr = 'c_crop,h_20,w_10';
 
-    let expectedTag = expectedImageTagFromParams(
-        fullPublicId,
-        commonTransformationStr,
-        customTransformationStr,
-        breakpointList
-    );
     let tag = new cloudinary.ImageTag(
         fullPublicId,
         Object.assign({}, commonImageOptions, {srcset: srcsetParams})
     ).toHtml();
 
-    return expect(expectedTag).toBe(tag);
+    return expect(`<img src="${DEFAULT_UPLOAD_PATH}e_sepia/${fullPublicId}" srcset="` +
+        `${DEFAULT_UPLOAD_PATH}c_crop,h_20,w_10/c_scale,w_100/${fullPublicId} 100w, ` +
+        `${DEFAULT_UPLOAD_PATH}c_crop,h_20,w_10/c_scale,w_200/${fullPublicId} 200w, ` +
+        `${DEFAULT_UPLOAD_PATH}c_crop,h_20,w_10/c_scale,w_300/${fullPublicId} 300w, ` +
+        `${DEFAULT_UPLOAD_PATH}c_crop,h_20,w_10/c_scale,w_399/${fullPublicId} 399w">`)
+        .toBe(tag);
   });
 
   it("Should populate sizes attribute", function () {
     let srcsetParams = Object.assign({}, commonSrcset, {
       sizes: true,
     });
-    let expectedSizes = [];
-    for(let key in breakpointList){
-      if (breakpointList.hasOwnProperty(key)) {
-        let w = breakpointList[key];
-        expectedSizes.push(`(max-width: ${w}px) ${w}px`);
-      }
-    }
-    let attributes = {"sizes": expectedSizes.join(', ')};
 
-    let expectedTag = expectedImageTagFromParams(
-        fullPublicId,
-        commonTransformationStr,
-        '',
-        breakpointList,
-        attributes
-    );
     let tag = new cloudinary.ImageTag(
         fullPublicId,
         Object.assign({}, commonImageOptions, {srcset: srcsetParams})
     ).toHtml();
 
-    return expect(expectedTag).toBe(tag);
+    return expect(`<img sizes="` +
+        `(max-width: 100px) 100px, (max-width: 200px) 200px, (max-width: 300px) 300px, (max-width: 399px) 399px" ` +
+        `src="${DEFAULT_UPLOAD_PATH}e_sepia/${fullPublicId}" srcset="` +
+        `${DEFAULT_UPLOAD_PATH}e_sepia/c_scale,w_100/${fullPublicId} 100w, ` +
+        `${DEFAULT_UPLOAD_PATH}e_sepia/c_scale,w_200/${fullPublicId} 200w, ` +
+        `${DEFAULT_UPLOAD_PATH}e_sepia/c_scale,w_300/${fullPublicId} 300w, ` +
+        `${DEFAULT_UPLOAD_PATH}e_sepia/c_scale,w_399/${fullPublicId} 399w">`)
+        .toBe(tag);
   });
 
   it("Should support srcset string value", function () {
     let raw_srcset_value = 'some srcset data as is';
     let attributes = {'srcset': raw_srcset_value};
 
-    let expectedTag = expectedImageTagFromParams(
-        fullPublicId,
-        commonTransformationStr,
-        '',
-        '',
-        attributes
-    );
     let legacyTag = new cloudinary.ImageTag(
         fullPublicId,
         Object.assign({}, commonImageOptions, {srcset: raw_srcset_value})
@@ -219,6 +215,8 @@ describe("Cloudinary.ImageTag", function() {
         fullPublicId,
         Object.assign({}, commonImageOptions, {attributes: attributes})
     ).toHtml();
+
+    let expectedTag = `<img src="${DEFAULT_UPLOAD_PATH}e_sepia/${fullPublicId}" srcset="some srcset data as is">`;
 
     expect(expectedTag).toBe(tag);
     return expect(expectedTag).toBe(legacyTag);
@@ -233,73 +231,73 @@ describe("Cloudinary.ImageTag", function() {
           srcset: commonSrcset
         })
     ).toHtml();
-    let expectedTag = expectedImageTagFromParams(
-        fullPublicId,
-        commonTransformationStr,
-        '',
-        breakpointList
-    );
 
-    return expect(expectedTag).toBe(tag);
+    return expect(`<img src="${DEFAULT_UPLOAD_PATH}e_sepia/${fullPublicId}" srcset="` +
+        `${DEFAULT_UPLOAD_PATH}e_sepia/c_scale,w_100/${fullPublicId} 100w, ` +
+        `${DEFAULT_UPLOAD_PATH}e_sepia/c_scale,w_200/${fullPublicId} 200w, ` +
+        `${DEFAULT_UPLOAD_PATH}e_sepia/c_scale,w_300/${fullPublicId} 300w, ` +
+        `${DEFAULT_UPLOAD_PATH}e_sepia/c_scale,w_399/${fullPublicId} 399w">`)
+        .toBe(tag);
   });
 
-  it("Should raise ValueError on invalid values", function () {
-    let mes1, mes2, mes3;
-    mes1 = 'Either (min_width, max_width, max_images) or breakpoints must be provided to the image srcset attribute';
-    mes2 = 'min_width must be less than max_width';
-    mes3 = 'max_images must be a positive integer';
+  describe("Should raise ValueError on invalid values", function () {
+    const errMsgNotSet = 'Either (min_width, max_width, max_images) or breakpoints must be provided to the image srcset attribute';
+    const errMsgWidth = 'min_width must be less than max_width';
+    const errMsgMaxImages = 'max_images must be a positive integer';
 
     let invalidSrcsetDataProvider = [
       {
-        message: mes1,
+        message: errMsgNotSet,
         srcset: {'sizes': true}
       },
       {
-        message: mes1,
+        message: errMsgNotSet,
         srcset: {'max_width': 300, 'max_images': 3}
       },
       {
-        message: mes1,
+        message: errMsgNotSet,
         srcset: {'min_width': 'string', 'max_width': 300, 'max_images': 3}
       },
       {
-        message: mes1,
+        message: errMsgNotSet,
         srcset: {'min_width': 100, 'max_images': 3}
       },
       {
-        message: mes1,
+        message: errMsgNotSet,
         srcset: {'min_width': 100, 'max_width': 'string', 'max_images': 3}
       },
       {
-        message: mes2,
+        message: errMsgWidth,
         srcset: {'min_width': 200, 'max_width': 100, 'max_images': 3}
       },
       {
-        message: mes1,
+        message: errMsgNotSet,
         srcset: {'min_width': 100, 'max_width': 300}
       },
       {
-        message: mes3,
+        message: errMsgMaxImages,
         srcset: {'min_width': 100, 'max_width': 300, 'max_images': 0}
       },
       {
-        message: mes3,
+        message: errMsgMaxImages,
         srcset: {'min_width': 100, 'max_width': 300, 'max_images': -17}
       },
       {
-        message: mes1,
+        message: errMsgNotSet,
         srcset: {'min_width': 100, 'max_width': 300, 'max_images': 'string'}
       },
     ];
 
-    invalidSrcsetDataProvider.forEach(function (ob) {
-      expect(function () {
-            new cloudinary.ImageTag(
-                fullPublicId,
-                Object.assign({}, commonImageOptions, {srcset: ob.srcset})
-            ).toHtml();
-          }
-      ).toThrow(ob.message);
+    invalidSrcsetDataProvider.forEach(function (testCase) {
+      it(`Should throw "${testCase.message}" on ${JSON.stringify(testCase.srcset)} params`, function () {
+        expect(function () {
+              new cloudinary.ImageTag(
+                  fullPublicId,
+                  Object.assign({}, commonImageOptions, {srcset: testCase.srcset})
+              ).toHtml();
+            }
+        ).toThrow(testCase.message);
+      });
     });
   });
 
