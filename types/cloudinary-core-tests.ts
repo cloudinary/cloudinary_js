@@ -74,6 +74,42 @@ const publicId = 'imagePublicId';
 cld.image(publicId); // image.src == http://res.cloudinary.com/demo/image/upload/${publicId}
 
 
+cld.pictureTag(publicId, {
+    cloud_name: "test123",
+    width: 100,
+    height: 100,
+    crop: "fill",
+});
+
+
+cld.pictureTag(publicId, {
+    cloud_name: "test123",
+    width: 100,
+    height: 100,
+    crop: "fill",
+}, [
+    {
+        "max_width": 200,
+        "transformation": {
+            "crop": "scale",
+            "effect": "sepia",
+            "angle": 17,
+            "width": 100
+        }
+    }
+]);
+
+
+cld.sourceTag(publicId);
+
+
+cld.sourceTag(publicId, {
+    width: 100,
+    height: 100,
+    crop: "fill",
+});
+
+
 cld.video(publicId); // video == <video poster="http://res.cloudinary.com/demo/video/upload/${publicId}.jpg"><source src="http://res.cloudinary.com/demo/video/upload/${publicId}.webm" type="video/webm"><source src="http://res.cloudinary.com/demo/video/upload/${publicId}.mp4" type="video/mp4"><source src="http://res.cloudinary.com/demo/video/upload/${publicId}.ogv" type="video/ogg"></video>
 
 
