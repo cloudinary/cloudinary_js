@@ -58,10 +58,13 @@ import trim from 'lodash/trim';
 
 export * from './lazyLoad';
 export * from './baseutil';
+export * from './browser';
 export {
   isElement,
   isFunction,
-  trim};
+  trim
+};
+
 /*
  * Includes utility methods and lodash / jQuery shims
  */
