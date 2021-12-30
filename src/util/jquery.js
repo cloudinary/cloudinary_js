@@ -3,6 +3,7 @@
  */
 export * from './baseutil';
 export * from './lazyLoad';
+export * from './browser';
 import getSDKAnalyticsSignature from "../sdkAnalytics/getSDKAnalyticsSignature";
 import getAnalyticsOptions from "../sdkAnalytics/getAnalyticsOptions";
 export {getSDKAnalyticsSignature , getAnalyticsOptions};
