@@ -43,8 +43,9 @@ export function isSafari(){
 }
 
 /**
-* Return the user agent for the navigator.
+* Retrieve from the navigator the user agent property.
+* @returns user agent property.
 */
-getNavigator(){
+function getNavigator(){
   return navigator && navigator.userAgent || '';
 }
