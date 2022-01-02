@@ -4,6 +4,14 @@
  */
 
 /**
+* Retrieve from the navigator the user agent property.
+* @returns user agent property.
+*/
+function getNavigator(){
+  return navigator && navigator.userAgent || '';
+}
+
+/**
  * Detect if current browser is any Android
  * @returns true if current browser is Android, false otherwise.
  */
@@ -40,12 +48,4 @@ export function isSafari(){
   // Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36
   const userAgent = getNavigator();
   return (/Safari/i).test(userAgent) && !isChrome() && !isAndroid() && !isEdge();
-}
-
-/**
-* Retrieve from the navigator the user agent property.
-* @returns user agent property.
-*/
-function getNavigator(){
-  return navigator && navigator.userAgent || '';
 }
