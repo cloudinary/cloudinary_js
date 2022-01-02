@@ -8,7 +8,7 @@
  * @returns true if current browser is Android, false otherwise.
  */
 export function isAndroid(){
-  const userAgent = navigator && navigator.userAgent || '';
+  const userAgent = getNavigator();
   return (/Android/i).test(userAgent);
 }
 
@@ -17,7 +17,7 @@ export function isAndroid(){
  * @returns true if current browser is Edge, false otherwise.
  */
 export function isEdge(){
-  const userAgent = navigator && navigator.userAgent || '';
+  const userAgent = getNavigator();
   return (/Edg/i).test(userAgent);
 }
 
@@ -26,7 +26,7 @@ export function isEdge(){
  * @returns true if current browser is Chrome, false otherwise.
  */
 export function isChrome(){
-  const userAgent = navigator && navigator.userAgent || '';
+  const userAgent = getNavigator();
   return !isEdge() && ((/Chrome/i).test(userAgent) || (/CriOS/i).test(userAgent));
 }
 
@@ -38,6 +38,13 @@ export function isSafari(){
   // User agents for other browsers might include "Safari" so we must exclude them.
   // For example - this is the chrome user agent on windows 10:
   // Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36
-  const userAgent = navigator && navigator.userAgent || '';
+  const userAgent = getNavigator();
   return (/Safari/i).test(userAgent) && !isChrome() && !isAndroid() && !isEdge();
+}
+
+/**
+* Return the user agent for the navigator.
+*/
+getNavigator(){
+  return navigator && navigator.userAgent || '';
 }
