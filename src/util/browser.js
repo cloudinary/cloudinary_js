@@ -3,15 +3,13 @@
  * https://github.com/videojs/video.js/blob/4238f5c1d88890547153e7e1de7bd0d1d8e0b236/src/js/utils/browser.js
  */
 
-// User agent example taken from Safari desktop:
-const useAgent = navigator && navigator.userAgent || '';
-
 /**
  * Detect if current browser is any Android
  * @returns true if current browser is Android, false otherwise.
  */
 export function isAndroid(){
-  return (/Android/i).test(useAgent);
+  const userAgent = navigator && navigator.userAgent || '';
+  return (/Android/i).test(userAgent);
 }
 
 /**
@@ -19,7 +17,8 @@ export function isAndroid(){
  * @returns true if current browser is Edge, false otherwise.
  */
 export function isEdge(){
-  return (/Edg/i).test(useAgent);
+  const userAgent = navigator && navigator.userAgent || '';
+  return (/Edg/i).test(userAgent);
 }
 
 /**
@@ -27,7 +26,8 @@ export function isEdge(){
  * @returns true if current browser is Chrome, false otherwise.
  */
 export function isChrome(){
-  return !isEdge() && ((/Chrome/i).test(useAgent) || (/CriOS/i).test(useAgent));
+  const userAgent = navigator && navigator.userAgent || '';
+  return !isEdge() && ((/Chrome/i).test(userAgent) || (/CriOS/i).test(userAgent));
 }
 
 /**
@@ -38,5 +38,6 @@ export function isSafari(){
   // User agents for other browsers might include "Safari" so we must exclude them.
   // For example - this is the chrome user agent on windows 10:
   // Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36
-  return (/Safari/i).test(useAgent) && !isChrome() && !isAndroid() && !isEdge();
+  const userAgent = navigator && navigator.userAgent || '';
+  return (/Safari/i).test(userAgent) && !isChrome() && !isAndroid() && !isEdge();
 }
