@@ -1,3 +1,10 @@
+2.12.1 / 2022-01-02
+==================
+
+* Fix pictureTag arguments & add missing definitions (#278)
+* Fix image srcset passed as attribute (#277) 
+* Fix transparent video on Safari (#280)
+
 
 2.12.0 / 2021-10-10
 =============
