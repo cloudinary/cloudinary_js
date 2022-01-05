@@ -6,7 +6,7 @@ const bundlewatchConfig = {
     },
     {
       path: './dist/cloudinary-core-shrinkwrap.min.js',
-      maxSize: '31kb'
+      maxSize: '32kb'
     },
     {
       path: './dist/cloudinary-jquery.min.js',
