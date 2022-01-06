@@ -31,7 +31,7 @@ function getBlobFromURL(urlToLoad, maxTimeoutMS) {
 
     // If fetch exists, use it to fetch blob, otherwise use XHR.
     // XHR causes issues on safari 14.1 so we prefer fetch
-    const fetchBlob = fetch ? loadUrlUsingFetch : loadUrlUsingXhr;
+    const fetchBlob = (typeof fetch !== 'undefined' && fetch) ? loadUrlUsingFetch : loadUrlUsingXhr;
 
     fetchBlob(urlToLoad).then((blob) => {
       resolve({
@@ -76,7 +76,7 @@ function loadUrlUsingFetch(urlToLoad) {
  */
 function loadUrlUsingXhr(urlToLoad) {
   return new Promise((resolve, reject) => {
-    let xhr = new XMLHttpRequest();
+    const xhr = new XMLHttpRequest();
     xhr.responseType = 'blob';
     xhr.onload = function (response) {
       resolve(xhr.response);
