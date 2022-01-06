@@ -1,3 +1,9 @@
+2.12.3 / 2022-01-06
+==================
+
+* Fix transparent video on safari 14.1 by using fetch instead of XHR (#282)
+
+
 2.12.2 / 2022-01-03
 ==================
 
