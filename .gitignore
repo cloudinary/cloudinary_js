@@ -37,3 +37,6 @@ dist/
 # TypeScript intermediate files
 types/*.js*
 .tscache/
+
+.DS_Store
+pkg/.DS_Store
