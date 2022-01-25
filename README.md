@@ -1,77 +1,42 @@
-[![Build Status](https://travis-ci.org/cloudinary/cloudinary_js.svg)](https://travis-ci.org/cloudinary/cloudinary_js) [![npm](https://img.shields.io/npm/v/cloudinary_js.svg?maxAge=2592000)]() [![license](https://img.shields.io/github/license/cloudinary/cloudinary_js.svg?maxAge=2592000)]()
+Cloudinary Javascript SDKs (Legacy)
+==========================
 
-# Cloudinary Client Side JavaScript Library
+## Note About Legacy SDKs
+While these SDKs still work, we recommend using the new [@cloudinary/url-gen](https://github.com/cloudinary/js-url-gen) package instead.
+You can read it's documentation [here](https://cloudinary.com/documentation/javascript_quick_start).
 
-Cloudinary is a cloud service that offers a solution to a web application's entire image management pipeline.</br></br>
-Easily upload images to the cloud. Automatically perform smart image resizing, cropping and conversion without installing any complex software. Integrate Facebook or Twitter profile image extraction in a snap, in any dimension and style to match your website’s graphics requirements. Images are seamlessly delivered through a fast CDN, and much much more.</br></br>
-Cloudinary offers comprehensive APIs and administration capabilities and is easy to integrate with any web application, existing or new.</br></br>
-Cloudinary provides URL and HTTP based APIs that can be easily integrated with any Web development framework.
+## About
+The Cloudinary Javascript SDK allows you to quickly and easily integrate your application with Cloudinary.
+Effortlessly optimize, transform, and upload your cloud's assets.
 
-
-
-# About this repository
-This repository is the home for three distinct packages
+## This repository is the home for three distinct packages
 - [cloudinary-core](https://www.npmjs.com/package/cloudinary-core)
 - [cloudinary-jquery](https://www.npmjs.com/package/cloudinary-jquery)
 - [cloudinary-jquery-file-upload](https://www.npmjs.com/package/cloudinary-jquery-file-upload)
 
-# Cloudinary Core
-Cloudinary-Core is a cross-platform library for Cloudinary.</br>
-The library provides URL generation capabilities as well as other utlity functions useful when working with Media.
+## Contributions
+- Ensure tests run locally (```npm run test```)
+- Open a PR and ensure Travis tests pass
 
-This SDK does not contain API methods, for that please refer to our [Node SDK](https://github.com/cloudinary/cloudinary_npm)
+## Get Help
+If you run into an issue or have a question, you can either:
+- [Open a Github issue](https://github.com/CloudinaryLtd/cloudinary_js/issues)  (for issues related to the SDK)
+- [Open a support ticket](https://cloudinary.com/contact) (for issues related to your account)
 
-* [cloudinary-core readme](https://github.com/cloudinary/cloudinary_js/tree/master/pkg/cloudinary-core/README.md)
-### Quick start
+## About Cloudinary
+Cloudinary is a powerful media API for websites and mobile apps alike, Cloudinary enables developers to efficiently manage, transform, optimize, and deliver images and videos through multiple CDNs. Ultimately, viewers enjoy responsive and personalized visual-media experiences—irrespective of the viewing device.
 
-```javascript
-var cl = cloudinary.Cloudinary.new( { cloud_name: "demo"});
-```
-
-```javascript
-// Using the config function
-var cl = cloudinary.Cloudinary.new();
-cl.config( "cloud_name", "demo");
-```
-
-------------------------------
-
-# Cloudinary jQuery
-* [cloudinary-jquery readme](https://github.com/cloudinary/cloudinary_js/tree/master/pkg/cloudinary-jquery/README.md)
-* [Getting started guide for jQuery](http://cloudinary.com/documentation/jquery_integration#getting_started_guide)
-
-------------------------------
-# Cloudinary jQuery File Upload
-* [cloudinary-jquery-file-upload readme](https://github.com/cloudinary/cloudinary_js/tree/master/pkg/cloudinary-jquery-file-upload/README.md)
+## Additional Resources
+- [Cloudinary Transformation and REST API References](https://cloudinary.com/documentation/cloudinary_references): Comprehensive references, including syntax and examples for all SDKs.
+- [MediaJams.dev](https://mediajams.dev/): Bite-size use-case tutorials written by and for Cloudinary Developers
+- [DevJams](https://www.youtube.com/playlist?list=PL8dVGjLA2oMr09amgERARsZyrOz_sPvqw): Cloudinary developer podcasts on YouTube.
+- [Cloudinary Academy](https://training.cloudinary.com/): Free self-paced courses, instructor-led virtual courses, and on-site courses.
+- [Code Explorers and Feature Demos](https://cloudinary.com/documentation/code_explorers_demos_index): A one-stop shop for all code explorers, Postman collections, and feature demos found in the docs.
+- [Cloudinary Roadmap](https://cloudinary.com/roadmap): Your chance to follow, vote, or suggest what Cloudinary should develop next.
+- [Cloudinary Facebook Community](https://www.facebook.com/groups/CloudinaryCommunity): Learn from and offer help to other Cloudinary developers.
+- [Cloudinary Account Registration](https://cloudinary.com/users/register/free): Free Cloudinary account registration.
+- [Cloudinary Website](https://cloudinary.com): Learn about Cloudinary's products, partners, customers, pricing, and more.
 
 
-# Additional Resources
-* [Website](http://cloudinary.com)
-* [Documentation](http://cloudinary.com/documentation)
-* [Knowledge Base](http://support.cloudinary.com/forums)
-* [Documentation for jQuery integration](http://cloudinary.com/documentation/jquery_integration)
-* [jQuery image upload documentation](http://cloudinary.com/documentation/jquery_image_upload)
-* [jQuery image manipulation documentation](http://cloudinary.com/documentation/jquery_image_manipulation)
-* [Image transformations documentation](http://cloudinary.com/documentation/image_transformations)
-* [Setting up a jQuery based file upload](http://cloudinary.com/blog/direct_image_uploads_from_the_browser_to_the_cloud_with_jquery).
-
-
-# Other SDKs
-- [Official Angular SDK](https://github.com/cloudinary/cloudinary_angular)
-- [Official React SDK](https://github.com/cloudinary/cloudinary-react)
-- [Official Vue SDK](https://github.com/cloudinary/cloudinary-vue)
-- [Official Node SDK](https://github.com/cloudinary/cloudinary_npm)
-
-
-## Support
-You can [open an issue through GitHub](https://github.com/cloudinary/cloudinary_js/issues). </br></br>
-Contact us at [http://cloudinary.com/contact](http://cloudinary.com/contact). </br></br>
-Stay tuned for updates, tips and tutorials: [Blog](http://cloudinary.com/blog), [Twitter](https://twitter.com/cloudinary), [Facebook](http://www.facebook.com/Cloudinary). </br></br>
-
-## Join the Community 
-Impact the product, hear updates, test drive new features and more! Join [here](https://www.facebook.com/groups/CloudinaryCommunity).
-
-
-## License
-Released under the MIT license. </br></br>
-The direct image upload feature of the plugin is based on https://github.com/blueimp/jQuery-File-Upload
+## Licence
+Released under the MIT license.
