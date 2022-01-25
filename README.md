@@ -1,7 +1,7 @@
 Cloudinary Javascript SDKs (Legacy)
 ==========================
 
-#Note About Legacy SDKs
+## Note About Legacy SDKs
 While these SDKs still work, we recommend using the new [@cloudinary/url-gen](https://github.com/cloudinary/js-url-gen) package instead.
 You can read it's documentation [here](https://cloudinary.com/documentation/javascript_quick_start).
 
