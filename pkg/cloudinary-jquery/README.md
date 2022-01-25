@@ -131,7 +131,7 @@ cl.url( "sample", {
 - Use the ```videoTag()``` function to generate a VideoTag instance
 
 ### File upload
-See [cloudinary-jquery-file-upload](https://github.com/cloudinary/cloudinary_js/pkg/cloudinary-jquery-file-upload).
+See [cloudinary-jquery-file-upload](https://github.com/cloudinary/cloudinary_js/tree/master/pkg/cloudinary-jquery-file-upload).
 
 ## Contributions
 - Ensure tests run locally (```npm run test```)
