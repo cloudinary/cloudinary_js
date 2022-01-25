@@ -19,7 +19,10 @@ For the complete documentation, see the [Javascript SDK Guide](https://cloudinar
     - [Transform and Optimize Assets](#Transform-and-Optimize-Assets)
     - [Generate Image and HTML Tags](#Generate-Image-and-Video-HTML-Tags)
     - [File upload](#File-upload)
-
+- [Contributions](#Contributions)
+- [About Cloudinary](#About-Cloudinary)
+- [Additional Resources](#Additional-Resources)
+- [Licence](#Licence)
 
 ## Key Features
 - [Transform](https://cloudinary.com/documentation/javascript1_video_manipulation#video_transformation_examples) and [optimize](https://cloudinary.com/documentation/javascript1_image_manipulation#image_optimizations) assets.
