@@ -139,7 +139,7 @@ See [cloudinary-jquery-file-upload](https://github.com/cloudinary/cloudinary_js/
 
 ## Get Help
 If you run into an issue or have a question, you can either:
-- [Open a Github issue](https://github.com/CloudinaryLtd/cloudinary_js/issues)  (for issues related to the SDK)
+- [Open a Github issue](https://github.com/Cloudinary/cloudinary_js/issues)  (for issues related to the SDK)
 - [Open a support ticket](https://cloudinary.com/contact) (for issues related to your account)
 
 ## About Cloudinary
