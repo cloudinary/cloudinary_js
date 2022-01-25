@@ -12,7 +12,7 @@ For the complete documentation, see the [Javascript SDK Guide](https://cloudinar
 
 ## Table of Contents
 - [Key Features](#key-features)
-- [Version Support](#Version-Support)
+- [Browser Support](#Browser-Support)
 - [Installation](#installation)
 - [Usage](#usage)
     - [Setup](#Setup)
