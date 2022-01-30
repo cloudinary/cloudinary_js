@@ -6,7 +6,7 @@ The Cloudinary jQuery File Upload plugin allows you to effortlessly upload asset
 
 #### Note
 This Readme provides basic installation and usage information.
-For the complete documentation, see the [Javascript SDK Guide](https://cloudinary.com/documentation/jquery_integration).
+For the complete documentation, see the [JQuery SDK Guide](https://cloudinary.com/documentation/jquery_integration).
 
 
 ## Table of Contents
