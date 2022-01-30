@@ -2,7 +2,7 @@ Cloudinary jQuery File Upload Plugin
 =======================================
 
 ## About
-The Cloudinary JQuery File Upload Plugin allows you to effortlessly upload assets to your cloud.
+The Cloudinary jQuery File Upload plugin allows you to effortlessly upload assets to your cloud.
 
 #### Note
 This Readme provides basic installation and usage information.
