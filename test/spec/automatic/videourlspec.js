@@ -46,7 +46,7 @@ describe("Cloudinary::Utils", function () {
           video_codec: 'auto'
         }, `${upload_path}/vc_auto/video_id`, {});
       });
-      return it('should support a hash value', function () {
+      it('should support a hash value', function () {
         return test_cloudinary_url("video_id", {
           resource_type: 'video',
           video_codec: {
@@ -55,6 +55,28 @@ describe("Cloudinary::Utils", function () {
             level: '3.1'
           }
         }, `${upload_path}/vc_h264:basic:3.1/video_id`, {});
+      });
+      it('should support a value equal auto', function () {
+        return test_cloudinary_url("video_id", {
+          resource_type: 'video',
+          video_codec: {
+            codec: 'h264',
+            profile: 'auto',
+            level: 'auto',
+            b_frames: true,
+          }
+        }, `${upload_path}/vc_h264:auto:auto/video_id`, {});
+      });
+      return it('should support a b_frames parameter', function () {
+        return test_cloudinary_url("video_id", {
+          resource_type: 'video',
+          video_codec: {
+            codec: 'h264',
+            profile: 'auto',
+            level: 'auto',
+            b_frames: false,
+          }
+        }, `${upload_path}/vc_h264:auto:auto:bframes_no/video_id`, {});
       });
     });
     describe(":audio_codec", function () {

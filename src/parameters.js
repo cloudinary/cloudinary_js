@@ -103,11 +103,11 @@ class Param {
   *
   * If the parameter is an object,
   * @param {(string|Object)} param - the video codec as either a String or a Hash
-  * @return {string} the video codec string in the format codec:profile:level
+  * @return {string} the video codec string in the format codec:profile:level:b_frames
   * @example
-  * vc_[ :profile : [level]]
+  * vc_[ :profile : [level : [b_frames]]]
   * or
-    { codec: 'h264', profile: 'basic', level: '3.1' }
+    { codec: 'h264', profile: 'basic', level: '3.1', b_frames: false }
   * @ignore
    */
   static process_video_params(param) {
@@ -121,6 +121,9 @@ class Param {
             video += ":" + param.profile;
             if ('level' in param) {
               video += ":" + param.level;
+              if ('b_frames' in param && param.b_frames === false) {
+                video += ":bframes_no";
+              }
             }
           }
         }

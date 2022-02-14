@@ -183,7 +183,7 @@ cld.videoTag("movie").setSourceTypes('mp4')
     .transformation()
     .htmlHeight("100")
     .htmlWidth("200")
-    .videoCodec({ codec: 'h264', profile: 'basic', level: '3.1' })
+    .videoCodec({ codec: 'h264', profile: 'basic', level: '3.1', b_frames: false })
     .audioCodec("aac")
     .startOffset(3)
     .toHtml();
