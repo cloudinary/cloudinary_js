@@ -128,6 +128,19 @@ describe("Transformation", function() {
     const t = cloudinary.Transformation.new(options);
     expect(t.toString()).toEqual("$aheight_300,$mywidth_100/c_scale,h_3_mul_ih_add_$aheight,w_3_add_$mywidth_mul_3_add_4_div_2_mul_iw_mul_$mywidth");
   });
+  it("should support start offset and end offset in variable materialization", function() {
+    let t = Transformation.new().crop('scale').width(100).chain().endOffset('idu - 5');
+    expect(t.toString()).toContain("eo_idu_sub_5");
+
+    t = Transformation.new().crop('scale').width(100).chain().endOffset('$logotime');
+    expect(t.toString()).toContain("eo_$logotime");
+
+    t = Transformation.new().crop('scale').width(100).chain().startOffset('idu - 5');
+    expect(t.toString()).toContain("so_idu_sub_5");
+
+    t = Transformation.new().crop('scale').width(100).chain().startOffset('$logotime');
+    expect(t.toString()).toContain("so_$logotime");
+  });
   describe("Expression normalization", function() {
     const cases = {
       'null is not affected': [null, null],
@@ -1060,7 +1073,14 @@ describe("Transformation", function() {
     describe("chained functions", function() {
       it("should produce a layer string", function() {
         var tests;
-        tests = [[new Layer().publicId("logo"), "logo"], [new Layer().publicId("folder/logo"), "folder:logo"], [new Layer().publicId("logo").type("private"), "private:logo"], [new Layer().publicId("logo").format("png"), "logo.png"], [new Layer().resourceType("video").publicId("cat"), "video:cat"], [new TextLayer().text("Hello World, Nice to meet you?").fontFamily("Arial").fontSize(18), "text:Arial_18:Hello%20World%252C%20Nice%20to%20meet%20you%3F"], [new TextLayer().text("Hello World, Nice to meet you?").fontFamily("Arial").fontSize(19).fontWeight("bold").fontStyle("italic").letterSpacing("4"), "text:Arial_19_bold_italic_letter_spacing_4:Hello%20World%252C%20Nice%20to%20meet%20you%3F"], [new SubtitlesLayer().publicId("sample_sub_en.srt"), "subtitles:sample_sub_en.srt"], [new SubtitlesLayer().publicId("sample_sub_he.srt").fontFamily("Arial").fontSize(40), "subtitles:Arial_40:sample_sub_he.srt"]];
+        tests = [[new Layer().publicId("logo"), "logo"], [new Layer().publicId("folder/logo"), "folder:logo"],
+          [new Layer().publicId("logo").type("private"), "private:logo"],
+          [new Layer().publicId("logo").format("png"), "logo.png"],
+          [new Layer().resourceType("video").publicId("cat"), "video:cat"],
+          [new TextLayer().text("Hello World, Nice to meet you?").fontFamily("Arial").fontSize(18), "text:Arial_18:Hello%20World%252C%20Nice%20to%20meet%20you%3F"],
+          [new TextLayer().text("Hello World, Nice to meet you?").fontFamily("Arial").fontSize(19).fontWeight("bold").fontStyle("italic").letterSpacing("4"), "text:Arial_19_bold_italic_letter_spacing_4:Hello%20World%252C%20Nice%20to%20meet%20you%3F"],
+          [new SubtitlesLayer().publicId("sample_sub_en.srt"), "subtitles:sample_sub_en.srt"],
+          [new SubtitlesLayer().publicId("sample_sub_he.srt").fontFamily("Arial").fontSize(40), "subtitles:Arial_40:sample_sub_he.srt"]];
         return tests.forEach(function(test) {
           var expected, layer;
           [layer, expected] = test;

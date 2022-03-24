@@ -273,7 +273,7 @@ class RangeParam extends Param {
       let modifier = offset[5] != null ? 'p' : '';
       value = (offset[1] || offset[4]) + modifier;
     }
-    return value;
+    return Expression.normalize(value);
   }
 }
 
