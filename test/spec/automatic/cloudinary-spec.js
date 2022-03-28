@@ -481,6 +481,14 @@ describe('Cloudinary', function() {
       }, `${protocol}//res.cloudinary.com/test123/image/upload/e_assist_colorblind/${publicId}`, {});
     });
   });
+  describe("Auth token", function () {
+    it('should support auth_token', function () {
+      const authToken = 'ip=111.222.111.222~exp=1512982559~acl=%2fimage%2fauthenticated%2f%2a~hmac=b17360091889151e9c2e2a7c713a074fdd29dc4ef1cc2fb897a0764664f3c48d';
+      return test_cloudinary_url(publicId, {
+        auth_token: authToken
+      }, `${protocol}//res.cloudinary.com/test123/image/upload/${publicId}?__cld_token__=${authToken}`, {});
+    });
+  });
 });
 
 //# sourceMappingURL=cloudinary-spec.js.map
