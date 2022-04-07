@@ -377,5 +377,9 @@ export default function url(publicId, options = {}, config = {}) {
     }
     resultUrl = `${resultUrl}${appender}_a=${sdkAnalyticsSignature}`;
   }
+  if (options.auth_token) {
+    let appender = resultUrl.indexOf('?') >= 0 ? '&' : '?';
+    resultUrl = `${resultUrl}${appender}__cld_token__=${options.auth_token}`;
+  }
   return resultUrl;
 };
