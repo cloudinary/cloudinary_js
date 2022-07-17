@@ -1,3 +1,20 @@
+2.13.0 / 2022-07-17
+==================
+
+New functionality and features
+------------------------------
+* Allow to disable b-frames for video codec (#284)
+* Add support for generating url with auth_token (#290)
+
+Fixes
+-------------
+* Fix support for start offset and end offset parameters (#289)
+
+Other Changes
+-------------
+* Remove links to nonexistent mapfiles in js folder (#283)
+* Update README
+
 2.12.3 / 2022-01-06
 ==================
 
