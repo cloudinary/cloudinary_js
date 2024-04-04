@@ -185,7 +185,7 @@ jQuery.fn.unsigned_cloudinary_upload = function(upload_preset, upload_params = {
         return k + '=' + v;
       }).join('|');
     } else if (Util.isArray(value)) {
-      if (value.length > 0 && jQuery.isArray(value[0])) {
+      if (value.length > 0 && Array.isArray(value[0])) {
         upload_params[key] = jQuery.map(value, function(array_value) {
           return array_value.join(',');
         }).join('|');

@@ -238,7 +238,7 @@ export var identity = function(value) {
 /**
  * @class Util
  */
-export var isArray = jQuery.isArray;
+export var isArray = Array.isArray;
 
 export var assign = jQuery.extend;
 
