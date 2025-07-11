@@ -194,9 +194,6 @@ jQuery.fn.unsigned_cloudinary_upload = function(upload_preset, upload_params = {
       }
     }
   }
-  if (!upload_params.callback) {
-    upload_params.callback = '/cloudinary_cors.html';
-  }
   upload_params.upload_preset = upload_preset;
   options.formData = upload_params;
   if (options.cloudinary_field) {
