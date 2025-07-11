@@ -63,8 +63,7 @@ $.cloudinary.config({ cloud_name: "demo"});
   type="file"
   class="cloudinary-fileupload"
   data-cloudinary-field="image_id"
-  data-form-data="{ &quot;upload_preset&quot;:  &quot;user_upload1&quot;, 
-  &quot;callback&quot;: &quot;https://www.example.com/cloudinary_cors.html&quot;}" 
+  data-form-data="{ &quot;upload_preset&quot;: &quot;user_upload1&quot;}" 
 />
 ```
 
