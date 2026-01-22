@@ -4,6 +4,8 @@ It also contains several jquery plugins that can be used for client-side upload.
 ### Please Do not make any changes.  
 The files in this folder are used by several server-side sdks such as Ruby and Python SDKS.
 
+**Note:** Security updates to third-party dependencies (like `jquery.ui.widget.js`) are allowed when they maintain backward compatibility. However, we encourage developers to use a dependency manager such as NPM to install the 3rd party libraries, and not to rely on the files in the `js` folder.
+
 ### Backward compatibility
 The cloudinary-jquery-file-upload library is fully backwards compatible with the cloudinary_js library `v1.0.25`.
 The relevant Blueimp files can still be found in the `js` folder for backward compatibility. If you rely on the Blueimp 
