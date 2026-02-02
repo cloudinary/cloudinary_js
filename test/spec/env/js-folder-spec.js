@@ -22,7 +22,7 @@ const files = [
   {name: 'jquery.fileupload-process.js', checkSum: "840f65232eaf1619ea0aff1ab4f5e444"},
   {name: 'jquery.fileupload-validate.js', checkSum: "a144e6149c89ed27e0b2d7fcfef09101"},
   {name: 'jquery.iframe-transport.js', checkSum: "f371e8d9f57329f90114d7b52dd5c7a4"},
-  {name: 'jquery.ui.widget.js', checkSum: "3d0f0f5ca5d86c5a4b4fc33cda374a17"},
+  {name: 'jquery.ui.widget.js', checkSum: "745b96e6ce6ce4abca87e840ddb3c318"},
   {name: 'load-image.all.min.js', checkSum: "d0068a911289a0176efa4f5880987f1e"}
 ];
 
