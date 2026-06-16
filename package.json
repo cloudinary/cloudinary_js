@@ -64,7 +64,7 @@
     "puppeteer": "^2.1.1",
     "requirejs": "^2.3.6",
     "snyk": "^1.319.1",
-    "tar": "^4.4.10",
+    "tar": "^7.5.16",
     "terser-webpack-plugin": "^1.2.3",
     "typescript": "^2.9.2",
     "webpack": "^4.30.0",
